@@ -3,7 +3,7 @@ image: java:latest
 test:
   script:
     - mkdir -p out
-    - javac -d out src/build/*.java # add classpaths if additional libraries are used
+    - javac -d out src/build/*.java -cp lib/ # add classpaths if additional libraries are used
     - javac -d out -cp out:lib/junit-platform-console-standalone-1.5.2.jar src/test/*.java
     - java -jar lib/junit-platform-console-standalone-1.5.2.jar --class-path out --scan-class-path
 
