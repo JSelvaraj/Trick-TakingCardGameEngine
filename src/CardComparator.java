@@ -6,7 +6,13 @@ import java.util.List;
 public class CardComparator implements Comparator<Card> {
 
 
+    /* suitOrder and rankOrder are arrays of strings where the position in the array denotes its ranking in game.
+    *  for suitOrder a lower index indicates a more valuable suit
+    *       e.g. in the array {"HEARTS", "CLUBS", "DIAMONDS", "SPADES"} Hearts > Clubs > Diamonds > SPADES
+    *  for rankOrder a lower index indicates a less valuable rank
+    *       e.g. in the array  {"ACE","TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING"}*/
     private List<String> suitOrder, rankOrder;
+
 
     public CardComparator(String[] suitOrder, String[] rankOrder) {
         this.rankOrder = Arrays.asList(rankOrder);
@@ -14,6 +20,13 @@ public class CardComparator implements Comparator<Card> {
     }
 
 
+    /**
+     *
+     * @param card1 the first card object
+     * @param card2 the card that the first card object is being compared to
+     * @return 1 if card1 > card2, 0 if card1 == card2, -1 card1 < card 2
+     * @throws InputMismatchException
+     */
     @Override
     public int compare(Card card1, Card card2) throws InputMismatchException {
 
@@ -28,7 +41,7 @@ public class CardComparator implements Comparator<Card> {
 
         if (suitOrder.indexOf(card1.getSUIT()) == -1)
 
-        /* This first compares */
+        /* This first compares the suits of the cards then the ranks */
         if (suitOrder.indexOf(card1.getSUIT()) < suitOrder.indexOf(card2.getSUIT())) {
             return 1;
         } else if (suitOrder.indexOf(card1.getSUIT()) > suitOrder.indexOf(card2.getSUIT())) {
