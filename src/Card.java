@@ -13,7 +13,7 @@ public class Card {
 
     @Override
     public String toString() {
-        return this.RANK + " of " + this.SUIT;
+        return this.RANK + " OF " + this.SUIT;
     }
 
     public String getRANK() {
@@ -22,6 +22,10 @@ public class Card {
 
     public String getSUIT() {
         return SUIT;
+    }
+
+    public boolean equals(Card card) {
+        return this.RANK.equals(card.getSUIT()) && this.RANK.equals(card.RANK);
     }
 }
 

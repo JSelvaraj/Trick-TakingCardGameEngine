@@ -1,4 +1,3 @@
-import java.sql.SQLOutput;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
@@ -9,6 +8,9 @@ public class Hand {
     public  Hand (LinkedList<Card> hand) {
         this.hand = hand;
     }
+    public Hand () {
+        this.hand = new LinkedList<>();
+    }
 
     public int getHandSize () {
         return hand.size();
@@ -18,23 +20,33 @@ public class Hand {
         if (hand.size() == 0) return "EMPTY HAND";
         String handString = "";
         ListIterator<Card> iterator = hand.listIterator();
+        int i = 0;
         while (iterator.hasNext()) {
             Card card = iterator.next();
-            handString += card.toString();
+            handString += card.toString() + " [" + i + "]";
             if (iterator.hasNext()) handString += ", ";
+            i++;
         }
         return handString;
     }
 
+    public Card get(int index) {
+        return hand.get(index);
+    }
+
     public Card giveCard (int num) {
-        return hand.remove(num - 1);
+        return this.hand.remove(num);
     }
 
     public void getCard (Card card) {
-        hand.add(card);
+        this.hand.add(card);
     }
 
     public LinkedList<Card> getHand() {
         return hand;
+    }
+
+    public void dropHand () {
+        this.hand = new LinkedList<>();
     }
 }

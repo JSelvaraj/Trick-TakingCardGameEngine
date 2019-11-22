@@ -1,7 +1,4 @@
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.InputMismatchException;
-import java.util.List;
+import java.util.*;
 
 public class CardComparator implements Comparator<Card> {
 
@@ -11,13 +8,34 @@ public class CardComparator implements Comparator<Card> {
     *       e.g. in the array {"HEARTS", "CLUBS", "DIAMONDS", "SPADES"} Hearts > Clubs > Diamonds > SPADES
     *  for rankOrder a lower index indicates a less valuable rank
     *       e.g. in the array  {"ACE","TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING"}*/
-    private List<String> suitOrder, rankOrder;
+    private List<String> suitOrder;
+    private List<String> rankOrder ;
 
+    private HashMap<String,Integer> suitMap;
 
     public CardComparator(String[] suitOrder, String[] rankOrder) {
         this.rankOrder = Arrays.asList(rankOrder);
         this.suitOrder = Arrays.asList(suitOrder);
     }
+
+    public CardComparator(String[] suitOrder) {
+        String[] ranks = {"TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING","ACE"};
+        this.rankOrder = Arrays.asList(ranks);
+        this.suitOrder = Arrays.asList(suitOrder);
+    }
+
+    public CardComparator(HashMap<String, Integer> suitMap) {
+        String[] ranks = {"TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING","ACE"};
+        this.rankOrder = Arrays.asList(ranks);
+        this.suitMap = suitMap;
+    }
+
+    public CardComparator(HashMap<String, Integer> suitMap, String[] rankOrder) {
+        this.rankOrder = Arrays.asList(rankOrder);
+        this.suitMap = suitMap;
+    }
+
+
 
 
     /**
@@ -32,19 +50,18 @@ public class CardComparator implements Comparator<Card> {
 
         /* If the rank/suit provided to the comparator doesn't match the names of the ranks/suits used to
         *  make the comparator, then it throws an error */
-        if (suitOrder.indexOf(card1.getSUIT()) == -1
-                || suitOrder.indexOf(card2.getSUIT()) == -1
-                || rankOrder.indexOf(card1.getSUIT()) == -1
-                || rankOrder.indexOf(card2.getSUIT()) == -1) {
+        if (!suitMap.containsKey(card1.getSUIT())
+                || !suitMap.containsKey(card2.getSUIT())
+                || !rankOrder.contains(card1.getRANK())
+                || !rankOrder.contains(card2.getRANK())) {
             throw new InputMismatchException("Rank/Suit does not match accepted Ranks/Suits");
         }
 
-        if (suitOrder.indexOf(card1.getSUIT()) == -1)
 
         /* This first compares the suits of the cards then the ranks */
-        if (suitOrder.indexOf(card1.getSUIT()) < suitOrder.indexOf(card2.getSUIT())) {
+        if (suitMap.get(card1.getSUIT()) < suitMap.get(card2.getSUIT())) {
             return 1;
-        } else if (suitOrder.indexOf(card1.getSUIT()) > suitOrder.indexOf(card2.getSUIT())) {
+        } else if (suitMap.get(card1.getSUIT()) > suitMap.get(card2.getSUIT())) {
             return -1;
         } else {
             if (rankOrder.indexOf(card1.getRANK()) < rankOrder.indexOf(card2.getRANK())) {
@@ -55,6 +72,5 @@ public class CardComparator implements Comparator<Card> {
                 return 0;
             }
         }
-        return 0; // technically impossible to get to the line but for some reason there is a compiler error without it
     }
 }

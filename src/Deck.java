@@ -3,7 +3,7 @@ import org.apache.commons.math3.random.MersenneTwister;
 import java.util.LinkedList;
 
 public class Deck {
-    private LinkedList<Card> cards;
+    public LinkedList<Card> cards;
 
     public Deck () {
         initStandardDeck();
@@ -17,15 +17,21 @@ public class Deck {
         return cards.size();
     }
 
-    public void initStandardDeck () {
-        cards = new LinkedList<>();
-        String[] suits = {"HEARTS", "CLUBS", "DIAMONDS", "SPADES"};
-        String[] ranks = {"ACE","TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING"};
+    public static LinkedList<Card> makeDeck(String[] suits, String[] ranks) {
+        LinkedList<Card> deck = new LinkedList<>();
         for (String currentSuit: suits) {
             for (String currentRank: ranks) {
-                cards.add(new Card(currentRank, currentSuit));
+                deck.add(new Card(currentSuit, currentRank));
             }
         }
+        return deck;
+
+    }
+
+    private void initStandardDeck () {
+        String[] suits = {"HEARTS", "CLUBS", "DIAMONDS", "SPADES"};
+        String[] ranks = {"ACE","TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING"};
+        cards = makeDeck(suits, ranks);
     }
 
     public LinkedList<Card> drawCard (int number) {
@@ -37,7 +43,7 @@ public class Deck {
     }
 
     public Card drawCard() {
-        return drawCard(1).pop();
+        return cards.pop();
     }
 
     public void shuffle (long seed) {
@@ -45,9 +51,10 @@ public class Deck {
         LinkedList<Card> newDeck = new LinkedList<>();
 
         while (newDeck.size() < cards.size()) {
-            int nextIndex = twister.nextInt() % cards.size();
+            int nextIndex = Math.floorMod(twister.nextInt(),cards.size());
             if (newDeck.indexOf(cards.get(nextIndex)) == -1) newDeck.add(cards.get(nextIndex)); //only new cards are added
         }
         cards = newDeck;
     }
+
 }
