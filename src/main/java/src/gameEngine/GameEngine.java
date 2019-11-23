@@ -1,3 +1,5 @@
+package src.gameEngine;
+
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.HashMap;

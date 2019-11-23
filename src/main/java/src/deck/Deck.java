@@ -1,3 +1,5 @@
+package src.deck;
+
 import org.apache.commons.math3.random.MersenneTwister;
 
 import java.util.LinkedList;

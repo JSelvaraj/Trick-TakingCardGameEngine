@@ -1,3 +1,5 @@
+package src.parser;
+
 import java.util.LinkedList;
 
 public class GameDesc {
