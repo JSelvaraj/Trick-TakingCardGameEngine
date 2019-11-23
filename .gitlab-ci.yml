@@ -16,6 +16,8 @@ build:
   stage: build
   script:
     - ./gradlew assemble
+  only:
+    - master
 
 test:
   stage: test
