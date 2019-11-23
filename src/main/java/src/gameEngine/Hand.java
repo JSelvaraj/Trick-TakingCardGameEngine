@@ -1,5 +1,6 @@
 package src.gameEngine;
 
+import src.card.*;
 import java.util.LinkedList;
 import java.util.ListIterator;
 

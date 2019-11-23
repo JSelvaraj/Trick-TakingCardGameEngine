@@ -1,4 +1,6 @@
 package src.parser;
+import src.card.*;
+import src.deck.Deck;
 
 import java.util.LinkedList;
 
