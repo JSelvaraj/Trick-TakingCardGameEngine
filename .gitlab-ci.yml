@@ -10,7 +10,7 @@ before_script:
 build:
   stage: build
   script:
-    - ./gradew assemble
+    - ./gradlew assemble
 
 test:
   stage: test
