@@ -50,7 +50,7 @@ public class Parser {
     public GameDesc parseGameDescription(String filename) throws InvalidGameDescriptionException {
         JSONObject gameJSON = readJSONFile(filename);
         if (gameJSON == null) {
-            throw new InvalidGameDescriptionException("Failed to parse game description file.")
+            throw new InvalidGameDescriptionException("Failed to parse game description file.");
         }
         try {
             schema.validate(gameJSON);
@@ -122,7 +122,8 @@ public class Parser {
         }
         //Seed for generator
         long seed = 0xDEADBEEF; //TODO remove this.
-        GameDesc gameDesc = new GameDesc(players,
+        assert trumpPickingMode != null;
+        return new GameDesc(players,
                 teams,
                 seed,
                 suits,
@@ -152,7 +153,7 @@ public class Parser {
 
     /**
      * @param teamsJSON Convert 2 dimension JSON array into a 2 dimensional array of player numbers.
-     * @return
+     * @return array containing the teams.
      */
     private int[][] convertTeamArray(JSONArray teamsJSON) {
         int teamSize = teamsJSON.getJSONArray(0).length();
