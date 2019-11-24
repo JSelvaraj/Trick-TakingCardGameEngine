@@ -1,22 +1,50 @@
 {
-    "Gamespec":{
-        "name" : "whist",
-        "description" : "...",
-        "players" : 4,
-        "plain" : true,
-        "deck" : null,
-        "bid" : null,
-        "teams" : [[1, 3], [2, 4]],
-        "ordering" : true,
-        "can_view_previous_trick" : true,
-        "rules" : [
-            {"name" : "leadingCardForEachTrick", "data" : "any"},
-            {"name" : "nextLegalCardMode", "data" : "trick"},
-            {"name" : "trumpPickingMode", "data" : "lastDealt"},
-            {"name" : "calculateScore", "data" : "tricksWon"},
-            {"name" : "trickThreshold", "data" : 6},
-            {"name" : "trickWinner", "data" : "standard"},
-            {"name" : "trickLeader", "data" : "prevWinner"}
-        ]
+  "name": "whist",
+  "description": "...",
+  "players": 4,
+  "plain": true,
+  "deck": null,
+  "bid": null,
+  "teams": [
+    [
+      1,
+      3
+    ],
+    [
+      2,
+      4
+    ]
+  ],
+  "ascending_ordering": true,
+  "can_view_previous_trick": true,
+  "rules": [
+    {
+      "name": "leadingCardForEachTrick",
+      "data": "any"
+    },
+    {
+      "name": "nextLegalCardMode",
+      "data": "trick"
+    },
+    {
+      "name": "trumpPickingMode",
+      "data": "lastDealt"
+    },
+    {
+      "name": "calculateScore",
+      "data": "tricksWon"
+    },
+    {
+      "name": "trickThreshold",
+      "data": 6
+    },
+    {
+      "name": "trickWinner",
+      "data": "standard"
+    },
+    {
+      "name": "trickLeader",
+      "data": "prevWinner"
     }
+  ]
 }

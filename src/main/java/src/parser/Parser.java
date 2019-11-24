@@ -92,7 +92,7 @@ public class Parser {
         Integer trickThreshold = null;
         JSONArray rules = gameJSON.getJSONArray("rules"); //TODO check for null
         for (int i = 0; i < rules.length(); i++) {
-            JSONObject rule = rules.getJSONObject(0);
+            JSONObject rule = rules.getJSONObject(i);
             String rulename = rule.getString("name");
             switch (rulename) {
                 case "calculateScore":

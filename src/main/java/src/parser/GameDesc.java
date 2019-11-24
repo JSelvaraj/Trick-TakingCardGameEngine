@@ -2,6 +2,7 @@ package src.parser;
 import src.card.*;
 import src.deck.Deck;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class GameDesc {
@@ -60,6 +61,27 @@ public class GameDesc {
         this.gameEnd = gameEnd;
         this.scoreThreshold = scoreThreshold; // regardless of whether its score or number of hands played, this variable is used for the comparison
         if (calculateScore.equals("tricksWon")) this.trickThreshold = trickThreshold;
+    }
+
+    @Override
+    public String toString() {
+        return "GameDesc{" +
+                "\nNUMBEROFPLAYERS=" + NUMBEROFPLAYERS +
+                "\n teams=" + Arrays.toString(teams) +
+                "\n SEED=" + SEED +
+                "\n SUITS=" + Arrays.toString(SUITS) +
+                "\n RANKS=" + Arrays.toString(RANKS) +
+                "\n DECK=" + DECK +
+                "\n RANKORDER=" + Arrays.toString(RANKORDER) +
+                "\n DEALCARDSCLOCKWISE=" + DEALCARDSCLOCKWISE +
+                "\n calculateScore='" + calculateScore + '\'' +
+                "\n trumpPickingMode='" + trumpPickingMode + '\'' +
+                "\n trumpSuit='" + trumpSuit + '\'' +
+                "\n leadingCardForEachTrick='" + leadingCardForEachTrick + '\'' +
+                "\n gameEnd='" + gameEnd + '\'' +
+                "\n scoreThreshold=" + scoreThreshold +
+                "\n trickThreshold=" + trickThreshold +
+                '}';
     }
 
     public int getNUMBEROFPLAYERS() {
