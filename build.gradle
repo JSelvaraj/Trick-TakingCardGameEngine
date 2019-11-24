@@ -19,6 +19,7 @@ repositories {
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 test {
@@ -28,6 +29,8 @@ test {
 dependencies {
     // This dependency is found on compile classpath of this component and consumers.
     implementation 'com.google.guava:guava:27.0.1-jre'
+    implementation 'com.github.everit-org.json-schema:org.everit.json.schema:1.12.0'
+    compile group: 'org.json', name: 'json', version: '20190722'
     compile group: 'org.apache.commons', name: 'commons-math3', version: '3.0'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
     // Use JUnit test framework
