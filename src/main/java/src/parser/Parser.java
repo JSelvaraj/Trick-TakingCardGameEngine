@@ -10,7 +10,7 @@ import java.io.InputStream;
 
 
 public class Parser{
-    private static final String schemaFile = "json-schema·json";
+    private static final String schemaFile = "json-schema.json";
     private Schema schema;
 
     public Parser(){
@@ -18,7 +18,10 @@ public class Parser{
     }
 
     private Schema initSchema(){
-        try (InputStream inputStream = getClass().getResourceAsStream(schemaFile)) {
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(schemaFile)) {
+            if(inputStream == null){
+                throw new IOException();
+            }
             JSONObject rawSchema = new JSONObject(new JSONTokener(inputStream));
             return SchemaLoader.load(rawSchema);
         } catch (IOException e) {
