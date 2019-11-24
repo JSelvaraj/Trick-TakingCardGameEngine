@@ -1,4 +1,7 @@
+package src.deck;
+
 import org.apache.commons.math3.random.MersenneTwister;
+import src.card.Card;
 
 import java.util.LinkedList;
 

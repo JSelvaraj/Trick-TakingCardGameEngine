@@ -1,14 +1,12 @@
-package test;
+package src;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import build.Shuffle;
+import src.deck.Shuffle;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,10 +28,10 @@ class ShuffleTest {
     void shuffle_size_one() {
         list.add(1);
         assertEquals(1, list.size());
-        assertEquals(1, list.get(0));
+        assertEquals(1, (int) list.get(0));
         Shuffle.shuffle(list);
         assertEquals(1, list.size());
-        assertEquals(1, list.get(0));
+        assertEquals(1, (int)list.get(0));
     }
 
 

@@ -1,4 +1,11 @@
+package src.gameEngine;
+
 import org.apache.commons.lang3.ArrayUtils;
+import src.card.CardComparator;
+import src.deck.Deck;
+import src.deck.Shuffle;
+import src.parser.GameDesc;
+import src.card.Card;
 
 import java.util.HashMap;
 import java.util.LinkedList;

@@ -1,11 +1,28 @@
 image: java:latest
 
-test:
+stages:
+  - build
+  - test
+
+before_script:
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+
+cache:
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+build:
+  stage: build
   script:
-    - mkdir -p out
-    - javac -d out src/build/*.java -cp lib/commons-math3-3.6.1.jar:lib/commons-lang3-3.9.jar # add classpaths if additional libraries are used
-    - javac -d out -cp out:lib/junit-platform-console-standalone-1.5.2.jar src/test/*.java
-    - java -jar lib/junit-platform-console-standalone-1.5.2.jar --class-path out:lib/commons-math3-3.6.1.jar --scan-class-path
+    - ./gradlew assemble
+  only:
+    - master
+
+test:
+  stage: test
+  script:
+    - ./gradlew check
 
 
 

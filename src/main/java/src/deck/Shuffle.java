@@ -1,4 +1,4 @@
-package build;
+package src.deck;
 
 import org.apache.commons.math3.random.MersenneTwister;
 
