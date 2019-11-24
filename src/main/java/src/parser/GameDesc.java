@@ -22,6 +22,9 @@ public class GameDesc {
     private final String gameEnd;
     private final Integer scoreThreshold;
     private Integer trickThreshold;
+    private final String nextLegalCardMode;
+    private final String trickWinner;
+    private final String trickLeader;
 
 
     /**
@@ -45,7 +48,10 @@ public class GameDesc {
                     String leadingCardForEachTrick,
                     String gameEnd,
                     Integer scoreThreshold,
-                    Integer trickThreshold) {
+                    Integer trickThreshold,
+                    String nextLegalCardMode,
+                    String trickWinner,
+                    String trickLeader) {
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
         this.SEED = seed;
@@ -61,26 +67,32 @@ public class GameDesc {
         this.gameEnd = gameEnd;
         this.scoreThreshold = scoreThreshold; // regardless of whether its score or number of hands played, this variable is used for the comparison
         if (calculateScore.equals("tricksWon")) this.trickThreshold = trickThreshold;
+        this.nextLegalCardMode = nextLegalCardMode;
+        this.trickWinner = trickWinner;
+        this.trickLeader = trickLeader;
     }
 
     @Override
     public String toString() {
         return "GameDesc{" +
                 "\nNUMBEROFPLAYERS=" + NUMBEROFPLAYERS +
-                "\n teams=" + Arrays.toString(teams) +
-                "\n SEED=" + SEED +
-                "\n SUITS=" + Arrays.toString(SUITS) +
-                "\n RANKS=" + Arrays.toString(RANKS) +
-                "\n DECK=" + DECK +
-                "\n RANKORDER=" + Arrays.toString(RANKORDER) +
-                "\n DEALCARDSCLOCKWISE=" + DEALCARDSCLOCKWISE +
-                "\n calculateScore='" + calculateScore + '\'' +
-                "\n trumpPickingMode='" + trumpPickingMode + '\'' +
-                "\n trumpSuit='" + trumpSuit + '\'' +
-                "\n leadingCardForEachTrick='" + leadingCardForEachTrick + '\'' +
-                "\n gameEnd='" + gameEnd + '\'' +
-                "\n scoreThreshold=" + scoreThreshold +
-                "\n trickThreshold=" + trickThreshold +
+                "\nteams=" + Arrays.toString(teams) +
+                "\nSEED=" + SEED +
+                "\nSUITS=" + Arrays.toString(SUITS) +
+                "\nRANKS=" + Arrays.toString(RANKS) +
+                "\nDECK=" + DECK +
+                "\nRANKORDER=" + Arrays.toString(RANKORDER) +
+                "\nDEALCARDSCLOCKWISE=" + DEALCARDSCLOCKWISE +
+                "\ncalculateScore='" + calculateScore + '\'' +
+                "\ntrumpPickingMode='" + trumpPickingMode + '\'' +
+                "\ntrumpSuit='" + trumpSuit + '\'' +
+                "\nleadingCardForEachTrick='" + leadingCardForEachTrick + '\'' +
+                "\ngameEnd='" + gameEnd + '\'' +
+                "\nscoreThreshold=" + scoreThreshold +
+                "\ntrickThreshold=" + trickThreshold +
+                "\nnextLegalCardMode=" + nextLegalCardMode +
+                "\ntrickWinner=" + trickWinner +
+                "\ntrickLeader=" + trickLeader +
                 '}';
     }
 

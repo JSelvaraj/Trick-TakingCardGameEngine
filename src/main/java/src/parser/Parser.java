@@ -83,6 +83,7 @@ public class Parser {
         }
         boolean ascedingOrdering = gameJSON.getBoolean("ascending_ordering");
         //Rules
+        //TODO fill in defaults
         String calculateScore = null;
         String trumpPickingMode = null;
         String trumpSuit = null;
@@ -90,6 +91,9 @@ public class Parser {
         String gameEnd = null;
         Integer scoreThreshold = null;
         Integer trickThreshold = null;
+        String nextLegalCardMode = null;
+        String trickWinner = null;
+        String trickLeader = null;
         JSONArray rules = gameJSON.getJSONArray("rules"); //TODO check for null
         for (int i = 0; i < rules.length(); i++) {
             JSONObject rule = rules.getJSONObject(i);
@@ -116,8 +120,18 @@ public class Parser {
                 case "trickThreshold":
                     trickThreshold = rule.getInt("data");
                     break;
-                default:
+                case "nextLegalCardMode":
+                    nextLegalCardMode = rule.getString("data");
                     break;
+                case "trickWinner":
+                    trickWinner = rule.getString("data");
+                    break;
+                case "trickLeader":
+                    trickLeader = rule.getString("data");
+                    break;
+                default:
+                    //break;
+                    throw new InvalidGameDescriptionException("Unrecognised rule: " + rulename);
             }
         }
         //Seed for generator
@@ -136,7 +150,10 @@ public class Parser {
                 leadingCardForEachTrick,
                 gameEnd,
                 scoreThreshold,
-                trickThreshold);
+                trickThreshold,
+                nextLegalCardMode,
+                trickWinner,
+                trickLeader);
     }
 
     /**
