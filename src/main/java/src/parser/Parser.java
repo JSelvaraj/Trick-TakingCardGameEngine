@@ -26,7 +26,7 @@ public class Parser{
         }
     }
 
-    private boolean validateObject(JSONObject object){
+    public boolean validateObject(JSONObject object){
         try {
             schema.validate(object);
             return true;
