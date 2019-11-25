@@ -97,7 +97,14 @@ public class GameEngine {
 
                 Card winningCard = game.winningCard();
 
-                /* works out who played the winning card */
+                /* works out who played the winning card */ //0971
+                //Roll back player to the person who last played a card.
+                if (gameDesc.isDEALCARDSCLOCKWISE()) {
+                    currentPlayer = Math.floorMod((currentPlayer - 1), players.length);
+                } else {
+                    currentPlayer = (currentPlayer + 1) % players.length;
+                }
+
                 for (int i = players.length - 1; i >= 0; i--) {
                     if (game.currentTrick.get(i).equals(winningCard)) {
                         break;
