@@ -98,7 +98,7 @@ public class GameEngine {
                 Card winningCard = game.winningCard();
 
                 /* works out who played the winning card */
-                for (int i = players.length - 1; i > 0; i--) {
+                for (int i = players.length - 1; i >= 0; i--) {
                     if (game.currentTrick.get(i).equals(winningCard)) {
                         break;
                     } else {
