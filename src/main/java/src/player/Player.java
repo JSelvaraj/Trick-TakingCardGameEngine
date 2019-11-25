@@ -8,26 +8,26 @@ import src.functions.validCards;
 public abstract class Player {
     private int playerNumber;
     private Hand hand = null;
-    private Predicate<Card> validCard;
+    private Predicate<Card> canBePlayed;
 
-    public Player(int playerNumber, Predicate<Card> validCard){
+    public Player(int playerNumber, Predicate<Card> canBePlayed){
         this.playerNumber = playerNumber;
         this.hand = new Hand();
-        this.validCard = validCards.getIsCardValidPredicate(this.hand, validCard);
+        this.canBePlayed = validCards.getCanBePlayedPredicate(this.hand, canBePlayed);
     }
 
     public int getPlayerNumber() {
         return playerNumber;
     }
 
-    public Hand getHand() {
+    Hand getHand() {
         return hand;
     }
 
     public abstract Card playCard(String trumpSuit, Hand currentTrick);
     public abstract int makeBid();
 
-    public Predicate<Card> getValidCard() {
-        return validCard;
+    Predicate<Card> getCanBePlayed() {
+        return canBePlayed;
     }
 }
