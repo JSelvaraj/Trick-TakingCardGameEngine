@@ -1,5 +1,13 @@
 package src;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions.*;
+
 public class validCardsTest {
-    void testValidCardLeading()
+
+    @Test
+    void testValidCardLeading(){
+
+    }
+
 }
