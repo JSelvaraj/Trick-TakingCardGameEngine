@@ -2,6 +2,7 @@ package src.player;
 
 import src.card.Card;
 import src.gameEngine.Hand;
+import java.util.function.Predicate;
 
 public abstract class Player {
     private int playerNumber;
@@ -20,6 +21,6 @@ public abstract class Player {
         return hand;
     }
 
-    public abstract Card playCard();
+    public abstract Card playCard(String trumpSuit, Hand currentTrick);
     public abstract int makeBid();
 }

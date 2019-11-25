@@ -1,6 +1,7 @@
 package src.player;
 
 import src.card.Card;
+import src.gameEngine.Hand;
 
 public class NetworkPlayer extends Player {
 
@@ -9,7 +10,7 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public Card playCard() {
+    public Card playCard(String trumpSuit, Hand currentTrick) {
         throw new UnsupportedOperationException();
     }
 
