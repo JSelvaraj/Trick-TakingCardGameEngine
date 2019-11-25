@@ -111,7 +111,7 @@ public class GameEngine {
                 }
 
                 for (int[] team : gameDesc.getTeams()) {
-                    if (ArrayUtils.contains(team, (currentPlayer + 1))) {
+                    if (ArrayUtils.contains(team, currentPlayer)) {
                         game.tricksWonTable.put(team, (game.tricksWonTable.get(team) + 1));
                         System.out.println("Player " + (currentPlayer + 1) + " was the winner of the trick with the " + winningCard.toString());
                         System.out.println("Tricks won: " + game.tricksWonTable.get(team));
@@ -304,9 +304,9 @@ public class GameEngine {
         System.out.println("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾");
         for (int i = 0; i < desc.getTeams().length; i++) {
             System.out.print("    Team: (");
-            for (int j = 0; j < desc.getTeams().length; j++) {
+            for (int j = 0; j < desc.getTeams()[0].length; j++) {
                 System.out.print(desc.getTeams()[i][j]);
-                if ((j + 1) < desc.getTeams().length) System.out.print(", ");
+                if ((j + 1) < desc.getTeams()[0].length) System.out.print(", ");
             }
             System.out.print(")     ");
             System.out.println(scoreTable.get(desc.getTeams()[i]));
