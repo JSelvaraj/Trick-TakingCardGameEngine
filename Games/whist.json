@@ -45,6 +45,14 @@
     {
       "name": "trickLeader",
       "data": "prevWinner"
+    },
+    {
+      "name" : "gameEnd",
+      "data" : "scoreThreshold"
+    },
+    {
+      "name" : "gameEndValue",
+      "data" : 5
     }
   ]
 }

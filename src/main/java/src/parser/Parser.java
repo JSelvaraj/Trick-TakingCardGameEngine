@@ -114,7 +114,7 @@ public class Parser {
                 case "gameEnd":
                     gameEnd = rule.getString("data");
                     break;
-                case "scoreThreshold":
+                case "gameEndValue":
                     scoreThreshold = rule.getInt("data");
                     break;
                 case "trickThreshold":
