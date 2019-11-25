@@ -39,7 +39,7 @@ public class validCards {
         throw new IllegalArgumentException("Not a valid leading card picking mode");
     }
 
-    public static Predicate<Card> getIsCardValidPredicate(Hand playerHand, Predicate<Card> validCard){
+    public static Predicate<Card> getCanBePlayedPredicate(Hand playerHand, Predicate<Card> validCard){
         return (card) -> playerHand.getHand().stream().filter(validCard).anyMatch(card::equals) || playerHand.getHand().stream().noneMatch(validCard);
     }
 }
