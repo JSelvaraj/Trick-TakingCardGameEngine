@@ -40,6 +40,6 @@ public class validCards {
     }
 
     public static Predicate<Card> getCanBePlayedPredicate(Hand playerHand, Predicate<Card> validCard) {
-        return (card) -> playerHand.getHand().stream().filter(validCard).anyMatch(card::equals) || playerHand.getHand().stream().noneMatch(validCard);
+        return (card) -> playerHand.getHand().contains(card) && (validCard.test(card) || (playerHand.getHand().stream().noneMatch(validCard)));
     }
 }
