@@ -10,7 +10,7 @@ public abstract class Player {
     private Hand hand = null;
     private Predicate<Card> canBePlayed;
 
-    public Player(int playerNumber, Predicate<Card> canBePlayed){
+    Player(int playerNumber, Predicate<Card> canBePlayed){
         this.playerNumber = playerNumber;
         this.hand = new Hand();
         this.canBePlayed = validCards.getCanBePlayedPredicate(this.hand, canBePlayed);
