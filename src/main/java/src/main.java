@@ -3,12 +3,20 @@
  */
 package src;
 
+import src.exceptions.InvalidGameDescriptionException;
+import src.gameEngine.GameEngine;
+import src.parser.GameDesc;
+import src.parser.Parser;
+
 public class main {
     public String getGreeting() {
         return "Hello world.";
     }
 
-    public static void main(String[] args) {
-        System.out.println(new main().getGreeting());
+    public static void main(String[] args) throws InvalidGameDescriptionException {
+//        System.out.println(new main().getGreeting());
+        Parser parser = new Parser();
+        GameDesc gameDesc = parser.parseGameDescription("Games/whist.json");
+        GameEngine.main(gameDesc, 0);
     }
 }

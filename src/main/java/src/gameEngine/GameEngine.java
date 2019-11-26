@@ -1,11 +1,11 @@
 package src.gameEngine;
 
 import org.apache.commons.lang3.ArrayUtils;
+import src.card.Card;
 import src.card.CardComparator;
 import src.deck.Deck;
 import src.deck.Shuffle;
 import src.parser.GameDesc;
-import src.card.Card;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -46,7 +46,10 @@ public class GameEngine {
                 "any",
                 "tricksWon",
                 3,
-                5);
+                5,
+                "trick",
+                "standard",
+                "prevWinner");
 
         main(desc, 0);
     }
@@ -94,8 +97,15 @@ public class GameEngine {
 
                 Card winningCard = game.winningCard();
 
-                /* works out who played the winning card */
-                for (int i = players.length - 1; i > 0; i--) {
+                /* works out who played the winning card */ //0971
+                //Roll back player to the person who last played a card.
+                if (gameDesc.isDEALCARDSCLOCKWISE()) {
+                    currentPlayer = Math.floorMod((currentPlayer - 1), players.length);
+                } else {
+                    currentPlayer = (currentPlayer + 1) % players.length;
+                }
+
+                for (int i = players.length - 1; i >= 0; i--) {
                     if (game.currentTrick.get(i).equals(winningCard)) {
                         break;
                     } else {
@@ -108,7 +118,7 @@ public class GameEngine {
                 }
 
                 for (int[] team : gameDesc.getTeams()) {
-                    if (ArrayUtils.contains(team, (currentPlayer + 1))) {
+                    if (ArrayUtils.contains(team, currentPlayer)) {
                         game.tricksWonTable.put(team, (game.tricksWonTable.get(team) + 1));
                         System.out.println("Player " + (currentPlayer + 1) + " was the winner of the trick with the " + winningCard.toString());
                         System.out.println("Tricks won: " + game.tricksWonTable.get(team));
@@ -116,7 +126,7 @@ public class GameEngine {
                     }
                 }
                 game.currentTrick.dropHand();
-            }  while (players[0].getHand().size() > 0);
+            } while (players[0].getHand().size() > 0);
             game.handsPlayed++;
             if (gameDesc.getCalculateScore().equals("tricksWon")) {
                 for (int[] team : gameDesc.getTeams()) {
@@ -142,7 +152,7 @@ public class GameEngine {
     private boolean gameEnd() {
         switch (desc.getGameEnd()) {
             case "scoreThreshold":
-                for (int[] team: desc.getTeams()) {
+                for (int[] team : desc.getTeams()) {
                     if (scoreTable.get(team) >= desc.getScoreThreshold())
                         return true;
                 }
@@ -299,11 +309,11 @@ public class GameEngine {
         System.out.println("CURRENT SCORETABLE");
         System.out.println("______________________________________________________________________________________");
         System.out.println("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾");
-        for(int i = 0; i < desc.getTeams().length; i++) {
+        for (int i = 0; i < desc.getTeams().length; i++) {
             System.out.print("    Team: (");
-            for(int j = 0; j < desc.getTeams().length; j++) {
+            for (int j = 0; j < desc.getTeams()[0].length; j++) {
                 System.out.print(desc.getTeams()[i][j]);
-                if ((j+1) < desc.getTeams().length) System.out.print(", ");
+                if ((j + 1) < desc.getTeams()[0].length) System.out.print(", ");
             }
             System.out.print(")     ");
             System.out.println(scoreTable.get(desc.getTeams()[i]));
