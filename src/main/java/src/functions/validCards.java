@@ -39,6 +39,11 @@ public class validCards {
         throw new IllegalArgumentException("Not a valid leading card picking mode");
     }
 
+    /**
+     * @param playerHand The hand of the player that this predicate will check against. This will closure this.
+     * @param validCard Predicate that checks that a card is valid
+     * @return Predicate that returns true if a card is in the player hand, and either the card is valid or the player has no valid cards (and so can play anything).
+     */
     public static Predicate<Card> getCanBePlayedPredicate(Hand playerHand, Predicate<Card> validCard) {
         return (card) -> playerHand.getHand().contains(card) && (validCard.test(card) || (playerHand.getHand().stream().noneMatch(validCard)));
     }
