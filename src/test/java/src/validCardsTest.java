@@ -59,6 +59,12 @@ public class validCardsTest {
     }
 
     @Test
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    void testValidLeadingCardNotValidType() {
+        assertThrows(IllegalArgumentException.class, () -> validCards.getValidLeadingCardPredicate("tramp", null));
+    }
+
+    @Test
     void validCardEmptyTrick() {
         Card card1 = new Card("CLUBS", "TEN");
         Card card2 = new Card("HEARTS", "FIVE");
