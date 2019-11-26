@@ -25,7 +25,7 @@ public class Card {
     }
 
     public boolean equals(Card card) {
-        return this.RANK.equals(card.getSUIT()) && this.RANK.equals(card.RANK);
+        return this.SUIT.equals(card.getSUIT()) && this.RANK.equals(card.RANK);
     }
 }
 

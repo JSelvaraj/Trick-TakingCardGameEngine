@@ -12,7 +12,7 @@ public class Deck {
         initStandardDeck();
     }
 
-    public Deck (LinkedList cards) {
+    public Deck (LinkedList<Card> cards) {
         this.cards = cards;
     }
 

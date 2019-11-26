@@ -1,0 +1,159 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "Bid": {
+            "properties": {
+                "ascendingBid": {
+                    "default": false,
+                    "description": "If the bids must increase from the previous one.",
+                    "type": "boolean"
+                },
+                "maxBid": {
+                    "description": "Maximum bid you can make.\ndefault <hand_size>",
+                    "type": "number"
+                },
+                "minBid": {
+                    "default": 0,
+                    "description": "Minimum bid you can make.",
+                    "type": "number"
+                },
+                "overtrickPoints": {
+                    "default": 0,
+                    "description": "Points for tricks you win over the bid number.",
+                    "type": "number"
+                },
+                "pointsPerBid": {
+                    "type": "number"
+                }
+            },
+            "type": ["object", "null"]
+        },
+        "Card": {
+            "properties": {
+                "pointValue": {
+                    "type": "number"
+                },
+                "rank": {
+                    "$ref": "#/definitions/Ranks"
+                },
+                "suit": {
+                    "$ref": "#/definitions/Suits"
+                }
+            },
+            "type": "object"
+        },
+        "DeckSpec": {
+            "properties": {
+                "cards": {
+                    "items": {
+                        "$ref": "#/definitions/Card"
+                    },
+                    "type": "array"
+                },
+                "cut": {
+                    "type": "boolean"
+                },
+                "rankOrder": {
+                    "items": {
+                        "$ref": "#/definitions/Ranks"
+                    },
+                    "type": "array"
+                },
+                "stock": {
+                    "type": "number"
+                }
+            },
+            "type": ["object", "null"]
+        },
+        "Ranks": {
+            "enum": [
+                0,
+                1,
+                10,
+                11,
+                12,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+            ],
+            "type": "number"
+        },
+        "Rule": {
+            "description": "Rules for the game\n\nA list of rules implemented can be found...",
+            "properties": {
+                "data": {
+                    "description": "The data associated with said"
+                },
+                "name": {
+                    "description": "A name for the rule",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Suits": {
+            "enum": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "type": "number"
+        }
+    },
+    "description": "Reference implementation of the communication language",
+    "properties": {
+        "ascending_ordering": {
+            "default": true,
+            "description": "Order in which to take turns\nAlso which direction to shift the first player.",
+            "type": "boolean"
+        },
+        "bid": {
+            "$ref": "#/definitions/Bid",
+            "default": "null\nnull indicates that the game doesn't use bidding."
+        },
+        "can_view_previous_trick": {
+            "default": false,
+            "description": "This is advisory.",
+            "type": "boolean"
+        },
+        "deck": {
+            "$ref": "#/definitions/DeckSpec",
+            "default": null,
+            "description": "Custom deck specifications.\nDefault implies a standard 52 card french deck."
+        },
+        "description": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string"
+        },
+        "players": {
+            "description": "Number of players in the game",
+            "type": "number"
+        },
+        "rules": {
+            "items": {
+                "$ref": "#/definitions/Rule"
+            },
+            "type": "array"
+        },
+        "teams": {
+            "description": "Set up the teams.\nPlayer indexing starts at 0\nAll teams should be the same size",
+            "items": {
+                "items": {
+                    "type": "number"
+                },
+                "type": "array"
+            },
+            "type": "array"
+        }
+    },
+    "type": "object"
+}
+
