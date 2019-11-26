@@ -7,12 +7,9 @@ import src.deck.Deck;
 import src.deck.Shuffle;
 import src.functions.validCards;
 import src.parser.GameDesc;
-import src.player.LocalPlayer;
 import src.player.Player;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Scanner;
 import java.util.function.Predicate;
 
 public class GameEngine {
@@ -36,34 +33,7 @@ public class GameEngine {
     }
 
 
-    public static void main(String[] args) {
-        String[] suits = {"HEARTS", "CLUBS", "DIAMONDS", "SPADES"};
-        String[] ranks = {"ACE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING"};
-        String[] rankOrder = {"TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING", "ACE"};
-        int[][] teams = {{1, 3}, {2, 4}};
-        Player[] playerArray = {new LocalPlayer(0), new LocalPlayer(1), new LocalPlayer(2), new LocalPlayer(3)};
-
-        GameDesc desc = new GameDesc(4,
-                teams,
-                696969,
-                suits, ranks,
-                rankOrder,
-                false,
-                "tricksWon",
-                "lastDealt",
-                null,
-                "any",
-                "tricksWon",
-                3,
-                5,
-                "trick",
-                "standard",
-                "prevWinner");
-
-        main(desc, 0, playerArray);
-    }
-
-    public static void main(GameDesc gameDesc, int dealer , Player[] playerArray) {
+    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray) {
         GameEngine game = new GameEngine(gameDesc);
 
 
@@ -192,52 +162,6 @@ public class GameEngine {
         }
     }
 
-    public Card playCard(Hand playerHand) {
-
-        while (true) {
-            System.out.println();
-            System.out.println("Select Option:");
-            System.out.println("    1. View hand");
-            System.out.println("    2. View current trick");
-            System.out.println("    3. Current Trump Suit");
-            System.out.println("    4. Play card");
-            int option = -1;
-            int cardNumber = -1;
-
-            while (option > 4 || option < 1) {
-                Scanner scanner = new Scanner(System.in);
-                option = scanner.nextInt();
-            }
-            switch (option) {
-                case 1:
-                    System.out.println();
-                    System.out.println("Current Hand: " + playerHand.toString());
-                    System.out.println();
-                    break;
-                case 2:
-                    System.out.println();
-                    System.out.println("Current Trick: " + currentTrick.toString());
-                    System.out.println();
-                    break;
-                case 3:
-                    System.out.println();
-                    System.out.println("Current Trump: " + trumpSuit);
-                    System.out.println();
-                    break;
-                case 4:
-                    System.out.println();
-                    System.out.println("Current Hand: " + playerHand.toString());
-                    System.out.println();
-                    Scanner scanner = new Scanner(System.in);
-                    do {
-                        System.out.println("Choose your card: ");
-                        cardNumber = scanner.nextInt();
-                    } while (cardNumber < 0 || cardNumber >= playerHand.getHandSize() || !isCardValid(playerHand, playerHand.get(cardNumber)));
-                    return playerHand.giveCard(cardNumber);
-            }
-
-        }
-    }
 
     public Card winningCard() {
         HashMap<String, Integer> suitMap = generateSuitOrder();
@@ -274,39 +198,6 @@ public class GameEngine {
         return suitMap;
     }
 
-    private LinkedList<Card> validCards(Hand playerHand) {
-        LinkedList<Card> validCards = new LinkedList<>();
-        for (Card card : playerHand.getHand()) {
-            if (card.getSUIT().equals(currentTrick.getHand().get(0).getSUIT())) {
-                validCards.add(card);
-            }
-        }
-        if (validCards.size() > 0) return validCards;
-        return playerHand.getHand();
-    }
-
-    private boolean isCardValid(Hand playerHand, Card card) {
-        if (currentTrick.getHandSize() == 0) {
-            switch (desc.getLeadingCardForEachTrick()) {
-                case "any":
-                    return true;
-                case "trump":
-                    if (card.getSUIT().equals(trumpSuit) && playerHand.getHand().contains(card)) {
-                        return true;
-                    }
-                case "notTrump":
-                    if (!card.getSUIT().equals(trumpSuit) && playerHand.getHand().contains(card)) {
-                        return true;
-                    }
-//                case "break":
-//                    TODO
-            }
-            return false;
-        }
-        if (validCards(playerHand).indexOf(card) != -1) {
-            return true;
-        } else return false;
-    }
 
     private void printScore() {
         System.out.println("CURRENT SCORETABLE");
@@ -328,7 +219,7 @@ public class GameEngine {
         System.out.println("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾");
     }
 
-    public Predicate<Card> getValidCard() {
+    private Predicate<Card> getValidCard() {
         return validCard;
     }
 }
