@@ -42,6 +42,8 @@ public abstract class Player {
 
     public abstract Card playCard(String trumpSuit, Hand currentTrick);
 
+    public abstract void broadcastPlay(Card card);
+
     public abstract int makeBid();
 
     Predicate<Card> getCanBePlayed() {
