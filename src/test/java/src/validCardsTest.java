@@ -20,7 +20,7 @@ public class validCardsTest {
     }
 
     @Test
-    void testValidCardLeadingAny(){
+    void testValidCardLeadingAny() {
         Card card1 = new Card("CLUBS", "TEN");
         Card card2 = new Card("HEARTS", "FIVE");
         Card card3 = new Card("SPADES", "ACE");
@@ -33,7 +33,7 @@ public class validCardsTest {
     }
 
     @Test
-    void testValidCardLeadingTrump(){
+    void testValidCardLeadingTrump() {
         Card card1 = new Card("CLUBS", "TEN");
         Card card2 = new Card("HEARTS", "FIVE");
         Card card3 = new Card("SPADES", "ACE");
@@ -46,7 +46,7 @@ public class validCardsTest {
     }
 
     @Test
-    void testValidCardLeadingNotTrump(){
+    void testValidCardLeadingNotTrump() {
         Card card1 = new Card("CLUBS", "TEN");
         Card card2 = new Card("HEARTS", "FIVE");
         Card card3 = new Card("SPADES", "ACE");
