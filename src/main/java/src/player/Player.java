@@ -42,7 +42,7 @@ public abstract class Player {
 
     public abstract Card playCard(String trumpSuit, Hand currentTrick);
 
-    public abstract void broadcastPlay(Card card);
+    public abstract void broadcastPlay(Card card, int playerNumber);
 
     public abstract int makeBid();
 

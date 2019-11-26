@@ -50,8 +50,13 @@ public class NetworkPlayer extends Player {
             throw new InvalidPlayerMoveException();
         }
         return card;
-
     }
+
+    @Override
+    public void broadcastPlay(Card card, int playerNumber) {
+        throw new UnsupportedOperationException();
+    }
+
 
     @Override
     public int makeBid() {

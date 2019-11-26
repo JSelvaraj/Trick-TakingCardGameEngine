@@ -7,6 +7,7 @@ import src.deck.Deck;
 import src.deck.Shuffle;
 import src.functions.validCards;
 import src.parser.GameDesc;
+import src.player.LocalPlayer;
 import src.player.Player;
 
 import java.util.HashMap;
@@ -63,7 +64,7 @@ public class GameEngine {
             do {
                 for (int i = 0; i < playerArray.length; i++) {
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit, game.currentTrick));
-
+                    game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                     if (gameDesc.isDEALCARDSCLOCKWISE()) currentPlayer = (currentPlayer + 1) % playerArray.length;
                     else currentPlayer = Math.floorMod((currentPlayer - 1), playerArray.length);
                 }
@@ -217,6 +218,17 @@ public class GameEngine {
         }
         System.out.println("______________________________________________________________________________________");
         System.out.println("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾");
+    }
+
+    private void broadcastMoves(Card card, int playerNumber, Player[] playerArray){
+        //Only need to broadcast moves from local players
+        if(playerArray[playerNumber].getClass() == LocalPlayer.class){
+            for (Player player : playerArray) {
+                player.broadcastPlay(card, playerNumber);
+            }
+        }
+        //Resets the printed for local players.
+        LocalPlayer.resetLocalPrinted();
     }
 
     private Predicate<Card> getValidCard() {
