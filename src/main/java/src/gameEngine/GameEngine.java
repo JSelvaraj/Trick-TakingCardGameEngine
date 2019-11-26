@@ -92,12 +92,6 @@ public class GameEngine {
 
             do {
                 for (int i = 0; i < playerArray.length; i++) {
-                    System.out.println("Current Trick: " + game.currentTrick.toString());
-                    System.out.println("-------------------------------------");
-                    System.out.println("-------------------------------------");
-                    System.out.println("Player " + (currentPlayer + 1));
-                    System.out.println("-------------------------------------");
-                    System.out.println("-------------------------------------");
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit, game.currentTrick));
 
                     if (gameDesc.isDEALCARDSCLOCKWISE()) currentPlayer = (currentPlayer + 1) % playerArray.length;
