@@ -5,11 +5,13 @@ import src.card.Card;
 import src.card.CardComparator;
 import src.deck.Deck;
 import src.deck.Shuffle;
+import src.functions.validCards;
 import src.parser.GameDesc;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.function.Predicate;
 
 public class GameEngine {
 
@@ -22,9 +24,13 @@ public class GameEngine {
     HashMap<int[], Integer> tricksWonTable;
     HashMap<int[], Integer> scoreTable;
 
+    private Predicate<Card> validCard;
+    private Predicate<Card> validLeadingCard;
 
     public GameEngine(GameDesc desc) {
         this.desc = desc;
+        this.validLeadingCard = validCards.getValidLeadingCardPredicate(desc.getLeadingCardForEachTrick(), this.trumpSuit);
+        this.validCard = validCards.getValidCardPredicate("trick", this.trumpSuit, this.currentTrick, this.validLeadingCard);
     }
 
 
