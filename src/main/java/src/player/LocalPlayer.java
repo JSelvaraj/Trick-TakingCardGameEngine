@@ -19,7 +19,7 @@ public class LocalPlayer extends Player {
     private static final String ANSI_PURPLE = "\u001B[35m";
     private static final String ANSI_CYAN = "\u001B[36m";
     private static final String ANSI_WHITE = "\u001B[37m";
-    private static final String[] text_colours = {ANSI_RED, ANSI_GREEN, ANSI_YELLOW, ANSI_BLUE, ANSI_PURPLE, ANSI_CYAN}; //TODO add more colours
+    private static final String[] text_colours = {ANSI_RED, ANSI_YELLOW, ANSI_BLUE, ANSI_PURPLE, ANSI_CYAN, ANSI_GREEN}; //TODO add more colours
     //background colours
     private static final String ANSI_BLACK_BACKGROUND = "\u001B[40m";
     private static final String ANSI_RED_BACKGROUND = "\u001B[41m";

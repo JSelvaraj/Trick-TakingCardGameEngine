@@ -19,7 +19,7 @@ public class main {
 //        System.out.println(new main().getGreeting());
         Parser parser = new Parser();
         GameDesc gameDesc = parser.parseGameDescription("Games/whist.json");
-        System.out.println(gameDesc);
+//        System.out.println(gameDesc);
         Player[] playerArray = {new LocalPlayer(0), new LocalPlayer(1), new LocalPlayer(2), new LocalPlayer(3)};
         GameEngine.main(gameDesc, 0, playerArray);
     }
