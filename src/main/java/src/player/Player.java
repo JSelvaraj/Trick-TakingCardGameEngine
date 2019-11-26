@@ -36,7 +36,7 @@ public abstract class Player {
         return playerNumber;
     }
 
-    Hand getHand() {
+    public Hand getHand() {
         return hand;
     }
 

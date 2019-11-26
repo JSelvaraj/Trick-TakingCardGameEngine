@@ -7,6 +7,8 @@ import src.deck.Deck;
 import src.deck.Shuffle;
 import src.functions.validCards;
 import src.parser.GameDesc;
+import src.player.LocalPlayer;
+import src.player.Player;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -39,6 +41,7 @@ public class GameEngine {
         String[] ranks = {"ACE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING"};
         String[] rankOrder = {"TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING", "ACE"};
         int[][] teams = {{1, 3}, {2, 4}};
+        Player[] playerArray = {new LocalPlayer(0), new LocalPlayer(1), new LocalPlayer(2), new LocalPlayer(3)};
 
         GameDesc desc = new GameDesc(4,
                 teams,
@@ -57,19 +60,19 @@ public class GameEngine {
                 "standard",
                 "prevWinner");
 
-        main(desc, 0);
+        main(desc, 0, playerArray);
     }
 
-    public static void main(GameDesc gameDesc, int dealer) {
+    public static void main(GameDesc gameDesc, int dealer , Player[] playerArray) {
         GameEngine game = new GameEngine(gameDesc);
 
 
         /* initialize each players hands */
-        Hand[] players = new Hand[gameDesc.getNUMBEROFPLAYERS()];
+
         game.tricksWonTable = new HashMap<>();
         game.scoreTable = new HashMap<>();
-        for (int i = 0; i < players.length; i++) {
-            players[i] = new Hand();
+        for (Player player : playerArray) {
+            player.initCanBePlayed(game.getValidCard());
         }
         for (int[] team : gameDesc.getTeams()) {
             game.tricksWonTable.put(team, 0);
@@ -81,24 +84,24 @@ public class GameEngine {
         do {
             int currentPlayer = dealer;
             Shuffle.shuffle(deck.cards); //shuffle deck according to the given seed
-            game.dealCards(players, deck, currentPlayer);
+            game.dealCards(playerArray, deck, currentPlayer);
             if (gameDesc.isDEALCARDSCLOCKWISE())
-                currentPlayer = (currentPlayer + 1) % players.length; //ensures that first card played is from dealer's left
+                currentPlayer = (currentPlayer + 1) % playerArray.length; //ensures that first card played is from dealer's left
             else
-                currentPlayer = Math.floorMod((currentPlayer - 1), players.length); //ensures that first card played is from dealers right
+                currentPlayer = Math.floorMod((currentPlayer - 1), playerArray.length); //ensures that first card played is from dealers right
 
             do {
-                for (int i = 0; i < players.length; i++) {
+                for (int i = 0; i < playerArray.length; i++) {
                     System.out.println("Current Trick: " + game.currentTrick.toString());
                     System.out.println("-------------------------------------");
                     System.out.println("-------------------------------------");
                     System.out.println("Player " + (currentPlayer + 1));
                     System.out.println("-------------------------------------");
                     System.out.println("-------------------------------------");
-                    game.currentTrick.getCard(game.playCard(players[currentPlayer]));
+                    game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit, game.currentTrick));
 
-                    if (gameDesc.isDEALCARDSCLOCKWISE()) currentPlayer = (currentPlayer + 1) % players.length;
-                    else currentPlayer = Math.floorMod((currentPlayer - 1), players.length);
+                    if (gameDesc.isDEALCARDSCLOCKWISE()) currentPlayer = (currentPlayer + 1) % playerArray.length;
+                    else currentPlayer = Math.floorMod((currentPlayer - 1), playerArray.length);
                 }
 
                 Card winningCard = game.winningCard();
@@ -106,19 +109,19 @@ public class GameEngine {
                 /* works out who played the winning card */ //0971
                 //Roll back player to the person who last played a card.
                 if (gameDesc.isDEALCARDSCLOCKWISE()) {
-                    currentPlayer = Math.floorMod((currentPlayer - 1), players.length);
+                    currentPlayer = Math.floorMod((currentPlayer - 1), playerArray.length);
                 } else {
-                    currentPlayer = (currentPlayer + 1) % players.length;
+                    currentPlayer = (currentPlayer + 1) % playerArray.length;
                 }
 
-                for (int i = players.length - 1; i >= 0; i--) {
+                for (int i = playerArray.length - 1; i >= 0; i--) {
                     if (game.currentTrick.get(i).equals(winningCard)) {
                         break;
                     } else {
                         if (gameDesc.isDEALCARDSCLOCKWISE()) {
-                            currentPlayer = Math.floorMod((currentPlayer - 1), players.length);
+                            currentPlayer = Math.floorMod((currentPlayer - 1), playerArray.length);
                         } else {
-                            currentPlayer = (currentPlayer + 1) % players.length;
+                            currentPlayer = (currentPlayer + 1) % playerArray.length;
                         }
                     }
                 }
@@ -132,7 +135,7 @@ public class GameEngine {
                     }
                 }
                 game.currentTrick.dropHand();
-            } while (players[0].getHand().size() > 0);
+            } while (playerArray[0].getHand().getHandSize() > 0);
             game.handsPlayed++;
             if (gameDesc.getCalculateScore().equals("tricksWon")) {
                 for (int[] team : gameDesc.getTeams()) {
@@ -173,12 +176,12 @@ public class GameEngine {
     }
 
 
-    public void dealCards(Hand[] players, Deck deck, int dealerIndex) {
+    public void dealCards(Player[] players, Deck deck, int dealerIndex) {
         if (desc.isDEALCARDSCLOCKWISE())
             dealerIndex = (dealerIndex + 1) % players.length; // start dealing from dealer's left
         else dealerIndex = Math.floorMod((dealerIndex - 1), players.length); // start dealing from dealers right
         while (deck.getDeckSize() > 0) {
-            players[dealerIndex].getCard(deck.drawCard());
+            players[dealerIndex].getHand().getCard(deck.drawCard());
 
             if (desc.isDEALCARDSCLOCKWISE()) dealerIndex = (dealerIndex + 1) % players.length; //turn order is clockwise
             else dealerIndex = Math.floorMod((dealerIndex - 1), players.length); //turn order is anticlockwise
@@ -190,7 +193,7 @@ public class GameEngine {
                 System.out.println("The Trump suit is " + lastCard.getSUIT());
                 System.out.println();
                 trumpSuit = lastCard.getSUIT();
-                players[dealerIndex].getCard(lastCard);
+                players[dealerIndex].getHand().getCard(lastCard);
             }
         }
     }
@@ -329,5 +332,9 @@ public class GameEngine {
         }
         System.out.println("______________________________________________________________________________________");
         System.out.println("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾");
+    }
+
+    public Predicate<Card> getValidCard() {
+        return validCard;
     }
 }

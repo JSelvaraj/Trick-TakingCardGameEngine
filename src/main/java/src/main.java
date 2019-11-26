@@ -7,6 +7,8 @@ import src.exceptions.InvalidGameDescriptionException;
 import src.gameEngine.GameEngine;
 import src.parser.GameDesc;
 import src.parser.Parser;
+import src.player.LocalPlayer;
+import src.player.Player;
 
 public class main {
     public String getGreeting() {
@@ -17,6 +19,8 @@ public class main {
 //        System.out.println(new main().getGreeting());
         Parser parser = new Parser();
         GameDesc gameDesc = parser.parseGameDescription("Games/whist.json");
-        GameEngine.main(gameDesc, 0);
+        System.out.println(gameDesc);
+        Player[] playerArray = {new LocalPlayer(0), new LocalPlayer(1), new LocalPlayer(2), new LocalPlayer(3)};
+        GameEngine.main(gameDesc, 0, playerArray);
     }
 }
