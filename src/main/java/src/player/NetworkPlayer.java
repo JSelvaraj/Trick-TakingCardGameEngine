@@ -9,6 +9,7 @@ import java.net.*;
 import java.nio.*;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.function.Predicate;
 
 public class NetworkPlayer extends Player {
@@ -54,7 +55,18 @@ public class NetworkPlayer extends Player {
 
     @Override
     public void broadcastPlay(Card card, int playerNumber) {
-        throw new UnsupportedOperationException();
+        //Creates the json object to be sent.
+        JSONObject json = new JSONObject();
+        json.put("type", "play");
+        json.put("suit", card.getSUIT());
+        json.put("rank", card.getRANK());
+        json.put("playerIndex", playerNumber);
+        //Sends the json object over the socket.
+        try (OutputStreamWriter out = new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8)){
+            out.write(json.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
