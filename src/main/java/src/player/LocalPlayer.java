@@ -12,6 +12,10 @@ public class LocalPlayer extends Player {
         super(playerNumber, validCard);
     }
 
+    public LocalPlayer(int playerNumber){
+        super(playerNumber);
+    }
+
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) {
         while (true) {

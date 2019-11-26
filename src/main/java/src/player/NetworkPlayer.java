@@ -11,6 +11,10 @@ public class NetworkPlayer extends Player {
         super(playerNumber, validCard);
     }
 
+    public NetworkPlayer(int playerNumber){
+        super(playerNumber);
+    }
+
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) {
         throw new UnsupportedOperationException();
