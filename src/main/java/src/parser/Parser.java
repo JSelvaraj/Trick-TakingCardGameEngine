@@ -47,8 +47,7 @@ public class Parser {
         }
     }
 
-    public GameDesc parseGameDescription(String filename) throws InvalidGameDescriptionException {
-        JSONObject gameJSON = readJSONFile(filename);
+    public GameDesc parseGameDescription(JSONObject gameJSON) throws InvalidGameDescriptionException {
         if (gameJSON == null) {
             throw new InvalidGameDescriptionException("Failed to parse game description file.");
         }

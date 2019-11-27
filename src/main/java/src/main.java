@@ -3,6 +3,7 @@
  */
 package src;
 
+import org.json.JSONObject;
 import src.exceptions.InvalidGameDescriptionException;
 import src.gameEngine.GameEngine;
 import src.parser.GameDesc;
@@ -18,7 +19,8 @@ public class main {
     public static void main(String[] args) throws InvalidGameDescriptionException {
 //        System.out.println(new main().getGreeting());
         Parser parser = new Parser();
-        GameDesc gameDesc = parser.parseGameDescription("Games/whist.json");
+        JSONObject GameJSON = Parser.readJSONFile(args[0]);
+        GameDesc gameDesc = parser.parseGameDescription(GameJSON);
 //        System.out.println(gameDesc);
         Player[] playerArray = {new LocalPlayer(0), new LocalPlayer(1), new LocalPlayer(2), new LocalPlayer(3)};
         GameEngine.main(gameDesc, 0, playerArray);

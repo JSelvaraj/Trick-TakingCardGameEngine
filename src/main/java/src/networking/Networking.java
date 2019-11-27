@@ -1,5 +1,6 @@
 package src.networking;
 
+import jdk.internal.util.xml.impl.Input;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -12,7 +13,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 public class Networking {
@@ -82,9 +85,46 @@ public class Networking {
         return players;
     }
 
-//    public Player[] connectToGame( ) {
-//        Player[] players = new Player[numberOfPlayers];
-//
-//
-//    }
+    public Player[] connectToGame(String ip, int port) {
+        Player[] players = new Player[numberOfPlayers];
+        int playerNumber;
+        try {
+            Socket socket = new Socket(ip, port);
+            ServerSocket serverSocket = new ServerSocket(PORTNUMBER);
+            JSONObject playerInfo = new JSONObject();
+            playerInfo.put("ip", serverSocket.getInetAddress());
+            playerInfo.put("port", serverSocket.getLocalPort());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
+            writer.write(playerInfo.toString());
+
+            String JSONfile = reader.readLine();
+            JSONObject fromHost = (JSONObject) new JSONTokener(JSONfile).nextValue();
+            JSONObject gameJSON = fromHost.getJSONObject("spec");
+            JSONArray playersInfo = fromHost.getJSONArray("players");
+            int seed = fromHost.getInt("seed");
+
+            for (Object player: playersInfo) {
+                if (player instanceof JSONObject) {
+                    if (((JSONObject) player).getString("ip").equals(serverSocket.getInetAddress().toString()) &&
+                            ((JSONObject) player).getInt("port") == serverSocket.getLocalPort()) {
+                        playerNumber = ((JSONObject) player).getInt("playerNumber");
+                        players[playerNumber] = new LocalPlayer(playerNumber);
+                    }
+                }
+            }
+
+
+
+
+
+
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return players;
+
+    }
 }
