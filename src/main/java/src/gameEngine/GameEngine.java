@@ -22,6 +22,7 @@ public class GameEngine {
     private boolean breakFlag = false; // if the trump/hearts are broken
     private int handsPlayed = 0;
     HashMap<int[], Integer> tricksWonTable;
+    private Bid[] bidTable;
     HashMap<int[], Integer> scoreTable;
 
     private Predicate<Card> validCard;
@@ -31,6 +32,9 @@ public class GameEngine {
         this.desc = desc;
         this.validLeadingCard = validCards.getValidLeadingCardPredicate(desc.getLeadingCardForEachTrick(), this.trumpSuit);
         this.validCard = validCards.getValidCardPredicate("trick", this.trumpSuit, this.currentTrick, this.validLeadingCard);
+        if(desc.isBidding()){
+            bidTable = new Bid[this.desc.getNUMBEROFPLAYERS()];
+        }
     }
 
 
@@ -60,7 +64,9 @@ public class GameEngine {
                 currentPlayer = (currentPlayer + 1) % playerArray.length; //ensures that first card played is from dealer's left
             else
                 currentPlayer = Math.floorMod((currentPlayer - 1), playerArray.length); //ensures that first card played is from dealers right
-
+            if(gameDesc.isBidding()){
+                game.getBids(currentPlayer, playerArray);
+            }
             do {
                 for (int i = 0; i < playerArray.length; i++) {
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit, game.currentTrick));
@@ -100,7 +106,7 @@ public class GameEngine {
                     }
                 }
                 game.currentTrick.dropHand();
-            } while (playerArray[0].getHand().getHandSize() > 0);
+            } while (playerArray[0].getHand().getHandSize() > gameDesc.getMinHandSize());
             game.handsPlayed++;
             if (gameDesc.getCalculateScore().equals("tricksWon")) {
                 for (int[] team : gameDesc.getTeams()) {
@@ -108,6 +114,18 @@ public class GameEngine {
                     if (score > gameDesc.getTrickThreshold()) { // if score greater than trick threshold
                         game.scoreTable.put(team, (game.scoreTable.get(team) + (score - gameDesc.getTrickThreshold()))); // add score to team's running total
                     }
+                    game.tricksWonTable.put(team, 0);
+                }
+            }
+            if(gameDesc.getCalculateScore().equals("bid")) { //TODO handle special bids.
+                for (int[] team : gameDesc.getTeams()){
+                    int teamBid = 0;
+                    for (int playerNumber : team){
+                        teamBid += game.bidTable[playerNumber].getBidValue();
+                    }
+                    Bid bid = new Bid(teamBid, false);
+                    game.scoreTable.put(team, game.scoreTable.get(team) + gameDesc.getEvaluateBid().apply(bid, game.tricksWonTable.get(team)));
+                    //Reset tricks won for next round.
                     game.tricksWonTable.put(team, 0);
                 }
             }
@@ -128,16 +146,27 @@ public class GameEngine {
             case "scoreThreshold":
                 for (int[] team : desc.getTeams()) {
                     if (scoreTable.get(team) >= desc.getScoreThreshold())
-                        return true;
+                        return false;
                 }
                 break;
             case "handsPlayed":
                 if (handsPlayed >= desc.getScoreThreshold()) {
-                    return true;
+                    return false;
                 }
                 break;
         }
-        return false;
+        return true;
+    }
+
+    public void getBids(int currentPlayer, Player[] players){
+        System.out.println("-----------------------------------");
+        System.out.println("--------------BIDDING--------------");
+        System.out.println("-----------------------------------");
+        for (int i = 0; i < players.length; i++){
+            bidTable[currentPlayer] = players[currentPlayer].makeBid(this.desc.getValidBid());
+            if (this.desc.isDEALCARDSCLOCKWISE()) currentPlayer = (currentPlayer + 1) % players.length;
+            else currentPlayer = Math.floorMod((currentPlayer - 1), players.length);
+        }
     }
 
 
@@ -145,13 +174,14 @@ public class GameEngine {
         if (desc.isDEALCARDSCLOCKWISE())
             dealerIndex = (dealerIndex + 1) % players.length; // start dealing from dealer's left
         else dealerIndex = Math.floorMod((dealerIndex - 1), players.length); // start dealing from dealers right
-        while (deck.getDeckSize() > 0) {
+        int cardsLeft = deck.getDeckSize() - (players.length * this.desc.getInitialHandSize());
+        while (deck.getDeckSize() > cardsLeft) {
             players[dealerIndex].getHand().getCard(deck.drawCard());
 
             if (desc.isDEALCARDSCLOCKWISE()) dealerIndex = (dealerIndex + 1) % players.length; //turn order is clockwise
             else dealerIndex = Math.floorMod((dealerIndex - 1), players.length); //turn order is anticlockwise
 
-            if (desc.getTrumpPickingMode().compareTo("lastDealt") == 0 && deck.getDeckSize() == 1) {
+            if (desc.getTrumpPickingMode().compareTo("lastDealt") == 0 && deck.getDeckSize() == cardsLeft + 1) {
                 Card lastCard = deck.drawCard();
                 System.out.println();
                 System.out.println("The last card dealt is " + lastCard.toString());
@@ -233,5 +263,9 @@ public class GameEngine {
 
     private Predicate<Card> getValidCard() {
         return validCard;
+    }
+
+    public Bid[] getBidTable() {
+        return bidTable;
     }
 }
