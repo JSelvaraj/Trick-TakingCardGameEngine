@@ -49,9 +49,9 @@ public class validBids {
                 }
             } else { //Otherwise just evaluate the bid normally.
                 if (value >= bid.getBidValue()) {
-                    return bid.getBidValue() * pointsPerBid + (bid.getBidValue() - value) * overTrickPoints;
+                    return bid.getBidValue() * pointsPerBid + (value - bid.getBidValue()) * overTrickPoints;
                 } else {
-                    return value * penaltyPoints;
+                    return value * -penaltyPoints;
                 }
             }
         });
