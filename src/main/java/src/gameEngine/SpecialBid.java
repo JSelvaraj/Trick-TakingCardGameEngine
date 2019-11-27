@@ -1,20 +1,17 @@
 package src.gameEngine;
 
-public class SpecialBid {
-    private int bidValue;
+public class SpecialBid extends Bid{
     private int pointsGained;
     private int penalty;
-    private boolean blind;
 
     public SpecialBid(int bidValue, int pointsGained, int penalty, boolean blind) {
-        this.bidValue = bidValue;
+        super(bidValue, blind);
         this.pointsGained = pointsGained;
         this.penalty = penalty;
-        this.blind = blind;
     }
 
     public int getBidValue() {
-        return bidValue;
+        return super.getBidValue();
     }
 
     public int getPointsGained() {
@@ -26,6 +23,6 @@ public class SpecialBid {
     }
 
     public boolean isBlind() {
-        return blind;
+        return super.isBlind();
     }
 }
