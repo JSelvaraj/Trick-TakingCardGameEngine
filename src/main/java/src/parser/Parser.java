@@ -18,8 +18,8 @@ public class Parser {
     private static final String schemaFile = "json-schema.json";
     private Schema schema;
 
-    private final String[] DEFAULT_SUITS = {"HEARTS", "CLUBS", "DIAMONDS", "SPADES"};
-    private final String[] DEFAULT_RANKS = {"ACE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING"};
+    private final String[] DEFAULT_SUITS = {"CLUBS", "DIAMONDS","HEARTS", "SPADES"};
+    private final String[] DEFAULT_RANKS = {"ACE", "KING", "QUEEN", "JACK", "TEN", "NINE", "EIGHT", "SEVEN", "SIX", "FIVE", "FOUR", "THREE", "TWO"};
     private final String[] DEFAULT_RANK_ORDER = {"TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING", "ACE"};
 
     public Parser() {
