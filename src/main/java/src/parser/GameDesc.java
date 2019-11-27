@@ -30,6 +30,7 @@ public class GameDesc {
     private final String trickWinner;
     private final String trickLeader;
     //Bidding functions
+    private boolean bidding;
     private IntPredicate validBid;
     private BiFunction<Bid, Integer, Integer> evaluateBid;
 
@@ -177,5 +178,13 @@ public class GameDesc {
 
     public void setEvaluateBid(BiFunction<Bid, Integer, Integer> evaluateBid) {
         this.evaluateBid = evaluateBid;
+    }
+
+    public boolean isBidding() {
+        return bidding;
+    }
+
+    public void setBidding(boolean bidding) {
+        this.bidding = bidding;
     }
 }

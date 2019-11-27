@@ -156,7 +156,7 @@ public class Parser {
                 trickWinner,
                 trickLeader);
 
-        if(gameJSON.has("bid")) {
+        if(!gameJSON.isNull("bid")) {
             JSONObject bidObject = gameJSON.getJSONObject("bid");
             initBidding(bidObject, gameDesc);
         }
@@ -196,6 +196,7 @@ public class Parser {
         int maxBid = bidObject.getInt("maxBid");
         gameDesc.setValidBid(validBids.isValidBidValue(minBid, maxBid));
         gameDesc.setEvaluateBid(validBids.evaluateBid(bidObject));
+        gameDesc.setBidding(true);
     }
 
 }
