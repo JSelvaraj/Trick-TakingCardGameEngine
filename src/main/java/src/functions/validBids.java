@@ -12,11 +12,14 @@ import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
 
 public class validBids {
-    public IntPredicate isValidBidValue(int minBid, int maxBid) {
+    public static IntPredicate isValidBidValue(int minBid, int maxBid) {
+        if(minBid > maxBid){
+            throw new IllegalArgumentException("Minimum bid can't be greater than maximum bid");
+        }
         return (bid) -> minBid <= bid && bid <= maxBid;
     }
 
-    public BiFunction<Bid, Integer, Integer> evaluateBid(JSONObject bidObject) {
+    public static BiFunction<Bid, Integer, Integer> evaluateBid(JSONObject bidObject) {
         //Get the bid specifications.
         int pointsPerBid = bidObject.getInt("pointsPerBid");
         int overTrickPoints = bidObject.getInt("overtrickPoints");
