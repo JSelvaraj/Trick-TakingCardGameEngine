@@ -69,6 +69,9 @@ public class NetworkPlayer extends Player {
         }
     }
 
+    public Socket getPlayerSocket() {
+        return playerSocket;
+    }
 
     @Override
     public int makeBid() {

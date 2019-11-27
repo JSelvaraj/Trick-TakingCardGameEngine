@@ -21,8 +21,8 @@ public class GameEngine {
     private Hand currentTrick = new Hand(); //functionally the trick is just a hand visible to the entire table
     private boolean breakFlag = false; // if the trump/hearts are broken
     private int handsPlayed = 0;
-    HashMap<int[], Integer> tricksWonTable;
-    HashMap<int[], Integer> scoreTable;
+    private HashMap<int[], Integer> tricksWonTable;
+    private HashMap<int[], Integer> scoreTable;
 
     private Predicate<Card> validCard;
     private Predicate<Card> validLeadingCard;
