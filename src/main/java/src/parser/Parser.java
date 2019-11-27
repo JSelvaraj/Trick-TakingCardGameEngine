@@ -83,6 +83,8 @@ public class Parser {
             teams = convertTeamArray(gameJSON.getJSONArray("teams"));
         }
         boolean ascedingOrdering = gameJSON.getBoolean("ascending_ordering");
+        int initialHandSize = gameJSON.getInt("initialHandSize");
+        int minHandSize = gameJSON.getInt("minimumHandSize");
         //Rules
         //TODO fill in defaults
         String calculateScore = null;
@@ -145,6 +147,8 @@ public class Parser {
                 ranks,
                 rank_order,
                 ascedingOrdering,
+                minHandSize,
+                initialHandSize,
                 calculateScore,
                 trumpPickingMode,
                 trumpSuit,
@@ -154,7 +158,8 @@ public class Parser {
                 trickThreshold,
                 nextLegalCardMode,
                 trickWinner,
-                trickLeader);
+                trickLeader
+                );
 
         if(!gameJSON.isNull("bid")) {
             JSONObject bidObject = gameJSON.getJSONObject("bid");
