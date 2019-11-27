@@ -36,11 +36,13 @@ public abstract class Player {
         return playerNumber;
     }
 
-    Hand getHand() {
+    public Hand getHand() {
         return hand;
     }
 
     public abstract Card playCard(String trumpSuit, Hand currentTrick);
+
+    public abstract void broadcastPlay(Card card, int playerNumber);
 
     public abstract int makeBid();
 
