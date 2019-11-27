@@ -1,11 +1,13 @@
 package src.player;
 
 import src.card.Card;
+import src.gameEngine.Bid;
 import src.gameEngine.Hand;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Scanner;
+import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 public class LocalPlayer extends Player {
@@ -103,19 +105,50 @@ public class LocalPlayer extends Player {
 
     @Override
     public void broadcastPlay(Card card, int playerNumber) {
-        if (!localPrinted){
+        if (!localPrinted) {
             System.out.println("Player" + (playerNumber + 1) + " played " + card.toString());
         }
         localPrinted = true;
     }
 
-    public static void resetLocalPrinted(){
+    public static void resetLocalPrinted() {
         localPrinted = false;
     }
 
     @Override
-    public int makeBid() {
-        throw new UnsupportedOperationException();
+    public Bid makeBid(IntPredicate validBid) {
+        System.out.print(this.colour);
+        System.out.println("-------------------------------------");
+        System.out.println("-------------------------------------");
+        System.out.println("Player " + (super.getPlayerNumber() + 1));
+        System.out.println("-------------------------------------");
+        System.out.println("-------------------------------------");
+        System.out.println(ANSI_RESET);
+        while (true) {
+            int option = -1;
+            int bidNumber = 0;
+            boolean bidBlind = true;
+            System.out.println("Select Option:");
+            System.out.println("    1. Bid with seeing cards");
+            System.out.println("    2. Bid blind");
+            while (option > 2 || option < 1) {
+                Scanner scanner = new Scanner(System.in);
+                option = scanner.nextInt();
+            }
+            switch (option) {
+                case 1:
+                    System.out.println("Current Hand: " + super.getHand().toString());
+                    bidBlind = false;
+                case 2:
+                    Scanner scanner = new Scanner(System.in);
+                    do {
+                        System.out.println("Enter your bid:");
+                        bidNumber = scanner.nextInt();
+                    } while (!validBid.test(bidNumber));
+                    break;
+            }
+            return new Bid(bidNumber, bidBlind);
+        }
     }
 
 }

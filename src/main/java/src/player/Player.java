@@ -2,8 +2,10 @@ package src.player;
 
 import src.card.Card;
 import src.functions.validCards;
+import src.gameEngine.Bid;
 import src.gameEngine.Hand;
 
+import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 public abstract class Player {
@@ -44,7 +46,7 @@ public abstract class Player {
 
     public abstract void broadcastPlay(Card card, int playerNumber);
 
-    public abstract int makeBid();
+    public abstract Bid makeBid(IntPredicate validBid);
 
     Predicate<Card> getCanBePlayed() {
         return canBePlayed;
