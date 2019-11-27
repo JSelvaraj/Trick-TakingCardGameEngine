@@ -1,9 +1,13 @@
 package src.parser;
 import src.card.*;
 import src.deck.Deck;
+import src.gameEngine.Bid;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.function.BiFunction;
+import java.util.function.IntPredicate;
+import java.util.function.Predicate;
 
 public class GameDesc {
 
@@ -25,6 +29,9 @@ public class GameDesc {
     private final String nextLegalCardMode;
     private final String trickWinner;
     private final String trickLeader;
+    //Bidding functions
+    private IntPredicate validBid;
+    private BiFunction<Bid, Integer, Integer> evaluateBid;
 
 
     /**
@@ -154,5 +161,21 @@ public class GameDesc {
 
     public String[] getRANKORDER() {
         return RANKORDER;
+    }
+
+    public IntPredicate getValidBid() {
+        return validBid;
+    }
+
+    public void setValidBid(IntPredicate validBid) {
+        this.validBid = validBid;
+    }
+
+    public BiFunction<Bid, Integer, Integer> getEvaluateBid() {
+        return evaluateBid;
+    }
+
+    public void setEvaluateBid(BiFunction<Bid, Integer, Integer> evaluateBid) {
+        this.evaluateBid = evaluateBid;
     }
 }
