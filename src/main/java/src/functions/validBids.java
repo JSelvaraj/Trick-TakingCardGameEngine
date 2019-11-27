@@ -12,7 +12,7 @@ import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
 
 public class validBids {
-    public IntPredicate isValidBid(int minBid, int maxBid) {
+    public IntPredicate isValidBidValue(int minBid, int maxBid) {
         return (bid) -> minBid <= bid && bid <= maxBid;
     }
 
