@@ -34,16 +34,18 @@ public class validBids {
         }
         return ((bid, value) -> {
             //First finds if the bid matches a special bid
-            Optional<SpecialBid> matchingSpecialBid = specialBidList.stream().filter((specialBid) -> specialBid.isBlind() && bid.isBlind() && specialBid.getBidValue() == bid.getBidValue()).findFirst();
+            Optional<SpecialBid> matchingSpecialBid = specialBidList.stream()
+                    .filter((specialBid) -> specialBid.isBlind() && bid.isBlind() && specialBid.getBidValue() == bid.getBidValue())
+                    .findFirst();
             //if there is a matching special bid
-            if (matchingSpecialBid.isPresent()){
-                if(bid.getBidValue() == value){
+            if (matchingSpecialBid.isPresent()) {
+                if (bid.getBidValue() == value) {
                     return matchingSpecialBid.get().getPointsGained();
                 } else {
                     return matchingSpecialBid.get().getPenalty();
                 }
             } else { //Otherwise just evaluate the bid normally.
-                if (value >= bid.getBidValue()){
+                if (value >= bid.getBidValue()) {
                     return bid.getBidValue() * pointsPerBid + (bid.getBidValue() - value) * overTrickPoints;
                 } else {
                     return value * penaltyPoints;
