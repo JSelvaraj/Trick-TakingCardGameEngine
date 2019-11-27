@@ -13,7 +13,7 @@ public class Shuffle {
      *
      * @param seed The seed for the generator.
      */
-    public static void seedGenerator(long seed) {
+    public static void seedGenerator(int seed) {
         if (generator == null) {
             generator = new MersenneTwister(seed);
         } else {
