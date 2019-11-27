@@ -160,7 +160,7 @@ public class Parser {
      * @param filename Path to file containing the JSON object.
      * @return JSONObject parsed from the input file.
      */
-    private JSONObject readJSONFile(String filename) {
+    public static JSONObject readJSONFile(String filename) {
         try (InputStream inputStream = new FileInputStream(filename)) {
             return new JSONObject(new JSONTokener(inputStream));
         } catch (IOException e) {
