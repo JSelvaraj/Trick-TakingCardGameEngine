@@ -1,0 +1,42 @@
+{
+        "name" : "spades",
+        "description" : "...",
+        "players" : 4,
+        "teams" : [[0, 2], [1, 3]],
+        "ascending_ordering": true,
+        "initialHandSize": 13,
+        "can_view_previous_trick" : true,
+        "rules" : [
+            {"name" : "leadingCardForEachTrick", "data" : "break"},
+            {"name" : "nextLegalCardMode", "data" : "trick"},
+            {"name" : "trumpPickingMode", "data" : "fixed"},
+            {"name" : "trumpSuit", "data": "SPADES"},
+            {"name" : "calculateScore", "data" : "tricksWon"},
+            {"name" : "trickWinner", "data" : "standard"},
+            {"name" : "trickLeader", "data" : "prevWinner"},
+            {"name" : "handEnd", "data": "outOfCards"},
+            {"name" : "gameEnd", "data" : "scoreThreshold"},
+            {"name" : "gameEndValue", "data" : 100},
+            {"name" : "tieBreaker", "data" : "anotherHand"}
+        ],
+        "bid":{
+            "ascendingBid" : false,
+            "pointsPerBid" : 10,
+            "overtrickPoints" : 1,
+            "penaltyPoints" : 0,
+            "minBid" : 0,
+            "maxBid" : 13,
+            "specialBids": [{
+                "bidValue" : 0,
+                "pointsGained" : 100,
+                "penalty" : 100,
+                "blind" : false
+            },
+            {
+                "bidValue" : 0,
+                "pointsGained" : 100,
+                "penalty" : 100,
+                "blind" : true
+            }]
+        }
+}

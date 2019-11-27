@@ -43,7 +43,7 @@ public class validBids {
                 specialBidList.add(new SpecialBid(specialBid.getInt("bidValue"),
                         specialBid.getInt("pointsGained"),
                         specialBid.getInt("penalty"),
-                        specialBid.getBoolean("blindBid")));
+                        specialBid.getBoolean("blind")));
             }
         }
         return ((bid, value) -> {
