@@ -9,11 +9,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.function.IntPredicate;
+import java.util.function.Predicate;
 
 public class validBids {
-    public IntPredicate isValidBid(int minBid, int maxBid) {
-        return (bid) -> minBid <= bid && bid <= maxBid;
+    public Predicate<Bid> isValidBid(int minBid, int maxBid) {
+        return (bid) -> minBid <= bid.getBidValue() && bid.getBidValue() <= maxBid;
     }
 
     public BiFunction<Bid, Integer, Integer> evaluateBid(JSONObject bidObject) {
