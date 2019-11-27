@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import src.exceptions.InvalidGameDescriptionException;
+import src.functions.validBids;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -17,8 +18,8 @@ public class Parser {
     private static final String schemaFile = "json-schema.json";
     private Schema schema;
 
-    private final String[] DEFAULT_SUITS = {"HEARTS", "CLUBS", "DIAMONDS", "SPADES"};
-    private final String[] DEFAULT_RANKS = {"ACE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING"};
+    private final String[] DEFAULT_SUITS = {"CLUBS", "DIAMONDS","HEARTS", "SPADES"};
+    private final String[] DEFAULT_RANKS = {"ACE", "KING", "QUEEN", "JACK", "TEN", "NINE", "EIGHT", "SEVEN", "SIX", "FIVE", "FOUR", "THREE", "TWO"};
     private final String[] DEFAULT_RANK_ORDER = {"TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING", "ACE"};
 
     public Parser() {
@@ -135,9 +136,9 @@ public class Parser {
             }
         }
         //Seed for generator
-        long seed = 0xDEADBEEF; //TODO remove this.
+        long seed = 2; //TODO remove this.
         assert trumpPickingMode != null;
-        return new GameDesc(players,
+        GameDesc gameDesc = new GameDesc(players,
                 teams,
                 seed,
                 suits,
@@ -154,6 +155,12 @@ public class Parser {
                 nextLegalCardMode,
                 trickWinner,
                 trickLeader);
+
+        if(!gameJSON.isNull("bid")) {
+            JSONObject bidObject = gameJSON.getJSONObject("bid");
+            initBidding(bidObject, gameDesc);
+        }
+        return gameDesc;
     }
 
     /**
@@ -168,6 +175,7 @@ public class Parser {
         }
     }
 
+
     /**
      * @param teamsJSON Convert 2 dimension JSON array into a 2 dimensional array of player numbers.
      * @return array containing the teams.
@@ -181,6 +189,14 @@ public class Parser {
             }
         }
         return teams;
+    }
+
+    private void initBidding(JSONObject bidObject, GameDesc gameDesc){
+        int minBid = bidObject.getInt("minBid");
+        int maxBid = bidObject.getInt("maxBid");
+        gameDesc.setValidBid(validBids.isValidBidValue(minBid, maxBid));
+        gameDesc.setEvaluateBid(validBids.evaluateBid(bidObject));
+        gameDesc.setBidding(true);
     }
 
 }

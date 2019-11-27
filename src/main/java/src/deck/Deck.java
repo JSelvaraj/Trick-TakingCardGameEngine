@@ -32,8 +32,8 @@ public class Deck {
     }
 
     private void initStandardDeck () {
-        String[] suits = {"HEARTS", "CLUBS", "DIAMONDS", "SPADES"};
-        String[] ranks = {"ACE","TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING"};
+        String[] suits = {"CLUBS", "DIAMONDS","HEARTS", "SPADES"};
+        String[] ranks = {"ACE", "KING", "QUEEN", "JACK", "TEN", "NINE", "EIGHT", "SEVEN", "SIX", "FIVE", "FOUR", "THREE", "TWO"};
         cards = makeDeck(suits, ranks);
     }
 

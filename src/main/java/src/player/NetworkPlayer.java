@@ -2,6 +2,7 @@ package src.player;
 
 import src.card.Card;
 import src.exceptions.InvalidPlayerMoveException;
+import src.gameEngine.Bid;
 import src.gameEngine.Hand;
 
 import java.io.*;
@@ -10,6 +11,7 @@ import java.nio.*;
 import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
+import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 public class NetworkPlayer extends Player {
@@ -71,7 +73,7 @@ public class NetworkPlayer extends Player {
 
 
     @Override
-    public int makeBid() {
+    public Bid makeBid(IntPredicate validBid) {
         throw new UnsupportedOperationException();
     }
 }
