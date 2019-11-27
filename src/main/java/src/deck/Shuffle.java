@@ -31,7 +31,7 @@ public class Shuffle {
     public static <E, T extends List<E>> void shuffle(T list) {
         int j;
         for (int i = list.size() - 1; i > 0; i--) {
-            j = generator.nextInt() % (i + 1);
+            j = Math.floorMod(generator.nextInt(), i + 1);
             //Swaps list[i] and list[j]
             E temp = list.get(i);
             list.set(i, list.get(j));
