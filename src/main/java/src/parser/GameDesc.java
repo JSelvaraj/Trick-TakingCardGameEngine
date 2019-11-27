@@ -33,6 +33,8 @@ public class GameDesc {
     private boolean bidding;
     private IntPredicate validBid;
     private BiFunction<Bid, Integer, Integer> evaluateBid;
+    private int minHandSize;
+    private int initialHandSize;
 
 
     /**
@@ -50,6 +52,8 @@ public class GameDesc {
                     String[] ranks,
                     String[] rankOrder,
                     boolean dealOrderClockwise,
+                    int minHandSize,
+                    int initialHandSize,
                     String calculateScore,
                     String trumpPickingMode,
                     String trumpSuit,
@@ -68,6 +72,8 @@ public class GameDesc {
         this.DECK = Deck.makeDeck(suits, ranks);
         this.RANKORDER = rankOrder;
         this.DEALCARDSCLOCKWISE = dealOrderClockwise;
+        this.initialHandSize = initialHandSize;
+        this.minHandSize = minHandSize;
         this.calculateScore = calculateScore;
         this.trumpPickingMode = trumpPickingMode;
         if (trumpPickingMode.equals("fixed")) this.trumpSuit = trumpSuit;
@@ -186,5 +192,13 @@ public class GameDesc {
 
     public void setBidding(boolean bidding) {
         this.bidding = bidding;
+    }
+
+    public int getMinHandSize() {
+        return minHandSize;
+    }
+
+    public int getInitialHandSize() {
+        return initialHandSize;
     }
 }
