@@ -132,6 +132,12 @@ public class Parser {
                 case "trickLeader":
                     trickLeader = rule.getString("data");
                     break;
+                case "handEnd":
+                    //TODO change
+                    break;
+                case "tieBreaker":
+                    //TODO change
+                    break;
                 default:
                     //break;
                     throw new InvalidGameDescriptionException("Unrecognised rule: " + rulename);
