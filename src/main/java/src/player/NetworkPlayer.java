@@ -1,5 +1,7 @@
 package src.player;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonStreamParser;
 import src.card.Card;
 import src.exceptions.InvalidPlayerMoveException;
 import src.gameEngine.Hand;
@@ -28,18 +30,19 @@ public class NetworkPlayer extends Player {
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) {
         StringBuilder message = new StringBuilder();
-        String msg= "uninit";
+        JsonElement msg = null;
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
-            msg = reader.readLine();
+            JsonStreamParser reader = new JsonStreamParser(new InputStreamReader(playerSocket.getInputStream()));
+            msg = reader.next();
 //            while((readLine = reader.readLine()) != null){
 //                message.append(readLine);
 //            }
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
-        System.out.println("String: "+ msg);
-        JSONObject cardEvent = new JSONObject(msg); //TODO catch exceptions
+//        System.out.println("String: "+ msg.toString());
+        JSONObject cardEvent = new JSONObject(msg.getAsJsonObject().toString()); //TODO catch exceptions
         System.out.println(cardEvent.toString(4));
         String type = cardEvent.getString("type");
         int playerNumber = cardEvent.getInt("playerIndex");
@@ -68,7 +71,7 @@ public class NetworkPlayer extends Player {
         //Sends the json object over the socket.
         try {
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8));
-            out.write(json.toString() + "\n");
+            out.write(json.toString());
             out.flush();
         } catch (IOException e) {
             e.printStackTrace();

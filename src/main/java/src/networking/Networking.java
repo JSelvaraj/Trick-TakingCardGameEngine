@@ -1,5 +1,8 @@
 package src.networking;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonStreamParser;
+import com.google.gson.stream.JsonReader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -52,12 +55,12 @@ public class Networking {
                 players[i] = networkPlayer;
                 System.out.println("waiting for player info");
                 networkPlayers.add(networkPlayer.getPlayerSocket());
-                BufferedReader reader = new BufferedReader(new InputStreamReader(networkPlayer.getPlayerSocket().getInputStream()));
-                String JSONfile = reader.readLine();
+                JsonStreamParser reader = new JsonStreamParser(new InputStreamReader(networkPlayer.getPlayerSocket().getInputStream()));
+                JsonElement JSONfile = reader.next();
 
                 System.out.println("File read = " + JSONfile); // debugging sout
 
-                JSONObject object = (JSONObject) new JSONTokener(JSONfile).nextValue();
+                JSONObject object = new JSONObject(JSONfile.getAsJsonObject().toString());
                 //object.put("playerNumber", i);
                 playersJSONArray.put(object);
             }
@@ -79,7 +82,7 @@ public class Networking {
         for (Socket playerSocket : networkPlayers) {
             try {
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8));
-                out.write(forClients.toString() + "\n");
+                out.write(forClients.toString());
                 out.flush();
                 System.out.println("msg sent");
             } catch (IOException e) {
