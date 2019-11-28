@@ -130,8 +130,9 @@ public class Parser {
                     trickLeader = rule.getString("data");
                     break;
                 default:
-                    //break;
-                    throw new InvalidGameDescriptionException("Unrecognised rule: " + rulename);
+                    break;
+
+//                    throw new InvalidGameDescriptionException("Unrecognised rule: " + rulename);
             }
         }
         //Seed for generator
