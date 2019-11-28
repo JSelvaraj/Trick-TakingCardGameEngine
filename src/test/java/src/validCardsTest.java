@@ -25,7 +25,7 @@ public class validCardsTest {
         Card card2 = new Card("HEARTS", "FIVE");
         Card card3 = new Card("SPADES", "ACE");
         Card card4 = new Card("DIAMONDS", "TWO");
-        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("any", null);
+        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("any", null, null);
         assertTrue(validLeadingCard.test(card1));
         assertTrue(validLeadingCard.test(card2));
         assertTrue(validLeadingCard.test(card3));
@@ -38,7 +38,7 @@ public class validCardsTest {
         Card card2 = new Card("HEARTS", "FIVE");
         Card card3 = new Card("SPADES", "ACE");
         Card card4 = new Card("DIAMONDS", "TWO");
-        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("trump", "SPADES");
+        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("trump", new StringBuilder("SPADES"), null);
         assertFalse(validLeadingCard.test(card1));
         assertFalse(validLeadingCard.test(card2));
         assertTrue(validLeadingCard.test(card3));
@@ -51,7 +51,7 @@ public class validCardsTest {
         Card card2 = new Card("HEARTS", "FIVE");
         Card card3 = new Card("SPADES", "ACE");
         Card card4 = new Card("DIAMONDS", "TWO");
-        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("notTrump", "HEARTS");
+        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("notTrump", new StringBuilder("HEARTS"), null);
         assertTrue(validLeadingCard.test(card1));
         assertFalse(validLeadingCard.test(card2));
         assertTrue(validLeadingCard.test(card3));
@@ -61,7 +61,7 @@ public class validCardsTest {
     @Test
     @SuppressWarnings("ResultOfMethodCallIgnored")
     void testValidLeadingCardNotValidType() {
-        assertThrows(IllegalArgumentException.class, () -> validCards.getValidLeadingCardPredicate("tramp", null));
+        assertThrows(IllegalArgumentException.class, () -> validCards.getValidLeadingCardPredicate("tramp", null, null));
     }
 
     @Test
@@ -70,7 +70,7 @@ public class validCardsTest {
         Card card2 = new Card("HEARTS", "FIVE");
         Card card3 = new Card("SPADES", "ACE");
         Card card4 = new Card("DIAMONDS", "TWO");
-        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("any", null);
+        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("any", null, null);
         Predicate<Card> validCard = validCards.getValidCardPredicate("trick", null, this.currentTrick, validLeadingCard);
         assertTrue(validCard.test(card1));
         assertTrue(validCard.test(card2));
@@ -86,7 +86,7 @@ public class validCardsTest {
         Card card3 = new Card("SPADES", "ACE");
         Card card4 = new Card("DIAMONDS", "TWO");
         this.currentTrick.getCard(trickCard);
-        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("any", null);
+        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("any", null, null);
         Predicate<Card> validCard = validCards.getValidCardPredicate("trick", null, this.currentTrick, validLeadingCard);
         assertTrue(validCard.test(card1));
         assertFalse(validCard.test(card2));
@@ -101,7 +101,7 @@ public class validCardsTest {
         Card card2 = new Card("HEARTS", "FIVE");
         Card card3 = new Card("SPADES", "ACE");
         Card card4 = new Card("DIAMONDS", "TWO");
-        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("any", null);
+        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("any", null, null);
         Predicate<Card> validCard = validCards.getValidCardPredicate("trick", null, this.currentTrick, validLeadingCard);
         Hand playerHand = new Hand();
         Predicate<Card> canBePlayed = validCards.getCanBePlayedPredicate(playerHand, validCard);
@@ -122,7 +122,7 @@ public class validCardsTest {
         Card card2 = new Card("HEARTS", "FIVE");
         Card card3 = new Card("SPADES", "ACE");
         Card card4 = new Card("DIAMONDS", "TWO");
-        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("any", null);
+        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("any", null, null);
         Predicate<Card> validCard = validCards.getValidCardPredicate("trick", null, this.currentTrick, validLeadingCard);
         Hand playerHand = new Hand();
         Predicate<Card> canBePlayed = validCards.getCanBePlayedPredicate(playerHand, validCard);
@@ -142,7 +142,7 @@ public class validCardsTest {
         Card card2 = new Card("HEARTS", "FIVE");
         Card card3 = new Card("SPADES", "ACE");
         Card card4 = new Card("DIAMONDS", "TWO");
-        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("any", null);
+        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("any", null, null);
         Predicate<Card> validCard = validCards.getValidCardPredicate("trick", null, this.currentTrick, validLeadingCard);
         Hand playerHand = new Hand();
         Predicate<Card> canBePlayed = validCards.getCanBePlayedPredicate(playerHand, validCard);
@@ -159,7 +159,7 @@ public class validCardsTest {
         Card card2 = new Card("HEARTS", "FIVE");
         Card card3 = new Card("SPADES", "ACE");
         Card card4 = new Card("DIAMONDS", "TWO");
-        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("any", null);
+        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("any", null, null);
         Predicate<Card> validCard = validCards.getValidCardPredicate("trick", null, this.currentTrick, validLeadingCard);
         Hand playerHand = new Hand();
         Predicate<Card> canBePlayed = validCards.getCanBePlayedPredicate(playerHand, validCard);

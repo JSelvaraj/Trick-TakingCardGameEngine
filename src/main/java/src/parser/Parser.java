@@ -82,6 +82,8 @@ public class Parser {
             teams = convertTeamArray(gameJSON.getJSONArray("teams"));
         }
         boolean ascedingOrdering = gameJSON.getBoolean("ascending_ordering");
+        int initialHandSize = gameJSON.getInt("initialHandSize");
+        int minHandSize = gameJSON.getInt("minimumHandSize");
         //Rules
         //TODO fill in defaults
         String calculateScore = null;
@@ -129,10 +131,19 @@ public class Parser {
                 case "trickLeader":
                     trickLeader = rule.getString("data");
                     break;
+                case "handEnd":
+                    //TODO change
+                    break;
+                case "tieBreaker":
+                    //TODO change
+                    break;
                 default:
                     //break;
                     throw new InvalidGameDescriptionException("Unrecognised rule: " + rulename);
             }
+        }
+        if(trumpPickingMode.equals("fixed") && trumpSuit == null){
+            throw new InvalidGameDescriptionException("No trump suit specified with fixed trump mode.");
         }
         //Seed for generator
         long seed = 2; //TODO remove this.
@@ -144,6 +155,8 @@ public class Parser {
                 ranks,
                 rank_order,
                 ascedingOrdering,
+                minHandSize,
+                initialHandSize,
                 calculateScore,
                 trumpPickingMode,
                 trumpSuit,
@@ -153,7 +166,8 @@ public class Parser {
                 trickThreshold,
                 nextLegalCardMode,
                 trickWinner,
-                trickLeader);
+                trickLeader
+                );
 
         if(!gameJSON.isNull("bid")) {
             JSONObject bidObject = gameJSON.getJSONObject("bid");

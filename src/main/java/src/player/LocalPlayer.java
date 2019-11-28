@@ -90,32 +90,31 @@ public class LocalPlayer extends Player {
         System.out.println("Player " + (super.getPlayerNumber() + 1));
         System.out.println("-------------------------------------");
         System.out.println("-------------------------------------");
-        System.out.println(ANSI_RESET);
-        while (true) {
-            int option = -1;
-            int bidNumber = 0;
-            boolean bidBlind = true;
-            System.out.println("Select Option:");
-            System.out.println("    1. Bid with seeing cards");
-            System.out.println("    2. Bid blind");
-            while (option > 2 || option < 1) {
-                Scanner scanner = new Scanner(System.in);
-                option = scanner.nextInt();
-            }
-            switch (option) {
-                case 1:
-                    System.out.println("Current Hand: " + super.getHand().toString());
-                    bidBlind = false;
-                case 2:
-                    Scanner scanner = new Scanner(System.in);
-                    do {
-                        System.out.println("Enter your bid:");
-                        bidNumber = scanner.nextInt();
-                    } while (!validBid.test(bidNumber));
-                    break;
-            }
-            return new Bid(bidNumber, bidBlind);
+        int option = -1;
+        int bidNumber = 0;
+        boolean bidBlind = true;
+        System.out.println("Select Option:");
+        System.out.println("    1. Bid with seeing cards");
+        System.out.println("    2. Bid blind");
+        while (option > 2 || option < 1) {
+            Scanner scanner = new Scanner(System.in);
+            option = scanner.nextInt();
         }
+        switch (option) {
+            case 1:
+                System.out.println("Current Hand: " + super.getHand().toString());
+                bidBlind = false;
+            case 2:
+                Scanner scanner = new Scanner(System.in);
+                do {
+                    System.out.println("Enter your bid:");
+                    bidNumber = scanner.nextInt();
+                } while (!validBid.test(bidNumber));
+                break;
+        }
+        System.out.println(ANSI_RESET);
+        return new Bid(bidNumber, bidBlind);
+
     }
 
 }

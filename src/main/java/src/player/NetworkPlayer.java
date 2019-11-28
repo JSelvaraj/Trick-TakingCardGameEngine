@@ -30,7 +30,7 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public Card playCard(String trumpSuit, Hand currentTrick) {
+    public Card playCard(String trumpSuit, Hand currentTrick) { // when you're receiving a card
         StringBuilder message = new StringBuilder();
         JsonElement msg = null;
         try {
@@ -47,8 +47,7 @@ public class NetworkPlayer extends Player {
         JSONObject cardEvent = new JSONObject(msg.getAsJsonObject().toString()); //TODO catch exceptions
         System.out.println(cardEvent.toString(4));
         String type = cardEvent.getString("type");
-        int playerNumber = cardEvent.getInt("playerIndex");
-        if(!type.equals("play") || super.getPlayerNumber() != playerNumber){
+        if(!type.equals("play")){
             throw new InvalidPlayerMoveException();
         }
         String suit = cardEvent.getString("suit");

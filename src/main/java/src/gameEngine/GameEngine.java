@@ -11,31 +11,43 @@ import src.player.LocalPlayer;
 import src.player.Player;
 
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 public class GameEngine {
 
 
     private GameDesc desc;
-    private String trumpSuit;
+    private StringBuilder trumpSuit;
     private Hand currentTrick = new Hand(); //functionally the trick is just a hand visible to the entire table
-    private boolean breakFlag = false; // if the trump/hearts are broken
+    private AtomicBoolean breakFlag; // if the trump/hearts are broken
     private int handsPlayed = 0;
-    private HashMap<int[], Integer> tricksWonTable;
-    private HashMap<int[], Integer> scoreTable;
+    HashMap<int[], Integer> tricksWonTable;
+    private Bid[] bidTable;
+    HashMap<int[], Integer> scoreTable;
 
     private Predicate<Card> validCard;
     private Predicate<Card> validLeadingCard;
 
     public GameEngine(GameDesc desc) {
         this.desc = desc;
-        this.validLeadingCard = validCards.getValidLeadingCardPredicate(desc.getLeadingCardForEachTrick(), this.trumpSuit);
+        this.trumpSuit = new StringBuilder();
+        if(desc.getTrumpPickingMode().equals("fixed")){
+            this.trumpSuit.append(desc.getTrumpSuit());
+        }
+        this.breakFlag = new AtomicBoolean(false);
+        this.validLeadingCard = validCards.getValidLeadingCardPredicate(desc.getLeadingCardForEachTrick(), this.trumpSuit, breakFlag);
         this.validCard = validCards.getValidCardPredicate("trick", this.trumpSuit, this.currentTrick, this.validLeadingCard);
+        if(desc.isBidding()){
+            bidTable = new Bid[this.desc.getNUMBEROFPLAYERS()];
+        }
     }
 
 
     public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed) {
         GameEngine game = new GameEngine(gameDesc);
+
+        assert playerArray.length == gameDesc.getNUMBEROFPLAYERS(); //TODO remove
 
         /* initialize each players hands */
 
@@ -59,10 +71,15 @@ public class GameEngine {
                 currentPlayer = (currentPlayer + 1) % playerArray.length; //ensures that first card played is from dealer's left
             else
                 currentPlayer = Math.floorMod((currentPlayer - 1), playerArray.length); //ensures that first card played is from dealers right
-
+            if(gameDesc.isBidding()){
+                game.getBids(currentPlayer, playerArray);
+            }
+            System.out.println("-----------------------------------");
+            System.out.println("----------------PLAY---------------");
+            System.out.println("-----------------------------------");
             do {
                 for (int i = 0; i < playerArray.length; i++) {
-                    game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit, game.currentTrick));
+                    game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                     if (gameDesc.isDEALCARDSCLOCKWISE()) currentPlayer = (currentPlayer + 1) % playerArray.length;
                     else currentPlayer = Math.floorMod((currentPlayer - 1), playerArray.length);
@@ -97,9 +114,13 @@ public class GameEngine {
                         System.out.println("Tricks won: " + game.tricksWonTable.get(team));
                         break;
                     }
+                    //Check
+                    if(game.currentTrick.getHand().stream().anyMatch(card -> card.getSUIT().equals(game.trumpSuit.toString()))){
+                        game.breakFlag.set(true);
+                    }
                 }
                 game.currentTrick.dropHand();
-            } while (playerArray[0].getHand().getHandSize() > 0);
+            } while (playerArray[0].getHand().getHandSize() > gameDesc.getMinHandSize());
             game.handsPlayed++;
             if (gameDesc.getCalculateScore().equals("tricksWon")) {
                 for (int[] team : gameDesc.getTeams()) {
@@ -107,6 +128,18 @@ public class GameEngine {
                     if (score > gameDesc.getTrickThreshold()) { // if score greater than trick threshold
                         game.scoreTable.put(team, (game.scoreTable.get(team) + (score - gameDesc.getTrickThreshold()))); // add score to team's running total
                     }
+                    game.tricksWonTable.put(team, 0);
+                }
+            }
+            if(gameDesc.getCalculateScore().equals("bid")) { //TODO handle special bids.
+                for (int[] team : gameDesc.getTeams()){
+                    int teamBid = 0;
+                    for (int playerNumber : team){
+                        teamBid += game.bidTable[playerNumber].getBidValue();
+                    }
+                    Bid bid = new Bid(teamBid, false);
+                    game.scoreTable.put(team, game.scoreTable.get(team) + gameDesc.getEvaluateBid().apply(bid, game.tricksWonTable.get(team)));
+                    //Reset tricks won for next round.
                     game.tricksWonTable.put(team, 0);
                 }
             }
@@ -127,16 +160,27 @@ public class GameEngine {
             case "scoreThreshold":
                 for (int[] team : desc.getTeams()) {
                     if (scoreTable.get(team) >= desc.getScoreThreshold())
-                        return true;
+                        return false;
                 }
                 break;
             case "handsPlayed":
                 if (handsPlayed >= desc.getScoreThreshold()) {
-                    return true;
+                    return false;
                 }
                 break;
         }
-        return false;
+        return true;
+    }
+
+    public void getBids(int currentPlayer, Player[] players){
+        System.out.println("-----------------------------------");
+        System.out.println("--------------BIDDING--------------");
+        System.out.println("-----------------------------------");
+        for (int i = 0; i < players.length; i++){
+            bidTable[currentPlayer] = players[currentPlayer].makeBid(this.desc.getValidBid());
+            if (this.desc.isDEALCARDSCLOCKWISE()) currentPlayer = (currentPlayer + 1) % players.length;
+            else currentPlayer = Math.floorMod((currentPlayer - 1), players.length);
+        }
     }
 
 
@@ -144,19 +188,20 @@ public class GameEngine {
         if (desc.isDEALCARDSCLOCKWISE())
             dealerIndex = (dealerIndex + 1) % players.length; // start dealing from dealer's left
         else dealerIndex = Math.floorMod((dealerIndex - 1), players.length); // start dealing from dealers right
-        while (deck.getDeckSize() > 0) {
+        int cardsLeft = deck.getDeckSize() - (players.length * this.desc.getInitialHandSize());
+        while (deck.getDeckSize() > cardsLeft) {
             players[dealerIndex].getHand().getCard(deck.drawCard());
 
             if (desc.isDEALCARDSCLOCKWISE()) dealerIndex = (dealerIndex + 1) % players.length; //turn order is clockwise
             else dealerIndex = Math.floorMod((dealerIndex - 1), players.length); //turn order is anticlockwise
 
-            if (desc.getTrumpPickingMode().compareTo("lastDealt") == 0 && deck.getDeckSize() == 1) {
+            if (desc.getTrumpPickingMode().compareTo("lastDealt") == 0 && deck.getDeckSize() == cardsLeft + 1) {
                 Card lastCard = deck.drawCard();
                 System.out.println();
                 System.out.println("The last card dealt is " + lastCard.toString());
                 System.out.println("The Trump suit is " + lastCard.getSUIT());
                 System.out.println();
-                trumpSuit = lastCard.getSUIT();
+                trumpSuit.replace(0, trumpSuit.length(), lastCard.getSUIT());
                 players[dealerIndex].getHand().getCard(lastCard);
             }
         }
@@ -184,13 +229,9 @@ public class GameEngine {
         }
         switch (desc.getTrumpPickingMode()) {
             case "lastDealt":
-                suitMap.put(trumpSuit, 1);
-                if (!currentTrick.get(0).getSUIT().equals(trumpSuit)) suitMap.put(currentTrick.get(0).getSUIT(), 2);
-                break;
             case "fixed":
-                suitMap.put(desc.getTrumpSuit(), 1);
-                if (!currentTrick.get(0).getSUIT().equals(desc.getTrumpSuit()))
-                    suitMap.put(currentTrick.get(0).getSUIT(), 2);
+                suitMap.put(trumpSuit.toString(), 1);
+                if (!currentTrick.get(0).getSUIT().equals(trumpSuit.toString())) suitMap.put(currentTrick.get(0).getSUIT(), 2);
                 break;
             case "none":
                 break;
@@ -232,5 +273,9 @@ public class GameEngine {
 
     private Predicate<Card> getValidCard() {
         return validCard;
+    }
+
+    public Bid[] getBidTable() {
+        return bidTable;
     }
 }
