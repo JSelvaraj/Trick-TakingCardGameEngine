@@ -42,6 +42,8 @@ public class Networking {
             hostInfo.put("port", socket.getLocalPort());
             playersJSONArray.put(hostInfo);
             for (int i = 1; i < players.length; i++) {
+                System.out.println("IP: " + socket.getInetAddress());
+                System.out.println(" Port: " + socket.getLocalPort());
                 NetworkPlayer networkPlayer = new NetworkPlayer(i, socket.accept());
 
                 players[i] = networkPlayer;
