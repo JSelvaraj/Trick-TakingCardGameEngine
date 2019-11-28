@@ -9,14 +9,12 @@ import src.player.LocalPlayer;
 import src.player.NetworkPlayer;
 import src.player.Player;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.InetAddress;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.InputMismatchException;
 
 public class Networking {
 
@@ -61,18 +59,18 @@ public class Networking {
                 JSONObject object = (JSONObject) new JSONTokener(JSONfile).nextValue();
                 object.put("playerNumber", i);
                 playersJSONArray.put(object);
-
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        Parser parser = new Parser();
+
 
         players[0] = new LocalPlayer(0);
         JSONObject forClients = new JSONObject();
         forClients.put("spec", Parser.readJSONFile(gameDescFile));
         forClients.put("players", playersJSONArray);
-        forClients.put("seed", 420);
-
+        forClients.put("seed", 420 ); //TODO change to parser.seed when parser is edited.
 
         for (int i = 1; i < players.length; i++) {
             try {
@@ -87,15 +85,15 @@ public class Networking {
 
     public Player[] connectToGame(String ip, int port) {
         Player[] players = new Player[numberOfPlayers];
-        int playerNumber;
+        int playerNumber = -1;
         try {
-            Socket socket = new Socket(ip, port);
+            Socket hostSocket = new Socket(ip, port);
             ServerSocket serverSocket = new ServerSocket(PORTNUMBER);
             JSONObject playerInfo = new JSONObject();
             playerInfo.put("ip", serverSocket.getInetAddress());
             playerInfo.put("port", serverSocket.getLocalPort());
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(hostSocket.getInputStream()));
+            OutputStreamWriter writer = new OutputStreamWriter(hostSocket.getOutputStream());
             writer.write(playerInfo.toString());
 
             String JSONfile = reader.readLine();
@@ -104,8 +102,11 @@ public class Networking {
             JSONArray playersInfo = fromHost.getJSONArray("players");
             int seed = fromHost.getInt("seed");
 
+            ArrayList<PlayerInfo> info = new ArrayList<>();
+
             for (Object player: playersInfo) {
                 if (player instanceof JSONObject) {
+                    info.add(new PlayerInfo(((JSONObject) player).getString("ip"),((JSONObject) player).getInt("port"), ((JSONObject) player).getInt("playerNumber")));
                     if (((JSONObject) player).getString("ip").equals(serverSocket.getInetAddress().toString()) &&
                             ((JSONObject) player).getInt("port") == serverSocket.getLocalPort()) {
                         playerNumber = ((JSONObject) player).getInt("playerNumber");
@@ -114,16 +115,47 @@ public class Networking {
                 }
             }
 
+            if (playerNumber == -1) {
+                throw new InputMismatchException("player number wasn't found");
+            }
 
+            ArrayList<Socket> playerSockets = new ArrayList<>();
+            playerSockets.add(hostSocket);
+            for (int i = 1; i < players.length; i++) {
+                if (players[i] != null) {
+                    continue;
+                }
 
+                if (i < playerNumber) {
+                    NetworkPlayer networkPlayer = new NetworkPlayer(i, serverSocket.accept());
+                    players[i] = networkPlayer;
+                    playerSockets.add(networkPlayer.getPlayerSocket());
+                } else if (i > playerNumber) {
+                    PlayerInfo infoHolder = null;
+                    for (PlayerInfo info_tmp: info) {
+                        if (info_tmp.playerNumber == i) {
+                            infoHolder = info_tmp;
+                            break;
+                        }
+                    }
+                    Socket socket2 = new Socket(infoHolder.ip, infoHolder.port);
+                    NetworkPlayer networkPlayer = new NetworkPlayer(infoHolder.playerNumber, socket2);
+                    players[i] = networkPlayer;
+                    playerSockets.add(networkPlayer.getPlayerSocket());
+                }
+            }
 
-
-
-
-
+            JSONObject rdyObject = new JSONObject();
+            rdyObject.put("ready", true);
+            rdyObject.put("playerIndex", playerNumber);
+            for (Socket playerSocket: playerSockets) {
+                Writer readyWriter = new OutputStreamWriter(playerSocket.getOutputStream());
+                readyWriter.write(rdyObject.toString());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return players;
 
     }
