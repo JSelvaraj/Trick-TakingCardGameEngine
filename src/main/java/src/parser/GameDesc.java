@@ -9,6 +9,9 @@ import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
+/**
+ * Object that stores the attributes of a game description - refer to the GameDescription schema in the Supergroup GitLab
+ */
 public class GameDesc {
 
     private final int NUMBEROFPLAYERS;

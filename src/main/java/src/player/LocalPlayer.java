@@ -10,6 +10,9 @@ import java.util.Scanner;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
+/**
+ * Object to represent a player playing on the same machine as the one the game engine is being run on.
+ */
 public class LocalPlayer extends Player {
     //Text colours.
     static final String ANSI_RESET = "\u001B[0m";
@@ -49,6 +52,13 @@ public class LocalPlayer extends Player {
         this.colour = colours.next();
     }
 
+    /**
+     * @param trumpSuit current trump suit
+     * @param currentTrick current trick
+     * Presents local user with series of options to get information on the state of the game, and then to play a card
+     * from their hand.
+     * @return the selected card by the player
+     */
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) {
         System.out.println("Current Trick: " + currentTrick.toString());
@@ -92,6 +102,7 @@ public class LocalPlayer extends Player {
                     System.out.println("Current Hand: " + super.getHand().toString());
                     System.out.println();
                     Scanner scanner = new Scanner(System.in);
+                    //Asks for a card option until the provided card is valid
                     do {
                         System.out.println("Choose your card: ");
                         cardNumber = scanner.nextInt();
@@ -103,6 +114,10 @@ public class LocalPlayer extends Player {
         }
     }
 
+    /**
+     * @param card The card that was played to be broadcast
+     * @param playerNumber the player's index relative to the game host
+     */
     @Override
     public void broadcastPlay(Card card, int playerNumber) {
         if (!localPrinted) {
@@ -115,6 +130,10 @@ public class LocalPlayer extends Player {
         localPrinted = false;
     }
 
+    /**
+     * @param validBid function that determines of bid is valid
+     * @return new bid
+     */
     @Override
     public Bid makeBid(IntPredicate validBid) {
         System.out.print(this.colour);
@@ -137,9 +156,11 @@ public class LocalPlayer extends Player {
             }
             switch (option) {
                 case 1:
+                    //Show hand if selected bid is not blind
                     System.out.println("Current Hand: " + super.getHand().toString());
                     bidBlind = false;
                 case 2:
+                    //Ask user for bid until it is confirmed to be valid
                     Scanner scanner = new Scanner(System.in);
                     do {
                         System.out.println("Enter your bid:");

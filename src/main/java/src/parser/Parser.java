@@ -14,7 +14,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 
+/**
+ * Creates parser based on JSON schema file to parse the game description JSON
+ */
 public class Parser {
+    //Sets the JSON schema
     private static final String schemaFile = "json-schema.json";
     private Schema schema;
 
@@ -26,6 +30,9 @@ public class Parser {
         this.schema = initSchema();
     }
 
+    /**
+     * @return Schema that defines how to parse gamedescription
+     */
     private Schema initSchema() {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(schemaFile)) {
             if (inputStream == null) {
@@ -38,6 +45,10 @@ public class Parser {
         }
     }
 
+    /**
+     * @param object JSON object to be validated based on the schema
+     * @return
+     */
     public boolean validateObject(JSONObject object) {
         try {
             schema.validate(object);
@@ -48,6 +59,11 @@ public class Parser {
         }
     }
 
+    /**
+     * @param filename Game description filename to be parsed
+     * @return GameDesc object with attributes set from the game description
+     * @throws InvalidGameDescriptionException
+     */
     public GameDesc parseGameDescription(String filename) throws InvalidGameDescriptionException {
         JSONObject gameJSON = readJSONFile(filename);
         if (gameJSON == null) {
