@@ -56,6 +56,8 @@ public class NetworkPlayer extends Player {
         Card card = new Card(suit, rank);
         //Checks if card is valid
         if (!super.getCanBePlayed().test(card)){
+            System.out.println("Invalid Move: " + card.toString());
+            System.out.println(this.getHand().toString());
             throw new InvalidPlayerMoveException();
         }
         return card;

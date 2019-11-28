@@ -91,7 +91,7 @@ public class Networking {
         /* Sends ready msg to players*/
         JSONObject rdyObject = new JSONObject();
         rdyObject.put("ready", true);
-        rdyObject.put("playerIndex", networkPlayers);
+        rdyObject.put("playerIndex", 0);
         for (Socket playerSocket : networkPlayers) {
             try {
                 BufferedWriter readyWriter = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
