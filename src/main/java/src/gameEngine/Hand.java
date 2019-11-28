@@ -40,6 +40,9 @@ public class Hand {
     public Card giveCard (int num) {
         return this.hand.remove(num);
     }
+    public Card giveCard (Card card) {
+        return this.hand.remove(this.hand.indexOf(card));
+    }
 
     public void getCard (Card card) {
         this.hand.add(card);
