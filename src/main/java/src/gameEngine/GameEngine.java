@@ -21,8 +21,8 @@ public class GameEngine {
     private Hand currentTrick = new Hand(); //functionally the trick is just a hand visible to the entire table
     private boolean breakFlag = false; // if the trump/hearts are broken
     private int handsPlayed = 0;
-    HashMap<int[], Integer> tricksWonTable;
-    HashMap<int[], Integer> scoreTable;
+    private HashMap<int[], Integer> tricksWonTable;
+    private HashMap<int[], Integer> scoreTable;
 
     private Predicate<Card> validCard;
     private Predicate<Card> validLeadingCard;
@@ -34,9 +34,8 @@ public class GameEngine {
     }
 
 
-    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray) {
+    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed) {
         GameEngine game = new GameEngine(gameDesc);
-
 
         /* initialize each players hands */
 
@@ -50,7 +49,7 @@ public class GameEngine {
             game.scoreTable.put(team, 0);
         }
         Deck deck = new Deck(gameDesc.getDECK()); // make standard deck from a linked list of Cards
-        Shuffle.seedGenerator((int) gameDesc.getSEED()); // TODO remove cast to int
+        Shuffle.seedGenerator(seed); // TODO remove cast to int
         game.printScore();
         do {
             int currentPlayer = dealer;
