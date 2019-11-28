@@ -13,6 +13,8 @@ import src.player.NetworkPlayer;
 import src.player.Player;
 
 import java.io.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -41,8 +43,9 @@ public class Networking {
             hostInfo.put("ip", socket.getInetAddress().toString());
             hostInfo.put("port", socket.getLocalPort());
             playersJSONArray.put(hostInfo);
+            InetAddress address = InetAddress.getLocalHost();
             for (int i = 1; i < players.length; i++) {
-                System.out.println("IP: " + socket.getInetAddress());
+                System.out.println("IP: " + address);
                 System.out.println(" Port: " + socket.getLocalPort());
                 NetworkPlayer networkPlayer = new NetworkPlayer(i, socket.accept());
 
