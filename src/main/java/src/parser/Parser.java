@@ -137,6 +137,9 @@ public class Parser {
                     throw new InvalidGameDescriptionException("Unrecognised rule: " + rulename);
             }
         }
+        if(trumpPickingMode.equals("fixed") && trumpSuit == null){
+            throw new InvalidGameDescriptionException("No trump suit specified with fixed trump mode.");
+        }
         //Seed for generator
         long seed = 2; //TODO remove this.
         assert trumpPickingMode != null;
