@@ -37,7 +37,6 @@ public class GameEngine {
     public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed) {
         GameEngine game = new GameEngine(gameDesc);
 
-
         /* initialize each players hands */
 
         game.tricksWonTable = new HashMap<>();

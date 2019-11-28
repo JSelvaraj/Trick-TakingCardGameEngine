@@ -1,7 +1,7 @@
 {
   "name": "whist",
   "description": "...",
-  "players": 4,
+  "players": 2,
   "plain": true,
   "deck": null,
   "bid": null,

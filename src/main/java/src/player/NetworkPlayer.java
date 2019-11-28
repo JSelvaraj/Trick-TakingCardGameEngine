@@ -37,7 +37,9 @@ public class NetworkPlayer extends Player {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        JSONObject cardEvent = new JSONObject(message); //TODO catch exceptions
+        System.out.println("String: "+ message);
+        JSONObject cardEvent = new JSONObject(message.toString()); //TODO catch exceptions
+        System.out.println(cardEvent.toString(4));
         String type = cardEvent.getString("type");
         int playerNumber = cardEvent.getInt("playerIndex");
         if(!type.equals("play") || super.getPlayerNumber() != playerNumber){
@@ -57,13 +59,15 @@ public class NetworkPlayer extends Player {
     public void broadcastPlay(Card card, int playerNumber) {
         //Creates the json object to be sent.
         JSONObject json = new JSONObject();
+        System.out.println(json.toString(4));
         json.put("type", "play");
         json.put("suit", card.getSUIT());
         json.put("rank", card.getRANK());
         json.put("playerIndex", playerNumber);
         //Sends the json object over the socket.
         try (OutputStreamWriter out = new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8)){
-            out.write(json.toString());
+            out.write(json.toString() + "\n");
+            out.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
