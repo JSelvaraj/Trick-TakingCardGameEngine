@@ -1,6 +1,5 @@
 package src.networking;
 
-import jdk.internal.util.xml.impl.Input;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -55,7 +54,9 @@ public class Networking {
                 networkPlayers.add(networkPlayer.getPlayerSocket());
                 BufferedReader reader = new BufferedReader(new InputStreamReader(networkPlayer.getPlayerSocket().getInputStream()));
                 String JSONfile = reader.readLine();
+
                 System.out.println("File read = " + JSONfile); // debugging sout
+
                 JSONObject object = (JSONObject) new JSONTokener(JSONfile).nextValue();
                 //object.put("playerNumber", i);
                 playersJSONArray.put(object);
@@ -125,17 +126,16 @@ public class Networking {
         try {
             Socket hostSocket = new Socket(ip, port); // connect to host
             ServerSocket serverSocket = new ServerSocket(PORTNUMBER);
-
+            InetAddress address = InetAddress.getLocalHost();
+            String addressString = address.toString().split("/")[1];
             JSONObject playerInfo = new JSONObject();
-            playerInfo.put("ip", serverSocket.getInetAddress().toString());
+            playerInfo.put("ip", addressString);
             playerInfo.put("port", serverSocket.getLocalPort());
-
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(hostSocket.getOutputStream()));
-
-            System.out.println("About to write");
-
-            writer.write(playerInfo.toString()); // send your socket info to host
+            writer.write(playerInfo.toString() + "\n"); // send your socket info to host
             writer.flush();
+            System.out.println("Sent file");
+            System.out.println("Waiting for game description");
 
             System.out.println("");
 
@@ -144,6 +144,9 @@ public class Networking {
             String JSONfile = reader.readLine();
 
             JSONObject fromHost = (JSONObject) new JSONTokener(JSONfile).nextValue();
+
+//            System.out.println(fromHost.toString(4));
+
             JSONObject gameJSON = fromHost.getJSONObject("spec");
             JSONArray playersInfoJSON = fromHost.getJSONArray("players");
             int seed = fromHost.getInt("seed");
@@ -154,7 +157,7 @@ public class Networking {
             for (int i = 0; i < playersInfoJSON.length(); i++) {
                 JSONObject player = playersInfoJSON.getJSONObject(i);
                 info.add(new PlayerInfo(player.getString("ip"), player.getInt("port")));
-                if (player.getString("ip").equals(serverSocket.getInetAddress().toString()) &&
+                if (player.getString("ip").equals(addressString) &&
                         player.getInt("port") == serverSocket.getLocalPort()) {
                     playerNumber = i;
                 }
@@ -164,8 +167,9 @@ public class Networking {
             if (playerNumber == -1) {
                 throw new InputMismatchException("player number wasn't found");
             }
-
+            players[playerNumber] = new LocalPlayer(playerNumber);
             ArrayList<Socket> playerSockets = new ArrayList<>();
+            players[0] = new NetworkPlayer(0, hostSocket);
             playerSockets.add(hostSocket);
             for (int i = 1; i < players.length; i++) {
                 if (players[i] != null) { // 0 is host, already connected
@@ -198,10 +202,24 @@ public class Networking {
             rdyObject.put("playerIndex", playerNumber);
             for (Socket playerSocket : playerSockets) {
                 BufferedWriter readyWriter = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
-                readyWriter.write(rdyObject.toString());
+                readyWriter.write(rdyObject.toString() + "\n");
+                readyWriter.flush();
+            }
+            for (int i = 1; i < numberOfPlayers ; i++) {
+                if (i == playerNumber) {
+                    continue;
+                }
+                reader = new BufferedReader(new InputStreamReader(playerSockets.get(i).getInputStream()));
+                String rdyMsg = reader.readLine();
+                JSONObject recACKS = (JSONObject) new JSONTokener(rdyMsg).nextValue();
+
+                System.out.println("ACK received from index" + i);
+
             }
             Parser parser = new Parser();
             GameDesc gameDesc = parser.parseGameDescription(gameJSON);
+
+            System.out.println("Starting game");
             GameEngine.main(gameDesc, 0, players, seed);
         } catch (IOException e) {
             e.printStackTrace();

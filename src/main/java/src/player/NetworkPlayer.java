@@ -65,7 +65,7 @@ public class NetworkPlayer extends Player {
         json.put("rank", card.getRANK());
         json.put("playerIndex", playerNumber);
         //Sends the json object over the socket.
-        try (OutputStreamWriter out = new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8)){
+        try (BufferedWriter out = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8))){
             out.write(json.toString() + "\n");
             out.flush();
         } catch (IOException e) {
