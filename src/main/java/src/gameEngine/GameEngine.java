@@ -34,7 +34,7 @@ public class GameEngine {
     }
 
 
-    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray) {
+    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed) {
         GameEngine game = new GameEngine(gameDesc);
 
 
@@ -50,7 +50,7 @@ public class GameEngine {
             game.scoreTable.put(team, 0);
         }
         Deck deck = new Deck(gameDesc.getDECK()); // make standard deck from a linked list of Cards
-        Shuffle.seedGenerator((int) gameDesc.getSEED()); // TODO remove cast to int
+        Shuffle.seedGenerator(seed); // TODO remove cast to int
         game.printScore();
         do {
             int currentPlayer = dealer;
