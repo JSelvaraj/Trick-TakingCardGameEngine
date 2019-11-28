@@ -92,9 +92,9 @@ public class Networking {
         for (Socket playerSocket : networkPlayers) {
             try {
                 System.out.println("Waiting for rdy Message");
-                BufferedReader reader = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
-                String rdyString = reader.readLine();
-                JSONObject rdyMsg = (JSONObject) new JSONTokener(rdyString).nextValue();
+                JsonStreamParser reader = new JsonStreamParser(new InputStreamReader(playerSocket.getInputStream()));
+                JsonElement rdyString = reader.next();
+                JSONObject rdyMsg = new JSONObject(rdyString.getAsJsonObject().toString());
                 if (!rdyMsg.getBoolean("ready")) {
                     throw new InputMismatchException("Ready message not correct");
                 }
@@ -142,11 +142,11 @@ public class Networking {
 
             System.out.println("");
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(hostSocket.getInputStream())); // get specs, players[], seed from host
+            JsonStreamParser reader = new JsonStreamParser(new InputStreamReader(hostSocket.getInputStream())); // get specs, players[], seed from host
             System.out.println("Waiting for JSON file");
-            String JSONfile = reader.readLine();
+            JsonElement JSONfile = reader.next();
 
-            JSONObject fromHost = (JSONObject) new JSONTokener(JSONfile).nextValue();
+            JSONObject fromHost = new JSONObject(JSONfile.getAsJsonObject().toString());
 
 //            System.out.println(fromHost.toString(4));
 
@@ -212,9 +212,9 @@ public class Networking {
                 if (i == playerNumber) {
                     continue;
                 }
-                reader = new BufferedReader(new InputStreamReader(playerSockets.get(i).getInputStream()));
-                String rdyMsg = reader.readLine();
-                JSONObject recACKS = (JSONObject) new JSONTokener(rdyMsg).nextValue();
+                reader = new JsonStreamParser(new InputStreamReader(playerSockets.get(i).getInputStream()));
+                JsonElement rdyMsg = reader.next();
+                JSONObject recACKS = new JSONObject(rdyMsg.getAsJsonObject().toString());
 
                 System.out.println("ACK received from index" + i);
 
