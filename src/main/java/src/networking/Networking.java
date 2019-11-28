@@ -222,7 +222,7 @@ public class Networking {
                 readyWriter.write(rdyObject.toString());
                 readyWriter.flush();
             }
-            for (int i = 1; i < numberOfPlayers -1; i++) {
+            for (int i = 0; i < numberOfPlayers -1; i++) {
                 if (i == playerNumber) {
                     continue;
                 }
