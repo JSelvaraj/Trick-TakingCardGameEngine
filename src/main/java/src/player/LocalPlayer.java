@@ -56,52 +56,19 @@ public class LocalPlayer extends Player {
         System.out.println("-------------------------------------");
         System.out.println("-------------------------------------");
         System.out.println("Player " + (super.getPlayerNumber() + 1));
+        System.out.println("Current Hand: " + super.getHand().toString());
         System.out.println("-------------------------------------");
         System.out.println("-------------------------------------");
-        while (true) {
-            System.out.println("Select Option:");
-            System.out.println("    1. View hand");
-            System.out.println("    2. View current trick");
-            System.out.println("    3. Current Trump Suit");
-            System.out.println("    4. Play card");
-            int option = -1;
-            int cardNumber = -1;
-
-            while (option > 4 || option < 1) {
-                Scanner scanner = new Scanner(System.in);
-                option = scanner.nextInt();
-            }
-            switch (option) {
-                case 1:
-                    System.out.println();
-                    System.out.println("Current Hand: " + super.getHand().toString());
-                    System.out.println();
-                    break;
-                case 2:
-                    System.out.println();
-                    System.out.println("Current Trick: " + currentTrick.toString());
-                    System.out.println();
-                    break;
-                case 3:
-                    System.out.println();
-                    System.out.println("Current Trump: " + trumpSuit);
-                    System.out.println();
-                    break;
-                case 4:
-                    System.out.println();
-                    System.out.println("Current Hand: " + super.getHand().toString());
-                    System.out.println();
-                    Scanner scanner = new Scanner(System.in);
-                    do {
-                        System.out.println("Choose your card: ");
-                        cardNumber = scanner.nextInt();
-                    } while (cardNumber < 0 || cardNumber >= super.getHand().getHandSize() || !super.getCanBePlayed().test(super.getHand().get(cardNumber)));
-                    System.out.print(ANSI_RESET);
-                    return super.getHand().giveCard(cardNumber);
-            }
-
-        }
+        int cardNumber = -1;
+        Scanner scanner = new Scanner(System.in);
+        do {
+            System.out.println("Choose your card: ");
+            cardNumber = scanner.nextInt();
+        } while (cardNumber < 0 || cardNumber >= super.getHand().getHandSize() || !super.getCanBePlayed().test(super.getHand().get(cardNumber)));
+        System.out.print(ANSI_RESET);
+        return super.getHand().giveCard(cardNumber);
     }
+
 
     @Override
     public void broadcastPlay(Card card, int playerNumber) {
