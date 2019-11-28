@@ -28,7 +28,7 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public Card playCard(String trumpSuit, Hand currentTrick) {
+    public Card playCard(String trumpSuit, Hand currentTrick) { // when you're receiving a card
         StringBuilder message = new StringBuilder();
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
@@ -41,8 +41,7 @@ public class NetworkPlayer extends Player {
         }
         JSONObject cardEvent = new JSONObject(message); //TODO catch exceptions
         String type = cardEvent.getString("type");
-        int playerNumber = cardEvent.getInt("playerIndex");
-        if(!type.equals("play") || super.getPlayerNumber() != playerNumber){
+        if(!type.equals("play")){
             throw new InvalidPlayerMoveException();
         }
         String suit = cardEvent.getString("suit");
@@ -64,7 +63,7 @@ public class NetworkPlayer extends Player {
         json.put("rank", card.getRANK());
         json.put("playerIndex", playerNumber);
         //Sends the json object over the socket.
-        try (OutputStreamWriter out = new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8)){
+        try (BufferedWriter out = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8))){
             out.write(json.toString());
         } catch (IOException e) {
             e.printStackTrace();
