@@ -28,17 +28,18 @@ public class NetworkPlayer extends Player {
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) {
         StringBuilder message = new StringBuilder();
+        String msg= "uninit";
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
-            String readLine;
-            while((readLine = reader.readLine()) != null){
-                message.append(readLine);
-            }
+            msg = reader.readLine();
+//            while((readLine = reader.readLine()) != null){
+//                message.append(readLine);
+//            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("String: "+ message);
-        JSONObject cardEvent = new JSONObject(message.toString()); //TODO catch exceptions
+        System.out.println("String: "+ msg);
+        JSONObject cardEvent = new JSONObject(msg); //TODO catch exceptions
         System.out.println(cardEvent.toString(4));
         String type = cardEvent.getString("type");
         int playerNumber = cardEvent.getInt("playerIndex");
@@ -65,7 +66,8 @@ public class NetworkPlayer extends Player {
         json.put("rank", card.getRANK());
         json.put("playerIndex", playerNumber);
         //Sends the json object over the socket.
-        try (BufferedWriter out = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8))){
+        try {
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8));
             out.write(json.toString() + "\n");
             out.flush();
         } catch (IOException e) {
