@@ -3,8 +3,10 @@
   "description": "...",
   "players": 4,
   "plain": true,
+  "initialHandSize" : 1,
+  "minimumHandSize" : 0,
   "deck": null,
-  "bid": null,
+  "bid" : null,
   "teams": [
     [
       0,
@@ -36,7 +38,7 @@
     },
     {
       "name": "trickThreshold",
-      "data": 6
+      "data": 0
     },
     {
       "name": "trickWinner",
@@ -47,12 +49,12 @@
       "data": "prevWinner"
     },
     {
-      "name" : "gameEnd",
-      "data" : "scoreThreshold"
+      "name": "gameEnd",
+      "data": "scoreThreshold"
     },
     {
-      "name" : "gameEndValue",
-      "data" : 5
+      "name": "gameEndValue",
+      "data": 5
     }
   ]
 }
