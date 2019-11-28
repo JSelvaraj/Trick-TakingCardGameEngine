@@ -29,7 +29,7 @@ public class Networking {
     private static final int SEED = 420;
 
 
-    public static void hostGame(String gameDescFile) throws InvalidGameDescriptionException {
+    public static void hostGame(String gameDescFile, int hostPort) throws InvalidGameDescriptionException {
         JSONObject gameJSON = Parser.readJSONFile(gameDescFile);
         Parser parser = new Parser();
         GameDesc gameDesc = parser.parseGameDescription(gameJSON);
@@ -43,11 +43,10 @@ public class Networking {
             InetAddress address = InetAddress.getLocalHost();
             JSONObject hostInfo = new JSONObject();
             hostInfo.put("ip", address);
-            hostInfo.put("port", PORTNUMBER);
+            hostInfo.put("port", hostPort);
             playersJSONArray.put(hostInfo);
-
+            ServerSocket socket = new ServerSocket(hostPort);
             for (int i = 1; i < players.length; i++) {
-                ServerSocket socket = new ServerSocket(PORTNUMBER);
                 System.out.println("IP: " + address);
                 System.out.println(" Port: " + socket.getLocalPort());
                 NetworkPlayer networkPlayer = new NetworkPlayer(i, socket.accept());
@@ -89,6 +88,19 @@ public class Networking {
                 e.printStackTrace();
             }
         }
+        JSONObject rdyObject = new JSONObject();
+        rdyObject.put("ready", true);
+        rdyObject.put("playerIndex", 0);
+        for (Socket playerSocket : networkPlayers) {
+            try {
+                System.out.println("Sending messages");
+                OutputStreamWriter readyWriter = new OutputStreamWriter(playerSocket.getOutputStream());
+                readyWriter.write(rdyObject.toString());
+                readyWriter.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         for (Socket playerSocket : networkPlayers) {
             try {
                 System.out.println("Waiting for rdy Message");
@@ -98,6 +110,7 @@ public class Networking {
                 if (!rdyMsg.getBoolean("ready")) {
                     throw new InputMismatchException("Ready message not correct");
                 }
+                System.out.println("Recieved ACK from " + rdyMsg.getInt("playerIndex"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -109,7 +122,7 @@ public class Networking {
 
     }
 
-    public static void connectToGame(String ip, int port) throws InvalidGameDescriptionException {
+    public static void connectToGame(int localPort, String ip, int port) throws InvalidGameDescriptionException {
 
         class PlayerInfo {
             String ip;
@@ -128,7 +141,7 @@ public class Networking {
         int playerNumber = -1;
         try {
             Socket hostSocket = new Socket(ip, port); // connect to host
-            ServerSocket serverSocket = new ServerSocket(PORTNUMBER);
+            ServerSocket serverSocket = new ServerSocket(localPort);
             InetAddress address = InetAddress.getLocalHost();
             String addressString = address.toString().split("/")[1];
             JSONObject playerInfo = new JSONObject();
@@ -175,7 +188,8 @@ public class Networking {
             players[0] = new NetworkPlayer(0, hostSocket);
             playerSockets.add(hostSocket);
             for (int i = 1; i < players.length; i++) {
-                if (players[i] != null) { // 0 is host, already connected
+                System.out.println(i + ":" + playerNumber);
+                if (i == playerNumber) { // 0 is host, already connected
                     continue;
                 }
 
@@ -203,20 +217,21 @@ public class Networking {
             JSONObject rdyObject = new JSONObject();
             rdyObject.put("ready", true);
             rdyObject.put("playerIndex", playerNumber);
+            System.out.println("Sending messages");
             for (Socket playerSocket : playerSockets) {
                 BufferedWriter readyWriter = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
-                readyWriter.write(rdyObject.toString() + "\n");
+                readyWriter.write(rdyObject.toString());
                 readyWriter.flush();
             }
-            for (int i = 1; i < numberOfPlayers ; i++) {
-                if (i == playerNumber) {
-                    continue;
-                }
-                reader = new JsonStreamParser(new InputStreamReader(playerSockets.get(i).getInputStream()));
-                JsonElement rdyMsg = reader.next();
+            for (Socket playerSocket : playerSockets) {
+                System.out.println("Waiting for Reponses.");
+                JsonStreamParser reader2 = new JsonStreamParser(new InputStreamReader(playerSocket.getInputStream()));
+                JsonElement rdyMsg = reader2.next();
                 JSONObject recACKS = new JSONObject(rdyMsg.getAsJsonObject().toString());
-
-                System.out.println("ACK received from index" + i);
+                if (!recACKS.getBoolean("ready")) {
+                    throw new InputMismatchException("Ready message not correct");
+                }
+                System.out.println("ACK received from " + recACKS.getInt("playerIndex"));
 
             }
             Parser parser = new Parser();
