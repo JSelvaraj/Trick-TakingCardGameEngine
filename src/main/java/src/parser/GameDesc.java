@@ -88,7 +88,7 @@ public class GameDesc {
         this.nextLegalCardMode = nextLegalCardMode;
         this.trickWinner = trickWinner;
         this.trickLeader = trickLeader;
-        this.getHandSize = handFunctions.getHandSize(initialHandSize, handSize);
+        this.getHandSize = handFunctions.getHandSize(initialHandSize, minHandSize, handSize);
 
     }
 

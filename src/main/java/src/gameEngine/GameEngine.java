@@ -190,7 +190,7 @@ public class GameEngine {
         if (desc.isDEALCARDSCLOCKWISE())
             dealerIndex = (dealerIndex + 1) % players.length; // start dealing from dealer's left
         else dealerIndex = Math.floorMod((dealerIndex - 1), players.length); // start dealing from dealers right
-        int cardsLeft = deck.getDeckSize() - (players.length * this.desc.getInitialHandSize());
+        int cardsLeft = deck.getDeckSize() - (players.length * this.desc.getHandSize());
         while (deck.getDeckSize() > cardsLeft) {
             players[dealerIndex].getHand().getCard(deck.drawCard());
 
