@@ -2,16 +2,18 @@ package src.player;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonStreamParser;
+import org.json.JSONObject;
 import src.card.Card;
+import src.exceptions.InvalidBidException;
 import src.exceptions.InvalidPlayerMoveException;
 import src.gameEngine.Bid;
 import src.gameEngine.Hand;
 
-import java.io.*;
-import java.net.*;
-import java.nio.*;
-import org.json.JSONObject;
-
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
@@ -24,7 +26,7 @@ public class NetworkPlayer extends Player {
         super(playerNumber, validCard);
     }
 
-    public NetworkPlayer(int playerNumber, Socket playerSocket){
+    public NetworkPlayer(int playerNumber, Socket playerSocket) {
         super(playerNumber);
         this.playerSocket = playerSocket;
     }
@@ -47,14 +49,14 @@ public class NetworkPlayer extends Player {
         JSONObject cardEvent = new JSONObject(msg.getAsJsonObject().toString()); //TODO catch exceptions
         System.out.println(cardEvent.toString(4));
         String type = cardEvent.getString("type");
-        if(!type.equals("play")){
+        if (!type.equals("play")) {
             throw new InvalidPlayerMoveException();
         }
         String suit = cardEvent.getString("suit");
         String rank = cardEvent.getString("rank");
         Card card = new Card(suit, rank);
         //Checks if card is valid
-        if (!super.getCanBePlayed().test(card)){
+        if (!super.getCanBePlayed().test(card)) {
             System.out.println(this.getHand().toString());
             System.out.println(card.toString());
             throw new InvalidPlayerMoveException();
@@ -86,7 +88,27 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public Bid makeBid(IntPredicate validBid) {
-        throw new UnsupportedOperationException();
+    public Bid makeBid(IntPredicate validBid) { //TODO allow passing
+        JsonElement msg = null;
+        try {
+            JsonStreamParser reader = new JsonStreamParser(new InputStreamReader(playerSocket.getInputStream()));
+            msg = reader.next();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        JSONObject bidEvent = new JSONObject(msg.getAsJsonObject().toString());
+        String type = bidEvent.getString("type");
+        if (!type.equals("bid")) {
+            throw new InvalidPlayerMoveException();
+        }
+        //TODO take suit into account
+        int value = bidEvent.getInt("value");
+        boolean blind = bidEvent.optBoolean("blind", false);
+        if(!validBid.test(value)){
+            throw new InvalidBidException();
+        }
+        return new Bid(value, blind);
+
     }
 }
