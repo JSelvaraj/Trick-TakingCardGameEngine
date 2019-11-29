@@ -68,7 +68,6 @@ public class NetworkPlayer extends Player {
     public void broadcastPlay(Card card, int playerNumber) {
         //Creates the json object to be sent.
         JSONObject json = new JSONObject();
-        System.out.println(json.toString(4));
         json.put("type", "play");
         json.put("suit", card.getSUIT());
         json.put("rank", card.getRANK());
@@ -85,6 +84,22 @@ public class NetworkPlayer extends Player {
 
     public Socket getPlayerSocket() {
         return playerSocket;
+    }
+
+    @Override
+    public void broadcastBid(Bid bid, int playerNumber){
+        JSONObject json = new JSONObject();
+        json.put("type", "bid");
+        json.put("value", bid.getBidValue());
+        json.put("blindBid", bid.isBlind());
+        json.put("playerIndex", playerNumber);
+        try {
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8));
+            out.write(json.toString());
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

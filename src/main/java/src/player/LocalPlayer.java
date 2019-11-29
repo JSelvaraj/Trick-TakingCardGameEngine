@@ -73,9 +73,15 @@ public class LocalPlayer extends Player {
     @Override
     public void broadcastPlay(Card card, int playerNumber) {
         if (!localPrinted) {
-            System.out.println("Player" + (playerNumber + 1) + " played " + card.toString());
+            System.out.println("Player " + (playerNumber + 1) + " played " + card.toString());
         }
         localPrinted = true;
+    }
+    @Override
+    public void broadcastBid(Bid bid, int playerNumber){
+        if(!localPrinted){
+            System.out.println("Player " + (playerNumber + 1) + " bid " + bid.getBidValue() + (bid.isBlind() ? " blind" : ""));
+        }
     }
 
     public static void resetLocalPrinted() {
