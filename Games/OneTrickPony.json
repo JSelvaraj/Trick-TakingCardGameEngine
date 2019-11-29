@@ -1,10 +1,12 @@
 {
-  "name": "whist",
+  "name": "One Trick Pony",
   "description": "...",
   "players": 2,
   "plain": true,
   "deck": null,
   "bid": null,
+  "initialHandSize" : 1,
+  "minimumHandSize" : 0,
   "teams": [
     [
       0
@@ -34,7 +36,7 @@
     },
     {
       "name": "trickThreshold",
-      "data": 6
+      "data": 0
     },
     {
       "name": "trickWinner",
