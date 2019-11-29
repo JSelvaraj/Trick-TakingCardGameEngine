@@ -60,11 +60,12 @@ public class GameEngine {
             game.tricksWonTable.put(team, 0);
             game.scoreTable.put(team, 0);
         }
-        Deck deck = new Deck(gameDesc.getDECK()); // make standard deck from a linked list of Cards
+        Deck deck; // make standard deck from a linked list of Cards
         Shuffle.seedGenerator(seed); // TODO remove cast to int
         game.printScore();
         do {
             int currentPlayer = dealer;
+            deck = new Deck(gameDesc.getDECK());
             Shuffle.shuffle(deck.cards); //shuffle deck according to the given seed
             game.dealCards(playerArray, deck, currentPlayer);
             if (gameDesc.isDEALCARDSCLOCKWISE())
@@ -178,6 +179,7 @@ public class GameEngine {
         System.out.println("-----------------------------------");
         for (int i = 0; i < players.length; i++){
             bidTable[currentPlayer] = players[currentPlayer].makeBid(this.desc.getValidBid());
+            broadcastBids(bidTable[currentPlayer], currentPlayer, players);
             if (this.desc.isDEALCARDSCLOCKWISE()) currentPlayer = (currentPlayer + 1) % players.length;
             else currentPlayer = Math.floorMod((currentPlayer - 1), players.length);
         }
@@ -260,15 +262,38 @@ public class GameEngine {
         System.out.println("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾");
     }
 
+    private void broadcastBids(Bid bid, int playerNumber, Player[] playerArray){
+        //Only need to broadcast moves from local players to network players
+        if(playerArray[playerNumber].getClass() == LocalPlayer.class){
+            for (Player player : playerArray) {
+                player.broadcastBid(bid, playerNumber);
+            }
+        } else { //Only need to print out network moves to local players
+            for(Player player : playerArray){
+                if(player.getClass() == LocalPlayer.class){
+                    player.broadcastBid(bid, playerNumber);
+                }
+            }
+        }
+        //Resets the printed for local players.
+//        LocalPlayer.resetLocalPrinted();
+    }
+
     private void broadcastMoves(Card card, int playerNumber, Player[] playerArray){
-        //Only need to broadcast moves from local players
+        //Only need to broadcast moves from local players to network players
         if(playerArray[playerNumber].getClass() == LocalPlayer.class){
             for (Player player : playerArray) {
                 player.broadcastPlay(card, playerNumber);
             }
+        } else { //Only need to print out network moves to local players
+            for(Player player : playerArray){
+                if(player.getClass() == LocalPlayer.class){
+                    player.broadcastPlay(card, playerNumber);
+                }
+            }
         }
         //Resets the printed for local players.
-        LocalPlayer.resetLocalPrinted();
+//        LocalPlayer.resetLocalPrinted();
     }
 
     private Predicate<Card> getValidCard() {

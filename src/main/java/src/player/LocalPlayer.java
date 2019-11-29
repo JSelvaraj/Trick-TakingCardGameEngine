@@ -33,20 +33,20 @@ public class LocalPlayer extends Player {
     private static final String ANSI_WHITE_BACKGROUND = "\u001B[47m";
     private static final String[] background_colours = {ANSI_BLACK_BACKGROUND, ANSI_RED_BACKGROUND, ANSI_GREEN_BACKGROUND, ANSI_YELLOW_BACKGROUND, ANSI_BLUE_BACKGROUND, ANSI_PURPLE_BACKGROUND, ANSI_CYAN_BACKGROUND, ANSI_WHITE_BACKGROUND};
 
-    private static Iterator<String> colours = Arrays.asList(text_colours).iterator();
+//    private static Iterator<String> colours = Arrays.asList(text_colours).iterator();
 
     private String colour;
     //Determines if this move has already been printed for local players.
-    private static boolean localPrinted;
+//    private static boolean localPrinted;
 
     public LocalPlayer(int playerNumber, Predicate<Card> validCard) {
         super(playerNumber, validCard);
-        this.colour = colours.next();
+        this.colour = text_colours[playerNumber];
     }
 
     public LocalPlayer(int playerNumber) {
         super(playerNumber);
-        this.colour = colours.next();
+        this.colour = text_colours[playerNumber];
     }
 
     @Override
@@ -72,15 +72,22 @@ public class LocalPlayer extends Player {
 
     @Override
     public void broadcastPlay(Card card, int playerNumber) {
-        if (!localPrinted) {
-            System.out.println("Player" + (playerNumber + 1) + " played " + card.toString());
-        }
-        localPrinted = true;
+//        if (!localPrinted) {
+        System.out.println("Player " + (playerNumber + 1) + " played " + card.toString());
+//        }
+//        localPrinted = true;
     }
 
-    public static void resetLocalPrinted() {
-        localPrinted = false;
+    @Override
+    public void broadcastBid(Bid bid, int playerNumber) {
+//        if (!localPrinted) {
+            System.out.println("Player " + (playerNumber + 1) + " bid " + bid.getBidValue() + (bid.isBlind() ? " blind" : ""));
+//        }
     }
+
+//    public static void resetLocalPrinted() {
+//        localPrinted = false;
+//    }
 
     @Override
     public Bid makeBid(IntPredicate validBid) {

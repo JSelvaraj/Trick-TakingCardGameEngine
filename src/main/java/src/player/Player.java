@@ -55,4 +55,6 @@ public abstract class Player {
     public void setCanBePlayed(Predicate<Card> canBePlayed) {
         this.canBePlayed = canBePlayed;
     }
+
+    public abstract void broadcastBid(Bid bid, int playerNumber);
 }

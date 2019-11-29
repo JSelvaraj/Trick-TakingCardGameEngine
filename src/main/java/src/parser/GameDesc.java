@@ -119,7 +119,7 @@ public class GameDesc {
     }
 
     public LinkedList<Card> getDECK() {
-        return DECK;
+        return Deck.makeDeck(this.SUITS, this.RANKS);
     }
 
     public boolean isDEALCARDSCLOCKWISE() {
