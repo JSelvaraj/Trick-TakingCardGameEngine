@@ -35,7 +35,7 @@ public class validBids {
         int pointsPerBid = bidObject.getInt("pointsPerBid");
         int overTrickPoints = bidObject.getInt("overtrickPoints");
         int penaltyPoints = bidObject.getInt("penaltyPoints");
-        int points_for_matching = bidObject.optInt("pointsForMatch", 0);
+        int points_for_matching = bidObject.optInt("pointsForMatch", 0); //TODO add to spec
         List<SpecialBid> specialBidList = new LinkedList<>();
         if (bidObject.has("specialBids")) {
             JSONArray specialBids = bidObject.getJSONArray("specialBids");
