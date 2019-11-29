@@ -8,7 +8,7 @@
   "deck": null,
   "bid" : {
     "ascendingBid" : false,
-    "pointsPerBid" : 10,
+    "pointsPerBid" : 1,
     "overtrickPoints" : 1,
     "penaltyPoints" : 0,
     "pointsForMatch" : 10,
