@@ -69,7 +69,6 @@ public class Networking {
         System.out.println("gathered players");
 
 
-
         players[0] = new LocalPlayer(0);
         JSONObject forClients = new JSONObject();
 
@@ -88,6 +87,21 @@ public class Networking {
                 e.printStackTrace();
             }
         }
+        /* Sends ready msg to players*/
+        JSONObject rdyObject = new JSONObject();
+        rdyObject.put("ready", true);
+        rdyObject.put("playerIndex", 0);
+        for (Socket playerSocket : networkPlayers) {
+            try {
+                BufferedWriter readyWriter = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream()));
+                readyWriter.write(rdyObject.toString());
+                readyWriter.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        /* Receives ready message from all the players */
         for (Socket playerSocket : networkPlayers) {
             try {
                 System.out.println("Waiting for rdy Message");
