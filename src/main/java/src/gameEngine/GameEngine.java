@@ -178,6 +178,7 @@ public class GameEngine {
         System.out.println("-----------------------------------");
         for (int i = 0; i < players.length; i++){
             bidTable[currentPlayer] = players[currentPlayer].makeBid(this.desc.getValidBid());
+            broadcastBids(bidTable[currentPlayer], currentPlayer, players);
             if (this.desc.isDEALCARDSCLOCKWISE()) currentPlayer = (currentPlayer + 1) % players.length;
             else currentPlayer = Math.floorMod((currentPlayer - 1), players.length);
         }
@@ -260,11 +261,34 @@ public class GameEngine {
         System.out.println("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾");
     }
 
+    private void broadcastBids(Bid bid, int playerNumber, Player[] playerArray){
+        //Only need to broadcast moves from local players to network players
+        if(playerArray[playerNumber].getClass() == LocalPlayer.class){
+            for (Player player : playerArray) {
+                player.broadcastBid(bid, playerNumber);
+            }
+        } else { //Only need to print out network moves to local players
+            for(Player player : playerArray){
+                if(playerArray[playerNumber].getClass() == LocalPlayer.class){
+                    player.broadcastBid(bid, playerNumber);
+                }
+            }
+        }
+        //Resets the printed for local players.
+        LocalPlayer.resetLocalPrinted();
+    }
+
     private void broadcastMoves(Card card, int playerNumber, Player[] playerArray){
-        //Only need to broadcast moves from local players
+        //Only need to broadcast moves from local players to network players
         if(playerArray[playerNumber].getClass() == LocalPlayer.class){
             for (Player player : playerArray) {
                 player.broadcastPlay(card, playerNumber);
+            }
+        } else { //Only need to print out network moves to local players
+            for(Player player : playerArray){
+                if(playerArray[playerNumber].getClass() == LocalPlayer.class){
+                    player.broadcastPlay(card, playerNumber);
+                }
             }
         }
         //Resets the printed for local players.
