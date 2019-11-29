@@ -1,6 +1,7 @@
 package src.parser;
 import src.card.*;
 import src.deck.Deck;
+import src.functions.handFunctions;
 import src.gameEngine.Bid;
 
 import java.util.Arrays;
@@ -8,6 +9,7 @@ import java.util.LinkedList;
 import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public class GameDesc {
 
@@ -33,6 +35,7 @@ public class GameDesc {
     private boolean bidding;
     private IntPredicate validBid;
     private BiFunction<Bid, Integer, Integer> evaluateBid;
+    private Supplier<Integer> getHandSize;
     private int minHandSize;
     private int initialHandSize;
 
@@ -63,7 +66,8 @@ public class GameDesc {
                     Integer trickThreshold,
                     String nextLegalCardMode,
                     String trickWinner,
-                    String trickLeader) {
+                    String trickLeader,
+                    String handSize) {
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
         this.SEED = seed;
@@ -84,6 +88,8 @@ public class GameDesc {
         this.nextLegalCardMode = nextLegalCardMode;
         this.trickWinner = trickWinner;
         this.trickLeader = trickLeader;
+        this.getHandSize = handFunctions.getHandSize(initialHandSize, handSize);
+
     }
 
     @Override
@@ -200,5 +206,9 @@ public class GameDesc {
 
     public int getInitialHandSize() {
         return initialHandSize;
+    }
+
+    public int getHandSize(){
+        return this.getHandSize.get();
     }
 }

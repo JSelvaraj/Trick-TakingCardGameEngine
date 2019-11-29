@@ -96,6 +96,7 @@ public class Parser {
         String nextLegalCardMode = null;
         String trickWinner = null;
         String trickLeader = null;
+        String handSize = "fixed";
         JSONArray rules = gameJSON.getJSONArray("rules"); //TODO check for null
         for (int i = 0; i < rules.length(); i++) {
             JSONObject rule = rules.getJSONObject(i);
@@ -137,6 +138,8 @@ public class Parser {
                 case "tieBreaker":
                     //TODO change
                     break;
+                case "handSize":
+                    handSize = rule.getString("data");
                 default:
                     //break;
                     throw new InvalidGameDescriptionException("Unrecognised rule: " + rulename);
@@ -166,7 +169,8 @@ public class Parser {
                 trickThreshold,
                 nextLegalCardMode,
                 trickWinner,
-                trickLeader
+                trickLeader,
+                handSize
                 );
 
         if(!gameJSON.isNull("bid")) {
