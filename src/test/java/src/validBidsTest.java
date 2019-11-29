@@ -56,13 +56,13 @@ public class validBidsTest {
         blindNilBid.put("bidValue", 0);
         blindNilBid.put("pointsGained", 200);
         blindNilBid.put("penalty", 100);
-        blindNilBid.put("blindBid", true);
+        blindNilBid.put("blind", true);
         //Special bid for nil bidding
         JSONObject nilBid = new JSONObject();
         nilBid.put("bidValue", 0);
         nilBid.put("pointsGained", 100);
         nilBid.put("penalty", 50);
-        nilBid.put("blindBid", false);
+        nilBid.put("blind", false);
         specialBids.put(blindNilBid);
         specialBids.put(nilBid);
         bidObject.put("specialBids", specialBids);

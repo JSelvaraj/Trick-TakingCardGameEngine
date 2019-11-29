@@ -59,13 +59,7 @@ public class Parser {
         }
     }
 
-    /**
-     * @param filename Game description filename to be parsed
-     * @return GameDesc object with attributes set from the game description
-     * @throws InvalidGameDescriptionException
-     */
-    public GameDesc parseGameDescription(String filename) throws InvalidGameDescriptionException {
-        JSONObject gameJSON = readJSONFile(filename);
+    public GameDesc parseGameDescription(JSONObject gameJSON) throws InvalidGameDescriptionException {
         if (gameJSON == null) {
             throw new InvalidGameDescriptionException("Failed to parse game description file.");
         }
@@ -99,6 +93,8 @@ public class Parser {
             teams = convertTeamArray(gameJSON.getJSONArray("teams"));
         }
         boolean ascedingOrdering = gameJSON.getBoolean("ascending_ordering");
+        int initialHandSize = gameJSON.getInt("initialHandSize");
+        int minHandSize = gameJSON.getInt("minimumHandSize");
         //Rules
         //TODO fill in defaults
         String calculateScore = null;
@@ -146,10 +142,20 @@ public class Parser {
                 case "trickLeader":
                     trickLeader = rule.getString("data");
                     break;
+                case "handEnd":
+                    //TODO change
+                    break;
+                case "tieBreaker":
+                    //TODO change
+                    break;
                 default:
-                    //break;
-                    throw new InvalidGameDescriptionException("Unrecognised rule: " + rulename);
+                    break;
+
+//                    throw new InvalidGameDescriptionException("Unrecognised rule: " + rulename);
             }
+        }
+        if(trumpPickingMode.equals("fixed") && trumpSuit == null){
+            throw new InvalidGameDescriptionException("No trump suit specified with fixed trump mode.");
         }
         //Seed for generator
         long seed = 2; //TODO remove this.
@@ -161,6 +167,8 @@ public class Parser {
                 ranks,
                 rank_order,
                 ascedingOrdering,
+                minHandSize,
+                initialHandSize,
                 calculateScore,
                 trumpPickingMode,
                 trumpSuit,
@@ -170,7 +178,8 @@ public class Parser {
                 trickThreshold,
                 nextLegalCardMode,
                 trickWinner,
-                trickLeader);
+                trickLeader
+                );
 
         if(!gameJSON.isNull("bid")) {
             JSONObject bidObject = gameJSON.getJSONObject("bid");
@@ -183,7 +192,7 @@ public class Parser {
      * @param filename Path to file containing the JSON object.
      * @return JSONObject parsed from the input file.
      */
-    private JSONObject readJSONFile(String filename) {
+    public static JSONObject readJSONFile(String filename) {
         try (InputStream inputStream = new FileInputStream(filename)) {
             return new JSONObject(new JSONTokener(inputStream));
         } catch (IOException e) {
