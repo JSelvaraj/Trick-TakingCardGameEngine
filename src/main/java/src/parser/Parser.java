@@ -138,8 +138,9 @@ public class Parser {
                     //TODO change
                     break;
                 default:
-                    //break;
-                    throw new InvalidGameDescriptionException("Unrecognised rule: " + rulename);
+                    break;
+
+//                    throw new InvalidGameDescriptionException("Unrecognised rule: " + rulename);
             }
         }
         if(trumpPickingMode.equals("fixed") && trumpSuit == null){
