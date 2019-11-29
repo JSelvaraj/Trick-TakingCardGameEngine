@@ -5,6 +5,7 @@ import src.functions.handFunctions;
 import src.gameEngine.Bid;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
@@ -38,6 +39,7 @@ public class GameDesc {
     private Supplier<Integer> getHandSize;
     private int minHandSize;
     private int initialHandSize;
+    private Iterator<String> trumpIterator;
 
 
     /**
@@ -67,7 +69,8 @@ public class GameDesc {
                     String nextLegalCardMode,
                     String trickWinner,
                     String trickLeader,
-                    String handSize) {
+                    String handSize,
+                    Iterator<String> trumpIterator) {
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
         this.SEED = seed;
@@ -89,7 +92,7 @@ public class GameDesc {
         this.trickWinner = trickWinner;
         this.trickLeader = trickLeader;
         this.getHandSize = handFunctions.getHandSize(initialHandSize, minHandSize, handSize);
-
+        this.trumpIterator = trumpIterator;
     }
 
     @Override
@@ -210,5 +213,9 @@ public class GameDesc {
 
     public int getHandSize(){
         return this.getHandSize.get();
+    }
+
+    public Iterator<String> getTrumpIterator() {
+        return trumpIterator;
     }
 }

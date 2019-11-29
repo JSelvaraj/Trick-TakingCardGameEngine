@@ -35,6 +35,9 @@ public class GameEngine {
         if(desc.getTrumpPickingMode().equals("fixed")){
             this.trumpSuit.append(desc.getTrumpSuit());
         }
+        if(desc.getTrumpPickingMode().equals("predefined")){
+            this.trumpSuit.append(desc.getTrumpIterator().next());
+        }
         this.breakFlag = new AtomicBoolean(false);
         this.validLeadingCard = validCards.getValidLeadingCardPredicate(desc.getLeadingCardForEachTrick(), this.trumpSuit, breakFlag);
         this.validCard = validCards.getValidCardPredicate("trick", this.trumpSuit, this.currentTrick, this.validLeadingCard);
@@ -79,6 +82,7 @@ public class GameEngine {
             System.out.println("----------------PLAY---------------");
             System.out.println("-----------------------------------");
             do {
+                System.out.println("Trump is " + game.trumpSuit.toString());
                 for (int i = 0; i < playerArray.length; i++) {
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
@@ -143,6 +147,9 @@ public class GameEngine {
                     //Reset tricks won for next round.
                     game.tricksWonTable.put(team, 0);
                 }
+            }
+            if(gameDesc.getTrumpPickingMode().equals("predefined")){
+                game.trumpSuit.replace(0, game.trumpSuit.length(), gameDesc.getTrumpIterator().next());
             }
             game.printScore();
         } while (game.gameEnd());

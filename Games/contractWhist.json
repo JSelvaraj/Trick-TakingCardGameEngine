@@ -2,7 +2,6 @@
   "name": "whist",
   "description": "...",
   "players": 4,
-  "plain": true,
   "initialHandSize" : 13,
   "minimumHandSize" : 0,
   "deck": null,

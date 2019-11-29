@@ -12,13 +12,15 @@ import src.functions.validBids;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Iterator;
 
 
 public class Parser {
     private static final String schemaFile = "json-schema.json";
     private Schema schema;
 
-    private final String[] DEFAULT_SUITS = {"CLUBS", "DIAMONDS","HEARTS", "SPADES"};
+    private final String[] DEFAULT_SUITS = {"CLUBS", "DIAMONDS", "HEARTS", "SPADES"};
     private final String[] DEFAULT_RANKS = {"ACE", "KING", "QUEEN", "JACK", "TEN", "NINE", "EIGHT", "SEVEN", "SIX", "FIVE", "FOUR", "THREE", "TWO"};
     private final String[] DEFAULT_RANK_ORDER = {"TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING", "ACE"};
 
@@ -49,6 +51,7 @@ public class Parser {
     }
 
     public GameDesc parseGameDescription(JSONObject gameJSON) throws InvalidGameDescriptionException {
+        System.out.println(gameJSON.toString(4));
         if (gameJSON == null) {
             throw new InvalidGameDescriptionException("Failed to parse game description file.");
         }
@@ -88,6 +91,7 @@ public class Parser {
         //TODO fill in defaults
         String calculateScore = null;
         String trumpPickingMode = null;
+        JSONArray trumpOrdering = null;
         String trumpSuit = null;
         String leadingCardForEachTrick = null;
         String gameEnd = null;
@@ -140,17 +144,26 @@ public class Parser {
                     break;
                 case "handSize":
                     handSize = rule.getString("data");
+                    break;
+                case "trumpOrder":
+                    trumpOrdering = rule.getJSONArray("data");
+                    break;
                 default:
                     //break;
                     throw new InvalidGameDescriptionException("Unrecognised rule: " + rulename);
             }
         }
-        if(trumpPickingMode.equals("fixed") && trumpSuit == null){
+        if (trumpPickingMode.equals("fixed") && trumpSuit == null) {
             throw new InvalidGameDescriptionException("No trump suit specified with fixed trump mode.");
         }
         //Seed for generator
         long seed = 2; //TODO remove this.
         assert trumpPickingMode != null;
+        Iterator<String> trumpIterator = null;
+        if (trumpPickingMode.equals("predefined") && trumpOrdering != null) {
+            trumpIterator = parseTrumpOrdering(trumpOrdering);
+
+        }
         GameDesc gameDesc = new GameDesc(players,
                 teams,
                 seed,
@@ -170,10 +183,10 @@ public class Parser {
                 nextLegalCardMode,
                 trickWinner,
                 trickLeader,
-                handSize
-                );
+                handSize,
+                trumpIterator);
 
-        if(!gameJSON.isNull("bid")) {
+        if (!gameJSON.isNull("bid")) {
             JSONObject bidObject = gameJSON.getJSONObject("bid");
             initBidding(bidObject, gameDesc);
         }
@@ -208,12 +221,20 @@ public class Parser {
         return teams;
     }
 
-    private void initBidding(JSONObject bidObject, GameDesc gameDesc){
+    private void initBidding(JSONObject bidObject, GameDesc gameDesc) {
         int minBid = bidObject.getInt("minBid");
         int maxBid = bidObject.getInt("maxBid");
         gameDesc.setValidBid(validBids.isValidBidValue(minBid, maxBid));
         gameDesc.setEvaluateBid(validBids.evaluateBid(bidObject));
         gameDesc.setBidding(true);
+    }
+
+    private static Iterator<String> parseTrumpOrdering(JSONArray trumpOrderingJSON) {
+        String[] trumpOrdering = new String[trumpOrderingJSON.length()];
+        for (int i = 0; i < trumpOrdering.length; i++) {
+            trumpOrdering[i] = trumpOrderingJSON.getString(i);
+        }
+        return Arrays.asList(trumpOrdering).iterator();
     }
 
 }

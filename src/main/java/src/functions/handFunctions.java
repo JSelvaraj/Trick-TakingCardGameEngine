@@ -8,9 +8,9 @@ public class handFunctions {
         AtomicInteger handSize = new AtomicInteger(initialHandSize);
         switch (handSizeMode){
             case "decreasing":
-                return handSize::decrementAndGet;
+                return handSize::getAndDecrement;
             case "decreasingCyclic":
-                return () -> handSize.get() == minimumHandSize + 1 ? handSize.getAndSet(initialHandSize) : handSize.get();
+                return () -> handSize.get() == minimumHandSize + 1 ? handSize.getAndSet(initialHandSize) : handSize.getAndDecrement();
             default:
                 return () -> initialHandSize;
         }
