@@ -12,6 +12,9 @@ import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+/**
+ * Object that stores the attributes of a game description - refer to the GameDescription schema in the Supergroup GitLab
+ */
 public class GameDesc {
 
     private final int NUMBEROFPLAYERS;

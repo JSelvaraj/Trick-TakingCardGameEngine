@@ -69,7 +69,6 @@ public class Networking {
         System.out.println("gathered players");
 
 
-
         players[0] = new LocalPlayer(0);
         JSONObject forClients = new JSONObject();
 
@@ -88,6 +87,7 @@ public class Networking {
                 e.printStackTrace();
             }
         }
+        /* Receives ready message from all the players */
         for (Socket playerSocket : networkPlayers) {
             try {
                 System.out.println("Waiting for rdy Message");

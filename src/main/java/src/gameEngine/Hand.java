@@ -4,6 +4,10 @@ import src.card.*;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+
+/**
+ * Object to represent a player's hand of cards
+ */
 public class Hand {
 
     private LinkedList<Card> hand;
@@ -19,6 +23,10 @@ public class Hand {
         return hand.size();
     }
 
+
+    /**
+     * @return string representation of hand
+     */
     public String toString() {
         if (hand.size() == 0) return "EMPTY HAND";
         String handString = "";
@@ -37,6 +45,11 @@ public class Hand {
         return hand.get(index);
     }
 
+
+    /**
+     * @param num index of card to be 'given' (removed from hand)
+     * @return removed card
+     */
     public Card giveCard (int num) {
         return this.hand.remove(num);
     }
@@ -44,6 +57,10 @@ public class Hand {
         return this.hand.remove(this.hand.indexOf(card));
     }
 
+
+    /**
+     * @param card to be added to hand
+     */
     public void getCard (Card card) {
         this.hand.add(card);
     }
