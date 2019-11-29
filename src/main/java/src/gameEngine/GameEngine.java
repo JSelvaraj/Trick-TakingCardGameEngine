@@ -45,6 +45,9 @@ public class GameEngine {
         if(desc.getTrumpPickingMode().equals("fixed")){
             this.trumpSuit.append(desc.getTrumpSuit());
         }
+        if(desc.getTrumpPickingMode().equals("predefined")){
+            this.trumpSuit.append(desc.getTrumpIterator().next());
+        }
         //Flags if the trump suit has been broken in the hand
         this.breakFlag = new AtomicBoolean(false);
         this.validLeadingCard = validCards.getValidLeadingCardPredicate(desc.getLeadingCardForEachTrick(), this.trumpSuit, breakFlag);
@@ -94,6 +97,7 @@ public class GameEngine {
             System.out.println("-----------------------------------");
             //Loop until trick has completed (all cards have been played)
             do {
+                System.out.println("Trump is " + game.trumpSuit.toString());
                 //Each player plays a card
                 for (int i = 0; i < playerArray.length; i++) {
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
@@ -168,6 +172,9 @@ public class GameEngine {
                     game.tricksWonTable.put(team, 0);
                 }
             }
+            if(gameDesc.getTrumpPickingMode().equals("predefined")){
+                game.trumpSuit.replace(0, game.trumpSuit.length(), gameDesc.getTrumpIterator().next());
+            }
             game.printScore();
         } while (game.gameEnd());
 
@@ -223,7 +230,7 @@ public class GameEngine {
         if (desc.isDEALCARDSCLOCKWISE())
             dealerIndex = (dealerIndex + 1) % players.length; // start dealing from dealer's left
         else dealerIndex = Math.floorMod((dealerIndex - 1), players.length); // start dealing from dealers right
-        int cardsLeft = deck.getDeckSize() - (players.length * this.desc.getInitialHandSize());
+        int cardsLeft = deck.getDeckSize() - (players.length * this.desc.getHandSize());
         //Deal until the deck is empty
         while (deck.getDeckSize() > cardsLeft) {
             //Deal card to player by adding to their hand and removing from the deck

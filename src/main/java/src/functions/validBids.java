@@ -38,9 +38,10 @@ public class validBids {
         int pointsPerBid = bidObject.getInt("pointsPerBid");
         int overTrickPoints = bidObject.getInt("overtrickPoints");
         int penaltyPoints = bidObject.getInt("penaltyPoints");
+        int points_for_matching = bidObject.optInt("pointsForMatch", 0); //TODO add to spec
         //Create list for special bids rules
         List<SpecialBid> specialBidList = new LinkedList<>();
-        if (bidObject.has("specialBids")) {
+        if (bidObject.has("specialBids") && !bidObject.isNull("specialBids")) {
             JSONArray specialBids = bidObject.getJSONArray("specialBids");
             for (int i = 0; i < specialBids.length(); i++) {
                 JSONObject specialBid = specialBids.getJSONObject(i);
@@ -65,7 +66,7 @@ public class validBids {
                 }
             } else { //Otherwise just evaluate the bid normally.
                 if (value >= bid.getBidValue()) {
-                    return bid.getBidValue() * pointsPerBid + (value - bid.getBidValue()) * overTrickPoints;
+                    return (value == bid.getBidValue() ? points_for_matching : 0) + bid.getBidValue() * pointsPerBid + (value - bid.getBidValue()) * overTrickPoints;
                 } else {
                     return value * -penaltyPoints;
                 }

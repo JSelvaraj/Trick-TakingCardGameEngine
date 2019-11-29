@@ -1,13 +1,16 @@
 package src.parser;
 import src.card.*;
 import src.deck.Deck;
+import src.functions.handFunctions;
 import src.gameEngine.Bid;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * Object that stores the attributes of a game description - refer to the GameDescription schema in the Supergroup GitLab
@@ -36,8 +39,10 @@ public class GameDesc {
     private boolean bidding;
     private IntPredicate validBid;
     private BiFunction<Bid, Integer, Integer> evaluateBid;
+    private Supplier<Integer> getHandSize;
     private int minHandSize;
     private int initialHandSize;
+    private Iterator<String> trumpIterator;
 
 
     /**
@@ -66,7 +71,9 @@ public class GameDesc {
                     Integer trickThreshold,
                     String nextLegalCardMode,
                     String trickWinner,
-                    String trickLeader) {
+                    String trickLeader,
+                    String handSize,
+                    Iterator<String> trumpIterator) {
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
         this.SEED = seed;
@@ -87,6 +94,8 @@ public class GameDesc {
         this.nextLegalCardMode = nextLegalCardMode;
         this.trickWinner = trickWinner;
         this.trickLeader = trickLeader;
+        this.getHandSize = handFunctions.getHandSize(initialHandSize, minHandSize, handSize);
+        this.trumpIterator = trumpIterator;
     }
 
     @Override
@@ -203,5 +212,13 @@ public class GameDesc {
 
     public int getInitialHandSize() {
         return initialHandSize;
+    }
+
+    public int getHandSize(){
+        return this.getHandSize.get();
+    }
+
+    public Iterator<String> getTrumpIterator() {
+        return trumpIterator;
     }
 }

@@ -2,11 +2,19 @@
   "name": "whist",
   "description": "...",
   "players": 4,
-  "plain": true,
   "initialHandSize" : 13,
   "minimumHandSize" : 0,
   "deck": null,
-  "bid" : null,
+  "bid" : {
+    "ascendingBid" : false,
+    "pointsPerBid" : 1,
+    "overtrickPoints" : 1,
+    "penaltyPoints" : 0,
+    "pointsForMatch" : 10,
+    "minBid" : 0,
+    "maxBid" : 13,
+    "specialBids": null
+  },
   "teams": [
     [
       0, 2
@@ -28,15 +36,19 @@
     },
     {
       "name": "trumpPickingMode",
-      "data": "lastDealt"
+      "data": "predefined"
+    },
+    {
+      "name" : "trumpOrder",
+      "data" : ["SPADES", "HEARTS", "CLUBS", "DIAMONDS", "SPADES", "HEARTS", "CLUBS", "DIAMONDS", "SPADES", "HEARTS"]
     },
     {
       "name": "calculateScore",
-      "data": "tricksWon"
+      "data": "bid"
     },
     {
       "name": "trickThreshold",
-      "data": 6
+      "data": 0
     },
     {
       "name": "trickWinner",
@@ -48,11 +60,15 @@
     },
     {
       "name": "gameEnd",
-      "data": "scoreThreshold"
+      "data": "handsPlayed"
     },
     {
       "name": "gameEndValue",
-      "data": 5
+      "data": 10
+    },
+    {
+      "name" : "handSize",
+      "data" : "decreasing"
     }
   ]
 }
