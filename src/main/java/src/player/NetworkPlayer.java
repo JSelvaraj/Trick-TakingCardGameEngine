@@ -47,7 +47,6 @@ public class NetworkPlayer extends Player {
         }
 //        System.out.println("String: "+ msg.toString());
         JSONObject cardEvent = new JSONObject(msg.getAsJsonObject().toString()); //TODO catch exceptions
-        System.out.println(cardEvent.toString(4));
         String type = cardEvent.getString("type");
         if (!type.equals("play")) {
             throw new InvalidPlayerMoveException();

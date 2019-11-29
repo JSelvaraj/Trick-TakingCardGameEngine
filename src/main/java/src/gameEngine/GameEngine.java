@@ -269,13 +269,13 @@ public class GameEngine {
             }
         } else { //Only need to print out network moves to local players
             for(Player player : playerArray){
-                if(playerArray[playerNumber].getClass() == LocalPlayer.class){
+                if(player.getClass() == LocalPlayer.class){
                     player.broadcastBid(bid, playerNumber);
                 }
             }
         }
         //Resets the printed for local players.
-        LocalPlayer.resetLocalPrinted();
+//        LocalPlayer.resetLocalPrinted();
     }
 
     private void broadcastMoves(Card card, int playerNumber, Player[] playerArray){
@@ -286,13 +286,13 @@ public class GameEngine {
             }
         } else { //Only need to print out network moves to local players
             for(Player player : playerArray){
-                if(playerArray[playerNumber].getClass() == LocalPlayer.class){
+                if(player.getClass() == LocalPlayer.class){
                     player.broadcastPlay(card, playerNumber);
                 }
             }
         }
         //Resets the printed for local players.
-        LocalPlayer.resetLocalPrinted();
+//        LocalPlayer.resetLocalPrinted();
     }
 
     private Predicate<Card> getValidCard() {

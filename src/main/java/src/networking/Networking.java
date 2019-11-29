@@ -88,19 +88,6 @@ public class Networking {
                 e.printStackTrace();
             }
         }
-        JSONObject rdyObject = new JSONObject();
-        rdyObject.put("ready", true);
-        rdyObject.put("playerIndex", 0);
-        for (Socket playerSocket : networkPlayers) {
-            try {
-                System.out.println("Sending messages");
-                OutputStreamWriter readyWriter = new OutputStreamWriter(playerSocket.getOutputStream());
-                readyWriter.write(rdyObject.toString());
-                readyWriter.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         for (Socket playerSocket : networkPlayers) {
             try {
                 System.out.println("Waiting for rdy Message");
@@ -111,6 +98,20 @@ public class Networking {
                     throw new InputMismatchException("Ready message not correct");
                 }
                 System.out.println("Recieved ACK from " + rdyMsg.getInt("playerIndex"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        //Only send ready after you have ready from other players.
+        JSONObject rdyObject = new JSONObject();
+        rdyObject.put("ready", true);
+        rdyObject.put("playerIndex", 0);
+        for (Socket playerSocket : networkPlayers) {
+            try {
+                System.out.println("Sending messages");
+                OutputStreamWriter readyWriter = new OutputStreamWriter(playerSocket.getOutputStream());
+                readyWriter.write(rdyObject.toString());
+                readyWriter.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -231,7 +232,9 @@ public class Networking {
                 if (!recACKS.getBoolean("ready")) {
                     throw new InputMismatchException("Ready message not correct");
                 }
-                System.out.println("ACK received from " + recACKS.getInt("playerIndex"));
+                int index = recACKS.getInt("playerIndex");
+                assert playerSocket == ((NetworkPlayer) players[index]).getPlayerSocket();
+                System.out.println("ACK received from " + index);
 
             }
             Parser parser = new Parser();

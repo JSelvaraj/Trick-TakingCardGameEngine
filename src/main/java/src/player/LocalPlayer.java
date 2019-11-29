@@ -37,7 +37,7 @@ public class LocalPlayer extends Player {
 
     private String colour;
     //Determines if this move has already been printed for local players.
-    private static boolean localPrinted;
+//    private static boolean localPrinted;
 
     public LocalPlayer(int playerNumber, Predicate<Card> validCard) {
         super(playerNumber, validCard);
@@ -72,21 +72,22 @@ public class LocalPlayer extends Player {
 
     @Override
     public void broadcastPlay(Card card, int playerNumber) {
-        if (!localPrinted) {
-            System.out.println("Player " + (playerNumber + 1) + " played " + card.toString());
-        }
-        localPrinted = true;
-    }
-    @Override
-    public void broadcastBid(Bid bid, int playerNumber){
-        if(!localPrinted){
-            System.out.println("Player " + (playerNumber + 1) + " bid " + bid.getBidValue() + (bid.isBlind() ? " blind" : ""));
-        }
+//        if (!localPrinted) {
+        System.out.println("Player " + (playerNumber + 1) + " played " + card.toString());
+//        }
+//        localPrinted = true;
     }
 
-    public static void resetLocalPrinted() {
-        localPrinted = false;
+    @Override
+    public void broadcastBid(Bid bid, int playerNumber) {
+//        if (!localPrinted) {
+            System.out.println("Player " + (playerNumber + 1) + " bid " + bid.getBidValue() + (bid.isBlind() ? " blind" : ""));
+//        }
     }
+
+//    public static void resetLocalPrinted() {
+//        localPrinted = false;
+//    }
 
     @Override
     public Bid makeBid(IntPredicate validBid) {
