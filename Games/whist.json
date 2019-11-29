@@ -36,7 +36,7 @@
     },
     {
       "name": "trickThreshold",
-      "data": 0
+      "data": 6
     },
     {
       "name": "trickWinner",

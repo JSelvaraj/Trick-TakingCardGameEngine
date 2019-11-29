@@ -42,7 +42,7 @@ public class Networking {
         try {
             InetAddress address = InetAddress.getLocalHost();
             JSONObject hostInfo = new JSONObject();
-            hostInfo.put("ip", address);
+            hostInfo.put("ip", address.getHostAddress());
             hostInfo.put("port", hostPort);
             playersJSONArray.put(hostInfo);
             ServerSocket socket = new ServerSocket(hostPort);
@@ -144,7 +144,7 @@ public class Networking {
             Socket hostSocket = new Socket(ip, port); // connect to host
             ServerSocket serverSocket = new ServerSocket(localPort);
             InetAddress address = InetAddress.getLocalHost();
-            String addressString = address.toString().split("/")[1];
+            String addressString = address.getHostAddress();
             JSONObject playerInfo = new JSONObject();
             playerInfo.put("ip", addressString);
             playerInfo.put("port", serverSocket.getLocalPort());
