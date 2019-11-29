@@ -2,43 +2,40 @@ package src.card;
 
 import java.util.*;
 
+/**
+ * Comparator class to define how cards are ranked
+ */
 public class CardComparator implements Comparator<Card> {
 
-
-    /* suitOrder and rankOrder are arrays of strings where the position in the array denotes its ranking in game.
-    *  for suitOrder a lower index indicates a more valuable suit
-    *       e.g. in the array {"HEARTS", "CLUBS", "DIAMONDS", "SPADES"} Hearts > Clubs > Diamonds > SPADES
-    *  for rankOrder a lower index indicates a less valuable rank
-    *       e.g. in the array  {"ACE","TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING"}*/
-    private List<String> suitOrder;
+    //TODO: Convert to hashmap similar to suitmap
+    /** rankOrder is an array of strings where the position in the array denotes its ranking in game.
+       a higher index in the array indicates a more valuable rank.
+     */
     private List<String> rankOrder ;
 
+    /** suitMap is a map of the suits and their ranking in the game defined by the game description,
+       a lower value in the map indicates a more valuable suit.
+     */
     private HashMap<String,Integer> suitMap;
 
-    public CardComparator(String[] suitOrder, String[] rankOrder) {
-        this.rankOrder = Arrays.asList(rankOrder);
-        this.suitOrder = Arrays.asList(suitOrder);
-    }
-
-    public CardComparator(String[] suitOrder) {
-        String[] ranks = {"TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING","ACE"};
-        this.rankOrder = Arrays.asList(ranks);
-        this.suitOrder = Arrays.asList(suitOrder);
-    }
-
+    /**
+     * Constructor that sets default rankorder
+     * @param suitMap Ranking of suits
+     */
     public CardComparator(HashMap<String, Integer> suitMap) {
         String[] ranks = {"TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING","ACE"};
         this.rankOrder = Arrays.asList(ranks);
         this.suitMap = suitMap;
     }
 
+    /**
+     * Constructor that sets rankings
+     * @param suitMap Ranking of suits
+     */
     public CardComparator(HashMap<String, Integer> suitMap, String[] rankOrder) {
         this.rankOrder = Arrays.asList(rankOrder);
         this.suitMap = suitMap;
     }
-
-
-
 
     /**
      *
@@ -49,7 +46,6 @@ public class CardComparator implements Comparator<Card> {
      */
     @Override
     public int compare(Card card1, Card card2) throws InputMismatchException {
-
         /* If the rank/suit provided to the comparator doesn't match the names of the ranks/suits used to
         *  make the comparator, then it throws an error */
         if (!suitMap.containsKey(card1.getSUIT())
@@ -59,8 +55,8 @@ public class CardComparator implements Comparator<Card> {
             throw new InputMismatchException("Rank/Suit does not match accepted Ranks/Suits");
         }
 
-
         /* This first compares the suits of the cards then the ranks */
+        //TODO: Possibly change so that it can handle if there is a game where a cards rank could give greater value than suit.
         if (suitMap.get(card1.getSUIT()) < suitMap.get(card2.getSUIT())) {
             return 1;
         } else if (suitMap.get(card1.getSUIT()) > suitMap.get(card2.getSUIT())) {

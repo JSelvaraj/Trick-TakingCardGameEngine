@@ -5,6 +5,9 @@ import src.card.Card;
 
 import java.util.LinkedList;
 
+/**
+ * Object that stores a deck (LinkedList) of Cards
+ */
 public class Deck {
     public LinkedList<Card> cards;
 
@@ -20,6 +23,8 @@ public class Deck {
         return cards.size();
     }
 
+
+    //Creates Cards based on the suits and ranks provided by the game desc, and adds them to the list.
     public static LinkedList<Card> makeDeck(String[] suits, String[] ranks) {
         LinkedList<Card> deck = new LinkedList<>();
         for (String currentSuit: suits) {
@@ -31,33 +36,16 @@ public class Deck {
 
     }
 
+    //Creates standard deck if no suits and ranks provided.
     private void initStandardDeck () {
         String[] suits = {"CLUBS", "DIAMONDS","HEARTS", "SPADES"};
         String[] ranks = {"ACE", "KING", "QUEEN", "JACK", "TEN", "NINE", "EIGHT", "SEVEN", "SIX", "FIVE", "FOUR", "THREE", "TWO"};
         cards = makeDeck(suits, ranks);
     }
 
-    public LinkedList<Card> drawCard (int number) {
-        LinkedList<Card> result = new LinkedList<>();
-        for (int i = 0; i < number; i++) {
-            result.add(cards.pop());
-        }
-        return result;
-    }
-
+    //Returns top card from deck
     public Card drawCard() {
         return cards.pop();
-    }
-
-    public void shuffle (long seed) {
-        MersenneTwister twister = new MersenneTwister(seed);
-        LinkedList<Card> newDeck = new LinkedList<>();
-
-        while (newDeck.size() < cards.size()) {
-            int nextIndex = Math.floorMod(twister.nextInt(),cards.size());
-            if (newDeck.indexOf(cards.get(nextIndex)) == -1) newDeck.add(cards.get(nextIndex)); //only new cards are added
-        }
-        cards = newDeck;
     }
 
 }

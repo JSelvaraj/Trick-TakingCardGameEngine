@@ -4,6 +4,10 @@ import org.apache.commons.math3.random.MersenneTwister;
 
 import java.util.List;
 
+
+/**
+ * Used to perform a random shuffle on a deck of cards, based on a provided seed.
+ */
 public class Shuffle {
     private static MersenneTwister generator;
 

@@ -8,6 +8,9 @@ import src.gameEngine.Hand;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
+/**
+ * Abstract class to represent a player
+ */
 public abstract class Player {
     private int playerNumber;
     private Hand hand = null;

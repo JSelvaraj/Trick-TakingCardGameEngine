@@ -11,6 +11,9 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
 
+/**
+ * Creates custom functions based on the game description rules that describe how bids work - validity and scoring.
+ */
 public class validBids {
     /**
      * Creates a Predicate that checks if a given bid is valid.
@@ -35,6 +38,7 @@ public class validBids {
         int pointsPerBid = bidObject.getInt("pointsPerBid");
         int overTrickPoints = bidObject.getInt("overtrickPoints");
         int penaltyPoints = bidObject.getInt("penaltyPoints");
+        //Create list for special bids rules
         List<SpecialBid> specialBidList = new LinkedList<>();
         if (bidObject.has("specialBids")) {
             JSONArray specialBids = bidObject.getJSONArray("specialBids");
@@ -47,12 +51,13 @@ public class validBids {
             }
         }
         return ((bid, value) -> {
-            //First finds if the bid matches a special bid
+            //First finds if the bid matches a special bid that was defined in the game decription
             Optional<SpecialBid> matchingSpecialBid = specialBidList.stream()
                     .filter((specialBid) -> specialBid.isBlind() == bid.isBlind() && specialBid.getBidValue() == bid.getBidValue())
                     .findFirst();
-            //if there is a matching special bid
+            //If there is a matching special bid
             if (matchingSpecialBid.isPresent()) {
+                //If the
                 if (bid.getBidValue() == value) {
                     return matchingSpecialBid.get().getPointsGained();
                 } else {

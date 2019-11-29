@@ -10,6 +10,9 @@ import java.util.Scanner;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
+/**
+ * Object to represent a player playing on the same machine as the one the game engine is being run on.
+ */
 public class LocalPlayer extends Player {
     //Text colours.
     static final String ANSI_RESET = "\u001B[0m";
@@ -49,6 +52,13 @@ public class LocalPlayer extends Player {
         this.colour = text_colours[playerNumber];
     }
 
+    /**
+     * @param trumpSuit current trump suit
+     * @param currentTrick current trick
+     * Presents local user with series of options to get information on the state of the game, and then to play a card
+     * from their hand.
+     * @return the selected card by the player
+     */
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) {
         System.out.println("Current Trick: " + currentTrick.toString());
@@ -85,10 +95,10 @@ public class LocalPlayer extends Player {
 //        }
     }
 
-//    public static void resetLocalPrinted() {
-//        localPrinted = false;
-//    }
-
+    /**
+     * @param validBid function that determines of bid is valid
+     * @return new bid
+     */
     @Override
     public Bid makeBid(IntPredicate validBid) {
         System.out.print(this.colour);
