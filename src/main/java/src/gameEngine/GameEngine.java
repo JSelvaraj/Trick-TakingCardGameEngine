@@ -60,11 +60,12 @@ public class GameEngine {
             game.tricksWonTable.put(team, 0);
             game.scoreTable.put(team, 0);
         }
-        Deck deck = new Deck(gameDesc.getDECK()); // make standard deck from a linked list of Cards
+        Deck deck; // make standard deck from a linked list of Cards
         Shuffle.seedGenerator(seed); // TODO remove cast to int
         game.printScore();
         do {
             int currentPlayer = dealer;
+            deck = new Deck(gameDesc.getDECK());
             Shuffle.shuffle(deck.cards); //shuffle deck according to the given seed
             game.dealCards(playerArray, deck, currentPlayer);
             if (gameDesc.isDEALCARDSCLOCKWISE())
