@@ -24,11 +24,14 @@ class RandomPlayerTest {
         Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("any", null, null);
         Predicate<Card> validCard = validCards.getValidCardPredicate("trick", null, currentTrick, validLeadingCard);
         RandomPlayer randomPlayer = new RandomPlayer(0, validCard);
-        randomPlayer.getHand().getCard(card1);
-        randomPlayer.getHand().getCard(card2);
-        randomPlayer.getHand().getCard(card3);
-        randomPlayer.getHand().getCard(card4);
-        for (int i = 0; i < 100; i++) assertTrue(validCard.test(randomPlayer.playCard(null, null)));
+        for (int i = 0; i < 100; i++){
+            randomPlayer.getHand().getCard(card1);
+            randomPlayer.getHand().getCard(card2);
+            randomPlayer.getHand().getCard(card3);
+            randomPlayer.getHand().getCard(card4);
+            assertTrue(validCard.test(randomPlayer.playCard(null, null)));
+            randomPlayer.getHand().dropHand();
+        }
     }
 
     @Test
@@ -49,21 +52,24 @@ class RandomPlayerTest {
         Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate("any", null, null);
         Predicate<Card> validCard = validCards.getValidCardPredicate("trick", null, currentTrick, validLeadingCard);
         RandomPlayer randomPlayer = new RandomPlayer(0, validCard);
-        //Fills the players hand.
-        randomPlayer.getHand().getCard(card1);
-        randomPlayer.getHand().getCard(card2);
-        randomPlayer.getHand().getCard(card3);
-        randomPlayer.getHand().getCard(card4);
-        randomPlayer.getHand().getCard(card6);
-        randomPlayer.getHand().getCard(card7);
-        randomPlayer.getHand().getCard(card8);
-        randomPlayer.getHand().getCard(card9);
-        randomPlayer.getHand().getCard(card10);
-        randomPlayer.getHand().getCard(card11);
-        randomPlayer.getHand().getCard(card12);
         //Adds leading card
         currentTrick.getCard(card5);
-        for (int i = 0; i < 100; i++) assertTrue(validCard.test(randomPlayer.playCard(null, currentTrick)));
+        for (int i = 0; i < 100; i++){
+            //Fills the players hand.
+            randomPlayer.getHand().getCard(card1);
+            randomPlayer.getHand().getCard(card2);
+            randomPlayer.getHand().getCard(card3);
+            randomPlayer.getHand().getCard(card4);
+            randomPlayer.getHand().getCard(card6);
+            randomPlayer.getHand().getCard(card7);
+            randomPlayer.getHand().getCard(card8);
+            randomPlayer.getHand().getCard(card9);
+            randomPlayer.getHand().getCard(card10);
+            randomPlayer.getHand().getCard(card11);
+            randomPlayer.getHand().getCard(card12);
+            assertTrue(validCard.test(randomPlayer.playCard(null, currentTrick)));
+            randomPlayer.getHand().dropHand();
+        }
     }
 
     @Test
