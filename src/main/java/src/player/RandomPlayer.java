@@ -10,18 +10,18 @@ import java.util.function.Predicate;
 
 public class RandomPlayer extends Player {
     Random random;
-    RandomPlayer(int playerNumber, Predicate<Card> canBePlayed) {
+    public RandomPlayer(int playerNumber, Predicate<Card> canBePlayed) {
         super(playerNumber, canBePlayed);
         random = new Random();
     }
 
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) {
-        Card[] validCards = (Card[]) super.getHand().getHand()
+        Object[] validCards = super.getHand().getHand()
                 .stream()
                 .filter(getCanBePlayed())
                 .toArray();
-        return validCards[random.nextInt(validCards.length)];
+        return (Card) validCards[random.nextInt(validCards.length)];
     }
 
     @Override
@@ -35,6 +35,7 @@ public class RandomPlayer extends Player {
         do {
             bid = random.nextInt(handSize);
         } while (!validBid.test(bid));
+        return new Bid(bid, true);
     }
 
     @Override
