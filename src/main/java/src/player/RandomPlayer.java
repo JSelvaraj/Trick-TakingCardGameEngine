@@ -21,7 +21,7 @@ public class RandomPlayer extends Player {
                 .stream()
                 .filter(getCanBePlayed())
                 .toArray();
-        return (Card) validCards[random.nextInt(validCards.length)];
+        return super.getHand().giveCard((Card) validCards[random.nextInt(validCards.length)]);
     }
 
     @Override
