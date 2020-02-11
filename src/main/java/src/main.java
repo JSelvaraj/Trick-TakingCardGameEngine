@@ -26,6 +26,7 @@ public class main {
 //                Networking.connectToGame(args[0], Integer.parseInt(args[1]));
 //
 //        }
+        System.out.println("test");
         Scanner scanner = new Scanner(System.in);
         System.out.println("Local Port to use?");
         int localPort = scanner.nextInt();
