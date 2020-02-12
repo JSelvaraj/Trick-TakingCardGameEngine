@@ -9,8 +9,9 @@ import src.functions.validCards;
 import src.parser.GameDesc;
 import src.player.LocalPlayer;
 import src.player.Player;
+import src.team.Team;
 
-import java.util.HashMap;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
@@ -32,6 +33,8 @@ public class GameEngine {
     //Predicate functions used in determining if card moves are valid
     private Predicate<Card> validCard;
     private Predicate<Card> validLeadingCard;
+
+    static ArrayList<Team> teams = new ArrayList<>();
 
 
     /**
@@ -70,6 +73,21 @@ public class GameEngine {
         for (Player player : playerArray) {
             player.initCanBePlayed(game.getValidCard());
         }
+
+        int teamCounter = 0;
+        for (int[] team : gameDesc.getTeams()) {
+            Player[] players = new Player[team.length];
+            for (int i = 0; i < team.length; i++) {
+                players[i] = playerArray[team[i]];
+            }
+            teams.add(new Team(players, teamCounter));
+            teamCounter++;
+        }
+
+        for (Team team: teams) {
+            team.printTeam();
+        }
+
         for (int[] team : gameDesc.getTeams()) {
             game.tricksWonTable.put(team, 0);
             game.scoreTable.put(team, 0);
@@ -77,6 +95,8 @@ public class GameEngine {
         Deck deck; // make standard deck from a linked list of Cards
         Shuffle.seedGenerator(seed); // TODO remove cast to int
         game.printScore();
+
+        //game.checkGameCloseness();
         //Loop until game winning condition has been met
         do {
             int currentPlayer = dealer;
@@ -130,11 +150,11 @@ public class GameEngine {
                 }
 
                 //Find the team with the winning player and increment their tricks score
-                for (int[] team : gameDesc.getTeams()) {
-                    if (ArrayUtils.contains(team, currentPlayer)) {
-                        game.tricksWonTable.put(team, (game.tricksWonTable.get(team) + 1));
+                for (Team team : teams) {
+                    if (team.findPlayer(currentPlayer)) {
+                        team.setTricksWon(team.getTricksWon() + 1);
                         System.out.println("Player " + (currentPlayer + 1) + " was the winner of the trick with the " + winningCard.toString());
-                        System.out.println("Tricks won: " + game.tricksWonTable.get(team));
+                        System.out.println("Tricks won: " + team.getTricksWon());
                         break;
                     }
                     //Signal that trump suit was broken -> can now be played
@@ -149,27 +169,27 @@ public class GameEngine {
             game.handsPlayed++;
             //Calculate the score of the hand
             if (gameDesc.getCalculateScore().equals("tricksWon")) {
-                for (int[] team : gameDesc.getTeams()) {
-                    int score = game.tricksWonTable.get(team);
+                for (Team team: teams) {
+                    int score = team.getScore();
                     if (score > gameDesc.getTrickThreshold()) { // if score greater than trick threshold
-                        game.scoreTable.put(team, (game.scoreTable.get(team) + (score - gameDesc.getTrickThreshold()))); // add score to team's running total
+                        team.setScore(team.getScore() + (score - gameDesc.getTrickThreshold())); // add score to team's running total
                     }
-                    game.tricksWonTable.put(team, 0);
+                    team.setTricksWon(0);
                 }
             }
             //
             if(gameDesc.getCalculateScore().equals("bid")) { //TODO handle special bids.
-                for (int[] team : gameDesc.getTeams()){
+                for (Team team : teams){
                     int teamBid = 0;
                     //Get collective team bids
-                    for (int playerNumber : team){
-                        teamBid += game.bidTable[playerNumber].getBidValue();
+                    for (Player player : team.getPlayers()){
+                        teamBid += game.bidTable[player.getPlayerNumber()].getBidValue();
                     }
                     Bid bid = new Bid(teamBid, false);
                     //Increase score of winning team based on bid scoring system (See validBids.java)
-                    game.scoreTable.put(team, game.scoreTable.get(team) + gameDesc.getEvaluateBid().apply(bid, game.tricksWonTable.get(team)));
+                    team.setScore(team.getScore() + gameDesc.getEvaluateBid().apply(bid, team.getTricksWon()));
                     //Reset tricks won for next round.
-                    game.tricksWonTable.put(team, 0);
+                    team.setTricksWon(0);
                 }
             }
             if(gameDesc.getTrumpPickingMode().equals("predefined")){
@@ -187,8 +207,8 @@ public class GameEngine {
     private boolean gameEnd() {
         switch (desc.getGameEnd()) {
             case "scoreThreshold":
-                for (int[] team : desc.getTeams()) {
-                    if (scoreTable.get(team) >= desc.getScoreThreshold())
+                for (Team team : teams) {
+                    if (team.getScore() >= desc.getScoreThreshold())
                         return false;
                 }
                 break;
@@ -303,17 +323,17 @@ public class GameEngine {
         System.out.println("______________________________________________________________________________________");
         System.out.println("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾");
         //Iterate teams
-        for (int i = 0; i < desc.getTeams().length; i++) {
+        for (int i = 0; i < teams.size(); i++) {
             System.out.print("    Team: (");
             //Print team names
-            for (int j = 0; j < desc.getTeams()[0].length; j++) {
-                System.out.print(desc.getTeams()[i][j]);
-                if ((j + 1) < desc.getTeams()[0].length) System.out.print(", ");
+            for (int j = 0; j < teams.get(i).getPlayers().length; j++) {
+                System.out.print(teams.get(i).getPlayers()[j].getPlayerNumber());
+                if ((j + 1) < teams.get(i).getPlayers().length) System.out.print(", ");
             }
             //Print score of team
             System.out.print(")     ");
-            System.out.println(scoreTable.get(desc.getTeams()[i]));
-            if ((i + 1) < desc.getTeams().length) {
+            System.out.println(teams.get(i).getScore());
+            if ((i + 1) < teams.size()) {
                 System.out.println("-------------------------------------------------------------------------------------");
             }
         }
@@ -353,6 +373,43 @@ public class GameEngine {
         }
         //Resets the printed for local players.
 //        LocalPlayer.resetLocalPrinted();
+    }
+
+    private void checkGameCloseness() {
+        int maxAcceptableScoreSeparation = 10;
+        int[] emptyTeam = new int[]{0,1};
+        int[] weakestTeam = null;
+        int[] strongestTeam = null;
+        HashMap<int[], Integer> testScoreTable = new HashMap<>();
+        testScoreTable.put(new int[]{0,1}, 2);
+        testScoreTable.put(new int[]{2,3}, 3);
+        testScoreTable.put(new int[]{4,5}, 1);
+
+        Map.Entry<int[], Integer> maxEntry = null;
+        for (Map.Entry<int[], Integer> entry : testScoreTable.entrySet())
+        {
+            if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) >= 0)
+            {
+                maxEntry = entry;
+            }
+        }
+        Map.Entry<int[], Integer> minEntry = null;
+        for (Map.Entry<int[], Integer> entry : testScoreTable.entrySet())
+        {
+            if (minEntry == null || entry.getValue().compareTo(minEntry.getValue()) >= 0)
+            {
+                minEntry = entry;
+            }
+        }
+        int highestScore = maxEntry.getValue();
+        int lowestScore = minEntry.getValue();
+
+
+        if (highestScore - lowestScore > maxAcceptableScoreSeparation) {
+            //trigger balancing event
+        }
+
+        System.exit(0);
     }
 
     private Predicate<Card> getValidCard() {

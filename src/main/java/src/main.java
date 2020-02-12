@@ -54,7 +54,7 @@ public class main {
         }*/
 
         Parser parser = new Parser();
-        JSONObject GameJSON = Parser.readJSONFile("Games/whist.json");
+        JSONObject GameJSON = Parser.readJSONFile("Games/spades.json");
         GameDesc gameDesc = parser.parseGameDescription(GameJSON);
 
         Player[] playerArray = {new LocalPlayer(0), new LocalPlayer(1), new LocalPlayer(2), new LocalPlayer(3)};
