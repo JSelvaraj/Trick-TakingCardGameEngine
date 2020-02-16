@@ -26,16 +26,15 @@ public class GameEngine {
     private AtomicBoolean breakFlag; // if the trump/hearts are broken
     //Stores the scores/metrics of the game
     private int handsPlayed = 0;
-    HashMap<int[], Integer> tricksWonTable;
     private Bid[] bidTable;
-    HashMap<int[], Integer> scoreTable;
 
     //Predicate functions used in determining if card moves are valid
     private Predicate<Card> validCard;
     private Predicate<Card> validLeadingCard;
 
     static ArrayList<Team> teams = new ArrayList<>();
-
+    //Starts as 1 in 10 chance;
+    double rdmEventProb = 10;
 
     /**
      * Set up game engine
@@ -68,12 +67,11 @@ public class GameEngine {
 
         /* initialize each players hands */
 
-        game.tricksWonTable = new HashMap<>();
-        game.scoreTable = new HashMap<>();
         for (Player player : playerArray) {
             player.initCanBePlayed(game.getValidCard());
         }
 
+        /* Assign players to teams */
         int teamCounter = 0;
         for (int[] team : gameDesc.getTeams()) {
             Player[] players = new Player[team.length];
@@ -84,19 +82,11 @@ public class GameEngine {
             teamCounter++;
         }
 
-        for (Team team: teams) {
-            team.printTeam();
-        }
-
-        for (int[] team : gameDesc.getTeams()) {
-            game.tricksWonTable.put(team, 0);
-            game.scoreTable.put(team, 0);
-        }
         Deck deck; // make standard deck from a linked list of Cards
         Shuffle.seedGenerator(seed); // TODO remove cast to int
         game.printScore();
 
-        //game.checkGameCloseness();
+
         //Loop until game winning condition has been met
         do {
             int currentPlayer = dealer;
@@ -117,6 +107,7 @@ public class GameEngine {
             System.out.println("-----------------------------------");
             //Loop until trick has completed (all cards have been played)
             do {
+                //Check for random event probability
                 System.out.println("Trump is " + game.trumpSuit.toString());
                 //Each player plays a card
                 for (int i = 0; i < playerArray.length; i++) {
@@ -170,7 +161,7 @@ public class GameEngine {
             //Calculate the score of the hand
             if (gameDesc.getCalculateScore().equals("tricksWon")) {
                 for (Team team: teams) {
-                    int score = team.getScore();
+                    int score = team.getTricksWon();
                     if (score > gameDesc.getTrickThreshold()) { // if score greater than trick threshold
                         team.setScore(team.getScore() + (score - gameDesc.getTrickThreshold())); // add score to team's running total
                     }
@@ -195,6 +186,10 @@ public class GameEngine {
             if(gameDesc.getTrumpPickingMode().equals("predefined")){
                 game.trumpSuit.replace(0, game.trumpSuit.length(), gameDesc.getTrumpIterator().next());
             }
+
+            //Check if game needs balancing
+            game.checkGameCloseness();
+
             game.printScore();
         } while (game.gameEnd());
 
@@ -208,6 +203,7 @@ public class GameEngine {
         switch (desc.getGameEnd()) {
             case "scoreThreshold":
                 for (Team team : teams) {
+                    System.out.println(team.getScore());
                     if (team.getScore() >= desc.getScoreThreshold())
                         return false;
                 }
@@ -372,44 +368,31 @@ public class GameEngine {
             }
         }
         //Resets the printed for local players.
-//        LocalPlayer.resetLocalPrinted();
+        LocalPlayer.setLocalPrinted(false);
     }
 
     private void checkGameCloseness() {
-        int maxAcceptableScoreSeparation = 10;
-        int[] emptyTeam = new int[]{0,1};
-        int[] weakestTeam = null;
-        int[] strongestTeam = null;
-        HashMap<int[], Integer> testScoreTable = new HashMap<>();
-        testScoreTable.put(new int[]{0,1}, 2);
-        testScoreTable.put(new int[]{2,3}, 3);
-        testScoreTable.put(new int[]{4,5}, 1);
+        int maxAcceptableScoreSeparation = 2;
+        Team weakestTeam = null;
+        Team strongestTeam = null;
+        int highestScore = 0;
+        int lowestScore = desc.getScoreThreshold() + 1;
 
-        Map.Entry<int[], Integer> maxEntry = null;
-        for (Map.Entry<int[], Integer> entry : testScoreTable.entrySet())
-        {
-            if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) >= 0)
-            {
-                maxEntry = entry;
+        for (Team team : teams) {
+            if (team.getScore() < lowestScore) {
+                weakestTeam = team;
+                lowestScore = team.getScore();
+            }
+            if (team.getScore() > lowestScore) {
+                strongestTeam = team;
+                highestScore = team.getScore();
             }
         }
-        Map.Entry<int[], Integer> minEntry = null;
-        for (Map.Entry<int[], Integer> entry : testScoreTable.entrySet())
-        {
-            if (minEntry == null || entry.getValue().compareTo(minEntry.getValue()) >= 0)
-            {
-                minEntry = entry;
-            }
-        }
-        int highestScore = maxEntry.getValue();
-        int lowestScore = minEntry.getValue();
-
 
         if (highestScore - lowestScore > maxAcceptableScoreSeparation) {
-            //trigger balancing event
+            System.out.println("Balancing needed");
+            rdmEventProb -= 3;
         }
-
-        System.exit(0);
     }
 
     private Predicate<Card> getValidCard() {

@@ -54,10 +54,10 @@ public class main {
         }*/
 
         Parser parser = new Parser();
-        JSONObject GameJSON = Parser.readJSONFile("Games/spades.json");
+        JSONObject GameJSON = Parser.readJSONFile("Games/OneTrickPony.json");
         GameDesc gameDesc = parser.parseGameDescription(GameJSON);
 
-        Player[] playerArray = {new LocalPlayer(0), new LocalPlayer(1), new LocalPlayer(2), new LocalPlayer(3)};
+        Player[] playerArray = {new LocalPlayer(0), new LocalPlayer(1)};
         GameEngine.main(gameDesc, 3, playerArray,123);
     }
 }

@@ -39,8 +39,9 @@ public class LocalPlayer extends Player {
 //    private static Iterator<String> colours = Arrays.asList(text_colours).iterator();
 
     private String colour;
+
     //Determines if this move has already been printed for local players.
-//    private static boolean localPrinted;
+    private static boolean localPrinted = false;
 
     public LocalPlayer(int playerNumber, Predicate<Card> validCard) {
         super(playerNumber, validCard);
@@ -82,17 +83,17 @@ public class LocalPlayer extends Player {
 
     @Override
     public void broadcastPlay(Card card, int playerNumber) {
-//        if (!localPrinted) {
+        if (!localPrinted) {
         System.out.println("Player " + (playerNumber + 1) + " played " + card.toString());
-//        }
-//        localPrinted = true;
+        }
+        localPrinted = true;
     }
 
     @Override
     public void broadcastBid(Bid bid, int playerNumber) {
-//        if (!localPrinted) {
+        if (!localPrinted) {
             System.out.println("Player " + (playerNumber + 1) + " bid " + bid.getBidValue() + (bid.isBlind() ? " blind" : ""));
-//        }
+        }
     }
 
     /**
@@ -132,6 +133,10 @@ public class LocalPlayer extends Player {
         System.out.println(ANSI_RESET);
         return new Bid(bidNumber, bidBlind);
 
+    }
+
+    public static void setLocalPrinted(boolean localPrinted) {
+        LocalPlayer.localPrinted = localPrinted;
     }
 
 }
