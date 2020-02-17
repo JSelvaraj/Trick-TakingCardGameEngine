@@ -1,6 +1,5 @@
 package src.gameEngine;
 
-import org.apache.commons.lang3.ArrayUtils;
 import src.card.Card;
 import src.card.CardComparator;
 import src.deck.Deck;
@@ -9,7 +8,9 @@ import src.functions.validCards;
 import src.parser.GameDesc;
 import src.player.LocalPlayer;
 import src.player.Player;
+import src.rdmEvents.rdmEvent;
 import src.team.Team;
+import src.rdmEvents.rdmEventsManager;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -59,7 +60,6 @@ public class GameEngine {
         }
     }
 
-
     public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed) {
         GameEngine game = new GameEngine(gameDesc);
 
@@ -81,6 +81,9 @@ public class GameEngine {
             teams.add(new Team(players, teamCounter));
             teamCounter++;
         }
+
+        /* Initialise random events */
+        rdmEventsManager rdmEventsManager = new rdmEventsManager(2, gameDesc.getScoreThreshold(),10, 3);
 
         Deck deck; // make standard deck from a linked list of Cards
         Shuffle.seedGenerator(seed); // TODO remove cast to int
@@ -108,9 +111,18 @@ public class GameEngine {
             //Loop until trick has completed (all cards have been played)
             do {
                 //Check for random event probability
+                boolean rdmEventHappened = false;
+
                 System.out.println("Trump is " + game.trumpSuit.toString());
                 //Each player plays a card
                 for (int i = 0; i < playerArray.length; i++) {
+                    if (!rdmEventHappened) {
+                        rdmEvent rdmEvent = rdmEventsManager.eventChooser();
+                        if (rdmEvent != null){
+                            //Do rdmevent
+                            rdmEventHappened = true;
+                        }
+                    }
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                     if (gameDesc.isDEALCARDSCLOCKWISE()) currentPlayer = (currentPlayer + 1) % playerArray.length;
@@ -188,7 +200,7 @@ public class GameEngine {
             }
 
             //Check if game needs balancing
-            game.checkGameCloseness();
+            rdmEventsManager.checkGameCloseness(teams);
 
             game.printScore();
         } while (game.gameEnd());
@@ -369,30 +381,6 @@ public class GameEngine {
         }
         //Resets the printed for local players.
         LocalPlayer.setLocalPrinted(false);
-    }
-
-    private void checkGameCloseness() {
-        int maxAcceptableScoreSeparation = 2;
-        Team weakestTeam = null;
-        Team strongestTeam = null;
-        int highestScore = 0;
-        int lowestScore = desc.getScoreThreshold() + 1;
-
-        for (Team team : teams) {
-            if (team.getScore() < lowestScore) {
-                weakestTeam = team;
-                lowestScore = team.getScore();
-            }
-            if (team.getScore() > lowestScore) {
-                strongestTeam = team;
-                highestScore = team.getScore();
-            }
-        }
-
-        if (highestScore - lowestScore > maxAcceptableScoreSeparation) {
-            System.out.println("Balancing needed");
-            rdmEventProb -= 3;
-        }
     }
 
     private Predicate<Card> getValidCard() {
