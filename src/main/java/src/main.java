@@ -5,7 +5,8 @@ package src;
 
 import org.json.JSONObject;
 import src.exceptions.InvalidGameDescriptionException;
-import src.gameEngine.GameEngine;
+import src.networking.BroadcastGames;
+import src.networking.DiscoverGames;
 import src.networking.Networking;
 import src.parser.GameDesc;
 import src.parser.Parser;
@@ -36,22 +37,32 @@ public class main {
         /*Scanner scanner = new Scanner(System.in);
         System.out.println("Local Port to use?");
         int localPort = scanner.nextInt();
-        System.out.println("Host or join?\nh(ost)\nj(oin)");
-        String mode = scanner.next();
-        switch (mode){
-            case "h":
-                Networking.hostGame(args[0], localPort);
-                break;
-            case "j":
-                System.out.println("IP of Host?");
-                String ip = scanner.next();
-                System.out.println("Port?");
-                int port = scanner.nextInt();
-                Networking.connectToGame(localPort, ip, port);
-                break;
-            default:
-                throw new IllegalArgumentException();
-        }*/
+        do {
+            System.out.println("Host or join?\nh(ost)\nj(oin)\nb(roadcast)\ns(earch)");
+            String mode = scanner.next();
+            switch (mode){
+                case "h":
+                    Networking.hostGame(args[0], localPort);
+                    break;
+                case "j":
+                    System.out.println("IP of Host?");
+                    String ip = scanner.next();
+                    System.out.println("Port?");
+                    int port = scanner.nextInt();
+                    Networking.connectToGame(localPort, ip, port);
+                    break;
+                case "b":
+                    System.out.println("Beginning broadcast...");
+//                    Thread broadcast = new Thread(new BroadcastGames(args[0], localPort));
+//                    broadcast.start();
+                    break;
+                case "s":
+                    DiscoverGames.find();
+                    break;
+                default:
+                    throw new IllegalArgumentException();
+            }
+        } while (true);
 
         Parser parser = new Parser();
         JSONObject GameJSON = Parser.readJSONFile("Games/OneTrickPony.json");

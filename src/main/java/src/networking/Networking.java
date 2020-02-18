@@ -2,10 +2,10 @@ package src.networking;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonStreamParser;
-import com.google.gson.stream.JsonReader;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
+
 import src.exceptions.InvalidGameDescriptionException;
 import src.gameEngine.GameEngine;
 import src.parser.GameDesc;
@@ -15,10 +15,7 @@ import src.player.NetworkPlayer;
 import src.player.Player;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
@@ -27,7 +24,11 @@ public class Networking {
 
     private static final int PORTNUMBER = 6969;
     private static final int SEED = 420;
+    private static int currentNumberOfPlayers = 1;
 
+    public static int getCurrentNumberOfPlayers() {
+        return currentNumberOfPlayers;
+    }
 
     public static void hostGame(String gameDescFile, int hostPort) throws InvalidGameDescriptionException {
         JSONObject gameJSON = Parser.readJSONFile(gameDescFile);
@@ -39,6 +40,8 @@ public class Networking {
 
         ArrayList<Socket> networkPlayers = new ArrayList<>();
         JSONArray playersJSONArray = new JSONArray();
+        Thread broadcast = new Thread(new BroadcastGames(gameDesc.getName(), hostPort, gameDesc.getNUMBEROFPLAYERS()));
+        broadcast.start();
         try {
             InetAddress address = InetAddress.getLocalHost();
             JSONObject hostInfo = new JSONObject();
@@ -62,6 +65,7 @@ public class Networking {
                 JSONObject object = new JSONObject(JSONfile.getAsJsonObject().toString());
                 //object.put("playerNumber", i);
                 playersJSONArray.put(object);
+                currentNumberOfPlayers++; //required for the game beacon.
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -247,4 +251,7 @@ public class Networking {
         }
 
     }
+
+
+
 }

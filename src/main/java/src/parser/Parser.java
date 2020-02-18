@@ -176,7 +176,8 @@ public class Parser {
             trumpIterator = parseTrumpOrdering(trumpOrdering);
 
         }
-        GameDesc gameDesc = new GameDesc(players,
+        GameDesc gameDesc = new GameDesc(name,
+                players,
                 teams,
                 seed,
                 suits,
