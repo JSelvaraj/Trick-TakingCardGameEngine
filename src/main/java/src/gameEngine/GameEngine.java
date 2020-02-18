@@ -116,13 +116,13 @@ public class GameEngine {
                 System.out.println("Trump is " + game.trumpSuit.toString());
                 //Each player plays a card
                 for (int i = 0; i < playerArray.length; i++) {
-                    if (!rdmEventHappened) {
+                    /*if (!rdmEventHappened) {
                         rdmEvent rdmEvent = rdmEventsManager.eventChooser();
                         if (rdmEvent != null){
                             //Do rdmevent
                             rdmEventHappened = true;
                         }
-                    }
+                    }*/
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                     if (gameDesc.isDEALCARDSCLOCKWISE()) currentPlayer = (currentPlayer + 1) % playerArray.length;
