@@ -8,6 +8,7 @@ import src.networking.BroadcastGames;
 import src.networking.DiscoverGames;
 import src.networking.Networking;
 
+
 import java.util.Scanner;
 
 public class main {
@@ -18,16 +19,17 @@ public class main {
     public static void main(String[] args) throws InvalidGameDescriptionException {
 
 
-//        System.out.println(new main().getGreeting());
+        System.out.println(new main().getGreeting());
 
-//        switch (args.length) {
-//            case 1: // if hosting only argument should be game description file directory
-//                Networking.hostGame(args[0]);
-//                break;
-//            case 2: // if connecting to another player
-//                Networking.connectToGame(args[0], Integer.parseInt(args[1]));
-//
-//        }
+        /*switch (args.length) {
+            case 1: // if hosting only argument should be game description file directory
+                Networking.hostGame(args[0]);
+                break;
+            case 2: // if connecting to another player
+                Networking.connectToGame(args[0], Integer.parseInt(args[1]));
+
+        }*/
+
         Scanner scanner = new Scanner(System.in);
         System.out.println("Local Port to use?");
         int localPort = scanner.nextInt();
@@ -45,11 +47,6 @@ public class main {
                     int port = scanner.nextInt();
                     Networking.connectToGame(localPort, ip, port);
                     break;
-                case "b":
-                    System.out.println("Beginning broadcast...");
-//                    Thread broadcast = new Thread(new BroadcastGames(args[0], localPort));
-//                    broadcast.start();
-                    break;
                 case "s":
                     DiscoverGames.find();
                     break;
@@ -57,14 +54,5 @@ public class main {
                     throw new IllegalArgumentException();
             }
         } while (true);
-
-
-//        Parser parser = new Parser();
-//        JSONObject GameJSON = Parser.readJSONFile(args[0]);
-//        GameDesc gameDesc = parser.parseGameDescription(GameJSON);
-////        System.out.println(gameDesc);
-//
-//        Player[] playerArray = {new LocalPlayer(0), new LocalPlayer(1), new LocalPlayer(2), new LocalPlayer(3)};
-//        GameEngine.main(gameDesc, 0, playerArray);
     }
 }
