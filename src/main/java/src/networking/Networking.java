@@ -30,7 +30,7 @@ public class Networking {
         return currentNumberOfPlayers;
     }
 
-    public static void hostGame(String gameDescFile, int hostPort) throws InvalidGameDescriptionException {
+    public static void hostGame(String gameDescFile, int hostPort, int aiPlayers) throws InvalidGameDescriptionException {
         JSONObject gameJSON = Parser.readJSONFile(gameDescFile);
         Parser parser = new Parser();
         GameDesc gameDesc = parser.parseGameDescription(gameJSON);
