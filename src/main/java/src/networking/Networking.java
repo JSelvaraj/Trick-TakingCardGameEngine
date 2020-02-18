@@ -2,10 +2,8 @@ package src.networking;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonStreamParser;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import src.exceptions.InvalidGameDescriptionException;
 import src.gameEngine.GameEngine;
 import src.parser.GameDesc;
@@ -13,9 +11,15 @@ import src.parser.Parser;
 import src.player.LocalPlayer;
 import src.player.NetworkPlayer;
 import src.player.Player;
+import src.player.RandomPlayer;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
@@ -35,9 +39,11 @@ public class Networking {
         Parser parser = new Parser();
         GameDesc gameDesc = parser.parseGameDescription(gameJSON);
         int numberOfPlayers = gameDesc.getNUMBEROFPLAYERS();
-
         Player[] players = new Player[numberOfPlayers];
-
+        for (int i = currentNumberOfPlayers; i < aiPlayers; i++) {
+            players[i] = new RandomPlayer(i);
+            currentNumberOfPlayers++;
+        }
         ArrayList<Socket> networkPlayers = new ArrayList<>();
         JSONArray playersJSONArray = new JSONArray();
         Thread broadcast = new Thread(new BroadcastGames(gameDesc.getName(), hostPort, gameDesc.getNUMBEROFPLAYERS()));
@@ -49,7 +55,7 @@ public class Networking {
             hostInfo.put("port", hostPort);
             playersJSONArray.put(hostInfo);
             ServerSocket socket = new ServerSocket(hostPort);
-            for (int i = 1; i < players.length; i++) {
+            for (int i = currentNumberOfPlayers; i < players.length; i++) {
                 System.out.println("IP: " + address);
                 System.out.println(" Port: " + socket.getLocalPort());
                 NetworkPlayer networkPlayer = new NetworkPlayer(i, socket.accept());
@@ -251,7 +257,6 @@ public class Networking {
         }
 
     }
-
 
 
 }
