@@ -17,6 +17,7 @@ import java.util.function.Supplier;
  */
 public class GameDesc {
 
+    private final String name;
     private final int NUMBEROFPLAYERS;
     private final int[][] teams;
     private final long SEED;
@@ -53,7 +54,8 @@ public class GameDesc {
      * @param ranks             An array of the ranks of cards in the game in the initial order of the deck
      * @param trumpPickingMode  How the trump it is picked
      */
-    public GameDesc(int numOfPlayers,
+    public GameDesc(String name,
+                    int numOfPlayers,
                     int[][] teams,
                     long seed,
                     String[] suits,
@@ -74,6 +76,7 @@ public class GameDesc {
                     String trickLeader,
                     String handSize,
                     Iterator<String> trumpIterator) {
+        this.name = name;
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
         this.SEED = seed;
@@ -220,5 +223,9 @@ public class GameDesc {
 
     public Iterator<String> getTrumpIterator() {
         return trumpIterator;
+    }
+
+    public String getName() {
+        return name;
     }
 }
