@@ -62,7 +62,7 @@ public class Parser {
     }
 
     public GameDesc parseGameDescription(JSONObject gameJSON) throws InvalidGameDescriptionException {
-        System.out.println(gameJSON.toString(4));
+//        System.out.println(gameJSON.toString(4));
         if (gameJSON == null) {
             throw new InvalidGameDescriptionException("Failed to parse game description file.");
         }
@@ -176,7 +176,8 @@ public class Parser {
             trumpIterator = parseTrumpOrdering(trumpOrdering);
 
         }
-        GameDesc gameDesc = new GameDesc(players,
+        GameDesc gameDesc = new GameDesc(name,
+                players,
                 teams,
                 seed,
                 suits,
