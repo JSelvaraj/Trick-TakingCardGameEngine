@@ -3,15 +3,11 @@
  */
 package src;
 
-import org.json.JSONObject;
 import src.exceptions.InvalidGameDescriptionException;
 import src.networking.BroadcastGames;
 import src.networking.DiscoverGames;
 import src.networking.Networking;
-import src.parser.GameDesc;
-import src.parser.Parser;
-import src.player.LocalPlayer;
-import src.player.Player;
+
 
 import java.util.Scanner;
 
@@ -34,7 +30,7 @@ public class main {
 
         }*/
 
-        /*Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
         System.out.println("Local Port to use?");
         int localPort = scanner.nextInt();
         do {
@@ -51,11 +47,6 @@ public class main {
                     int port = scanner.nextInt();
                     Networking.connectToGame(localPort, ip, port);
                     break;
-                case "b":
-                    System.out.println("Beginning broadcast...");
-//                    Thread broadcast = new Thread(new BroadcastGames(args[0], localPort));
-//                    broadcast.start();
-                    break;
                 case "s":
                     DiscoverGames.find();
                     break;
@@ -63,12 +54,5 @@ public class main {
                     throw new IllegalArgumentException();
             }
         } while (true);
-
-        Parser parser = new Parser();
-        JSONObject GameJSON = Parser.readJSONFile("Games/OneTrickPony.json");
-        GameDesc gameDesc = parser.parseGameDescription(GameJSON);
-
-        Player[] playerArray = {new LocalPlayer(0), new LocalPlayer(1)};
-        GameEngine.main(gameDesc, 3, playerArray,123);
     }
 }
