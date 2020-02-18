@@ -5,13 +5,15 @@ package src;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 import src.exceptions.InvalidGameDescriptionException;
-import src.networking.BroadcastGames;
-import src.networking.DiscoverGames;
 import src.networking.Networking;
 
 public class main {
+    @Parameters(commandNames = "host", commandDescription = "Host a game")
     private static class CommandHost {
+        @Parameter(names = {"-b", "-broadcast"}, description = "Whether or not to broadcast this game on the network.")
+        private boolean broadcast = false;
         @Parameter(names = {"-p", "-port"}, description = "Port to host the game from", required = false)
         private int port = 0;
         @Parameter(names = {"-g", "-game"}, description = "Path to the game to host", required = true)
@@ -20,20 +22,24 @@ public class main {
         private int aiPlayers = 0;
     }
 
+    @Parameters(commandNames = "join", commandDescription = "Join a game")
     private static class CommandJoin {
-        @Parameter(names = {"-l", "-localPort"}, description = "Local port to use", required = false)
+        @Parameter(names = {"-s", "-search"}, description = "Whether or not to search for games")
+        private boolean search = false;
+        @Parameter(names = {"-l", "-localPort"}, description = "Local port to use")
         private int localPort = 0;
-        @Parameter(names = {"-a", "-address"}, description = "Address of the host", required = true)
+        @Parameter(names = {"-a", "-address"}, description = "Address of the host")
         private String address;
-        @Parameter(names = {"-p", "-port"}, description = "Port of the host", required = true)
+        @Parameter(names = {"-p", "-port"}, description = "Port of the host")
         private int port;
     }
+
 
     public static void main(String[] args) throws InvalidGameDescriptionException {
         CommandHost host = new CommandHost();
         CommandJoin join = new CommandJoin();
         JCommander jc = JCommander.newBuilder()
-                .addCommand("host", host)
+                .addCommand(host)
                 .addCommand("join", join)
                 .build();
         jc.setProgramName(main.class.getName());
@@ -43,39 +49,23 @@ public class main {
             System.exit(0);
         }
         jc.parse(args);
-        if (jc.getParsedCommand().equals("host")) {
-            Networking.hostGame(host.game, host.port);
-        } else if (jc.getParsedCommand().equals("join")) {
-            Networking.connectToGame(join.localPort, join.address, join.port);
+        //See which command was input, and run what is required.
+        String command = jc.getParsedCommand();
+        switch (command) {
+            case "host":
+                if (host.broadcast) {
+                    //TODO implement starting to broadcast.
+                } else {
+                    Networking.hostGame(host.game, host.port, host.aiPlayers);
+                }
+                break;
+            case "join":
+                if (join.search) {
+
+                } else {
+                    Networking.connectToGame(join.localPort, join.address, join.port);
+                }
+                break;
         }
-
-//        Scanner scanner = new Scanner(System.in);
-//        System.out.println("Local Port to use?");
-//        int localPort = scanner.nextInt();
-//        System.out.println("Host or join?\nh(ost)\nj(oin)");
-//        String mode = scanner.next();
-//        switch (mode){
-//            case "h":
-//                Networking.hostGame(args[0], localPort);
-//                break;
-//            case "j":
-//                System.out.println("IP of Host?");
-//                String ip = scanner.next();
-//                System.out.println("Port?");
-//                int port = scanner.nextInt();
-//                Networking.connectToGame(localPort, ip, port);
-//                break;
-//            default:
-//                throw new IllegalArgumentException();
-//        }
-
-
-//        Parser parser = new Parser();
-//        JSONObject GameJSON = Parser.readJSONFile(args[0]);
-//        GameDesc gameDesc = parser.parseGameDescription(GameJSON);
-////        System.out.println(gameDesc);
-//
-//        Player[] playerArray = {new LocalPlayer(0), new LocalPlayer(1), new LocalPlayer(2), new LocalPlayer(3)};
-//        GameEngine.main(gameDesc, 0, playerArray);
     }
 }
