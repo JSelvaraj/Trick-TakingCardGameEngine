@@ -58,6 +58,7 @@ public class Networking {
                 //Starts the connection and allows local players to connect.
                 synchronized (hostStarted) {
                     hostStarted.release();
+                    System.out.println("Server started");
                     networkPlayer = new NetworkPlayer(i, socket.accept());
                 }
                 System.out.println("Connection received");

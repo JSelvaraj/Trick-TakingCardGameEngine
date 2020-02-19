@@ -63,7 +63,8 @@ public class main {
                     thread.start();
                     for (int i = 0; i < host.aiPlayers; i++) {
                         System.out.println("AI started");
-                        Thread aiThread = new Thread(new PlayerRunner(new RandomPlayer(), "localhost", host.port, true));
+                        PlayerRunner runner = new PlayerRunner(new RandomPlayer(), "localhost", host.port, true);
+                        Thread aiThread = new Thread(runner);
                         aiThread.start();
                     }
                 }

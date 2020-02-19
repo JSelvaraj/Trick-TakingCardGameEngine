@@ -16,7 +16,7 @@ public class HostRunner implements Runnable {
     }
 
     public HostRunner(Player player, String gameFile) {
-        new HostRunner(player, 0, gameFile);
+        this(player, 0, gameFile);
     }
 
     @Override

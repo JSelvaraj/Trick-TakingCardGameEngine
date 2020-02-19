@@ -20,7 +20,7 @@ public class PlayerRunner implements Runnable {
     }
 
     public PlayerRunner(Player player, String hostAddress, int hostPort, boolean localConnection) {
-        new PlayerRunner(player, hostAddress, hostPort, 0, localConnection);
+        this(player, hostAddress, hostPort, 0, localConnection);
     }
 
     @Override
