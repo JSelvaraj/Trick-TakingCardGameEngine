@@ -21,6 +21,7 @@ import java.util.function.Predicate;
 public class NetworkPlayer extends Player {
 
     private Socket playerSocket;
+    private JsonStreamParser reader;
 
     public NetworkPlayer(int playerNumber, Predicate<Card> validCard) {
         super(playerNumber, validCard);
@@ -29,23 +30,18 @@ public class NetworkPlayer extends Player {
     public NetworkPlayer(int playerNumber, Socket playerSocket) {
         super(playerNumber);
         this.playerSocket = playerSocket;
+        try {
+            this.reader = new JsonStreamParser((new InputStreamReader(playerSocket.getInputStream())));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) { // when you're receiving a card
         StringBuilder message = new StringBuilder();
         JsonElement msg = null;
-        try {
-            JsonStreamParser reader = new JsonStreamParser(new InputStreamReader(playerSocket.getInputStream()));
-            msg = reader.next();
-//            while((readLine = reader.readLine()) != null){
-//                message.append(readLine);
-//            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-//        System.out.println("String: "+ msg.toString());
+        msg = reader.next();
         JSONObject cardEvent = new JSONObject(msg.getAsJsonObject().toString()); //TODO catch exceptions
         String type = cardEvent.getString("type");
         if (!type.equals("play")) {
