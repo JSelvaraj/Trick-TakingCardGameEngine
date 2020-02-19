@@ -4,7 +4,6 @@ import src.card.Card;
 import src.gameEngine.Bid;
 import src.gameEngine.Hand;
 
-import java.util.Random;
 import java.util.Scanner;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
@@ -52,7 +51,7 @@ public class LocalPlayer extends Player {
     }
 
     public LocalPlayer() {
-        this.colour = text_colours[new Random().nextInt(background_colours.length)];
+        this.colour = text_colours[0];
     }
 
 

@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 
 public class RandomPlayer extends Player {
     Random random;
+
     public RandomPlayer(int playerNumber, Predicate<Card> canBePlayed) {
         super(playerNumber, canBePlayed);
         random = new Random();
@@ -20,7 +21,7 @@ public class RandomPlayer extends Player {
         random = new Random();
     }
 
-    public RandomPlayer(){
+    public RandomPlayer() {
         random = new Random();
     }
 

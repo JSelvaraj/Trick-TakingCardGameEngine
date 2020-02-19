@@ -3,7 +3,7 @@ package src.gameEngine;
 /**
  * Object to represent special types of bids
  */
-public class SpecialBid extends Bid{
+public class SpecialBid extends Bid {
     //Spades has a 'Nil' bid where there is an extra bonus if the bid succeeds and a penalty if it fails
     private int pointsGained;
     private int penalty;

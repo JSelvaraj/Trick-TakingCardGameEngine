@@ -86,7 +86,7 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public void broadcastBid(Bid bid, int playerNumber){
+    public void broadcastBid(Bid bid, int playerNumber) {
         JSONObject json = new JSONObject();
         json.put("type", "bid");
         json.put("value", bid.getBidValue());
@@ -119,7 +119,7 @@ public class NetworkPlayer extends Player {
         //TODO take suit into account
         int value = bidEvent.getInt("value");
         boolean blind = bidEvent.optBoolean("blind", false);
-        if(!validBid.test(value)){
+        if (!validBid.test(value)) {
             throw new InvalidBidException();
         }
         return new Bid(value, blind);

@@ -62,7 +62,8 @@ public class main {
                     Thread thread = new Thread(new HostRunner(new LocalPlayer(), host.port, host.game));
                     thread.start();
                     for (int i = 0; i < host.aiPlayers; i++) {
-                        Thread aiThread = new Thread(new PlayerRunner(new RandomPlayer(), "localhost", host.port));
+                        System.out.println("AI started");
+                        Thread aiThread = new Thread(new PlayerRunner(new RandomPlayer(), "localhost", host.port, true));
                         aiThread.start();
                     }
                 }
@@ -71,7 +72,7 @@ public class main {
                 if (join.search) {
 
                 } else {
-                    Thread thread = new Thread(new PlayerRunner(new LocalPlayer(), join.address, join.port, join.localPort));
+                    Thread thread = new Thread(new PlayerRunner(new LocalPlayer(), join.address, join.port, join.localPort, false));
                     thread.start();
                 }
                 break;

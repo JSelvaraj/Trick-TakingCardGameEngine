@@ -8,7 +8,7 @@ public class Card {
     private final String SUIT;
     private final String RANK;
 
-    public Card (String suit, String rank) {
+    public Card(String suit, String rank) {
         SUIT = suit;
         RANK = rank;
     }

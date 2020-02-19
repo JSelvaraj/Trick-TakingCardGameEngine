@@ -1,5 +1,6 @@
 package src.parser;
-import src.card.*;
+
+import src.card.Card;
 import src.deck.Deck;
 import src.functions.handFunctions;
 import src.gameEngine.Bid;
@@ -9,7 +10,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -47,12 +47,11 @@ public class GameDesc {
 
 
     /**
-     *
-     * @param numOfPlayers      The number of Players in the game
-     * @param seed              The seed value for the random shuffle
-     * @param suits             An array of the suits in the game in the order the deck is going to be initially made
-     * @param ranks             An array of the ranks of cards in the game in the initial order of the deck
-     * @param trumpPickingMode  How the trump it is picked
+     * @param numOfPlayers     The number of Players in the game
+     * @param seed             The seed value for the random shuffle
+     * @param suits            An array of the suits in the game in the order the deck is going to be initially made
+     * @param ranks            An array of the ranks of cards in the game in the initial order of the deck
+     * @param trumpPickingMode How the trump it is picked
      */
     public GameDesc(String name,
                     int numOfPlayers,
@@ -217,7 +216,7 @@ public class GameDesc {
         return initialHandSize;
     }
 
-    public int getHandSize(){
+    public int getHandSize() {
         return this.getHandSize.get();
     }
 

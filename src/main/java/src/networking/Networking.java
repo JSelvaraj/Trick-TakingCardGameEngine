@@ -21,12 +21,14 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.concurrent.Semaphore;
 
 public class Networking {
 
     private static final int PORTNUMBER = 6969;
     private static final int SEED = 420;
     private static int currentNumberOfPlayers = 1;
+    private static final Semaphore hostStarted = new Semaphore(0);
 
     public static int getCurrentNumberOfPlayers() {
         return currentNumberOfPlayers;
@@ -52,7 +54,12 @@ public class Networking {
             for (int i = 1; i < players.length; i++) {
                 System.out.println("IP: " + address);
                 System.out.println(" Port: " + socket.getLocalPort());
-                NetworkPlayer networkPlayer = new NetworkPlayer(i, socket.accept());
+                NetworkPlayer networkPlayer;
+                //Starts the connection and allows local players to connect.
+                synchronized (hostStarted) {
+                    hostStarted.release();
+                    networkPlayer = new NetworkPlayer(i, socket.accept());
+                }
                 System.out.println("Connection received");
                 players[i] = networkPlayer;
                 System.out.println("waiting for player info");
@@ -122,14 +129,23 @@ public class Networking {
             }
         }
 
-
         GameEngine.main(gameDesc, 0, players, SEED);
 
 
     }
 
-    public static void connectToGame(int localPort, String ip, int port, Player localPlayer) throws InvalidGameDescriptionException {
-
+    public static void connectToGame(int localPort, String ip, int port, Player localPlayer, boolean localConnection) throws InvalidGameDescriptionException {
+        //Wait for host to start if connecting to a local one.
+        if (localConnection) {
+            try {
+                //Wait to aquire and them immediately release, as it is only need
+                hostStarted.acquire();
+                hostStarted.release();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        //Continue as normal
         class PlayerInfo {
             String ip;
             int port;
