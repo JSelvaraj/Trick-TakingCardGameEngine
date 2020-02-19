@@ -20,6 +20,10 @@ public class RandomPlayer extends Player {
         random = new Random();
     }
 
+    public RandomPlayer(){
+        random = new Random();
+    }
+
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) {
         Object[] validCards = super.getHand().getHand()
