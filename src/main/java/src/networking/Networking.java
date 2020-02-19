@@ -8,10 +8,8 @@ import src.exceptions.InvalidGameDescriptionException;
 import src.gameEngine.GameEngine;
 import src.parser.GameDesc;
 import src.parser.Parser;
-import src.player.LocalPlayer;
 import src.player.NetworkPlayer;
 import src.player.Player;
-import src.player.RandomPlayer;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -34,16 +32,12 @@ public class Networking {
         return currentNumberOfPlayers;
     }
 
-    public static void hostGame(String gameDescFile, int hostPort, int aiPlayers) throws InvalidGameDescriptionException {
+    public static void hostGame(String gameDescFile, int hostPort, Player localPlayer) throws InvalidGameDescriptionException {
         JSONObject gameJSON = Parser.readJSONFile(gameDescFile);
         Parser parser = new Parser();
         GameDesc gameDesc = parser.parseGameDescription(gameJSON);
         int numberOfPlayers = gameDesc.getNUMBEROFPLAYERS();
         Player[] players = new Player[numberOfPlayers];
-        for (int i = currentNumberOfPlayers; i < aiPlayers; i++) {
-            players[i] = new RandomPlayer(i);
-            currentNumberOfPlayers++;
-        }
         ArrayList<Socket> networkPlayers = new ArrayList<>();
         JSONArray playersJSONArray = new JSONArray();
         Thread broadcast = new Thread(new BroadcastGames(gameDesc.getName(), hostPort, gameDesc.getNUMBEROFPLAYERS()));
@@ -55,7 +49,7 @@ public class Networking {
             hostInfo.put("port", hostPort);
             playersJSONArray.put(hostInfo);
             ServerSocket socket = new ServerSocket(hostPort);
-            for (int i = currentNumberOfPlayers; i < players.length; i++) {
+            for (int i = 1; i < players.length; i++) {
                 System.out.println("IP: " + address);
                 System.out.println(" Port: " + socket.getLocalPort());
                 NetworkPlayer networkPlayer = new NetworkPlayer(i, socket.accept());
@@ -78,8 +72,9 @@ public class Networking {
         }
         System.out.println("gathered players");
 
-
-        players[0] = new LocalPlayer(0);
+        //Adds the host player
+        players[0] = localPlayer;
+        localPlayer.setPlayerNumber(0);
         JSONObject forClients = new JSONObject();
 
         System.out.println("Sending spec + players + seed");
@@ -133,7 +128,7 @@ public class Networking {
 
     }
 
-    public static void connectToGame(int localPort, String ip, int port) throws InvalidGameDescriptionException {
+    public static void connectToGame(int localPort, String ip, int port, Player localPlayer) throws InvalidGameDescriptionException {
 
         class PlayerInfo {
             String ip;
@@ -194,7 +189,9 @@ public class Networking {
             if (playerNumber == -1) {
                 throw new InputMismatchException("player number wasn't found");
             }
-            players[playerNumber] = new LocalPlayer(playerNumber);
+            //Sets the local player to their position.
+            players[playerNumber] = localPlayer;
+            localPlayer.setPlayerNumber(playerNumber);
             ArrayList<Socket> playerSockets = new ArrayList<>();
             players[0] = new NetworkPlayer(0, hostSocket);
             playerSockets.add(hostSocket);

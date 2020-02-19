@@ -7,7 +7,10 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import src.exceptions.InvalidGameDescriptionException;
-import src.networking.Networking;
+import src.gameEngine.HostRunner;
+import src.gameEngine.PlayerRunner;
+import src.player.LocalPlayer;
+import src.player.RandomPlayer;
 
 public class main {
     @Parameters(commandNames = "host", commandDescription = "Host a game")
@@ -56,14 +59,20 @@ public class main {
                 if (host.broadcast) {
                     //TODO implement starting to broadcast.
                 } else {
-                    Networking.hostGame(host.game, host.port, host.aiPlayers);
+                    Thread thread = new Thread(new HostRunner(new LocalPlayer(), host.port, host.game));
+                    thread.start();
+                    for (int i = 0; i < host.aiPlayers; i++) {
+                        Thread aiThread = new Thread(new PlayerRunner(new RandomPlayer(), "localhost", host.port));
+                        aiThread.start();
+                    }
                 }
                 break;
             case "join":
                 if (join.search) {
 
                 } else {
-                    Networking.connectToGame(join.localPort, join.address, join.port);
+                    Thread thread = new Thread(new PlayerRunner(new LocalPlayer(), join.address, join.port, join.localPort));
+                    thread.start();
                 }
                 break;
         }
