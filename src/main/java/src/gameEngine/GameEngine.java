@@ -83,7 +83,8 @@ public class GameEngine {
         }
 
         /* Initialise random events */
-        rdmEventsManager rdmEventsManager = new rdmEventsManager(2, gameDesc.getScoreThreshold(),10, 3);
+        rdmEventsManager rdmEventsManager = new rdmEventsManager(2, gameDesc.getScoreThreshold(),
+                1, 3, teams.get(0), teams.get(1));
 
         Deck deck; // make standard deck from a linked list of Cards
         Shuffle.seedGenerator(seed); // TODO remove cast to int
@@ -111,22 +112,25 @@ public class GameEngine {
             //Loop until trick has completed (all cards have been played)
             do {
                 //Check for random event probability
-                boolean rdmEventHappened = false;
+                boolean rdmEventHappenedTRICK = false;
 
                 System.out.println("Trump is " + game.trumpSuit.toString());
                 //Each player plays a card
                 for (int i = 0; i < playerArray.length; i++) {
-                    /*if (!rdmEventHappened) {
-                        rdmEvent rdmEvent = rdmEventsManager.eventChooser();
+                    if (!rdmEventHappenedTRICK) {
+                        rdmEvent rdmEvent = rdmEventsManager.eventChooser("TRICK");
                         if (rdmEvent != null){
                             //Do rdmevent
-                            rdmEventHappened = true;
+                            System.out.println("Random event creation start");
+                            game.runRdmEvent(rdmEvent);
+                            rdmEventHappenedTRICK = true;
                         }
-                    }*/
+                    }
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                     if (gameDesc.isDEALCARDSCLOCKWISE()) currentPlayer = (currentPlayer + 1) % playerArray.length;
                     else currentPlayer = Math.floorMod((currentPlayer - 1), playerArray.length);
+
                 }
                 //Determine winning card
                 Card winningCard = game.winningCard();
@@ -381,6 +385,18 @@ public class GameEngine {
         }
         //Resets the printed for local players.
         LocalPlayer.setLocalPrinted(false);
+    }
+
+    private void runRdmEvent(rdmEvent rdmEvent) {
+        System.out.println("rdm Event runner triggered");
+        swapHands(rdmEvent.getWeakestTeam(), rdmEvent.getStrongestTeam());
+    }
+
+    private void swapHands(Team weakestTeam, Team strongestTeam) {
+        System.out.println("swapHands triggered");
+        Hand temp = weakestTeam.getPlayers()[0].getHand();
+        weakestTeam.getPlayers()[0].setHand(strongestTeam.getPlayers()[0].getHand());
+        strongestTeam.getPlayers()[0].setHand(temp);
     }
 
     private Predicate<Card> getValidCard() {

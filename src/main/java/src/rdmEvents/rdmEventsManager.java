@@ -15,11 +15,14 @@ public class rdmEventsManager {
     Team weakestTeam = null;
     Team strongestTeam = null;
 
-    public rdmEventsManager(int maxAcceptableScoreSeparation, int scoreThreshold, int rdmEventProb, int probIncrement) {
+    public rdmEventsManager(int maxAcceptableScoreSeparation, int scoreThreshold, int rdmEventProb, int probIncrement,
+                            Team initialTeam1, Team initialTeam2) {
         this.maxAcceptableScoreSeparation = maxAcceptableScoreSeparation;
         this.scoreThreshold = scoreThreshold;
         this.rdmEventProb = rdmEventProb;
         this.probIncrement = probIncrement;
+        this.weakestTeam = initialTeam1;
+        this.strongestTeam = initialTeam2;
     }
 
     public void checkGameCloseness(ArrayList<Team> teams) {
@@ -39,20 +42,27 @@ public class rdmEventsManager {
 
         if (highestScore - lowestScore > maxAcceptableScoreSeparation) {
             System.out.println("Balancing needed");
-            if ((rdmEventProb -= probIncrement) >= 0){
+            if ((rdmEventProb -= probIncrement) >= 0) {
                 rdmEventProb -= probIncrement;
             }
         }
     }
 
-    public rdmEvent eventChooser() {
+    public rdmEvent eventChooser(String eventPlayTime) {
         if (new Random().nextInt(rdmEventProb) == 0) {
-            //choose out of possible events
-            eventChoice = "SwapHands";
-            return new rdmEvent("SwapHands", weakestTeam, strongestTeam);
-        }
-        else {
+            switch (eventPlayTime) {
+                case "TRICK":
+                    //choose out of events
+                    eventChoice = "SwapHands";
+                    return new rdmEvent("SwapHands", weakestTeam, strongestTeam);
+                case "HAND":
+                    //choose out of events
+                default:
+                    return null;
+            }
+        } else {
             return null;
         }
     }
+
 }

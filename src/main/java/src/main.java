@@ -41,11 +41,14 @@ public class main {
 
         if (localPlay) {
             Parser parser = new Parser();
-            JSONObject GameJSON = Parser.readJSONFile("Games/OneTrickPony.json");
+            JSONObject GameJSON = Parser.readJSONFile("Games/spades.json");
             GameDesc gameDesc = parser.parseGameDescription(GameJSON);
+            Player[] playerArray = new Player[gameDesc.getNUMBEROFPLAYERS()];
+            for (int i = 0; i< playerArray.length; i++) {
+                playerArray[i] = new LocalPlayer(i);
+            }
 
-            Player[] playerArray = {new LocalPlayer(0), new LocalPlayer(1)};
-            GameEngine.main(gameDesc, 3, playerArray, 123);
+            GameEngine.main(gameDesc, 3, playerArray, 23);
         }
         else {
             System.out.println("Local Port to use?");
