@@ -354,11 +354,9 @@ public class GameEngine {
     }
 
     private void broadcastBids(Bid bid, int playerNumber, Player[] playerArray){
-        //Only need to broadcast moves from local players to network players
-        if(playerArray[playerNumber].getClass() == LocalPlayer.class){
-            for (Player player : playerArray) {
-                player.broadcastBid(bid, playerNumber);
-            }
+        //Print local player's to console
+        if (playerArray[playerNumber].getClass() == LocalPlayer.class){
+            playerArray[playerNumber].broadcastBid(bid, playerNumber);
         } else { //Only need to print out network moves to local players
             for(Player player : playerArray){
                 if(player.getClass() == LocalPlayer.class){
@@ -371,11 +369,9 @@ public class GameEngine {
     }
 
     private void broadcastMoves(Card card, int playerNumber, Player[] playerArray){
-        //Only need to broadcast moves from local players to network players
-        if(playerArray[playerNumber].getClass() == LocalPlayer.class){
-            for (Player player : playerArray) {
-                player.broadcastPlay(card, playerNumber);
-            }
+        //Print local player's to console
+        if (playerArray[playerNumber].getClass() == LocalPlayer.class){
+            playerArray[playerNumber].broadcastPlay(card, playerNumber);
         } else { //Only need to print out network moves to local players
             for(Player player : playerArray){
                 if(player.getClass() == LocalPlayer.class){
@@ -393,10 +389,18 @@ public class GameEngine {
     }
 
     private void swapHands(Team weakestTeam, Team strongestTeam) {
+        Player weakPlayer = weakestTeam.getPlayers()[0];
+        Player strongPlayer = strongestTeam.getPlayers()[0];
+
+        Hand tempHand = weakPlayer.getHand();
+        Predicate<Card> tempPredicate = weakPlayer.getCanBePlayed();
+
+        weakPlayer.setHand(strongPlayer.getHand());
+        weakPlayer.setCanBePlayed(strongPlayer.getCanBePlayed());
+        strongPlayer.setHand(tempHand);
+        strongPlayer.setCanBePlayed(tempPredicate);
+
         System.out.println("swapHands triggered");
-        Hand temp = weakestTeam.getPlayers()[0].getHand();
-        weakestTeam.getPlayers()[0].setHand(strongestTeam.getPlayers()[0].getHand());
-        strongestTeam.getPlayers()[0].setHand(temp);
     }
 
     private Predicate<Card> getValidCard() {

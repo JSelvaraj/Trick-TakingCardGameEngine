@@ -86,7 +86,6 @@ public class LocalPlayer extends Player {
         if (!localPrinted) {
         System.out.println("Player " + (playerNumber + 1) + " played " + card.toString());
         }
-        localPrinted = true;
     }
 
     @Override

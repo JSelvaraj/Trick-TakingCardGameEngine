@@ -51,7 +51,7 @@ public abstract class Player {
 
     public abstract Bid makeBid(IntPredicate validBid);
 
-    Predicate<Card> getCanBePlayed() {
+    public Predicate<Card> getCanBePlayed() {
         return canBePlayed;
     }
 
