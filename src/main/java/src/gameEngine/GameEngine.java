@@ -364,8 +364,6 @@ public class GameEngine {
                 }
             }
         }
-        //Resets the printed for local players.
-//        LocalPlayer.resetLocalPrinted();
     }
 
     private void broadcastMoves(Card card, int playerNumber, Player[] playerArray){
@@ -379,8 +377,6 @@ public class GameEngine {
                 }
             }
         }
-        //Resets the printed for local players.
-        LocalPlayer.setLocalPrinted(false);
     }
 
     private void runRdmEvent(rdmEvent rdmEvent) {
