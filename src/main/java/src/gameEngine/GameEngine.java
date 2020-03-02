@@ -1,6 +1,5 @@
 package src.gameEngine;
 
-import org.apache.commons.lang3.ArrayUtils;
 import src.card.Card;
 import src.card.CardComparator;
 import src.deck.Deck;
@@ -10,8 +9,11 @@ import src.parser.GameDesc;
 import src.player.LocalPlayer;
 import src.player.NetworkPlayer;
 import src.player.Player;
+import src.rdmEvents.rdmEvent;
+import src.team.Team;
+import src.rdmEvents.rdmEventsManager;
 
-import java.util.HashMap;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
@@ -26,14 +28,15 @@ public class GameEngine {
     private AtomicBoolean breakFlag; // if the trump/hearts are broken
     //Stores the scores/metrics of the game
     private int handsPlayed = 0;
-    HashMap<int[], Integer> tricksWonTable;
     private Bid[] bidTable;
-    HashMap<int[], Integer> scoreTable;
 
     //Predicate functions used in determining if card moves are valid
     private Predicate<Card> validCard;
     private Predicate<Card> validLeadingCard;
 
+    static ArrayList<Team> teams = new ArrayList<>();
+    //Starts as 1 in 10 chance;
+    double rdmEventProb = 10;
 
     /**
      * Set up game engine
@@ -59,7 +62,6 @@ public class GameEngine {
         }
     }
 
-
     public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed) {
         GameEngine game = new GameEngine(gameDesc);
 
@@ -67,18 +69,29 @@ public class GameEngine {
 
         /* initialize each players hands */
 
-        game.tricksWonTable = new HashMap<>();
-        game.scoreTable = new HashMap<>();
         for (Player player : playerArray) {
             player.initCanBePlayed(game.getValidCard());
         }
+
+        /* Assign players to teams */
+        int teamCounter = 0;
         for (int[] team : gameDesc.getTeams()) {
-            game.tricksWonTable.put(team, 0);
-            game.scoreTable.put(team, 0);
+            Player[] players = new Player[team.length];
+            for (int i = 0; i < team.length; i++) {
+                players[i] = playerArray[team[i]];
+            }
+            teams.add(new Team(players, teamCounter));
+            teamCounter++;
         }
+
+        /* Initialise random events */
+        rdmEventsManager rdmEventsManager = new rdmEventsManager(2, gameDesc.getScoreThreshold(),10, 3);
+
         Deck deck; // make standard deck from a linked list of Cards
         Shuffle.seedGenerator(seed); // TODO remove cast to int
         game.printScore();
+
+
         //Loop until game winning condition has been met
         do {
             int currentPlayer = dealer;
@@ -99,9 +112,19 @@ public class GameEngine {
             System.out.println("-----------------------------------");
             //Loop until trick has completed (all cards have been played)
             do {
+                //Check for random event probability
+                boolean rdmEventHappened = false;
+
                 System.out.println("Trump is " + game.trumpSuit.toString());
                 //Each player plays a card
                 for (int i = 0; i < playerArray.length; i++) {
+                    /*if (!rdmEventHappened) {
+                        rdmEvent rdmEvent = rdmEventsManager.eventChooser();
+                        if (rdmEvent != null){
+                            //Do rdmevent
+                            rdmEventHappened = true;
+                        }
+                    }*/
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                     if (gameDesc.isDEALCARDSCLOCKWISE()) currentPlayer = (currentPlayer + 1) % playerArray.length;
@@ -132,11 +155,11 @@ public class GameEngine {
                 }
 
                 //Find the team with the winning player and increment their tricks score
-                for (int[] team : gameDesc.getTeams()) {
-                    if (ArrayUtils.contains(team, currentPlayer)) {
-                        game.tricksWonTable.put(team, (game.tricksWonTable.get(team) + 1));
+                for (Team team : teams) {
+                    if (team.findPlayer(currentPlayer)) {
+                        team.setTricksWon(team.getTricksWon() + 1);
                         System.out.println("Player " + (currentPlayer + 1) + " was the winner of the trick with the " + winningCard.toString());
-                        System.out.println("Tricks won: " + game.tricksWonTable.get(team));
+                        System.out.println("Tricks won: " + team.getTricksWon());
                         break;
                     }
                     //Signal that trump suit was broken -> can now be played
@@ -151,32 +174,36 @@ public class GameEngine {
             game.handsPlayed++;
             //Calculate the score of the hand
             if (gameDesc.getCalculateScore().equals("tricksWon")) {
-                for (int[] team : gameDesc.getTeams()) {
-                    int score = game.tricksWonTable.get(team);
+                for (Team team: teams) {
+                    int score = team.getTricksWon();
                     if (score > gameDesc.getTrickThreshold()) { // if score greater than trick threshold
-                        game.scoreTable.put(team, (game.scoreTable.get(team) + (score - gameDesc.getTrickThreshold()))); // add score to team's running total
+                        team.setScore(team.getScore() + (score - gameDesc.getTrickThreshold())); // add score to team's running total
                     }
-                    game.tricksWonTable.put(team, 0);
+                    team.setTricksWon(0);
                 }
             }
             //
-            if (gameDesc.getCalculateScore().equals("bid")) { //TODO handle special bids.
-                for (int[] team : gameDesc.getTeams()) {
+            if(gameDesc.getCalculateScore().equals("bid")) { //TODO handle special bids.
+                for (Team team : teams){
                     int teamBid = 0;
                     //Get collective team bids
-                    for (int playerNumber : team) {
-                        teamBid += game.bidTable[playerNumber].getBidValue();
+                    for (Player player : team.getPlayers()){
+                        teamBid += game.bidTable[player.getPlayerNumber()].getBidValue();
                     }
                     Bid bid = new Bid(teamBid, false);
                     //Increase score of winning team based on bid scoring system (See validBids.java)
-                    game.scoreTable.put(team, game.scoreTable.get(team) + gameDesc.getEvaluateBid().apply(bid, game.tricksWonTable.get(team)));
+                    team.setScore(team.getScore() + gameDesc.getEvaluateBid().apply(bid, team.getTricksWon()));
                     //Reset tricks won for next round.
-                    game.tricksWonTable.put(team, 0);
+                    team.setTricksWon(0);
                 }
             }
             if (gameDesc.getTrumpPickingMode().equals("predefined")) {
                 game.trumpSuit.replace(0, game.trumpSuit.length(), gameDesc.getTrumpIterator().next());
             }
+
+            //Check if game needs balancing
+            rdmEventsManager.checkGameCloseness(teams);
+
             game.printScore();
         } while (game.gameEnd());
 
@@ -189,8 +216,9 @@ public class GameEngine {
     private boolean gameEnd() {
         switch (desc.getGameEnd()) {
             case "scoreThreshold":
-                for (int[] team : desc.getTeams()) {
-                    if (scoreTable.get(team) >= desc.getScoreThreshold())
+                for (Team team : teams) {
+                    System.out.println(team.getScore());
+                    if (team.getScore() >= desc.getScoreThreshold())
                         return false;
                 }
                 break;
@@ -309,17 +337,17 @@ public class GameEngine {
         System.out.println("______________________________________________________________________________________");
         System.out.println("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾");
         //Iterate teams
-        for (int i = 0; i < desc.getTeams().length; i++) {
+        for (int i = 0; i < teams.size(); i++) {
             System.out.print("    Team: (");
             //Print team names
-            for (int j = 0; j < desc.getTeams()[0].length; j++) {
-                System.out.print(desc.getTeams()[i][j]);
-                if ((j + 1) < desc.getTeams()[0].length) System.out.print(", ");
+            for (int j = 0; j < teams.get(i).getPlayers().length; j++) {
+                System.out.print(teams.get(i).getPlayers()[j].getPlayerNumber());
+                if ((j + 1) < teams.get(i).getPlayers().length) System.out.print(", ");
             }
             //Print score of team
             System.out.print(")     ");
-            System.out.println(scoreTable.get(desc.getTeams()[i]));
-            if ((i + 1) < desc.getTeams().length) {
+            System.out.println(teams.get(i).getScore());
+            if ((i + 1) < teams.size()) {
                 System.out.println("-------------------------------------------------------------------------------------");
             }
         }
@@ -358,7 +386,7 @@ public class GameEngine {
             }
         }
         //Resets the printed for local players.
-//        LocalPlayer.resetLocalPrinted();
+        LocalPlayer.setLocalPrinted(false);
     }
 
     private Predicate<Card> getValidCard() {
