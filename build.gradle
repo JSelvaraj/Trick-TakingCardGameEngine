@@ -38,6 +38,9 @@ dependencies {
     compile group: 'org.json', name: 'json', version: '20190722'
     compile group: 'org.apache.commons', name: 'commons-math3', version: '3.0'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+    // https://mvnrepository.com/artifact/com.beust/jcommander
+    compile group: 'com.beust', name: 'jcommander', version: '1.78'
+
     // Use JUnit test framework
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'

@@ -7,6 +7,7 @@ import src.deck.Shuffle;
 import src.functions.validCards;
 import src.parser.GameDesc;
 import src.player.LocalPlayer;
+import src.player.NetworkPlayer;
 import src.player.Player;
 import src.rdmEvents.rdmEvent;
 import src.team.Team;
@@ -39,23 +40,24 @@ public class GameEngine {
 
     /**
      * Set up game engine
+     *
      * @param desc game description
      */
     public GameEngine(GameDesc desc) {
         this.desc = desc;
         this.trumpSuit = new StringBuilder();
         //Set fixed trump suit if specified
-        if(desc.getTrumpPickingMode().equals("fixed")){
+        if (desc.getTrumpPickingMode().equals("fixed")) {
             this.trumpSuit.append(desc.getTrumpSuit());
         }
-        if(desc.getTrumpPickingMode().equals("predefined")){
+        if (desc.getTrumpPickingMode().equals("predefined")) {
             this.trumpSuit.append(desc.getTrumpIterator().next());
         }
         //Flags if the trump suit has been broken in the hand
         this.breakFlag = new AtomicBoolean(false);
         this.validLeadingCard = validCards.getValidLeadingCardPredicate(desc.getLeadingCardForEachTrick(), this.trumpSuit, breakFlag);
         this.validCard = validCards.getValidCardPredicate("trick", this.trumpSuit, this.currentTrick, this.validLeadingCard);
-        if(desc.isBidding()){
+        if (desc.isBidding()) {
             bidTable = new Bid[this.desc.getNUMBEROFPLAYERS()];
         }
     }
@@ -102,7 +104,7 @@ public class GameEngine {
             else
                 currentPlayer = Math.floorMod((currentPlayer - 1), playerArray.length); //ensures that first card played is from dealers right
 
-            if(gameDesc.isBidding()){
+            if (gameDesc.isBidding()) {
                 game.getBids(currentPlayer, playerArray);
             }
             System.out.println("-----------------------------------");
@@ -161,7 +163,7 @@ public class GameEngine {
                         break;
                     }
                     //Signal that trump suit was broken -> can now be played
-                    if(game.currentTrick.getHand().stream().anyMatch(card -> card.getSUIT().equals(game.trumpSuit.toString()))){
+                    if (game.currentTrick.getHand().stream().anyMatch(card -> card.getSUIT().equals(game.trumpSuit.toString()))) {
                         game.breakFlag.set(true);
                     }
                 }
@@ -195,7 +197,7 @@ public class GameEngine {
                     team.setTricksWon(0);
                 }
             }
-            if(gameDesc.getTrumpPickingMode().equals("predefined")){
+            if (gameDesc.getTrumpPickingMode().equals("predefined")) {
                 game.trumpSuit.replace(0, game.trumpSuit.length(), gameDesc.getTrumpIterator().next());
             }
 
@@ -231,14 +233,15 @@ public class GameEngine {
 
     /**
      * Gets the bids from the players
+     *
      * @param currentPlayer
      * @param players
      */
-    public void getBids(int currentPlayer, Player[] players){
+    public void getBids(int currentPlayer, Player[] players) {
         System.out.println("-----------------------------------");
         System.out.println("--------------BIDDING--------------");
         System.out.println("-----------------------------------");
-        for (int i = 0; i < players.length; i++){
+        for (int i = 0; i < players.length; i++) {
             //Adds the bids (checks they are valid in other class)
             bidTable[currentPlayer] = players[currentPlayer].makeBid(this.desc.getValidBid());
             broadcastBids(bidTable[currentPlayer], currentPlayer, players);
@@ -250,6 +253,7 @@ public class GameEngine {
 
     /**
      * Distributes cards from the deck starting from the dealer +/- 1
+     *
      * @param players
      * @param deck
      * @param dealerIndex
@@ -282,6 +286,7 @@ public class GameEngine {
 
     /**
      * Finds the winning card of a trick
+     *
      * @return winning card
      */
     public Card winningCard() {
@@ -314,7 +319,8 @@ public class GameEngine {
             case "lastDealt": //follows through to 'fixed' case
             case "fixed":
                 suitMap.put(trumpSuit.toString(), 1);
-                if (!currentTrick.get(0).getSUIT().equals(trumpSuit.toString())) suitMap.put(currentTrick.get(0).getSUIT(), 2);
+                if (!currentTrick.get(0).getSUIT().equals(trumpSuit.toString()))
+                    suitMap.put(currentTrick.get(0).getSUIT(), 2);
                 break;
             case "none":
                 break;
@@ -349,15 +355,15 @@ public class GameEngine {
         System.out.println("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾");
     }
 
-    private void broadcastBids(Bid bid, int playerNumber, Player[] playerArray){
+    private void broadcastBids(Bid bid, int playerNumber, Player[] playerArray) {
         //Only need to broadcast moves from local players to network players
-        if(playerArray[playerNumber].getClass() == LocalPlayer.class){
+        if (!(playerArray[playerNumber] instanceof NetworkPlayer)) {
             for (Player player : playerArray) {
                 player.broadcastBid(bid, playerNumber);
             }
         } else { //Only need to print out network moves to local players
-            for(Player player : playerArray){
-                if(player.getClass() == LocalPlayer.class){
+            for (Player player : playerArray) {
+                if (player.getClass() == LocalPlayer.class) {
                     player.broadcastBid(bid, playerNumber);
                 }
             }
@@ -366,15 +372,15 @@ public class GameEngine {
 //        LocalPlayer.resetLocalPrinted();
     }
 
-    private void broadcastMoves(Card card, int playerNumber, Player[] playerArray){
+    private void broadcastMoves(Card card, int playerNumber, Player[] playerArray) {
         //Only need to broadcast moves from local players to network players
-        if(playerArray[playerNumber].getClass() == LocalPlayer.class){
+        if (!(playerArray[playerNumber] instanceof NetworkPlayer)) {
             for (Player player : playerArray) {
                 player.broadcastPlay(card, playerNumber);
             }
         } else { //Only need to print out network moves to local players
-            for(Player player : playerArray){
-                if(player.getClass() == LocalPlayer.class){
+            for (Player player : playerArray) {
+                if (player.getClass() == LocalPlayer.class) {
                     player.broadcastPlay(card, playerNumber);
                 }
             }

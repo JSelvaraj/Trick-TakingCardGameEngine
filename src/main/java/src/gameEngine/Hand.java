@@ -1,6 +1,7 @@
 package src.gameEngine;
 
-import src.card.*;
+import src.card.Card;
+
 import java.util.LinkedList;
 import java.util.ListIterator;
 
@@ -12,14 +13,15 @@ public class Hand {
 
     private LinkedList<Card> hand;
 
-    public  Hand (LinkedList<Card> hand) {
+    public Hand(LinkedList<Card> hand) {
         this.hand = hand;
     }
-    public Hand () {
+
+    public Hand() {
         this.hand = new LinkedList<>();
     }
 
-    public int getHandSize () {
+    public int getHandSize() {
         return hand.size();
     }
 
@@ -50,10 +52,11 @@ public class Hand {
      * @param num index of card to be 'given' (removed from hand)
      * @return removed card
      */
-    public Card giveCard (int num) {
+    public Card giveCard(int num) {
         return this.hand.remove(num);
     }
-    public Card giveCard (Card card) {
+
+    public Card giveCard(Card card) {
         return this.hand.remove(this.hand.indexOf(card));
     }
 
@@ -61,7 +64,7 @@ public class Hand {
     /**
      * @param card to be added to hand
      */
-    public void getCard (Card card) {
+    public void getCard(Card card) {
         this.hand.add(card);
     }
 
@@ -69,7 +72,7 @@ public class Hand {
         return hand;
     }
 
-    public void dropHand () {
+    public void dropHand() {
         this.hand = new LinkedList<>();
     }
 }
