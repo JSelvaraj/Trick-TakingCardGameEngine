@@ -4,16 +4,19 @@ import src.card.Card;
 import src.card.CardComparator;
 import src.deck.Deck;
 import src.deck.Shuffle;
+import src.deck.Trick;
 import src.functions.validCards;
 import src.parser.GameDesc;
 import src.player.LocalPlayer;
 import src.player.NetworkPlayer;
 import src.player.Player;
-import src.rdmEvents.rdmEvent;
-import src.team.Team;
 import src.rdmEvents.rdmEventsManager;
+import src.team.Team;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
@@ -29,7 +32,7 @@ public class GameEngine {
     //Stores the scores/metrics of the game
     private int handsPlayed = 0;
     private Bid[] bidTable;
-
+    private List<Trick> trickHistory;
     //Predicate functions used in determining if card moves are valid
     private Predicate<Card> validCard;
     private Predicate<Card> validLeadingCard;
@@ -85,7 +88,7 @@ public class GameEngine {
         }
 
         /* Initialise random events */
-        rdmEventsManager rdmEventsManager = new rdmEventsManager(2, gameDesc.getScoreThreshold(),10, 3);
+        rdmEventsManager rdmEventsManager = new rdmEventsManager(2, gameDesc.getScoreThreshold(), 10, 3);
 
         Deck deck; // make standard deck from a linked list of Cards
         Shuffle.seedGenerator(seed); // TODO remove cast to int
@@ -132,7 +135,6 @@ public class GameEngine {
                 }
                 //Determine winning card
                 Card winningCard = game.winningCard();
-
                 //Works out who played the winning card
                 //Roll back player to the person who last played a card.
                 if (gameDesc.isDEALCARDSCLOCKWISE()) {
@@ -153,7 +155,9 @@ public class GameEngine {
                         }
                     }
                 }
-
+                //Adds the trick to the trick history.
+                Trick trick = new Trick(winningCard, game.trumpSuit.toString(), currentPlayer, new LinkedList<>(game.currentTrick.getHand()));
+                game.trickHistory.add(trick);
                 //Find the team with the winning player and increment their tricks score
                 for (Team team : teams) {
                     if (team.findPlayer(currentPlayer)) {
@@ -174,7 +178,7 @@ public class GameEngine {
             game.handsPlayed++;
             //Calculate the score of the hand
             if (gameDesc.getCalculateScore().equals("tricksWon")) {
-                for (Team team: teams) {
+                for (Team team : teams) {
                     int score = team.getTricksWon();
                     if (score > gameDesc.getTrickThreshold()) { // if score greater than trick threshold
                         team.setScore(team.getScore() + (score - gameDesc.getTrickThreshold())); // add score to team's running total
@@ -183,11 +187,11 @@ public class GameEngine {
                 }
             }
             //
-            if(gameDesc.getCalculateScore().equals("bid")) { //TODO handle special bids.
-                for (Team team : teams){
+            if (gameDesc.getCalculateScore().equals("bid")) { //TODO handle special bids.
+                for (Team team : teams) {
                     int teamBid = 0;
                     //Get collective team bids
-                    for (Player player : team.getPlayers()){
+                    for (Player player : team.getPlayers()) {
                         teamBid += game.bidTable[player.getPlayerNumber()].getBidValue();
                     }
                     Bid bid = new Bid(teamBid, false);
