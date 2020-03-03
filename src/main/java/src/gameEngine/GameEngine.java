@@ -8,6 +8,7 @@ import src.deck.Trick;
 import src.functions.validCards;
 import src.parser.GameDesc;
 import src.player.LocalPlayer;
+import src.player.NetworkPlayer;
 import src.player.Player;
 import src.rdmEvents.rdmEventsManager;
 import src.team.Team;
@@ -360,7 +361,7 @@ public class GameEngine {
 
     private void broadcastBids(Bid bid, int playerNumber, Player[] playerArray) {
         //Only need to broadcast moves from local players to network players
-        if (playerArray[playerNumber].getClass() == LocalPlayer.class) {
+        if (!(playerArray[playerNumber] instanceof NetworkPlayer)) {
             for (Player player : playerArray) {
                 player.broadcastBid(bid, playerNumber);
             }
@@ -377,7 +378,7 @@ public class GameEngine {
 
     private void broadcastMoves(Card card, int playerNumber, Player[] playerArray) {
         //Only need to broadcast moves from local players to network players
-        if (playerArray[playerNumber].getClass() == LocalPlayer.class) {
+        if (!(playerArray[playerNumber] instanceof NetworkPlayer)) {
             for (Player player : playerArray) {
                 player.broadcastPlay(card, playerNumber);
             }

@@ -8,28 +8,32 @@ import java.util.*;
 public class CardComparator implements Comparator<Card> {
 
     //TODO: Convert to hashmap similar to suitmap
-    /** rankOrder is an array of strings where the position in the array denotes its ranking in game.
-       a higher index in the array indicates a more valuable rank.
+    /**
+     * rankOrder is an array of strings where the position in the array denotes its ranking in game.
+     * a higher index in the array indicates a more valuable rank.
      */
-    private List<String> rankOrder ;
+    private List<String> rankOrder;
 
-    /** suitMap is a map of the suits and their ranking in the game defined by the game description,
-       a lower value in the map indicates a more valuable suit.
+    /**
+     * suitMap is a map of the suits and their ranking in the game defined by the game description,
+     * a lower value in the map indicates a more valuable suit.
      */
-    private HashMap<String,Integer> suitMap;
+    private HashMap<String, Integer> suitMap;
 
     /**
      * Constructor that sets default rankorder
+     *
      * @param suitMap Ranking of suits
      */
     public CardComparator(HashMap<String, Integer> suitMap) {
-        String[] ranks = {"TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING","ACE"};
+        String[] ranks = {"TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING", "ACE"};
         this.rankOrder = Arrays.asList(ranks);
         this.suitMap = suitMap;
     }
 
     /**
      * Constructor that sets rankings
+     *
      * @param suitMap Ranking of suits
      */
     public CardComparator(HashMap<String, Integer> suitMap, String[] rankOrder) {
@@ -38,7 +42,6 @@ public class CardComparator implements Comparator<Card> {
     }
 
     /**
-     *
      * @param card1 the first card object
      * @param card2 the card that the first card object is being compared to
      * @return 1 if card1 > card2, 0 if card1 == card2, -1 card1 < card 2
@@ -47,7 +50,7 @@ public class CardComparator implements Comparator<Card> {
     @Override
     public int compare(Card card1, Card card2) throws InputMismatchException {
         /* If the rank/suit provided to the comparator doesn't match the names of the ranks/suits used to
-        *  make the comparator, then it throws an error */
+         *  make the comparator, then it throws an error */
         if (!suitMap.containsKey(card1.getSUIT())
                 || !suitMap.containsKey(card2.getSUIT())
                 || !rankOrder.contains(card1.getRANK())

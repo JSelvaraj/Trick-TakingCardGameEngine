@@ -4,8 +4,6 @@ import src.card.Card;
 import src.gameEngine.Bid;
 import src.gameEngine.Hand;
 
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Scanner;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
@@ -53,11 +51,16 @@ public class LocalPlayer extends Player {
         this.colour = text_colours[playerNumber];
     }
 
+    public LocalPlayer() {
+        this.colour = text_colours[0];
+    }
+
+
     /**
-     * @param trumpSuit current trump suit
+     * @param trumpSuit    current trump suit
      * @param currentTrick current trick
-     * Presents local user with series of options to get information on the state of the game, and then to play a card
-     * from their hand.
+     *                     Presents local user with series of options to get information on the state of the game, and then to play a card
+     *                     from their hand.
      * @return the selected card by the player
      */
     @Override
@@ -91,9 +94,9 @@ public class LocalPlayer extends Player {
 
     @Override
     public void broadcastBid(Bid bid, int playerNumber) {
-        if (!localPrinted) {
-            System.out.println("Player " + (playerNumber + 1) + " bid " + bid.getBidValue() + (bid.isBlind() ? " blind" : ""));
-        }
+//        if (!localPrinted) {
+        System.out.println("Player " + (playerNumber + 1) + " bid " + bid.getBidValue() + (bid.isBlind() ? " blind" : ""));
+//        }
     }
 
     /**
