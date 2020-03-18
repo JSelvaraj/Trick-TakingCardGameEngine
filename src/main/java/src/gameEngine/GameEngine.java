@@ -136,11 +136,12 @@ public class GameEngine {
                 //Determine winning card
                 Card winningCard = game.winningCard();
                 //Works out who played the winning card
-                //Roll back player to the person who last played a card.
-                if (gameDesc.isDEALCARDSCLOCKWISE()) {
-                    currentPlayer = Math.floorMod((currentPlayer - 1), playerArray.length);
-                } else {
-                    currentPlayer = (currentPlayer + 1) % playerArray.length;
+                /* go back to the previous player.
+                 Loop 1 less than the number of players, so you actually move one back.
+                 If you wanted to go from 1 -> 0, then this is the same as 1 -> 2 -> 3 -> 0
+                 */
+                for (int j = 0; j < playerArray.length - 1; j++) {
+                    currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                 }
 
                 //Find player who played winning card
@@ -148,10 +149,9 @@ public class GameEngine {
                     if (game.currentTrick.get(i).equals(winningCard)) {
                         break;
                     } else {
-                        if (gameDesc.isDEALCARDSCLOCKWISE()) {
-                            currentPlayer = Math.floorMod((currentPlayer - 1), playerArray.length);
-                        } else {
-                            currentPlayer = (currentPlayer + 1) % playerArray.length;
+                        // go back to the previous player.
+                        for (int j = 0; j < playerArray.length - 1; j++) {
+                            currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                         }
                     }
                 }
