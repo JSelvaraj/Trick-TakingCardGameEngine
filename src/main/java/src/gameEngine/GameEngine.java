@@ -63,9 +63,10 @@ public class GameEngine {
         if (desc.isBidding()) {
             bidTable = new Bid[this.desc.getNUMBEROFPLAYERS()];
         }
+        this.trickHistory = new LinkedList<>();
     }
 
-    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed) {
+    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves) {
         GameEngine game = new GameEngine(gameDesc);
 
         assert playerArray.length == gameDesc.getNUMBEROFPLAYERS(); //TODO remove
@@ -91,15 +92,17 @@ public class GameEngine {
         rdmEventsManager rdmEventsManager = new rdmEventsManager(2, gameDesc.getScoreThreshold(), 10, 3);
 
         Deck deck; // make standard deck from a linked list of Cards
-        Shuffle.seedGenerator(seed); // TODO remove cast to int
-        game.printScore();
-
+        Shuffle shuffle = new Shuffle(seed);
+        //Shuffle.seedGenerator(seed); // TODO remove cast to int
+        if (printMoves) {
+            game.printScore();
+        }
 
         //Loop until game winning condition has been met
         do {
             int currentPlayer = dealer;
             deck = new Deck(gameDesc.getDECK());
-            Shuffle.shuffle(deck.cards); //shuffle deck according to the given seed
+            shuffle.shuffle(deck.cards); //shuffle deck according to the given seed
             game.dealCards(playerArray, deck, currentPlayer);
 
             if (gameDesc.isDEALCARDSCLOCKWISE())
@@ -110,15 +113,18 @@ public class GameEngine {
             if (gameDesc.isBidding()) {
                 game.getBids(currentPlayer, playerArray);
             }
-            System.out.println("-----------------------------------");
-            System.out.println("----------------PLAY---------------");
-            System.out.println("-----------------------------------");
+            if (printMoves) {
+                System.out.println("-----------------------------------");
+                System.out.println("----------------PLAY---------------");
+                System.out.println("-----------------------------------");
+            }
             //Loop until trick has completed (all cards have been played)
             do {
                 //Check for random event probability
                 boolean rdmEventHappened = false;
-
-                System.out.println("Trump is " + game.trumpSuit.toString());
+                if (printMoves) {
+                    System.out.println("Trump is " + game.trumpSuit.toString());
+                }
                 //Each player plays a card
                 for (int i = 0; i < playerArray.length; i++) {
                     /*if (!rdmEventHappened) {
@@ -162,8 +168,10 @@ public class GameEngine {
                 for (Team team : teams) {
                     if (team.findPlayer(currentPlayer)) {
                         team.setTricksWon(team.getTricksWon() + 1);
-                        System.out.println("Player " + (currentPlayer + 1) + " was the winner of the trick with the " + winningCard.toString());
-                        System.out.println("Tricks won: " + team.getTricksWon());
+                        if (printMoves) {
+                            System.out.println("Player " + (currentPlayer + 1) + " was the winner of the trick with the " + winningCard.toString());
+                            System.out.println("Tricks won: " + team.getTricksWon());
+                        }
                         break;
                     }
                     //Signal that trump suit was broken -> can now be played

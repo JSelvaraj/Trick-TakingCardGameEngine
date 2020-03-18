@@ -10,23 +10,25 @@ public class PlayerRunner implements Runnable {
     private int hostPort;
     private int localPort;
     boolean localConnection = false;
+    private boolean printMoves = true;
 
-    public PlayerRunner(Player player, String hostAddress, int hostPort, int localPort, boolean localConnection) {
+    public PlayerRunner(Player player, String hostAddress, int hostPort, int localPort, boolean localConnection, boolean printMoves) {
         this.player = player;
         this.hostAddress = hostAddress;
         this.hostPort = hostPort;
         this.localPort = localPort;
         this.localConnection = localConnection;
+        this.printMoves = printMoves;
     }
 
-    public PlayerRunner(Player player, String hostAddress, int hostPort, boolean localConnection) {
-        this(player, hostAddress, hostPort, 0, localConnection);
+    public PlayerRunner(Player player, String hostAddress, int hostPort, boolean localConnection, boolean printMoves) {
+        this(player, hostAddress, hostPort, 0, localConnection, printMoves);
     }
 
     @Override
     public void run() {
         try {
-            Networking.connectToGame(this.localPort, this.hostAddress, this.hostPort, player, this.localConnection);
+            Networking.connectToGame(this.localPort, this.hostAddress, this.hostPort, player, this.localConnection, printMoves);
         } catch (InvalidGameDescriptionException e) {
             e.printStackTrace();
         }

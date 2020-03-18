@@ -14,11 +14,12 @@ class ShuffleTest {
 
     private List<Integer> list;
     private int seed = 0xDEADBEEF;
+    private Shuffle shuffle;
 
     @BeforeEach
     void setUp() {
         list = new ArrayList<>();
-        Shuffle.seedGenerator(seed);
+        shuffle = new Shuffle(seed);
     }
 
     /**
@@ -29,7 +30,7 @@ class ShuffleTest {
         list.add(1);
         assertEquals(1, list.size());
         assertEquals(1, (int) list.get(0));
-        Shuffle.shuffle(list);
+        shuffle.shuffle(list);
         assertEquals(1, list.size());
         assertEquals(1, (int)list.get(0));
     }
@@ -41,7 +42,7 @@ class ShuffleTest {
     @Test
     void shuffle_empty() {
         assertEquals(0, list.size());
-        Shuffle.shuffle(list);
+        shuffle.shuffle(list);
         assertEquals(0, list.size());
     }
 
@@ -53,7 +54,7 @@ class ShuffleTest {
         list.add(1);
         list.add(1);
         assertEquals(5, list.size());
-        Shuffle.shuffle(list);
+        shuffle.shuffle(list);
         assertEquals(5, list.size());
     }
 }
