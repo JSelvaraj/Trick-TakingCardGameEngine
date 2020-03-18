@@ -26,7 +26,7 @@ public class PlayerIncrementer {
      * @return A function that will increment players.
      */
     private static IntFunction<Integer> incrementPlayerAscending(int playerCount) {
-        return (currentPlayer) -> currentPlayer++ % playerCount;
+        return (currentPlayer) -> (currentPlayer + 1) % playerCount;
     }
 
     /**
@@ -36,6 +36,6 @@ public class PlayerIncrementer {
      * @return A function that will decrement players.
      */
     private static IntFunction<Integer> decrementPlayerAscending(int playerCount) {
-        return (currentPlayer) -> Math.floorMod((currentPlayer--), playerCount);
+        return (currentPlayer) -> Math.floorMod(currentPlayer - 1, playerCount);
     }
 }
