@@ -257,8 +257,7 @@ public class GameEngine {
             //Adds the bids (checks they are valid in other class)
             bidTable[currentPlayer] = players[currentPlayer].makeBid(this.desc.getValidBid());
             broadcastBids(bidTable[currentPlayer], currentPlayer, players);
-            if (this.desc.isDEALCARDSCLOCKWISE()) currentPlayer = (currentPlayer + 1) % players.length;
-            else currentPlayer = Math.floorMod((currentPlayer - 1), players.length);
+            currentPlayer = this.nextPlayerIndex.apply(currentPlayer);
         }
     }
 
@@ -271,18 +270,14 @@ public class GameEngine {
      * @param dealerIndex
      */
     public void dealCards(Player[] players, Deck deck, int dealerIndex) {
-        if (desc.isDEALCARDSCLOCKWISE())
-            dealerIndex = (dealerIndex + 1) % players.length; // start dealing from dealer's left
-        else dealerIndex = Math.floorMod((dealerIndex - 1), players.length); // start dealing from dealers right
+        dealerIndex = this.nextPlayerIndex.apply(dealerIndex);
         int cardsLeft = deck.getDeckSize() - (players.length * this.desc.getHandSize());
         //Deal until the deck is empty
         while (deck.getDeckSize() > cardsLeft) {
             //Deal card to player by adding to their hand and removing from the deck
             players[dealerIndex].getHand().getCard(deck.drawCard());
-
-            if (desc.isDEALCARDSCLOCKWISE()) dealerIndex = (dealerIndex + 1) % players.length; //turn order is clockwise
-            else dealerIndex = Math.floorMod((dealerIndex - 1), players.length); //turn order is anticlockwise
-
+            
+            dealerIndex = this.nextPlayerIndex.apply(dealerIndex);
             //Sets the trump suit based on the last card if defined by game desc
             if (desc.getTrumpPickingMode().compareTo("lastDealt") == 0 && deck.getDeckSize() == cardsLeft + 1) {
                 Card lastCard = deck.drawCard();
