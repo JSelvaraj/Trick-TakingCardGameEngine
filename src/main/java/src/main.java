@@ -63,7 +63,7 @@ public class main {
                     thread.start();
                     for (int i = 0; i < host.aiPlayers; i++) {
                         System.out.println("AI started");
-                        PlayerRunner runner = new PlayerRunner(new RandomPlayer(), "localhost", host.port, true);
+                        PlayerRunner runner = new PlayerRunner(new RandomPlayer(), "localhost", host.port, true, false);
                         Thread aiThread = new Thread(runner);
                         aiThread.start();
                     }
@@ -73,7 +73,7 @@ public class main {
                 if (join.search) {
 
                 } else {
-                    Thread thread = new Thread(new PlayerRunner(new LocalPlayer(), join.address, join.port, join.localPort, false));
+                    Thread thread = new Thread(new PlayerRunner(new LocalPlayer(), join.address, join.port, join.localPort, false, true));
                     thread.start();
                 }
                 break;

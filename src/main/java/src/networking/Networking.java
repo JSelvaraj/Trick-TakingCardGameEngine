@@ -129,13 +129,12 @@ public class Networking {
                 e.printStackTrace();
             }
         }
-
-        GameEngine.main(gameDesc, 0, players, SEED);
+        GameEngine.main(gameDesc, 0, players, SEED, true);
 
 
     }
 
-    public static void connectToGame(int localPort, String ip, int port, Player localPlayer, boolean localConnection) throws InvalidGameDescriptionException {
+    public static void connectToGame(int localPort, String ip, int port, Player localPlayer, boolean localConnection, boolean printMoves) throws InvalidGameDescriptionException {
         //Wait for host to start if connecting to a local one.
         if (localConnection) {
             try {
@@ -265,7 +264,7 @@ public class Networking {
             GameDesc gameDesc = parser.parseGameDescription(gameJSON);
 
             System.out.println("Starting game");
-            GameEngine.main(gameDesc, 0, players, seed);
+            GameEngine.main(gameDesc, 0, players, seed, printMoves);
         } catch (IOException e) {
             e.printStackTrace();
         }
