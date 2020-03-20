@@ -11,10 +11,12 @@ import java.util.List;
 public class PlayerState {
     private final int playerIndex;
     private List<Card> cardsPlayed;
+    private int cardsLeft;
 
-    public PlayerState(int playerIndex) {
+    public PlayerState(int playerIndex, int initialCards) {
         this.playerIndex = playerIndex;
         this.cardsPlayed = new LinkedList<>();
+        this.cardsLeft = initialCards;
     }
 
     /**
@@ -24,6 +26,7 @@ public class PlayerState {
      */
     public void addCard(Card card) {
         cardsPlayed.add(card);
+        cardsLeft--;
     }
 
     public int getPlayerIndex() {
@@ -32,5 +35,9 @@ public class PlayerState {
 
     public List<Card> getCardsPlayed() {
         return cardsPlayed;
+    }
+
+    public int getCardsLeft() {
+        return cardsLeft;
     }
 }
