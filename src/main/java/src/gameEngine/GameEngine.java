@@ -95,7 +95,7 @@ public class GameEngine {
 
         /* Initialise random events */
         rdmEventsManager rdmEventsManager = new rdmEventsManager(2, gameDesc.getScoreThreshold(),
-                1, 3, teams.get(0), teams.get(1));
+                1, 3, game.getTeams().get(0), game.getTeams().get(1));
 
         Deck deck; // make standard deck from a linked list of Cards
         Shuffle shuffle = new Shuffle(seed);
