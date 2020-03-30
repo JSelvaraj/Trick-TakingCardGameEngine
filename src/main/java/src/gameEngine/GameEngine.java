@@ -11,6 +11,7 @@ import src.parser.GameDesc;
 import src.player.LocalPlayer;
 import src.player.NetworkPlayer;
 import src.player.Player;
+import src.rdmEvents.rdmEvent;
 import src.rdmEvents.rdmEventsManager;
 import src.team.Team;
 
@@ -93,7 +94,8 @@ public class GameEngine {
         }
 
         /* Initialise random events */
-        rdmEventsManager rdmEventsManager = new rdmEventsManager(2, gameDesc.getScoreThreshold(), 10, 3);
+        rdmEventsManager rdmEventsManager = new rdmEventsManager(2, gameDesc.getScoreThreshold(),
+                1, 3, teams.get(0), teams.get(1));
 
         Deck deck; // make standard deck from a linked list of Cards
         Shuffle shuffle = new Shuffle(seed);
@@ -122,19 +124,22 @@ public class GameEngine {
             //Loop until trick has completed (all cards have been played)
             do {
                 //Check for random event probability
-                boolean rdmEventHappened = false;
+                boolean rdmEventHappenedTRICK = false;
+
                 if (printMoves) {
                     System.out.println("Trump is " + game.trumpSuit.toString());
                 }
                 //Each player plays a card
                 for (int i = 0; i < playerArray.length; i++) {
-                    /*if (!rdmEventHappened) {
-                        rdmEvent rdmEvent = rdmEventsManager.eventChooser();
+                    if (!rdmEventHappenedTRICK) {
+                        rdmEvent rdmEvent = rdmEventsManager.eventChooser("TRICK");
                         if (rdmEvent != null){
                             //Do rdmevent
-                            rdmEventHappened = true;
+                            System.out.println("Random event creation start");
+                            game.runRdmEvent(rdmEvent);
+                            rdmEventHappenedTRICK = true;
                         }
-                    }*/
+                    }
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                     currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
@@ -375,8 +380,6 @@ public class GameEngine {
                 }
             }
         }
-        //Resets the printed for local players.
-//        LocalPlayer.resetLocalPrinted();
     }
 
     private void broadcastMoves(Card card, int playerNumber, Player[] playerArray) {
@@ -392,8 +395,26 @@ public class GameEngine {
                 }
             }
         }
-        //Resets the printed for local players.
-        LocalPlayer.setLocalPrinted(false);
+    }
+
+    private void runRdmEvent(rdmEvent rdmEvent) {
+        System.out.println("rdm Event runner triggered");
+        swapHands(rdmEvent.getWeakestTeam(), rdmEvent.getStrongestTeam());
+    }
+
+    private void swapHands(Team weakestTeam, Team strongestTeam) {
+        Player weakPlayer = weakestTeam.getPlayers()[0];
+        Player strongPlayer = strongestTeam.getPlayers()[0];
+
+        Hand tempHand = weakPlayer.getHand();
+        Predicate<Card> tempPredicate = weakPlayer.getCanBePlayed();
+
+        weakPlayer.setHand(strongPlayer.getHand());
+        weakPlayer.setCanBePlayed(strongPlayer.getCanBePlayed());
+        strongPlayer.setHand(tempHand);
+        strongPlayer.setCanBePlayed(tempPredicate);
+
+        System.out.println("swapHands triggered");
     }
 
     private Predicate<Card> getValidCard() {

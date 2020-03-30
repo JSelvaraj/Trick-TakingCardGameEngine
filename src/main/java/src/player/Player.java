@@ -60,7 +60,7 @@ public abstract class Player {
 
     public abstract Bid makeBid(IntPredicate validBid);
 
-    Predicate<Card> getCanBePlayed() {
+    public Predicate<Card> getCanBePlayed() {
         return canBePlayed;
     }
 
@@ -69,4 +69,8 @@ public abstract class Player {
     }
 
     public abstract void broadcastBid(Bid bid, int playerNumber);
+
+    public void setHand(Hand hand) {
+        this.hand = hand;
+    }
 }
