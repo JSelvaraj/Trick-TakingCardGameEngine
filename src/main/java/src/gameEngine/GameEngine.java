@@ -11,6 +11,7 @@ import src.parser.GameDesc;
 import src.player.LocalPlayer;
 import src.player.NetworkPlayer;
 import src.player.Player;
+import src.rdmEvents.rdmEvent;
 import src.rdmEvents.rdmEventsManager;
 import src.team.Team;
 
@@ -123,7 +124,8 @@ public class GameEngine {
             //Loop until trick has completed (all cards have been played)
             do {
                 //Check for random event probability
-                boolean rdmEventHappened = false;
+                boolean rdmEventHappenedTRICK = false;
+
                 if (printMoves) {
                     System.out.println("Trump is " + game.trumpSuit.toString());
                 }
