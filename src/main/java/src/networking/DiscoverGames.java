@@ -1,11 +1,14 @@
 package src.networking;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.net.SocketException;
 import java.util.LinkedList;
 import java.util.Scanner;
 
-public class DiscoverGames{
+public class DiscoverGames {
     private static final String MULTICASTIP = "239.40.40.6";
     private static final int MULTICASTPORT = 1903;
     private static final int LOOPTIME = 10000; // time spend looking for packets
@@ -36,7 +39,7 @@ public class DiscoverGames{
                         msgQueue.add(message);
                     } catch (SocketException e) {
                     } catch (IOException e) {
-    //                    e.printStackTrace();
+                        //                    e.printStackTrace();
                     }
                 }
                 System.out.println("Continue looking? (q to quit)");

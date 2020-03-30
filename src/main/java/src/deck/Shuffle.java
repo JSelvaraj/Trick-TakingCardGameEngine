@@ -9,7 +9,11 @@ import java.util.List;
  * Used to perform a random shuffle on a deck of cards, based on a provided seed.
  */
 public class Shuffle {
-    private static MersenneTwister generator;
+    private MersenneTwister generator;
+
+    public Shuffle(int seed) {
+        this.generator = new MersenneTwister(seed);
+    }
 
     /**
      * Seed the random number generator. If the generator hasn't been initialised, then it will be using the seed.
@@ -17,12 +21,8 @@ public class Shuffle {
      *
      * @param seed The seed for the generator.
      */
-    public static void seedGenerator(int seed) {
-        if (generator == null) {
-            generator = new MersenneTwister(seed);
-        } else {
-            generator.setSeed(seed);
-        }
+    public void seedGenerator(int seed) {
+        generator.setSeed(seed);
     }
 
     /**
@@ -32,7 +32,7 @@ public class Shuffle {
      * @param <T>  Type that implements this List interface, so that get and set can be used.
      * @param <E>  Type of the elements of T.
      */
-    public static <E, T extends List<E>> void shuffle(T list) {
+    public <E, T extends List<E>> void shuffle(T list) {
         int j;
         for (int i = list.size() - 1; i > 0; i--) {
             j = Math.floorMod(generator.nextInt(), i + 1);

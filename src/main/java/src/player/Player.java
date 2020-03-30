@@ -28,6 +28,15 @@ public abstract class Player {
         this.canBePlayed = null;
     }
 
+    Player() {
+        this.hand = new Hand();
+        this.canBePlayed = null;
+    }
+
+    public void setPlayerNumber(int playerNumber) {
+        this.playerNumber = playerNumber;
+    }
+
     /**
      * Initialises the predicate that checks if a move is valid.
      *

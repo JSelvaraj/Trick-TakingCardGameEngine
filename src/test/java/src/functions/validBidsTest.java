@@ -1,4 +1,4 @@
-package src;
+package src.functions;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import src.functions.validBids;

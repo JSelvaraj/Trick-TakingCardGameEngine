@@ -4,16 +4,22 @@ import src.card.Card;
 import src.card.CardComparator;
 import src.deck.Deck;
 import src.deck.Shuffle;
+import src.deck.Trick;
+import src.functions.PlayerIncrementer;
 import src.functions.validCards;
 import src.parser.GameDesc;
 import src.player.LocalPlayer;
+import src.player.NetworkPlayer;
 import src.player.Player;
-import src.rdmEvents.rdmEvent;
-import src.team.Team;
 import src.rdmEvents.rdmEventsManager;
+import src.team.Team;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
 /**
@@ -28,10 +34,11 @@ public class GameEngine {
     //Stores the scores/metrics of the game
     private int handsPlayed = 0;
     private Bid[] bidTable;
-
+    private List<Trick> trickHistory;
     //Predicate functions used in determining if card moves are valid
     private Predicate<Card> validCard;
     private Predicate<Card> validLeadingCard;
+    private IntFunction<Integer> nextPlayerIndex;
 
     static ArrayList<Team> teams = new ArrayList<>();
     //Starts as 1 in 10 chance;
@@ -39,28 +46,31 @@ public class GameEngine {
 
     /**
      * Set up game engine
+     *
      * @param desc game description
      */
     public GameEngine(GameDesc desc) {
         this.desc = desc;
         this.trumpSuit = new StringBuilder();
         //Set fixed trump suit if specified
-        if(desc.getTrumpPickingMode().equals("fixed")){
+        if (desc.getTrumpPickingMode().equals("fixed")) {
             this.trumpSuit.append(desc.getTrumpSuit());
         }
-        if(desc.getTrumpPickingMode().equals("predefined")){
+        if (desc.getTrumpPickingMode().equals("predefined")) {
             this.trumpSuit.append(desc.getTrumpIterator().next());
         }
         //Flags if the trump suit has been broken in the hand
         this.breakFlag = new AtomicBoolean(false);
         this.validLeadingCard = validCards.getValidLeadingCardPredicate(desc.getLeadingCardForEachTrick(), this.trumpSuit, breakFlag);
         this.validCard = validCards.getValidCardPredicate("trick", this.trumpSuit, this.currentTrick, this.validLeadingCard);
-        if(desc.isBidding()){
+        this.nextPlayerIndex = PlayerIncrementer.generateNextPlayerFunction(desc.isDEALCARDSCLOCKWISE(), desc.getNUMBEROFPLAYERS());
+        if (desc.isBidding()) {
             bidTable = new Bid[this.desc.getNUMBEROFPLAYERS()];
         }
+        this.trickHistory = new LinkedList<>();
     }
 
-    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed) {
+    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves) {
         GameEngine game = new GameEngine(gameDesc);
 
         assert playerArray.length == gameDesc.getNUMBEROFPLAYERS(); //TODO remove
@@ -87,34 +97,36 @@ public class GameEngine {
                 1, 3, teams.get(0), teams.get(1));
 
         Deck deck; // make standard deck from a linked list of Cards
-        Shuffle.seedGenerator(seed); // TODO remove cast to int
-        game.printScore();
-
+        Shuffle shuffle = new Shuffle(seed);
+        //Shuffle.seedGenerator(seed); // TODO remove cast to int
+        if (printMoves) {
+            game.printScore();
+        }
 
         //Loop until game winning condition has been met
         do {
             int currentPlayer = dealer;
             deck = new Deck(gameDesc.getDECK());
-            Shuffle.shuffle(deck.cards); //shuffle deck according to the given seed
+            shuffle.shuffle(deck.cards); //shuffle deck according to the given seed
             game.dealCards(playerArray, deck, currentPlayer);
 
-            if (gameDesc.isDEALCARDSCLOCKWISE())
-                currentPlayer = (currentPlayer + 1) % playerArray.length; //ensures that first card played is from dealer's left
-            else
-                currentPlayer = Math.floorMod((currentPlayer - 1), playerArray.length); //ensures that first card played is from dealers right
+            currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
 
-            if(gameDesc.isBidding()){
+            if (gameDesc.isBidding()) {
                 game.getBids(currentPlayer, playerArray);
             }
-            System.out.println("-----------------------------------");
-            System.out.println("----------------PLAY---------------");
-            System.out.println("-----------------------------------");
+            if (printMoves) {
+                System.out.println("-----------------------------------");
+                System.out.println("----------------PLAY---------------");
+                System.out.println("-----------------------------------");
+            }
             //Loop until trick has completed (all cards have been played)
             do {
                 //Check for random event probability
-                boolean rdmEventHappenedTRICK = false;
-
-                System.out.println("Trump is " + game.trumpSuit.toString());
+                boolean rdmEventHappened = false;
+                if (printMoves) {
+                    System.out.println("Trump is " + game.trumpSuit.toString());
+                }
                 //Each player plays a card
                 for (int i = 0; i < playerArray.length; i++) {
                     if (!rdmEventHappenedTRICK) {
@@ -128,19 +140,17 @@ public class GameEngine {
                     }
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
-                    if (gameDesc.isDEALCARDSCLOCKWISE()) currentPlayer = (currentPlayer + 1) % playerArray.length;
-                    else currentPlayer = Math.floorMod((currentPlayer - 1), playerArray.length);
-
+                    currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                 }
                 //Determine winning card
                 Card winningCard = game.winningCard();
-
                 //Works out who played the winning card
-                //Roll back player to the person who last played a card.
-                if (gameDesc.isDEALCARDSCLOCKWISE()) {
-                    currentPlayer = Math.floorMod((currentPlayer - 1), playerArray.length);
-                } else {
-                    currentPlayer = (currentPlayer + 1) % playerArray.length;
+                /* go back to the previous player.
+                 Loop 1 less than the number of players, so you actually move one back.
+                 If you wanted to go from 1 -> 0, then this is the same as 1 -> 2 -> 3 -> 0
+                 */
+                for (int j = 0; j < playerArray.length - 1; j++) {
+                    currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                 }
 
                 //Find player who played winning card
@@ -148,24 +158,27 @@ public class GameEngine {
                     if (game.currentTrick.get(i).equals(winningCard)) {
                         break;
                     } else {
-                        if (gameDesc.isDEALCARDSCLOCKWISE()) {
-                            currentPlayer = Math.floorMod((currentPlayer - 1), playerArray.length);
-                        } else {
-                            currentPlayer = (currentPlayer + 1) % playerArray.length;
+                        // go back to the previous player.
+                        for (int j = 0; j < playerArray.length - 1; j++) {
+                            currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                         }
                     }
                 }
-
+                //Adds the trick to the trick history.
+                Trick trick = new Trick(winningCard, game.trumpSuit.toString(), currentPlayer, new LinkedList<>(game.currentTrick.getHand()));
+                game.trickHistory.add(trick);
                 //Find the team with the winning player and increment their tricks score
                 for (Team team : teams) {
                     if (team.findPlayer(currentPlayer)) {
                         team.setTricksWon(team.getTricksWon() + 1);
-                        System.out.println("Player " + (currentPlayer + 1) + " was the winner of the trick with the " + winningCard.toString());
-                        System.out.println("Tricks won: " + team.getTricksWon());
+                        if (printMoves) {
+                            System.out.println("Player " + (currentPlayer + 1) + " was the winner of the trick with the " + winningCard.toString());
+                            System.out.println("Tricks won: " + team.getTricksWon());
+                        }
                         break;
                     }
                     //Signal that trump suit was broken -> can now be played
-                    if(game.currentTrick.getHand().stream().anyMatch(card -> card.getSUIT().equals(game.trumpSuit.toString()))){
+                    if (game.currentTrick.getHand().stream().anyMatch(card -> card.getSUIT().equals(game.trumpSuit.toString()))) {
                         game.breakFlag.set(true);
                     }
                 }
@@ -176,7 +189,7 @@ public class GameEngine {
             game.handsPlayed++;
             //Calculate the score of the hand
             if (gameDesc.getCalculateScore().equals("tricksWon")) {
-                for (Team team: teams) {
+                for (Team team : teams) {
                     int score = team.getTricksWon();
                     if (score > gameDesc.getTrickThreshold()) { // if score greater than trick threshold
                         team.setScore(team.getScore() + (score - gameDesc.getTrickThreshold())); // add score to team's running total
@@ -185,11 +198,11 @@ public class GameEngine {
                 }
             }
             //
-            if(gameDesc.getCalculateScore().equals("bid")) { //TODO handle special bids.
-                for (Team team : teams){
+            if (gameDesc.getCalculateScore().equals("bid")) { //TODO handle special bids.
+                for (Team team : teams) {
                     int teamBid = 0;
                     //Get collective team bids
-                    for (Player player : team.getPlayers()){
+                    for (Player player : team.getPlayers()) {
                         teamBid += game.bidTable[player.getPlayerNumber()].getBidValue();
                     }
                     Bid bid = new Bid(teamBid, false);
@@ -199,7 +212,7 @@ public class GameEngine {
                     team.setTricksWon(0);
                 }
             }
-            if(gameDesc.getTrumpPickingMode().equals("predefined")){
+            if (gameDesc.getTrumpPickingMode().equals("predefined")) {
                 game.trumpSuit.replace(0, game.trumpSuit.length(), gameDesc.getTrumpIterator().next());
             }
 
@@ -235,42 +248,39 @@ public class GameEngine {
 
     /**
      * Gets the bids from the players
+     *
      * @param currentPlayer
      * @param players
      */
-    public void getBids(int currentPlayer, Player[] players){
+    public void getBids(int currentPlayer, Player[] players) {
         System.out.println("-----------------------------------");
         System.out.println("--------------BIDDING--------------");
         System.out.println("-----------------------------------");
-        for (int i = 0; i < players.length; i++){
+        for (int i = 0; i < players.length; i++) {
             //Adds the bids (checks they are valid in other class)
             bidTable[currentPlayer] = players[currentPlayer].makeBid(this.desc.getValidBid());
             broadcastBids(bidTable[currentPlayer], currentPlayer, players);
-            if (this.desc.isDEALCARDSCLOCKWISE()) currentPlayer = (currentPlayer + 1) % players.length;
-            else currentPlayer = Math.floorMod((currentPlayer - 1), players.length);
+            currentPlayer = this.nextPlayerIndex.apply(currentPlayer);
         }
     }
 
 
     /**
      * Distributes cards from the deck starting from the dealer +/- 1
+     *
      * @param players
      * @param deck
      * @param dealerIndex
      */
     public void dealCards(Player[] players, Deck deck, int dealerIndex) {
-        if (desc.isDEALCARDSCLOCKWISE())
-            dealerIndex = (dealerIndex + 1) % players.length; // start dealing from dealer's left
-        else dealerIndex = Math.floorMod((dealerIndex - 1), players.length); // start dealing from dealers right
+        dealerIndex = this.nextPlayerIndex.apply(dealerIndex);
         int cardsLeft = deck.getDeckSize() - (players.length * this.desc.getHandSize());
         //Deal until the deck is empty
         while (deck.getDeckSize() > cardsLeft) {
             //Deal card to player by adding to their hand and removing from the deck
             players[dealerIndex].getHand().getCard(deck.drawCard());
-
-            if (desc.isDEALCARDSCLOCKWISE()) dealerIndex = (dealerIndex + 1) % players.length; //turn order is clockwise
-            else dealerIndex = Math.floorMod((dealerIndex - 1), players.length); //turn order is anticlockwise
-
+            
+            dealerIndex = this.nextPlayerIndex.apply(dealerIndex);
             //Sets the trump suit based on the last card if defined by game desc
             if (desc.getTrumpPickingMode().compareTo("lastDealt") == 0 && deck.getDeckSize() == cardsLeft + 1) {
                 Card lastCard = deck.drawCard();
@@ -286,6 +296,7 @@ public class GameEngine {
 
     /**
      * Finds the winning card of a trick
+     *
      * @return winning card
      */
     public Card winningCard() {
@@ -318,7 +329,8 @@ public class GameEngine {
             case "lastDealt": //follows through to 'fixed' case
             case "fixed":
                 suitMap.put(trumpSuit.toString(), 1);
-                if (!currentTrick.get(0).getSUIT().equals(trumpSuit.toString())) suitMap.put(currentTrick.get(0).getSUIT(), 2);
+                if (!currentTrick.get(0).getSUIT().equals(trumpSuit.toString()))
+                    suitMap.put(currentTrick.get(0).getSUIT(), 2);
                 break;
             case "none":
                 break;
@@ -353,26 +365,30 @@ public class GameEngine {
         System.out.println("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾");
     }
 
-    private void broadcastBids(Bid bid, int playerNumber, Player[] playerArray){
-        //Print local player's to console
-        if (playerArray[playerNumber].getClass() == LocalPlayer.class){
-            playerArray[playerNumber].broadcastBid(bid, playerNumber);
+    private void broadcastBids(Bid bid, int playerNumber, Player[] playerArray) {
+        //Only need to broadcast moves from local players to network players
+        if (!(playerArray[playerNumber] instanceof NetworkPlayer)) {
+            for (Player player : playerArray) {
+                player.broadcastBid(bid, playerNumber);
+            }
         } else { //Only need to print out network moves to local players
-            for(Player player : playerArray){
-                if(player.getClass() == LocalPlayer.class){
+            for (Player player : playerArray) {
+                if (player.getClass() == LocalPlayer.class) {
                     player.broadcastBid(bid, playerNumber);
                 }
             }
         }
     }
 
-    private void broadcastMoves(Card card, int playerNumber, Player[] playerArray){
-        //Print local player's to console
-        if (playerArray[playerNumber].getClass() == LocalPlayer.class){
-            playerArray[playerNumber].broadcastPlay(card, playerNumber);
+    private void broadcastMoves(Card card, int playerNumber, Player[] playerArray) {
+        //Only need to broadcast moves from local players to network players
+        if (!(playerArray[playerNumber] instanceof NetworkPlayer)) {
+            for (Player player : playerArray) {
+                player.broadcastPlay(card, playerNumber);
+            }
         } else { //Only need to print out network moves to local players
-            for(Player player : playerArray){
-                if(player.getClass() == LocalPlayer.class){
+            for (Player player : playerArray) {
+                if (player.getClass() == LocalPlayer.class) {
                     player.broadcastPlay(card, playerNumber);
                 }
             }
