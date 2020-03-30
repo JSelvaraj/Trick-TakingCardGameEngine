@@ -40,7 +40,7 @@ public class GameEngine {
     private Predicate<Card> validLeadingCard;
     private IntFunction<Integer> nextPlayerIndex;
 
-    static ArrayList<Team> teams = new ArrayList<>();
+    private ArrayList<Team> teams = new ArrayList<>();
     //Starts as 1 in 10 chance;
     double rdmEventProb = 10;
 
@@ -88,7 +88,7 @@ public class GameEngine {
             for (int i = 0; i < team.length; i++) {
                 players[i] = playerArray[team[i]];
             }
-            teams.add(new Team(players, teamCounter));
+            game.getTeams().add(new Team(players, teamCounter));
             teamCounter++;
         }
 
@@ -165,7 +165,7 @@ public class GameEngine {
                 Trick trick = new Trick(winningCard, game.trumpSuit.toString(), currentPlayer, new LinkedList<>(game.currentTrick.getHand()));
                 game.trickHistory.add(trick);
                 //Find the team with the winning player and increment their tricks score
-                for (Team team : teams) {
+                for (Team team : game.getTeams()) {
                     if (team.findPlayer(currentPlayer)) {
                         team.setTricksWon(team.getTricksWon() + 1);
                         if (printMoves) {
@@ -186,7 +186,7 @@ public class GameEngine {
             game.handsPlayed++;
             //Calculate the score of the hand
             if (gameDesc.getCalculateScore().equals("tricksWon")) {
-                for (Team team : teams) {
+                for (Team team : game.getTeams()) {
                     int score = team.getTricksWon();
                     if (score > gameDesc.getTrickThreshold()) { // if score greater than trick threshold
                         team.setScore(team.getScore() + (score - gameDesc.getTrickThreshold())); // add score to team's running total
@@ -196,7 +196,7 @@ public class GameEngine {
             }
             //
             if (gameDesc.getCalculateScore().equals("bid")) { //TODO handle special bids.
-                for (Team team : teams) {
+                for (Team team : game.getTeams()) {
                     int teamBid = 0;
                     //Get collective team bids
                     for (Player player : team.getPlayers()) {
@@ -214,7 +214,7 @@ public class GameEngine {
             }
 
             //Check if game needs balancing
-            rdmEventsManager.checkGameCloseness(teams);
+            rdmEventsManager.checkGameCloseness(game.getTeams());
 
             game.printScore();
         } while (game.gameEnd());
@@ -402,5 +402,9 @@ public class GameEngine {
 
     public Bid[] getBidTable() {
         return bidTable;
+    }
+
+    public ArrayList<Team> getTeams() {
+        return teams;
     }
 }
