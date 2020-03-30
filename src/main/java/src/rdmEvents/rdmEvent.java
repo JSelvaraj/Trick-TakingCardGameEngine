@@ -13,4 +13,15 @@ public class rdmEvent {
         this.strongestTeam = strongestTeam;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public Team getWeakestTeam() {
+        return weakestTeam;
+    }
+
+    public Team getStrongestTeam() {
+        return strongestTeam;
+    }
 }
