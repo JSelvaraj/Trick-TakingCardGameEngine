@@ -9,6 +9,7 @@ import com.beust.jcommander.Parameters;
 import src.exceptions.InvalidGameDescriptionException;
 import src.gameEngine.HostRunner;
 import src.gameEngine.PlayerRunner;
+import src.networking.DiscoverGames;
 import src.player.LocalPlayer;
 import src.player.RandomPlayer;
 
@@ -37,13 +38,20 @@ public class main {
         private int port;
     }
 
+    @Parameters(commandNames = "find", commandDescription = "Find currently available games")
+    private static class CommandFind {
+
+    }
+
 
     public static void main(String[] args) throws InvalidGameDescriptionException {
         CommandHost host = new CommandHost();
         CommandJoin join = new CommandJoin();
+        CommandFind find = new CommandFind();
         JCommander jc = JCommander.newBuilder()
                 .addCommand(host)
                 .addCommand("join", join)
+                .addCommand("find", find)
                 .build();
         jc.setProgramName(main.class.getName());
         //print the usage if no arguments supplied.
@@ -76,6 +84,9 @@ public class main {
                     Thread thread = new Thread(new PlayerRunner(new LocalPlayer(), join.address, join.port, join.localPort, false, true));
                     thread.start();
                 }
+                break;
+            case "find":
+                DiscoverGames.find();
                 break;
         }
     }
