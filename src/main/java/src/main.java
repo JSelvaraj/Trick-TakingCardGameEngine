@@ -25,7 +25,7 @@ public class main {
         private int localPlayers = 0;
         @Parameter(names = {"-a", "-ai"}, description = "Number of AI players to include", required = false)
         private int aiPlayers = 0;
-        @Parameter(names = {"-a", "-ai"}, description = "Number of AI players to include", required = false)
+        @Parameter(names = {"-r", "-rdm"}, description = "Whether to enable random events", required = false)
         private boolean enableRandomEvents = false;
     }
 
@@ -42,6 +42,7 @@ public class main {
     }
 
     public static void main(String[] args) throws InvalidGameDescriptionException {
+        System.setProperty("java.net.preferIPv4Stack" , "false");
         CommandHost host = new CommandHost();
         CommandJoin join = new CommandJoin();
 
