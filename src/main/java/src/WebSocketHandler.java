@@ -18,7 +18,9 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WebSocketHandler extends WebSocketClient {
-    AtomicBoolean discoveringGames = new AtomicBoolean(false);
+    private AtomicBoolean discoveringGames = new AtomicBoolean(false);
+    private static String LOCATION = "ws://localhost:8081";
+
 
     public WebSocketHandler(URI serverUri) {
         super(serverUri);
@@ -83,7 +85,7 @@ public class WebSocketHandler extends WebSocketClient {
     }
 
      public static void main(String[] args) throws URISyntaxException {
-         WebSocketHandler connection = new WebSocketHandler(new URI("ws://localhost:8887"));
+         WebSocketHandler connection = new WebSocketHandler(new URI(LOCATION));
          connection.connect();
 
 
