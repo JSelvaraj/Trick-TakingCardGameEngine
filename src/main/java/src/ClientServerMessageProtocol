@@ -1,0 +1,20 @@
+Front-end sends requests to back-end as JSON objects.
+Types of request:
+ -  DiscoverGame - When you want to gather UDP beacons for available games.
+ -  StopDiscoverGame - When you want to stop looking for new game beacons.
+ -  GetGameList
+ -  StartGame
+ -  SetHostPort
+ -  SetDestAddress
+ -  StartLocalGame
+
+{
+    "type": "DiscoverGame" | "
+}
+
+
+
+------------------------------------------------------------------------
+The back-end returns whatever was requested the front-end
+
+{
