@@ -11,14 +11,11 @@ import src.parser.GameDesc;
 import src.player.LocalPlayer;
 import src.player.NetworkPlayer;
 import src.player.Player;
-import src.rdmEvents.rdmEvent;
-import src.rdmEvents.rdmEventsManager;
+import src.rdmEvents.RdmEvent;
+import src.rdmEvents.RdmEventsManager;
 import src.team.Team;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
@@ -42,8 +39,6 @@ public class GameEngine {
     private IntFunction<Integer> nextPlayerIndex;
 
     private ArrayList<Team> teams = new ArrayList<>();
-    //Starts as 1 in 10 chance;
-    double rdmEventProb = 10;
 
     /**
      * Set up game engine
@@ -71,7 +66,7 @@ public class GameEngine {
         this.trickHistory = new LinkedList<>();
     }
 
-    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves) {
+    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) {
         GameEngine game = new GameEngine(gameDesc);
 
         assert playerArray.length == gameDesc.getNUMBEROFPLAYERS(); //TODO remove
@@ -94,8 +89,8 @@ public class GameEngine {
         }
 
         /* Initialise random events */
-        rdmEventsManager rdmEventsManager = new rdmEventsManager(2, gameDesc.getScoreThreshold(),
-                1, 3, game.getTeams().get(0), game.getTeams().get(1));
+        RdmEventsManager rdmEventsManager = new RdmEventsManager(2, gameDesc.getScoreThreshold(),
+                5, 3, game.getTeams().get(0), game.getTeams().get(1), enableRandomEvents);
 
         Deck deck; // make standard deck from a linked list of Cards
         Shuffle shuffle = new Shuffle(seed);
@@ -106,8 +101,21 @@ public class GameEngine {
 
         //Loop until game winning condition has been met
         do {
+            RdmEvent rdmEventHAND = rdmEventsManager.eventChooser("HAND");
+            if (rdmEventHAND != null){
+                System.out.println("Random event type HAND triggered");
+                game.runRdmEvent(rdmEventHAND);
+            }
+
             int currentPlayer = dealer;
             deck = new Deck(gameDesc.getDECK());
+
+            if (rdmEventHAND != null && rdmEventHAND.getName().equals("BombDeck")) {
+                System.out.println("Adding bomb card to deck");
+                Random rand = new Random();
+                deck.cards.get(rand.nextInt(deck.getDeckSize())).setSpecialType("BOMB");
+            }
+
             shuffle.shuffle(deck.cards); //shuffle deck according to the given seed
             game.dealCards(playerArray, deck, currentPlayer);
 
@@ -124,23 +132,31 @@ public class GameEngine {
             //Loop until trick has completed (all cards have been played)
             do {
                 //Check for random event probability
-                boolean rdmEventHappenedTRICK = false;
-
+                RdmEvent rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
+                if (rdmEventTRICK != null){
+                    System.out.println("Random event type MID-TRICK triggered");
+                    game.runRdmEvent(rdmEventTRICK);
+                }
                 if (printMoves) {
                     System.out.println("Trump is " + game.trumpSuit.toString());
                 }
                 //Each player plays a card
                 for (int i = 0; i < playerArray.length; i++) {
-                    if (!rdmEventHappenedTRICK) {
-                        rdmEvent rdmEvent = rdmEventsManager.eventChooser("TRICK");
-                        if (rdmEvent != null){
-                            //Do rdmevent
-                            System.out.println("Random event creation start");
-                            game.runRdmEvent(rdmEvent);
-                            rdmEventHappenedTRICK = true;
-                        }
+                    RdmEvent rdmEventMIDTRICK = rdmEventsManager.eventChooser("MID-TRICK");
+                    if (rdmEventMIDTRICK != null){
+                        System.out.println("Random event type MID-TRICK triggered");
+                        game.runRdmEvent(rdmEventMIDTRICK);
                     }
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
+                    if (game.currentTrick.getHand().get(game.currentTrick.getHandSize()).getSpecialType().equals("BOMB")) {
+                        //Deduct points
+                        System.out.println("YOU just played a bomb card - Deducted 10 points from your score");
+                        for (Team team : game.getTeams()) {
+                            if (team.findPlayer(currentPlayer)) {
+                                team.setScore(team.getScore() - 10);
+                            }
+                        }
+                    }
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                     currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                 }
@@ -397,9 +413,12 @@ public class GameEngine {
         }
     }
 
-    private void runRdmEvent(rdmEvent rdmEvent) {
-        System.out.println("rdm Event runner triggered");
-        swapHands(rdmEvent.getWeakestTeam(), rdmEvent.getStrongestTeam());
+    private void runRdmEvent(RdmEvent rdmEvent) {
+        switch (rdmEvent.getName()) {
+            case "SwapHands":
+                swapHands(rdmEvent.getWeakestTeam(), rdmEvent.getStrongestTeam());
+                System.out.println("Swap hand triggered");
+        }
     }
 
     private void swapHands(Team weakestTeam, Team strongestTeam) {
@@ -413,8 +432,6 @@ public class GameEngine {
         weakPlayer.setCanBePlayed(strongPlayer.getCanBePlayed());
         strongPlayer.setHand(tempHand);
         strongPlayer.setCanBePlayed(tempPredicate);
-
-        System.out.println("swapHands triggered");
     }
 
     private Predicate<Card> getValidCard() {

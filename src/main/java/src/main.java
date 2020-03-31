@@ -21,10 +21,12 @@ public class main {
         private int port = 1;
         @Parameter(names = {"-g", "-game"}, description = "Path to the game to host", required = true)
         private String game;
-        @Parameter(names = {"-l", "-local"}, description = "Whether to enable fully local play", required = false)
-        private boolean local = false;
+        @Parameter(names = {"-l", "-local"}, description = "Number of additional local players to include", required = false)
+        private int localPlayers = 0;
         @Parameter(names = {"-a", "-ai"}, description = "Number of AI players to include", required = false)
         private int aiPlayers = 0;
+        @Parameter(names = {"-a", "-ai"}, description = "Number of AI players to include", required = false)
+        private boolean enableRandomEvents = false;
     }
 
     @Parameters(commandNames = "join", commandDescription = "Join a game")
@@ -61,27 +63,24 @@ public class main {
                 if (host.broadcast) {
                     //TODO implement starting to broadcast.
                 } else {
-                    if (host.local) {
-                        Thread thread = new Thread(new HostRunner(new LocalPlayer(), host.port, host.game));
-                        thread.start();
+                    Thread thread = new Thread(new HostRunner(new LocalPlayer(), host.port, host.game, host.enableRandomEvents));
+                    thread.start();
+                    System.out.println("Host Player1 started");
 
-                        for (int i = 0; i < 3; i++) {
-                            System.out.println("Local player" + i + " started");
-                            PlayerRunner runner = new PlayerRunner(new LocalPlayer(), "localhost", host.port, true, false);
-                            Thread localThread = new Thread(runner);
-                            localThread.start();
-                        }
+                    for (int i = 0; i < host.localPlayers; i++) {
+                        System.out.println("Local player" + (i+1) + " started");
+                        PlayerRunner runner = new PlayerRunner(new LocalPlayer(), "localhost", host.port,
+                                true, true, host.enableRandomEvents);
+                        Thread localThread = new Thread(runner);
+                        localThread.start();
                     }
-                    else {
-                        Thread thread = new Thread(new HostRunner(new LocalPlayer(), host.port, host.game));
-                        thread.start();
 
-                        for (int i = 0; i < host.aiPlayers; i++) {
-                            System.out.println("AI started");
-                            PlayerRunner runner = new PlayerRunner(new RandomPlayer(), "localhost", host.port, true, false);
-                            Thread aiThread = new Thread(runner);
-                            aiThread.start();
-                        }
+                    for (int i = 0; i < host.aiPlayers; i++) {
+                        System.out.println("AI started");
+                        PlayerRunner runner = new PlayerRunner(new RandomPlayer(), "localhost", host.port,
+                                true, false, host.enableRandomEvents);
+                        Thread aiThread = new Thread(runner);
+                        aiThread.start();
                     }
                 }
                 break;
@@ -89,7 +88,7 @@ public class main {
                 if (join.search) {
 
                 } else {
-                    Thread thread = new Thread(new PlayerRunner(new LocalPlayer(), join.address, join.port, join.localPort, false, true));
+                    Thread thread = new Thread(new PlayerRunner(new LocalPlayer(), join.address, join.port, join.localPort, false, true, false));
                     thread.start();
                 }
                 break;
