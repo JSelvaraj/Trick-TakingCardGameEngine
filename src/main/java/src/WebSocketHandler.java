@@ -11,6 +11,7 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import src.exceptions.InvalidJSONMessageException;
 import src.gameEngine.HostRunner;
 import src.gameEngine.PlayerRunner;
 import src.networking.DiscoverGames;
@@ -108,6 +109,9 @@ public class WebSocketHandler extends WebSocketClient {
                 );
                 thread2.start();
                 break;
+
+            default:
+                 throw new InvalidJSONMessageException("Message format not recognised");
 
 
 
