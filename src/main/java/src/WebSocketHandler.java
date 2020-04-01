@@ -82,16 +82,35 @@ public class WebSocketHandler extends WebSocketClient {
                 object.put("games", array);
                 send(object.toString());
                 break;
-            case "StartGame":
+            case "HostGame":
                 String path = request.get("gamepath").getAsString();
                 Thread thread = new Thread(new HostRunner(new LocalPlayer(), request.get("port").getAsInt(), path));
                 thread.start();
                 for (int i = 0; i < request.get("aiplayers").getAsInt(); i++) {
                     System.out.println("AI started");
-                    PlayerRunner runner = new PlayerRunner(new RandomPlayer(), "localhost", request.get("port").getAsInt(), true, false);
+                    PlayerRunner runner = new PlayerRunner(new RandomPlayer(),
+                            "localhost",
+                            request.get("port").getAsInt(),
+                            true,
+                            false);
                     Thread aiThread = new Thread(runner);
                     aiThread.start();
                 }
+                break;
+            case "JoinGame":
+                Thread thread2 = new Thread(new PlayerRunner(
+                        new LocalPlayer(),
+                        request.get("address").getAsString(),
+                        request.get("port").getAsInt(),
+                        request.get("localport").getAsInt(),
+                        false,
+                        true)
+                );
+                thread2.start();
+                break;
+
+
+
 
 
         }

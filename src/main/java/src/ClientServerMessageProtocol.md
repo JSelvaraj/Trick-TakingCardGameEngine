@@ -3,7 +3,8 @@ Types of request:
  -  DiscoverGame
  -  StopDiscoverGame
  -  GetGameList
- -  StartGame
+ -  HostGame
+ -  JoinGame
  
 Every time the Back-end responds to a request, it must add the type of request its responding to in the JSONObject
 
@@ -45,15 +46,26 @@ Example response message:
 
 
 -------------------------------------------------------------------------
-#### StartGame Messaging Protocol:
+#### HostGame Messaging Protocol:
 
 Example response message:
 
 {
 
-    "type": "StartGame",
+    "type": "HostGame",
     "port": 6969,
     "aiplayers": 1,
     "gamepath": "Games/whist.json"
 }
   
+------------
+
+#### JoinGame Messaging Protocol:
+
+{
+
+    "type":"JoinGame",
+    "address":"pc3-013-l",
+    "port":10293,
+    "localport":6969,
+}
