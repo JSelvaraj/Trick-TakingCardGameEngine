@@ -1,19 +1,24 @@
 package src;
 
 
-import com.damnhandy.uri.template.UriTemplateBuilderException;
 import com.google.gson.JsonArray;
+
+import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
-import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import src.networking.DiscoverGames;
+import src.parser.Parser;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.InputMismatchException;
+import java.util.Objects;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -52,12 +57,28 @@ public class WebSocketHandler extends WebSocketClient {
                             for (String beacon: beacons) {
                                 array.add(beacon);
                             }
-                            send(array.getAsString());
+                            JsonObject object = new JsonObject();
+                            object.add("beacons", array);
+                            send(object.getAsString());
                         }
                         break;
                     case "StopDiscoverGames":
                         discoveringGames.set(false);
                         break;
+                    case "GetGameList" :
+                        File folder = new File("Games\\");
+                        JSONObject object = new JSONObject();
+                        JSONArray array = new JSONArray();
+                        for (File game: Objects.requireNonNull(folder.listFiles())) { // iterates through the Games folder to get all game descriptions
+                            JSONObject gameDesc = Parser.readJSONFile(game.getPath());
+                            array.put(gameDesc);
+                        }
+                        object.put("type", "GetGameList");
+                        object.put("games", array);
+                        send(object.toString());
+                        break;
+
+
 
                 }
 
