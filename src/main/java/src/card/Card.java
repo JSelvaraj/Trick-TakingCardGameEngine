@@ -1,6 +1,10 @@
 package src.card;
 
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
 import java.util.Objects;
 
 public class Card {
@@ -37,6 +41,13 @@ public class Card {
         return this.SUIT.equals(card.getSUIT()) && this.RANK.equals(card.RANK);
     }
 
+    public String getJSON() {
+        JsonObject card = new JsonObject();
+        card.add("rank", new JsonPrimitive(RANK));
+        card.add("suit", new JsonPrimitive(SUIT));
+        return card.getAsString();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -50,6 +61,8 @@ public class Card {
     public int hashCode() {
         return Objects.hash(SUIT, RANK);
     }
+
+
 }
 
 

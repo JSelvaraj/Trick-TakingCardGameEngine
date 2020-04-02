@@ -2,6 +2,7 @@ package src.networking;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonStreamParser;
+import org.java_websocket.WebSocket;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import src.exceptions.InvalidGameDescriptionException;
@@ -134,7 +135,115 @@ public class Networking {
 
     }
 
-    public static void connectToGame(int localPort, String ip, int port, Player localPlayer, boolean localConnection, boolean printMoves) throws InvalidGameDescriptionException {
+    public static void hostGame(String gameDescFile, int hostPort, Player localPlayer, WebSocket webSocket) throws InvalidGameDescriptionException {
+        JSONObject gameJSON = Parser.readJSONFile(gameDescFile);
+        Parser parser = new Parser();
+        GameDesc gameDesc = parser.parseGameDescription(gameJSON);
+        int numberOfPlayers = gameDesc.getNUMBEROFPLAYERS();
+        Player[] players = new Player[numberOfPlayers];
+        ArrayList<Socket> networkPlayers = new ArrayList<>();
+        JSONArray playersJSONArray = new JSONArray();
+        Thread broadcast = new Thread(new BroadcastGames(gameDesc.getName(), hostPort, gameDesc.getNUMBEROFPLAYERS()));
+        broadcast.start();
+        try {
+            InetAddress address = InetAddress.getLocalHost();
+            JSONObject hostInfo = new JSONObject();
+            hostInfo.put("ip", address.getHostAddress());
+            hostInfo.put("port", hostPort);
+            playersJSONArray.put(hostInfo);
+            ServerSocket socket = new ServerSocket(hostPort);
+            for (int i = 1; i < players.length; i++) {
+                System.out.println("IP: " + address);
+                System.out.println(" Port: " + socket.getLocalPort());
+                NetworkPlayer networkPlayer;
+                //Starts the connection and allows local players to connect.
+                synchronized (hostStarted) {
+                    hostStarted.release();
+                    System.out.println("Server started");
+                    networkPlayer = new NetworkPlayer(i, socket.accept());
+                }
+                System.out.println("Connection received");
+                players[i] = networkPlayer;
+                System.out.println("waiting for player info");
+                networkPlayers.add(networkPlayer.getPlayerSocket());
+                JsonStreamParser reader = new JsonStreamParser(new InputStreamReader(networkPlayer.getPlayerSocket().getInputStream()));
+                JsonElement JSONfile = reader.next();
+
+                System.out.println("File read = " + JSONfile); // debugging sout
+
+                JSONObject object = new JSONObject(JSONfile.getAsJsonObject().toString());
+                //object.put("playerNumber", i);
+                playersJSONArray.put(object);
+                currentNumberOfPlayers++; //required for the game beacon.
+
+                //Sends the received player to the GUI
+                JSONObject GUImessage = new JSONObject();
+                GUImessage.put("type", "gameplay");
+                GUImessage.put("subtype", "playerjoin");
+                GUImessage.put("playerindex", i);
+                GUImessage.put("player", object);
+                webSocket.send(GUImessage.toString());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("gathered players");
+
+        //Adds the host player
+        players[0] = localPlayer;
+        localPlayer.setPlayerNumber(0);
+        JSONObject forClients = new JSONObject();
+
+        System.out.println("Sending spec + players + seed");
+        forClients.put("spec", gameJSON);
+        forClients.put("players", playersJSONArray);
+        forClients.put("seed", SEED); //TODO change to parser.seed when parser is edited.
+
+        for (Socket playerSocket : networkPlayers) {
+            try {
+                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8));
+                out.write(forClients.toString());
+                out.flush();
+                System.out.println("msg sent");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        /* Receives ready message from all the players */
+        for (Socket playerSocket : networkPlayers) {
+            try {
+                System.out.println("Waiting for rdy Message");
+                JsonStreamParser reader = new JsonStreamParser(new InputStreamReader(playerSocket.getInputStream()));
+                JsonElement rdyString = reader.next();
+                JSONObject rdyMsg = new JSONObject(rdyString.getAsJsonObject().toString());
+                if (!rdyMsg.getBoolean("ready")) {
+                    throw new InputMismatchException("Ready message not correct");
+                }
+                System.out.println("Recieved ACK from " + rdyMsg.getInt("playerIndex"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        //Only send ready after you have ready from other players.
+        JSONObject rdyObject = new JSONObject();
+        rdyObject.put("ready", true);
+        rdyObject.put("playerIndex", 0);
+        for (Socket playerSocket : networkPlayers) {
+            try {
+                System.out.println("Sending messages");
+                OutputStreamWriter readyWriter = new OutputStreamWriter(playerSocket.getOutputStream());
+                readyWriter.write(rdyObject.toString());
+                readyWriter.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        GameEngine.main(gameDesc, 0, players, SEED, true, webSocket);
+
+
+    }
+
+    public static void connectToGame(int localPort, String ip, int port, Player localPlayer, boolean localConnection, boolean printMoves, WebSocket webSocket) throws InvalidGameDescriptionException {
         //Wait for host to start if connecting to a local one.
         if (localConnection) {
             try {
