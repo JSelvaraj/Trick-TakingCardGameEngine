@@ -17,6 +17,7 @@ public class RdmEventsManager {
     Team strongestTeam = null;
     boolean enabled;
     Random rand;
+    String[] specialCardTypes = {"BOMB", "HEAVEN"};
 
     public RdmEventsManager(int maxAcceptableScoreSeparation, int scoreThreshold, int rdmEventProb, int probIncrement,
                             Team initialTeam1, Team initialTeam2, boolean enabled, Random rand) {
@@ -66,9 +67,8 @@ public class RdmEventsManager {
                         rdmEventProb = getRdmEventProbDEFAULT;
                         return new RdmEvent("SwapHands", weakestTeam, strongestTeam);
                     case "HAND":
-                        System.out.println("here");
                         rdmEventProb = getRdmEventProbDEFAULT;
-                        return new RdmEvent("BombDeck", weakestTeam, strongestTeam);
+                        return new RdmEvent(specialCardTypes[rand.nextInt(specialCardTypes.length)]);
                     default:
                         return null;
                 }

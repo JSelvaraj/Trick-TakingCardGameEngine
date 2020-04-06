@@ -103,17 +103,15 @@ public class GameEngine {
         //Loop until game winning condition has been met
         do {
             RdmEvent rdmEventHAND = rdmEventsManager.eventChooser("HAND");
-            if (rdmEventHAND != null){
-                System.out.println("Random event type HAND triggered");
-                game.runRdmEvent(rdmEventHAND);
-            }
 
             int currentPlayer = dealer;
             deck = new Deck(gameDesc.getDECK());
 
-            if (rdmEventHAND != null && rdmEventHAND.getName().equals("BombDeck")) {
-                System.out.println("Adding bomb card to deck");
-                deck.cards.get(rand.nextInt(deck.getDeckSize())).setSpecialType("BOMB");
+            if (rdmEventHAND != null && (rdmEventHAND.getName().equals("BOMB") || rdmEventHAND.getName().equals("HEAVEN"))) {
+                System.out.println("Adding special card type " + rdmEventHAND.getName() + " to deck");
+                int rdmIndex = rand.nextInt(deck.getDeckSize());
+                deck.cards.get(rdmIndex).setSpecialType(rdmEventHAND.getName());
+                System.out.println(deck.cards.get(rdmIndex));
             }
 
             shuffle.shuffle(deck.cards); //shuffle deck according to the given seed
@@ -132,9 +130,9 @@ public class GameEngine {
             //Loop until trick has completed (all cards have been played)
             do {
                 //Check for random event probability
-                RdmEvent rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
+                RdmEvent rdmEventTRICK = null;//rdmEventsManager.eventChooser("TRICK");
                 if (rdmEventTRICK != null){
-                    System.out.println("Random event type MID-TRICK triggered");
+                    System.out.println("Random event type TRICK triggered");
                     game.runRdmEvent(rdmEventTRICK);
                 }
                 if (printMoves) {
@@ -142,27 +140,15 @@ public class GameEngine {
                 }
                 //Each player plays a card
                 for (int i = 0; i < playerArray.length; i++) {
-                    RdmEvent rdmEventMIDTRICK = rdmEventsManager.eventChooser("MID-TRICK");
+                    RdmEvent rdmEventMIDTRICK = null;//rdmEventsManager.eventChooser("MID-TRICK");
                     if (rdmEventMIDTRICK != null){
                         System.out.println("Random event type MID-TRICK triggered");
                         game.runRdmEvent(rdmEventMIDTRICK);
                     }
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
-                    if (game.currentTrick.getHand().get(game.currentTrick.getHandSize()-1).getSpecialType() != null) {
-                        System.out.println("YOU just played a bomb card - Deducted 10 points from your score");
-                        for (Team team : game.getTeams()) {
-                            if (team.findPlayer(currentPlayer)) {
-                                if (team.getScore() >= 10) {
-                                    team.setScore(team.getScore() - 10);
-                                }
-                                else {
-                                    team.setScore(0);
-                                }
-                                break;
-                            }
-                        }
-                    }
+                    String playedCardType =  game.currentTrick.getHand().get(game.currentTrick.getHandSize()-1).getSpecialType();
+                    game.runSpecialCardOps(playedCardType, currentPlayer, game.getTeams());
                     currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                 }
                 //Determine winning card
@@ -423,6 +409,26 @@ public class GameEngine {
             case "SwapHands":
                 swapHands(rdmEvent.getWeakestTeam(), rdmEvent.getStrongestTeam());
                 System.out.println("Swap hand triggered");
+        }
+    }
+
+    private void runSpecialCardOps(String cardType, int currentPlayer, ArrayList<Team> teams) {
+        if (cardType != null) {
+            for (Team team : teams) {
+                if (team.findPlayer(currentPlayer)) {
+                    int scoreChange = 10;
+                    if (cardType.equals("BOMB")) {
+                        scoreChange *= (-1);
+                        System.out.println("You played a BOMB card - " + scoreChange + " deducted from your score");
+                    }
+                    else {
+                        System.out.println("You played a HEAVEN card - " + scoreChange + " added to your score");
+                    }
+                    System.out.println("Changing score of team " + 0);
+                    team.setScore(Math.max((team.getScore() + scoreChange), 0));
+                    break;
+                }
+            }
         }
     }
 

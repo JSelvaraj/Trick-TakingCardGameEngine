@@ -13,6 +13,10 @@ public class RdmEvent {
         this.strongestTeam = strongestTeam;
     }
 
+    public RdmEvent(String name) {
+        this.name = name;
+    }
+
     public String getName() {
         return name;
     }

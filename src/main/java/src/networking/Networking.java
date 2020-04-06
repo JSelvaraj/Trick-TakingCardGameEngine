@@ -21,12 +21,13 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 public class Networking {
 
     private static final int PORTNUMBER = 6969;
-    private static final int SEED = 420;
+    private static final int SEED = new Random().nextInt();
     private static int currentNumberOfPlayers = 1;
     private static final Semaphore hostStarted = new Semaphore(0);
 
