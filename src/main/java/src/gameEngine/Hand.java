@@ -9,7 +9,7 @@ import java.util.ListIterator;
 /**
  * Object to represent a player's hand of cards
  */
-public class Hand {
+public class Hand implements Cloneable{
 
     private LinkedList<Card> hand;
 
@@ -74,5 +74,10 @@ public class Hand {
 
     public void dropHand() {
         this.hand = new LinkedList<>();
+    }
+
+    @Override
+    public Hand clone(){
+        return new Hand((LinkedList<Card>) hand.clone());
     }
 }
