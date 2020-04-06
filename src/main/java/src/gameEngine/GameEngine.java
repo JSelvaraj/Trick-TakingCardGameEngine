@@ -107,15 +107,15 @@ public class GameEngine {
             int currentPlayer = dealer;
             deck = new Deck(gameDesc.getDECK());
 
-            if (rdmEventHAND != null && (rdmEventHAND.getName().equals("BOMB") || rdmEventHAND.getName().equals("HEAVEN"))) {
-                System.out.println("Adding special card type " + rdmEventHAND.getName() + " to deck");
-                int rdmIndex = rand.nextInt(deck.getDeckSize());
-                deck.cards.get(rdmIndex).setSpecialType(rdmEventHAND.getName());
-                System.out.println(deck.cards.get(rdmIndex));
-            }
-
             shuffle.shuffle(deck.cards); //shuffle deck according to the given seed
             game.dealCards(playerArray, deck, currentPlayer);
+            if (rdmEventHAND != null && (rdmEventHAND.getName().equals("BOMB") || rdmEventHAND.getName().equals("HEAVEN"))) {
+                System.out.println("Adding special card type " + rdmEventHAND.getName() + " to deck");
+                int rdmPlayerIndex = rand.nextInt(playerArray.length);
+                int rdmCardIndex = rand.nextInt(gameDesc.getHandSize());
+                playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex).setSpecialType(rdmEventHAND.getName());
+                System.out.println(playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex));
+            }
 
             currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
 
