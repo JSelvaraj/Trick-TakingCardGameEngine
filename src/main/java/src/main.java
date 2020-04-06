@@ -10,6 +10,7 @@ import src.exceptions.InvalidGameDescriptionException;
 import src.gameEngine.HostRunner;
 import src.gameEngine.PlayerRunner;
 import src.player.LocalPlayer;
+import src.player.NetworkPlayer;
 import src.player.RandomPlayer;
 
 public class main {

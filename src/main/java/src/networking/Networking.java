@@ -53,7 +53,7 @@ public class Networking {
             ServerSocket socket = new ServerSocket(hostPort);
             for (int i = 1; i < players.length; i++) {
                 System.out.println("IP: " + address);
-                System.out.println(" Port: " + socket.getLocalPort());
+                System.out.println("Port: " + socket.getLocalPort());
                 NetworkPlayer networkPlayer;
                 //Starts the connection and allows local players to connect.
                 synchronized (hostStarted) {

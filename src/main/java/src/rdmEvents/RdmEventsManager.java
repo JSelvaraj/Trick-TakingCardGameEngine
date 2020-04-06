@@ -1,5 +1,6 @@
 package src.rdmEvents;
 
+import javafx.scene.control.RadioButton;
 import src.team.Team;
 
 import java.util.ArrayList;
@@ -12,13 +13,13 @@ public class RdmEventsManager {
     int rdmEventProb;
     int getRdmEventProbDEFAULT;
     int probIncrement;
-    String eventChoice;
     Team weakestTeam = null;
     Team strongestTeam = null;
     boolean enabled;
+    Random rand;
 
     public RdmEventsManager(int maxAcceptableScoreSeparation, int scoreThreshold, int rdmEventProb, int probIncrement,
-                            Team initialTeam1, Team initialTeam2, boolean enabled) {
+                            Team initialTeam1, Team initialTeam2, boolean enabled, Random rand) {
         this.maxAcceptableScoreSeparation = maxAcceptableScoreSeparation;
         this.scoreThreshold = scoreThreshold;
         this.rdmEventProb = rdmEventProb;
@@ -27,6 +28,7 @@ public class RdmEventsManager {
         this.weakestTeam = initialTeam1;
         this.strongestTeam = initialTeam2;
         this.enabled = enabled;
+        this.rand = rand;
     }
 
     public void checkGameCloseness(ArrayList<Team> teams) {
@@ -46,14 +48,17 @@ public class RdmEventsManager {
 
         if (highestScore - lowestScore > maxAcceptableScoreSeparation) {
             System.out.println("Balancing needed");
-            if ((rdmEventProb -= probIncrement) >= 0) {
+            if ((rdmEventProb -= probIncrement) > 0) {
                 rdmEventProb -= probIncrement;
+            }
+            else {
+                rdmEventProb = 1;
             }
         }
     }
 
     public RdmEvent eventChooser(String eventPlayTime) {
-            if (enabled && new Random().nextInt(rdmEventProb) == 0) {
+            if (enabled && rand.nextInt(rdmEventProb) == 0) {
                 switch (eventPlayTime) {
                     case "MID-TRICK":
                         return null;
@@ -61,7 +66,7 @@ public class RdmEventsManager {
                         rdmEventProb = getRdmEventProbDEFAULT;
                         return new RdmEvent("SwapHands", weakestTeam, strongestTeam);
                     case "HAND":
-                        //choose out of events
+                        System.out.println("here");
                         rdmEventProb = getRdmEventProbDEFAULT;
                         return new RdmEvent("BombDeck", weakestTeam, strongestTeam);
                     default:

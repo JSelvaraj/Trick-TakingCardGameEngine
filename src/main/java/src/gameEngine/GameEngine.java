@@ -68,6 +68,7 @@ public class GameEngine {
 
     public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) {
         GameEngine game = new GameEngine(gameDesc);
+        Random rand = new Random(seed);
 
         assert playerArray.length == gameDesc.getNUMBEROFPLAYERS(); //TODO remove
 
@@ -90,7 +91,7 @@ public class GameEngine {
 
         /* Initialise random events */
         RdmEventsManager rdmEventsManager = new RdmEventsManager(2, gameDesc.getScoreThreshold(),
-                5, 3, game.getTeams().get(0), game.getTeams().get(1), enableRandomEvents);
+                1, 3, game.getTeams().get(0), game.getTeams().get(1), enableRandomEvents, rand);
 
         Deck deck; // make standard deck from a linked list of Cards
         Shuffle shuffle = new Shuffle(seed);
@@ -112,7 +113,6 @@ public class GameEngine {
 
             if (rdmEventHAND != null && rdmEventHAND.getName().equals("BombDeck")) {
                 System.out.println("Adding bomb card to deck");
-                Random rand = new Random();
                 deck.cards.get(rand.nextInt(deck.getDeckSize())).setSpecialType("BOMB");
             }
 
@@ -148,16 +148,21 @@ public class GameEngine {
                         game.runRdmEvent(rdmEventMIDTRICK);
                     }
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
-                    if (game.currentTrick.getHand().get(game.currentTrick.getHandSize()).getSpecialType().equals("BOMB")) {
-                        //Deduct points
+                    game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
+                    if (game.currentTrick.getHand().get(game.currentTrick.getHandSize()-1).getSpecialType() != null) {
                         System.out.println("YOU just played a bomb card - Deducted 10 points from your score");
                         for (Team team : game.getTeams()) {
                             if (team.findPlayer(currentPlayer)) {
-                                team.setScore(team.getScore() - 10);
+                                if (team.getScore() >= 10) {
+                                    team.setScore(team.getScore() - 10);
+                                }
+                                else {
+                                    team.setScore(0);
+                                }
+                                break;
                             }
                         }
                     }
-                    game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                     currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                 }
                 //Determine winning card
