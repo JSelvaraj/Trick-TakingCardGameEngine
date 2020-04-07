@@ -7,46 +7,64 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.handshake.ServerHandshake;
+import org.java_websocket.server.WebSocketServer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import src.exceptions.InvalidJSONMessageException;
 import src.gameEngine.HostRunner;
 import src.gameEngine.PlayerRunner;
 import src.networking.DiscoverGames;
-import src.parser.GameDesc;
 import src.parser.Parser;
 import src.player.LocalPlayer;
 import src.player.RandomPlayer;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
+
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.InputMismatchException;
+
 import java.util.Objects;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class WebSocketHandler extends WebSocketClient {
+public class WebSocketHandler extends WebSocketServer {
     private AtomicBoolean discoveringGames = new AtomicBoolean(false);
     private static String LOCATION = "ws://localhost:8081";
 
-
-    public WebSocketHandler(URI serverUri) {
-        super(serverUri);
+    public WebSocketHandler(InetSocketAddress address) {
+        super(address);
     }
 
+
+
+
+    public static void main(String[] args) throws URISyntaxException {
+        InetSocketAddress home = new InetSocketAddress(9091);
+        WebSocketHandler connection = new WebSocketHandler(home);
+        connection.start();
+        System.out.println("Done");
+
+
+    }
+
+
     @Override
-    public void onOpen(ServerHandshake handshakedata) {
+    public void onOpen(WebSocket conn, ClientHandshake handshake) {
         System.out.println("Opened connection");
-
     }
 
     @Override
-    public void onMessage(String message) {
+    public void onClose(WebSocket conn, int code, String reason, boolean remote) {
+        System.out.println("Connection closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " Reason: " + reason);
+    }
+
+    @Override
+    public void onMessage(WebSocket conn, String message) {
         System.out.println("Received: " + message);
         JsonObject request = new Gson().fromJson(message, JsonObject.class);
         String type = request.get("type").getAsString();
@@ -62,7 +80,7 @@ public class WebSocketHandler extends WebSocketClient {
                     }
                     JsonObject object = new JsonObject();
                     object.add("beacons", array);
-                    send(object.getAsString());
+                    conn.send(object.getAsString());
                 }
                 break;
             case "StopDiscoverGames":
@@ -81,7 +99,7 @@ public class WebSocketHandler extends WebSocketClient {
                 }
                 object.put("type", "GetGameList");
                 object.put("games", array);
-                send(object.toString());
+                conn.send(object.toString());
                 break;
             case "HostGame":
                 String path = request.get("gamepath").getAsString();
@@ -111,7 +129,7 @@ public class WebSocketHandler extends WebSocketClient {
                 break;
 
             default:
-                 throw new InvalidJSONMessageException("Message format not recognised");
+                throw new InvalidJSONMessageException("Message format not recognised");
 
 
 
@@ -123,21 +141,12 @@ public class WebSocketHandler extends WebSocketClient {
     }
 
     @Override
-    public void onClose(int code, String reason, boolean remote) {
-        System.out.println("Connection closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " Reason: " + reason);
-    }
-
-    @Override
-    public void onError(Exception ex) {
+    public void onError(WebSocket conn, Exception ex) {
         ex.printStackTrace();
     }
 
-    public static void main(String[] args) throws URISyntaxException {
-        WebSocketHandler connection = new WebSocketHandler(new URI(LOCATION));
-        connection.connect();
-
+    @Override
+    public void onStart() {
 
     }
-
-
 }

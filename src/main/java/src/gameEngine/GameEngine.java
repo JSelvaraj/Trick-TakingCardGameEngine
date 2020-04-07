@@ -5,7 +5,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.java_websocket.WebSocket;
-import src.WebSocketHandler;
+import org.java_websocket.handshake.ClientHandshake;
+import org.java_websocket.server.WebSocketServer;
 import src.card.Card;
 import src.card.CardComparator;
 import src.deck.Deck;
@@ -21,6 +22,9 @@ import src.rdmEvents.rdmEvent;
 import src.rdmEvents.rdmEventsManager;
 import src.team.Team;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -32,7 +36,7 @@ import java.util.function.Predicate;
 /**
  * Main class that runs the game based of on a provided game description.
  */
-public class GameEngine {
+public class GameEngine extends WebSocketServer {
 
     private GameDesc desc;
     private StringBuilder trumpSuit;
@@ -58,6 +62,11 @@ public class GameEngine {
      * @param desc game description
      */
     public GameEngine(GameDesc desc) {
+        this(desc, new InetSocketAddress("localhost", 8081));
+    }
+
+    public GameEngine (GameDesc desc, InetSocketAddress address) {
+        super(address);
         this.desc = desc;
         this.trumpSuit = new StringBuilder();
         //Set fixed trump suit if specified
@@ -78,27 +87,6 @@ public class GameEngine {
         this.trickHistory = new LinkedList<>();
     }
 
-    public GameEngine (GameDesc desc, WebSocket handler) {
-        this.desc = desc;
-        this.trumpSuit = new StringBuilder();
-        //Set fixed trump suit if specified
-        if (desc.getTrumpPickingMode().equals("fixed")) {
-            this.trumpSuit.append(desc.getTrumpSuit());
-        }
-        if (desc.getTrumpPickingMode().equals("predefined")) {
-            this.trumpSuit.append(desc.getTrumpIterator().next());
-        }
-        //Flags if the trump suit has been broken in the hand
-        this.breakFlag = new AtomicBoolean(false);
-        this.validLeadingCard = validCards.getValidLeadingCardPredicate(desc.getLeadingCardForEachTrick(), this.trumpSuit, breakFlag);
-        this.validCard = validCards.getValidCardPredicate("trick", this.trumpSuit, this.currentTrick, this.validLeadingCard);
-        this.nextPlayerIndex = PlayerIncrementer.generateNextPlayerFunction(desc.isDEALCARDSCLOCKWISE(), desc.getNUMBEROFPLAYERS());
-        if (desc.isBidding()) {
-            bidTable = new Bid[this.desc.getNUMBEROFPLAYERS()];
-        }
-        this.trickHistory = new LinkedList<>();
-        this.webSocket = handler;
-    }
 
     public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves ) {
         GameEngine game = new GameEngine(gameDesc);
@@ -348,6 +336,15 @@ public class GameEngine {
                     }
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
+
+                    //Send card played to GUI
+                    JsonObject cardPlayed = new JsonObject();
+                    cardPlayed.add("type", new JsonPrimitive("gameplay"));
+                    cardPlayed.add("subtype", new JsonPrimitive("cardplayed"));
+                    cardPlayed.add("playerindex", new JsonPrimitive(currentPlayer));
+                    cardPlayed.add("card", new Gson().fromJson(game.currentTrick.get(i).getJSON(), JsonObject.class));
+                    webSocket.send(cardPlayed.getAsString());
+
                     currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                 }
                 //Determine winning card
@@ -383,6 +380,11 @@ public class GameEngine {
                             System.out.println("Player " + (currentPlayer + 1) + " was the winner of the trick with the " + winningCard.toString());
                             System.out.println("Tricks won: " + team.getTricksWon());
                         }
+
+                        //sends winningCard, who that card belonged to and that persons team to the GUI
+
+
+
                         break;
                     }
                     //Signal that trump suit was broken -> can now be played
@@ -487,7 +489,7 @@ public class GameEngine {
         while (deck.getDeckSize() > cardsLeft) {
             //Deal card to player by adding to their hand and removing from the deck
             players[dealerIndex].getHand().getCard(deck.drawCard());
-            
+
             dealerIndex = this.nextPlayerIndex.apply(dealerIndex);
             //Sets the trump suit based on the last card if defined by game desc
             if (desc.getTrumpPickingMode().compareTo("lastDealt") == 0 && deck.getDeckSize() == cardsLeft + 1) {
@@ -630,5 +632,30 @@ public class GameEngine {
 
     public Bid[] getBidTable() {
         return bidTable;
+    }
+
+    @Override
+    public void onOpen(WebSocket conn, ClientHandshake handshake) {
+
+    }
+
+    @Override
+    public void onClose(WebSocket conn, int code, String reason, boolean remote) {
+
+    }
+
+    @Override
+    public void onMessage(WebSocket conn, String message) {
+
+    }
+
+    @Override
+    public void onError(WebSocket conn, Exception ex) {
+
+    }
+
+    @Override
+    public void onStart() {
+
     }
 }

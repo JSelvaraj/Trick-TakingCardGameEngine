@@ -20,7 +20,7 @@ Example response message:
 {
 
     "type": "DiscoverGame", 
-    "beacons":[JsonArray of received beacons]
+    "beacons":[JsonArray of received beacons(Beacon format is in supergroupcode)]
     
 }
 
@@ -53,7 +53,7 @@ Example response message:
 {
 
     "type": "HostGame",
-    "port": 6969,
+    //"port": 0,
     "aiplayers": 1,
     "gamepath": "Games/whist.json"
 }
