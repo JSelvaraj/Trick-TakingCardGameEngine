@@ -109,13 +109,8 @@ public class GameEngine {
 
             shuffle.shuffle(deck.cards); //shuffle deck according to the given seed
             game.dealCards(playerArray, deck, currentPlayer);
-            if (rdmEventHAND != null && (rdmEventHAND.getName().equals("BOMB") || rdmEventHAND.getName().equals("HEAVEN"))) {
-                System.out.println("Adding special card type " + rdmEventHAND.getName() + " to deck");
-                int rdmPlayerIndex = rand.nextInt(playerArray.length);
-                int rdmCardIndex = rand.nextInt(gameDesc.getHandSize());
-                playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex).setSpecialType(rdmEventHAND.getName());
-                System.out.println(playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex));
-            }
+
+            game.runSpecialCardSetup(rdmEventHAND, playerArray);
 
             currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
 
@@ -130,21 +125,15 @@ public class GameEngine {
             //Loop until trick has completed (all cards have been played)
             do {
                 //Check for random event probability
-                RdmEvent rdmEventTRICK = null;//rdmEventsManager.eventChooser("TRICK");
-                if (rdmEventTRICK != null){
-                    System.out.println("Random event type TRICK triggered");
-                    game.runRdmEvent(rdmEventTRICK);
-                }
+                RdmEvent rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
+                game.runSwapHandsCheck(rdmEventTRICK);
+
                 if (printMoves) {
                     System.out.println("Trump is " + game.trumpSuit.toString());
                 }
                 //Each player plays a card
                 for (int i = 0; i < playerArray.length; i++) {
-                    RdmEvent rdmEventMIDTRICK = null;//rdmEventsManager.eventChooser("MID-TRICK");
-                    if (rdmEventMIDTRICK != null){
-                        System.out.println("Random event type MID-TRICK triggered");
-                        game.runRdmEvent(rdmEventMIDTRICK);
-                    }
+                    game.runSwapCardCheck(currentPlayer, playerArray, rdmEventTRICK);
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                     String playedCardType =  game.currentTrick.getHand().get(game.currentTrick.getHandSize()-1).getSpecialType();
@@ -404,11 +393,13 @@ public class GameEngine {
         }
     }
 
-    private void runRdmEvent(RdmEvent rdmEvent) {
-        switch (rdmEvent.getName()) {
-            case "SwapHands":
-                swapHands(rdmEvent.getWeakestTeam(), rdmEvent.getStrongestTeam());
-                System.out.println("Swap hand triggered");
+    private void runSpecialCardSetup(RdmEvent rdmEventHAND, Player[] playerArray) {
+        if (rdmEventHAND != null && (rdmEventHAND.getName().equals("BOMB") || rdmEventHAND.getName().equals("HEAVEN"))) {
+            System.out.println("Adding special card type " + rdmEventHAND.getName() + " to deck");
+            int rdmPlayerIndex = rdmEventHAND.getRand().nextInt(playerArray.length);
+            int rdmCardIndex = rdmEventHAND.getRand().nextInt(desc.getHandSize());
+            playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex).setSpecialType(rdmEventHAND.getName());
+            System.out.println(playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex));
         }
     }
 
@@ -432,17 +423,58 @@ public class GameEngine {
         }
     }
 
-    private void swapHands(Team weakestTeam, Team strongestTeam) {
-        Player weakPlayer = weakestTeam.getPlayers()[0];
-        Player strongPlayer = strongestTeam.getPlayers()[0];
+    private void runSwapHandsCheck(RdmEvent rdmEvent) {
+        if (rdmEvent != null && rdmEvent.getName().equals("SwapHands")) {
+            Team weakestTeam = rdmEvent.getWeakestTeam();
+            Team strongestTeam = rdmEvent.getStrongestTeam();
 
-        Hand tempHand = weakPlayer.getHand();
-        Predicate<Card> tempPredicate = weakPlayer.getCanBePlayed();
+            Player weakPlayer = weakestTeam.getPlayers()[0];
+            Player strongPlayer = strongestTeam.getPlayers()[0];
 
-        weakPlayer.setHand(strongPlayer.getHand());
-        weakPlayer.setCanBePlayed(strongPlayer.getCanBePlayed());
-        strongPlayer.setHand(tempHand);
-        strongPlayer.setCanBePlayed(tempPredicate);
+            Hand tempHand = weakPlayer.getHand();
+            Predicate<Card> tempPredicate = weakPlayer.getCanBePlayed();
+
+            weakPlayer.setHand(strongPlayer.getHand());
+            weakPlayer.setCanBePlayed(strongPlayer.getCanBePlayed());
+            strongPlayer.setHand(tempHand);
+            strongPlayer.setCanBePlayed(tempPredicate);
+        }
+    }
+
+    private void runSwapCardCheck(int currentPlayer, Player[] players, RdmEvent rdmEvent) {
+        if (rdmEvent != null && rdmEvent.getName().equals("SwapCard")) {
+            Team weakestTeam = rdmEvent.getWeakestTeam();
+            if (weakestTeam.findPlayer(currentPlayer)) {
+                Team strongestTeam = rdmEvent.getStrongestTeam();
+                int rdmPlayerIndex = rdmEvent.getRand().nextInt(strongestTeam.getPlayers().length);
+                Player rdmPlayer = players[rdmPlayerIndex];
+                System.out.println("You have been offered a card swap - you have the ability to swap one of your cards" +
+                        "with a random opponent.");
+                System.out.println("Your Cards: " + players[currentPlayer].getHand().toString());
+                System.out.println("Their Cards: " + rdmPlayer.getHand().toString());
+                System.out.println("Would you like to swap a card? (y/n)");
+                Scanner scanner = new Scanner(System.in);
+                String answer = scanner.next();
+                if (answer.equals("y")) {
+                    Player currentPlayerObj = players[currentPlayer];
+                    int currentPlayerCardNumber = -1;
+                    int rdmPlayerCardNumber = -1;
+                    do {
+                        System.out.println("Choose your card: ");
+                        currentPlayerCardNumber = scanner.nextInt();
+                    } while (currentPlayerCardNumber < 0 || currentPlayerCardNumber >= currentPlayerObj.getHand().getHandSize());
+                    do {
+                        System.out.println("Choose a card from your opponent: ");
+                        rdmPlayerCardNumber = scanner.nextInt();
+                    } while (rdmPlayerCardNumber < 0 || rdmPlayerCardNumber >= rdmPlayer.getHand().getHandSize());
+                    Card cardFromRdm = rdmPlayer.getHand().giveCard(rdmPlayerCardNumber);
+                    Card cardFromCurrent = currentPlayerObj.getHand().giveCard(currentPlayerCardNumber);
+                    rdmPlayer.getHand().getCard(cardFromCurrent);
+                    currentPlayerObj.getHand().getCard(cardFromRdm);
+                    System.out.println("Cards swapped");
+                }
+            }
+        }
     }
 
     private Predicate<Card> getValidCard() {

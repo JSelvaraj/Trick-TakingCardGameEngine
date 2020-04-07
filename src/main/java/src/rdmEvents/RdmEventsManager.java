@@ -65,10 +65,11 @@ public class RdmEventsManager {
                         return null;
                     case "TRICK":
                         rdmEventProb = getRdmEventProbDEFAULT;
-                        return new RdmEvent("SwapHands", weakestTeam, strongestTeam);
+                        return new RdmEvent("SwapCard", weakestTeam, strongestTeam, rand);
+                        //return new RdmEvent("SwapHands", weakestTeam, strongestTeam);
                     case "HAND":
                         rdmEventProb = getRdmEventProbDEFAULT;
-                        return new RdmEvent(specialCardTypes[rand.nextInt(specialCardTypes.length)]);
+                        return new RdmEvent(specialCardTypes[rand.nextInt(specialCardTypes.length)], rand);
                     default:
                         return null;
                 }
