@@ -3,6 +3,27 @@
     <div>
       Host a game
     </div>
+    <div>
+     <v-col class="d-flex" cols="12" sm="6">
+        <v-select
+          :items="gameTypes"
+          v-model="selectGameTypes"
+          label="Select a game type"
+          @click= getNumOfPlayer()
+          solo
+        ></v-select>
+        <p>Number of players:</p>
+        <v-select
+          :items="numOfPlayers"
+          label="Select number of players"
+          solo
+        ></v-select>
+        </v-col>
+        </div>
+        <div>
+          <v-btn @click="toHome">Back</v-btn>
+          <v-btn @click="toGameRoom">Host</v-btn>
+        </div>
   </v-content>
 </template>
 
@@ -20,17 +41,38 @@ export default {
     error: "",
     answer: {
       id: "",
+      gameTypes:[],
+      numOfPlayers:[],
+      selectGameTypes:""
     },
     isDisable: false
   }),
 
   async created() {
+    this.gameTypes = ["Whist","Contract Whist","Spades","One Trick Pony"],
+    this.numOfPlayers = [1,2,3,4];
   },
   methods: {
-    onSubmit() {
-    }
+    getNumOfPlayer() {
+      console.log(this.selectGameTypes)
+      if(this.selectGameTypes==="Whist"||this.selectGameTypes ==="Contract Whist"||this.selectGameTypes==="Spades"){
+        this.numOfPlayers = [1,2,3,4]
+      }else if(this.selectGameTypes==="One Trick Pony"){
+        this.numOfPlayers = [1,2]
+      }
+    },
+    toGameRoom() {
+      this.$router.push("/gameRoom");
+    },
+    toHome() {
+      this.$router.push("/");
+    },
+  },
+  mounted(){
+    this.getNumOfPlayer();
   }
 };
+
 </script>
 
 <style>

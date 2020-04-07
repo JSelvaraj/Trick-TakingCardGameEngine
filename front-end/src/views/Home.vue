@@ -38,6 +38,7 @@ export default {
     },
     toGameDiscover() {
       this.$router.push("/gameDiscover");
+      PostService.insertPosts("DiscoverGame");
     },
   }
 };
