@@ -65,7 +65,7 @@ public class RdmEventsManager {
                         return null;
                     case "TRICK":
                         rdmEventProb = getRdmEventProbDEFAULT;
-                        return new RdmEvent("SwapCard", weakestTeam, strongestTeam, rand);
+                        return new RdmEvent("SwapCard", weakestTeam, strongestTeam, rand, "not started");
                         //return new RdmEvent("SwapHands", weakestTeam, strongestTeam);
                     case "HAND":
                         rdmEventProb = getRdmEventProbDEFAULT;

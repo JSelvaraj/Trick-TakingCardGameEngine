@@ -8,7 +8,7 @@ import java.util.Random;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
-public class RandomPlayer extends Player {
+public abstract class RandomPlayer extends Player {
     Random random;
 
     public RandomPlayer(int playerNumber, Predicate<Card> canBePlayed) {

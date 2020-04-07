@@ -13,6 +13,7 @@ import src.player.NetworkPlayer;
 import src.player.Player;
 import src.rdmEvents.RdmEvent;
 import src.rdmEvents.RdmEventsManager;
+import src.rdmEvents.Swap;
 import src.team.Team;
 
 import java.util.*;
@@ -102,7 +103,7 @@ public class GameEngine {
 
         //Loop until game winning condition has been met
         do {
-            RdmEvent rdmEventHAND = rdmEventsManager.eventChooser("HAND");
+            RdmEvent rdmEventHAND = null;//rdmEventsManager.eventChooser("HAND");
 
             int currentPlayer = dealer;
             deck = new Deck(gameDesc.getDECK());
@@ -133,11 +134,12 @@ public class GameEngine {
                 }
                 //Each player plays a card
                 for (int i = 0; i < playerArray.length; i++) {
-                    game.runSwapCardCheck(currentPlayer, playerArray, rdmEventTRICK);
+                    Swap potentialSwap = game.runSwapCardCheck(currentPlayer, playerArray, rdmEventTRICK);
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
+                    game.broadcastSwap(potentialSwap, currentPlayer, playerArray);
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                     String playedCardType =  game.currentTrick.getHand().get(game.currentTrick.getHandSize()-1).getSpecialType();
-                    game.runSpecialCardOps(playedCardType, currentPlayer, game.getTeams());
+                    game.runSpecialCardOps(playedCardType, currentPlayer, game.getTeams(), playerArray);
                     currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                 }
                 //Determine winning card
@@ -403,19 +405,25 @@ public class GameEngine {
         }
     }
 
-    private void runSpecialCardOps(String cardType, int currentPlayer, ArrayList<Team> teams) {
+    private void runSpecialCardOps(String cardType, int currentPlayer, ArrayList<Team> teams, Player[] players) {
         if (cardType != null) {
             for (Team team : teams) {
                 if (team.findPlayer(currentPlayer)) {
                     int scoreChange = 10;
                     if (cardType.equals("BOMB")) {
                         scoreChange *= (-1);
-                        System.out.println("You played a BOMB card - " + scoreChange + " deducted from your score");
+                        if (players[currentPlayer] instanceof LocalPlayer) {
+                            System.out.println("You played a BOMB card: " + scoreChange + " deducted from your score");
+                        }
                     }
                     else {
-                        System.out.println("You played a HEAVEN card - " + scoreChange + " added to your score");
+                        if (players[currentPlayer] instanceof LocalPlayer) {
+                            System.out.println("You played a HEAVEN card: " + scoreChange + " added to your score");
+                        }
                     }
-                    System.out.println("Changing score of team " + 0);
+                    if (players[currentPlayer] instanceof LocalPlayer) {
+                        System.out.println("Changing score of team " + 0);
+                    }
                     team.setScore(Math.max((team.getScore() + scoreChange), 0));
                     break;
                 }
@@ -441,37 +449,55 @@ public class GameEngine {
         }
     }
 
-    private void runSwapCardCheck(int currentPlayer, Player[] players, RdmEvent rdmEvent) {
+    private Swap runSwapCardCheck(int currentPlayer, Player[] players, RdmEvent rdmEvent) {
         if (rdmEvent != null && rdmEvent.getName().equals("SwapCard")) {
-            Team weakestTeam = rdmEvent.getWeakestTeam();
-            if (weakestTeam.findPlayer(currentPlayer)) {
-                Team strongestTeam = rdmEvent.getStrongestTeam();
-                int rdmPlayerIndex = rdmEvent.getRand().nextInt(strongestTeam.getPlayers().length);
-                Player rdmPlayer = players[rdmPlayerIndex];
-                System.out.println("You have been offered a card swap - you have the ability to swap one of your cards" +
-                        "with a random opponent.");
-                System.out.println("Your Cards: " + players[currentPlayer].getHand().toString());
-                System.out.println("Their Cards: " + rdmPlayer.getHand().toString());
-                System.out.println("Would you like to swap a card? (y/n)");
-                Scanner scanner = new Scanner(System.in);
-                String answer = scanner.next();
-                if (answer.equals("y")) {
-                    Player currentPlayerObj = players[currentPlayer];
-                    int currentPlayerCardNumber = -1;
-                    int rdmPlayerCardNumber = -1;
-                    do {
-                        System.out.println("Choose your card: ");
-                        currentPlayerCardNumber = scanner.nextInt();
-                    } while (currentPlayerCardNumber < 0 || currentPlayerCardNumber >= currentPlayerObj.getHand().getHandSize());
-                    do {
-                        System.out.println("Choose a card from your opponent: ");
-                        rdmPlayerCardNumber = scanner.nextInt();
-                    } while (rdmPlayerCardNumber < 0 || rdmPlayerCardNumber >= rdmPlayer.getHand().getHandSize());
-                    Card cardFromRdm = rdmPlayer.getHand().giveCard(rdmPlayerCardNumber);
-                    Card cardFromCurrent = currentPlayerObj.getHand().giveCard(currentPlayerCardNumber);
-                    rdmPlayer.getHand().getCard(cardFromCurrent);
-                    currentPlayerObj.getHand().getCard(cardFromRdm);
-                    System.out.println("Cards swapped");
+            if (rdmEvent.getStatus().equals("not started")) {
+                Team weakestTeam = rdmEvent.getWeakestTeam();
+                Player currentPlayerObj = players[currentPlayer];
+                Swap swap = currentPlayerObj.getSwap(rdmEvent);
+                if (weakestTeam.findPlayer(currentPlayer)) {
+                    rdmEvent.setOriginalPlayer(currentPlayer);
+                    rdmEvent.setPlayers(players);
+                    if (swap != null) {
+                        rdmEvent.setStatus("started");
+                        Card originalPlayerCard = players[swap.getOriginalPlayer()].getHand().giveCard(swap.getOriginalPlayerCardNumber());
+                        Card otherPlayerCard = players[swap.getRdmPlayerIndex()].getHand().giveCard(swap.getRdmPlayerCardNumber());
+                        players[swap.getOriginalPlayer()].getHand().getCard(otherPlayerCard);
+                        players[swap.getRdmPlayerIndex()].getHand().getCard(originalPlayerCard);
+                        return swap;
+                    } else {
+                        return new Swap(0,0,0,0,"complete");
+                    }
+                }
+            }
+            else {
+                Swap swap = players[currentPlayer].getSwap(rdmEvent);
+                if (swap != null) {
+                    Card originalPlayerCard = players[swap.getOriginalPlayer()].getHand().giveCard(swap.getOriginalPlayerCardNumber());
+                    Card otherPlayerCard = players[swap.getRdmPlayerIndex()].getHand().giveCard(swap.getRdmPlayerCardNumber());
+                    players[swap.getOriginalPlayer()].getHand().getCard(otherPlayerCard);
+                    players[swap.getRdmPlayerIndex()].getHand().getCard(originalPlayerCard);
+                }
+                if (currentPlayer == rdmEvent.getOriginalPlayer()) {
+                    rdmEvent.setStatus("complete");
+                }
+            }
+        }
+        return null;
+    }
+
+    private void broadcastSwap(Swap swap, int playerNumber, Player[] playerArray) {
+        //Only need to broadcast moves from local players to network players
+        if (swap != null && !swap.getStatus().equals("complete")) {
+            if (!(playerArray[playerNumber] instanceof NetworkPlayer)) {
+                for (Player player : playerArray) {
+                    player.broadcastSwap(swap);
+                }
+            } else { //Only need to print out network moves to local players
+                for (Player player : playerArray) {
+                    if (player.getClass() == LocalPlayer.class) {
+                        player.broadcastSwap(swap);
+                    }
                 }
             }
         }

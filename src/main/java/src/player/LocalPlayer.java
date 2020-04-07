@@ -3,6 +3,9 @@ package src.player;
 import src.card.Card;
 import src.gameEngine.Bid;
 import src.gameEngine.Hand;
+import src.rdmEvents.RdmEvent;
+import src.rdmEvents.Swap;
+import src.team.Team;
 
 import java.util.Scanner;
 import java.util.function.IntPredicate;
@@ -84,6 +87,48 @@ public class LocalPlayer extends Player {
     @Override
     public void broadcastPlay(Card card, int playerNumber) {
         System.out.println("Player " + (playerNumber + 1) + " played " + card.toString());
+    }
+
+    @Override
+    public void broadcastSwap(Swap swap) {
+
+    }
+
+    @Override
+    public Swap getSwap(RdmEvent rdmEvent) {
+        int currentPlayer = rdmEvent.getOriginalPlayer();
+        Player[] players = rdmEvent.getPlayers();
+
+        Player currentPlayerObj = players[currentPlayer];
+
+        Team strongestTeam = rdmEvent.getStrongestTeam();
+        int rdmPlayerTeamIndex = rdmEvent.getRand().nextInt(strongestTeam.getPlayers().length);
+        Player rdmPlayer = strongestTeam.getPlayers()[rdmPlayerTeamIndex];
+        int rdmPlayerIndex = rdmPlayer.getPlayerNumber();
+        System.out.println("You have been offered a card swap - you have the ability to swap one of your cards" +
+                " with one of Player " + (rdmPlayerIndex + 1) + "'s");
+        System.out.println("Your Cards: " + players[currentPlayer].getHand().toString());
+        System.out.println("Their Cards: " + rdmPlayer.getHand().toString());
+        System.out.println("Would you like to swap a card? (y/n)");
+        Scanner scanner = new Scanner(System.in);
+        String answer = scanner.next();
+        if (answer.equals("y")) {
+            int currentPlayerCardNumber = -1;
+            int rdmPlayerCardNumber = -1;
+            do {
+                System.out.println("Choose your card: ");
+                currentPlayerCardNumber = scanner.nextInt();
+            } while (currentPlayerCardNumber < 0 || currentPlayerCardNumber >= currentPlayerObj.getHand().getHandSize());
+            System.out.println("Card chosen: " + currentPlayerObj.getHand().get(currentPlayerCardNumber));
+            do {
+                System.out.println("Choose a card from your opponent: ");
+                rdmPlayerCardNumber = scanner.nextInt();
+            } while (rdmPlayerCardNumber < 0 || rdmPlayerCardNumber >= rdmPlayer.getHand().getHandSize());
+            System.out.println("Card chosen: " + rdmPlayer.getHand().get(rdmPlayerCardNumber));
+            return new Swap(currentPlayer, currentPlayerCardNumber, rdmPlayerIndex, rdmPlayerCardNumber, "running");
+        } else {
+            return null;
+        }
     }
 
     @Override
