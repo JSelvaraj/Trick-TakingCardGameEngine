@@ -3,12 +3,14 @@ package src.player;
 import src.card.Card;
 import src.gameEngine.Bid;
 import src.gameEngine.Hand;
+import src.rdmEvents.RdmEvent;
+import src.rdmEvents.Swap;
 
 import java.util.Random;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
-public abstract class RandomPlayer extends Player {
+public class RandomPlayer extends Player {
     Random random;
 
     public RandomPlayer(int playerNumber, Predicate<Card> canBePlayed) {
@@ -50,5 +52,15 @@ public abstract class RandomPlayer extends Player {
 
     @Override
     public void broadcastBid(Bid bid, int playerNumber) {
+    }
+
+    @Override
+    public Swap getSwap(RdmEvent rdmEvent) {
+        return null;
+    }
+
+    @Override
+    public void broadcastSwap(Swap swap) {
+
     }
 }

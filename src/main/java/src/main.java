@@ -77,6 +77,13 @@ public class main {
                         localThread.start();
                     }
 
+                    for (int i = 0; i < host.aiPlayers; i++) {
+                        System.out.println("AI started");
+                        PlayerRunner runner = new PlayerRunner(new RandomPlayer(), "localhost", host.port,
+                                true, false, host.enableRandomEvents);
+                        Thread aiThread = new Thread(runner);
+                        aiThread.start();
+                    }
                 }
                 break;
             case "join":
