@@ -12,15 +12,13 @@ public class RdmEvent {
     Random rand;
     int originalPlayer;
     Player[] players;
-    String status;
 
 
-    public RdmEvent(String name, Team weakestTeam, Team strongestTeam, Random rand, String status) {
+    public RdmEvent(String name, Team weakestTeam, Team strongestTeam, Random rand) {
         this.name = name;
         this.weakestTeam = weakestTeam;
         this.strongestTeam = strongestTeam;
         this.rand = rand;
-        this.status = status;
     }
 
     public RdmEvent(String name, Random rand) {
@@ -64,11 +62,4 @@ public class RdmEvent {
         this.players = players;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }

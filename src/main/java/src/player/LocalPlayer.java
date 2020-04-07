@@ -98,14 +98,13 @@ public class LocalPlayer extends Player {
     public Swap getSwap(RdmEvent rdmEvent) {
         int currentPlayer = rdmEvent.getOriginalPlayer();
         Player[] players = rdmEvent.getPlayers();
-
         Player currentPlayerObj = players[currentPlayer];
 
         Team strongestTeam = rdmEvent.getStrongestTeam();
         int rdmPlayerTeamIndex = rdmEvent.getRand().nextInt(strongestTeam.getPlayers().length);
         Player rdmPlayer = strongestTeam.getPlayers()[rdmPlayerTeamIndex];
         int rdmPlayerIndex = rdmPlayer.getPlayerNumber();
-        System.out.println("You have been offered a card swap - you have the ability to swap one of your cards" +
+        System.out.println("Player " + (currentPlayer + 1) + ", you have been offered a card swap - you have the ability to swap one of your cards" +
                 " with one of Player " + (rdmPlayerIndex + 1) + "'s");
         System.out.println("Your Cards: " + players[currentPlayer].getHand().toString());
         System.out.println("Their Cards: " + rdmPlayer.getHand().toString());
@@ -125,9 +124,9 @@ public class LocalPlayer extends Player {
                 rdmPlayerCardNumber = scanner.nextInt();
             } while (rdmPlayerCardNumber < 0 || rdmPlayerCardNumber >= rdmPlayer.getHand().getHandSize());
             System.out.println("Card chosen: " + rdmPlayer.getHand().get(rdmPlayerCardNumber));
-            return new Swap(currentPlayer, currentPlayerCardNumber, rdmPlayerIndex, rdmPlayerCardNumber, "running");
+            return new Swap(currentPlayer, currentPlayerCardNumber, rdmPlayerIndex, rdmPlayerCardNumber, "live");
         } else {
-            return null;
+            return new Swap(0,0,0,0, "dead");
         }
     }
 

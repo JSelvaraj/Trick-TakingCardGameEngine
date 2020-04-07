@@ -115,9 +115,9 @@ public class GameEngine {
 
             currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
 
-            if (gameDesc.isBidding()) {
+            /*if (gameDesc.isBidding()) {
                 game.getBids(currentPlayer, playerArray);
-            }
+            }*/
             if (printMoves) {
                 System.out.println("-----------------------------------");
                 System.out.println("----------------PLAY---------------");
@@ -132,11 +132,30 @@ public class GameEngine {
                 if (printMoves) {
                     System.out.println("Trump is " + game.trumpSuit.toString());
                 }
+
+                if (rdmEventTRICK != null && rdmEventTRICK.getName().equals("SwapCard")) {
+                    int rdmPlayerIndexFrTeam = rdmEventTRICK.getRand().nextInt(rdmEventTRICK.getWeakestTeam().getPlayers().length);
+                    Player rdmPlayer = rdmEventTRICK.getWeakestTeam().getPlayers()[rdmPlayerIndexFrTeam];
+                    int rdmPlayerIndex = rdmPlayer.getPlayerNumber();
+                    rdmEventTRICK.setOriginalPlayer(rdmPlayerIndex);
+                    rdmEventTRICK.setPlayers(playerArray);
+                    Swap swap = playerArray[rdmPlayerIndex].getSwap(rdmEventTRICK);
+                    if (swap.getStatus().equals("live")) {
+                        Card originalPlayerCard = playerArray[swap.getOriginalPlayer()].getHand().giveCard(swap.getOriginalPlayerCardNumber());
+                        Card otherPlayerCard = playerArray[swap.getRdmPlayerIndex()].getHand().giveCard(swap.getRdmPlayerCardNumber());
+                        playerArray[swap.getOriginalPlayer()].getHand().getCard(otherPlayerCard);
+                        playerArray[swap.getRdmPlayerIndex()].getHand().getCard(originalPlayerCard);
+                    }
+                    if (rdmPlayer instanceof LocalPlayer) {
+                        for (Player player : playerArray) {
+                            player.broadcastSwap(swap);
+                        }
+                    }
+                }
+
                 //Each player plays a card
                 for (int i = 0; i < playerArray.length; i++) {
-                    Swap potentialSwap = game.runSwapCardCheck(currentPlayer, playerArray, rdmEventTRICK);
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
-                    game.broadcastSwap(potentialSwap, currentPlayer, playerArray);
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                     String playedCardType =  game.currentTrick.getHand().get(game.currentTrick.getHandSize()-1).getSpecialType();
                     game.runSpecialCardOps(playedCardType, currentPlayer, game.getTeams(), playerArray);
@@ -446,60 +465,6 @@ public class GameEngine {
             weakPlayer.setCanBePlayed(strongPlayer.getCanBePlayed());
             strongPlayer.setHand(tempHand);
             strongPlayer.setCanBePlayed(tempPredicate);
-        }
-    }
-
-    private Swap runSwapCardCheck(int currentPlayer, Player[] players, RdmEvent rdmEvent) {
-        if (rdmEvent != null && rdmEvent.getName().equals("SwapCard")) {
-            if (rdmEvent.getStatus().equals("not started")) {
-                Team weakestTeam = rdmEvent.getWeakestTeam();
-                Player currentPlayerObj = players[currentPlayer];
-                Swap swap = currentPlayerObj.getSwap(rdmEvent);
-                if (weakestTeam.findPlayer(currentPlayer)) {
-                    rdmEvent.setOriginalPlayer(currentPlayer);
-                    rdmEvent.setPlayers(players);
-                    if (swap != null) {
-                        rdmEvent.setStatus("started");
-                        Card originalPlayerCard = players[swap.getOriginalPlayer()].getHand().giveCard(swap.getOriginalPlayerCardNumber());
-                        Card otherPlayerCard = players[swap.getRdmPlayerIndex()].getHand().giveCard(swap.getRdmPlayerCardNumber());
-                        players[swap.getOriginalPlayer()].getHand().getCard(otherPlayerCard);
-                        players[swap.getRdmPlayerIndex()].getHand().getCard(originalPlayerCard);
-                        return swap;
-                    } else {
-                        return new Swap(0,0,0,0,"complete");
-                    }
-                }
-            }
-            else {
-                Swap swap = players[currentPlayer].getSwap(rdmEvent);
-                if (swap != null) {
-                    Card originalPlayerCard = players[swap.getOriginalPlayer()].getHand().giveCard(swap.getOriginalPlayerCardNumber());
-                    Card otherPlayerCard = players[swap.getRdmPlayerIndex()].getHand().giveCard(swap.getRdmPlayerCardNumber());
-                    players[swap.getOriginalPlayer()].getHand().getCard(otherPlayerCard);
-                    players[swap.getRdmPlayerIndex()].getHand().getCard(originalPlayerCard);
-                }
-                if (currentPlayer == rdmEvent.getOriginalPlayer()) {
-                    rdmEvent.setStatus("complete");
-                }
-            }
-        }
-        return null;
-    }
-
-    private void broadcastSwap(Swap swap, int playerNumber, Player[] playerArray) {
-        //Only need to broadcast moves from local players to network players
-        if (swap != null && !swap.getStatus().equals("complete")) {
-            if (!(playerArray[playerNumber] instanceof NetworkPlayer)) {
-                for (Player player : playerArray) {
-                    player.broadcastSwap(swap);
-                }
-            } else { //Only need to print out network moves to local players
-                for (Player player : playerArray) {
-                    if (player.getClass() == LocalPlayer.class) {
-                        player.broadcastSwap(swap);
-                    }
-                }
-            }
         }
     }
 
