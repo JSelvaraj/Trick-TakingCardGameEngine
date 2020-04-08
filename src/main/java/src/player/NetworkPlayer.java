@@ -8,7 +8,6 @@ import src.exceptions.InvalidBidException;
 import src.exceptions.InvalidPlayerMoveException;
 import src.gameEngine.Bid;
 import src.gameEngine.Hand;
-import src.rdmEvents.RdmEvent;
 import src.rdmEvents.Swap;
 
 import java.io.BufferedWriter;
@@ -85,11 +84,12 @@ public class NetworkPlayer extends Player {
         //Creates the json object to be sent.
         JSONObject json = new JSONObject();
         json.put("type", "swap");
-        json.put("currentPlayer", swap.getOriginalPlayer());
+        json.put("currentPlayer", swap.getOriginalPlayerIndex());
         json.put("currentPlayerCardNumber", swap.getOriginalPlayerCardNumber());
         json.put("rdmPlayerIndex", swap.getRdmPlayerIndex());
         json.put("rdmPlayerCardNumber", swap.getRdmPlayerCardNumber());
         json.put("status", swap.getStatus());
+        System.out.println("Broadcasting swap to Player " + getPlayerNumber());
         //Sends the json object over the socket.
         try {
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8));
@@ -109,6 +109,7 @@ public class NetworkPlayer extends Player {
         if (!type.equals("swap")) {
             throw new InvalidPlayerMoveException();
         }
+        System.out.println("Player " + getPlayerNumber() + " received swap event");
         return new Swap(swapEvent.getInt("currentPlayer"), swapEvent.getInt("currentPlayerCardNumber"),
                 swapEvent.getInt("rdmPlayerIndex"), swapEvent.getInt("rdmPlayerCardNumber"), swapEvent.getString("status"));
     }

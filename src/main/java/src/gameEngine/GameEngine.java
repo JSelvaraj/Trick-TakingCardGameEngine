@@ -138,7 +138,7 @@ public class GameEngine {
                         rdmEventsManager.runSwapHands();
                     }
                     else {
-                        rdmEventsManager.runSwapCards(rdmEventTRICK);
+                        rdmEventsManager.runSwapCards();
                     }
                 }
 
@@ -149,7 +149,7 @@ public class GameEngine {
                     if (rdmEventHAND != null) {
                         String playedCardType =  game.currentTrick.getHand().get(game.currentTrick.getHandSize()-1).getSpecialType();
                         if (playedCardType != null) {
-                            rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer, game.getTeams(), playerArray);
+                            rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer, game.getTeams());
                         }
                     }
                     currentPlayer = game.nextPlayerIndex.apply(currentPlayer);

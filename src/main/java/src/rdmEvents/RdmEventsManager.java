@@ -1,6 +1,5 @@
 package src.rdmEvents;
 
-import javafx.scene.control.RadioButton;
 import src.card.Card;
 import src.gameEngine.Hand;
 import src.parser.GameDesc;
@@ -24,7 +23,8 @@ public class RdmEventsManager {
     boolean enabled;
     Random rand;
     Player[] players;
-    String[] specialCardTypes = {"BOMB", "HEAVEN"};
+    String[] specialCardEvents = {"BOMB", "HEAVEN"};
+    String[] TRICKEvents = {"SwapCard", "SwapHands"};
     GameDesc desc;
 
     public RdmEventsManager(GameDesc desc, double rdmEventProb,
@@ -72,11 +72,10 @@ public class RdmEventsManager {
             switch (eventPlayTime) {
                 case "TRICK":
                     rdmEventProb = getRdmEventProbDEFAULT;
-                    return new RdmEvent("SwapCard");
-                    //return new RdmEvent("SwapHands", weakestTeam, strongestTeam);
+                    return new RdmEvent(TRICKEvents[rand.nextInt(TRICKEvents.length)]);
                 case "HAND":
                     rdmEventProb = getRdmEventProbDEFAULT;
-                    return new RdmEvent(specialCardTypes[rand.nextInt(specialCardTypes.length)]);
+                    return new RdmEvent(specialCardEvents[rand.nextInt(specialCardEvents.length)]);
                 default:
                     return null;
             }
@@ -95,10 +94,12 @@ public class RdmEventsManager {
 
         Swap swap = weakPlayer.getSwap(rdmStrongPlayer);
         if (swap.getStatus().equals("live")) {
-            Card originalPlayerCard = playerArray[swap.getOriginalPlayer()].getHand().giveCard(swap.getOriginalPlayerCardNumber());
+            Card originalPlayerCard = playerArray[swap.getOriginalPlayerIndex()].getHand().giveCard(swap.getOriginalPlayerCardNumber());
             Card otherPlayerCard = playerArray[swap.getRdmPlayerIndex()].getHand().giveCard(swap.getRdmPlayerCardNumber());
-            playerArray[swap.getOriginalPlayer()].getHand().getCard(otherPlayerCard);
+            playerArray[swap.getOriginalPlayerIndex()].getHand().getCard(otherPlayerCard);
             playerArray[swap.getRdmPlayerIndex()].getHand().getCard(originalPlayerCard);
+            System.out.println("Swapping " + originalPlayerCard + " from Player " + swap.getOriginalPlayerIndex() + " with " +
+                    otherPlayerCard + " from Player " + swap.getRdmPlayerIndex());
         }
         if (weakPlayer instanceof LocalPlayer) {
             for (Player player : playerArray) {
@@ -114,6 +115,8 @@ public class RdmEventsManager {
         Player weakPlayer = weakestTeam.getPlayers()[0];
         Player strongPlayer = strongestTeam.getPlayers()[0];
 
+        System.out.println("Swapping hands between Player " + weakPlayer.getPlayerNumber() + " and Player " + strongPlayer.getPlayerNumber());
+
         Hand tempHand = weakPlayer.getHand();
         Predicate<Card> tempPredicate = weakPlayer.getCanBePlayed();
 
@@ -123,22 +126,22 @@ public class RdmEventsManager {
         strongPlayer.setCanBePlayed(tempPredicate);
     }
 
-    public void runSpecialCardOps(String cardType, int currentPlayer, ArrayList<Team> teams, Player[] players) {
+    public void runSpecialCardOps(String cardType, int currentPlayer, ArrayList<Team> teams) {
         for (Team team : teams) {
             if (team.findPlayer(currentPlayer)) {
                 int scoreChange = 10;
                 if (cardType.equals("BOMB")) {
                     scoreChange *= (-1);
-                    if (players[currentPlayer] instanceof LocalPlayer) {
+                    if (getPlayers()[currentPlayer] instanceof LocalPlayer) {
                         System.out.println("You played a BOMB card: " + scoreChange + " deducted from your score");
                     }
                 }
                 else {
-                    if (players[currentPlayer] instanceof LocalPlayer) {
+                    if (getPlayers()[currentPlayer] instanceof LocalPlayer) {
                         System.out.println("You played a HEAVEN card: " + scoreChange + " added to your score");
                     }
                 }
-                if (players[currentPlayer] instanceof LocalPlayer) {
+                if (getPlayers()[currentPlayer] instanceof LocalPlayer) {
                     System.out.println("Changing score of team " + team.getTeamNumber());
                 }
                 team.setScore(Math.max((team.getScore() + scoreChange), 0));
@@ -148,12 +151,11 @@ public class RdmEventsManager {
     }
 
     public void runSpecialCardSetup(RdmEvent rdmEventHAND) {
-        Player[] playerArray = rdmEventHAND.getPlayers();
-        System.out.println("Adding special card type " + rdmEventHAND.getName() + " to deck");
-        int rdmPlayerIndex = rdmEventHAND.getRand().nextInt(playerArray.length);
-        int rdmCardIndex = rdmEventHAND.getRand().nextInt(desc.getHandSize());
+        Player[] playerArray = getPlayers();
+        int rdmPlayerIndex = getRand().nextInt(playerArray.length);
+        int rdmCardIndex = getRand().nextInt(desc.getHandSize());
         playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex).setSpecialType(rdmEventHAND.getName());
-        System.out.println(playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex));
+        System.out.println(playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex) +  " is a " + rdmEventHAND.getName() + " special card.");
     }
 
     public int getMaxAcceptableScoreSeparation() {
@@ -236,13 +238,6 @@ public class RdmEventsManager {
         this.players = players;
     }
 
-    public String[] getSpecialCardTypes() {
-        return specialCardTypes;
-    }
-
-    public void setSpecialCardTypes(String[] specialCardTypes) {
-        this.specialCardTypes = specialCardTypes;
-    }
 
     public GameDesc getDesc() {
         return desc;

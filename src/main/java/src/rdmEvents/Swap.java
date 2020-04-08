@@ -1,26 +1,26 @@
 package src.rdmEvents;
 
 public class Swap {
-    int originalPlayer;
+    int originalPlayerIndex;
     int originalPlayerCardNumber;
     int rdmPlayerIndex;
     int rdmPlayerCardNumber;
     String status;
 
     public Swap(int currentPlayer, int currentPlayerCardNumber, int rdmPlayerIndex, int rdmPlayerCardNumber, String status) {
-        this.originalPlayer = currentPlayer;
+        this.originalPlayerIndex = currentPlayer;
         this.originalPlayerCardNumber = currentPlayerCardNumber;
         this.rdmPlayerIndex = rdmPlayerIndex;
         this.rdmPlayerCardNumber = rdmPlayerCardNumber;
         this.status = status;
     }
 
-    public int getOriginalPlayer() {
-        return originalPlayer;
+    public int getOriginalPlayerIndex() {
+        return originalPlayerIndex;
     }
 
-    public void setOriginalPlayer(int originalPlayer) {
-        this.originalPlayer = originalPlayer;
+    public void setOriginalPlayerIndex(int originalPlayerIndex) {
+        this.originalPlayerIndex = originalPlayerIndex;
     }
 
     public int getOriginalPlayerCardNumber() {
