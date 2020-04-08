@@ -13,7 +13,6 @@ import src.player.NetworkPlayer;
 import src.player.Player;
 import src.rdmEvents.RdmEvent;
 import src.rdmEvents.RdmEventsManager;
-import src.rdmEvents.Swap;
 import src.team.Team;
 
 import java.util.*;
@@ -102,14 +101,14 @@ public class GameEngine {
 
         //Loop until game winning condition has been met
         do {
-            RdmEvent rdmEventHAND = rdmEventsManager.eventChooser("HAND");
-
             int currentPlayer = dealer;
             deck = new Deck(gameDesc.getDECK());
 
             shuffle.shuffle(deck.cards); //shuffle deck according to the given seed
             game.dealCards(playerArray, deck, currentPlayer);
 
+            //Check for a random event at start of hand - run logic if successful
+            RdmEvent rdmEventHAND = rdmEventsManager.eventChooser("SPECIAL-CARD");
             if (rdmEventHAND != null) {
                 rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
             }
@@ -130,14 +129,13 @@ public class GameEngine {
                     System.out.println("Trump is " + game.trumpSuit.toString());
                 }
 
-                //Check for random event probability
+                //Check for a random event at start of trick - run logic if successful
                 RdmEvent rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
                 if (rdmEventTRICK != null) {
                     if (rdmEventTRICK.getName().equals("SwapHands")) {
                         rdmEventsManager.runSwapHands();
                     }
                     else {
-                        System.out.println("here");
                         rdmEventsManager.runSwapCards();
                     }
                 }
@@ -146,6 +144,7 @@ public class GameEngine {
                 for (int i = 0; i < playerArray.length; i++) {
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
+                    //If a special card has been placed in deck, check if it has just been played - adjust points if it has.
                     if (rdmEventTRICK != null) {
                         String playedCardType =  game.currentTrick.getHand().get(game.currentTrick.getHandSize()-1).getSpecialType();
                         if (playedCardType != null) {
@@ -229,7 +228,7 @@ public class GameEngine {
             }
 
             //Check if game needs balancing
-            rdmEventsManager.checkGameCloseness(game.getTeams());
+            rdmEventsManager.checkGameCloseness();
 
             game.printScore();
         } while (game.gameEnd());

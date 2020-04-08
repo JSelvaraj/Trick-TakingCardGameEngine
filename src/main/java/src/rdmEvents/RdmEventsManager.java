@@ -16,7 +16,7 @@ public class RdmEventsManager {
     int maxAcceptableScoreSeparation;
     int scoreThreshold;
     double rdmEventProb;
-    final double getRdmEventProbDEFAULT = 0.5;
+    final double rdmEventProbDEFAULT = 0.5;
     double probIncrement = 0.3;
     ArrayList<Team> teams;
     Team weakestTeam;
@@ -38,8 +38,7 @@ public class RdmEventsManager {
     }
 
     public void setup() {
-        //For debugging
-        rdmEventProb = 0.99;
+        rdmEventProb = rdmEventProbDEFAULT;
         setWeakestTeam(teams.get(0));
         setStrongestTeam(teams.get(1));
         scoreThreshold = desc.getScoreThreshold();
@@ -47,7 +46,7 @@ public class RdmEventsManager {
     }
 
 
-    public void checkGameCloseness(ArrayList<Team> teams) {
+    public void checkGameCloseness() {
         int highestScore = 0;
         int lowestScore = scoreThreshold + 1;
 
@@ -76,10 +75,10 @@ public class RdmEventsManager {
         if (enabled && rand.nextDouble() < rdmEventProb) {
             switch (eventPlayTime) {
                 case "TRICK":
-                    rdmEventProb = getRdmEventProbDEFAULT;
+                    rdmEventProb = rdmEventProbDEFAULT;
                     return new RdmEvent(TRICKEvents[rand.nextInt(TRICKEvents.length)]);
-                case "HAND":
-                    rdmEventProb = getRdmEventProbDEFAULT;
+                case "SPECIAL-CARD":
+                    rdmEventProb = rdmEventProbDEFAULT;
                     return new RdmEvent(specialCardEvents[rand.nextInt(specialCardEvents.length)]);
                 default:
                     return null;
