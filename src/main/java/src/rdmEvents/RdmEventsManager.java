@@ -42,12 +42,8 @@ public class RdmEventsManager {
         rdmEventProb = 0.99;
         setWeakestTeam(teams.get(0));
         setStrongestTeam(teams.get(1));
-        if (desc.getGameEnd().equals("scoreThreshold")) {
-            scoreThreshold = desc.getScoreThreshold();
-            maxAcceptableScoreSeparation = desc.getScoreThreshold() / 3;
-        } else {
-
-        }
+        scoreThreshold = desc.getScoreThreshold();
+        maxAcceptableScoreSeparation = scoreThreshold / 3;
     }
 
 
