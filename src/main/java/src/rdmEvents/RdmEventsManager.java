@@ -19,8 +19,8 @@ public class RdmEventsManager {
     double rdmEventProb;
     double getRdmEventProbDEFAULT;
     double probIncrement = 0.2;
-    Team weakestTeam = null;
-    Team strongestTeam = null;
+    Team weakestTeam;
+    Team strongestTeam;
     boolean enabled;
     Random rand;
     Player[] players;
@@ -58,7 +58,7 @@ public class RdmEventsManager {
 
         if (highestScore - lowestScore > maxAcceptableScoreSeparation) {
             System.out.println("Balancing needed");
-            if ((rdmEventProb += probIncrement) > 0) {
+            if ((rdmEventProb += probIncrement) <= 1) {
                 rdmEventProb += probIncrement;
             }
             else {
@@ -72,11 +72,11 @@ public class RdmEventsManager {
             switch (eventPlayTime) {
                 case "TRICK":
                     rdmEventProb = getRdmEventProbDEFAULT;
-                    return new RdmEvent("SwapCard", weakestTeam, strongestTeam, rand, players);
+                    return new RdmEvent("SwapCard");
                     //return new RdmEvent("SwapHands", weakestTeam, strongestTeam);
                 case "HAND":
                     rdmEventProb = getRdmEventProbDEFAULT;
-                    return new RdmEvent(specialCardTypes[rand.nextInt(specialCardTypes.length)], rand, players);
+                    return new RdmEvent(specialCardTypes[rand.nextInt(specialCardTypes.length)]);
                 default:
                     return null;
             }
@@ -85,30 +85,31 @@ public class RdmEventsManager {
         }
     }
 
-    public void runSwapCards(RdmEvent rdmEventTRICK) {
-        Player[] playerArray = rdmEventTRICK.getPlayers();
-        int rdmPlayerIndexFrTeam = rdmEventTRICK.getRand().nextInt(rdmEventTRICK.getWeakestTeam().getPlayers().length);
-        Player rdmPlayer = rdmEventTRICK.getWeakestTeam().getPlayers()[rdmPlayerIndexFrTeam];
-        int rdmPlayerIndex = rdmPlayer.getPlayerNumber();
-        rdmEventTRICK.setOriginalPlayer(rdmPlayerIndex);
-        rdmEventTRICK.setPlayers(playerArray);
-        Swap swap = playerArray[rdmPlayerIndex].getSwap(rdmEventTRICK);
+    public void runSwapCards() {
+        Player[] playerArray = getPlayers();
+        int rdmPlayerIndexFrTeam = getRand().nextInt(getWeakestTeam().getPlayers().length);
+        Player weakPlayer = getWeakestTeam().getPlayers()[rdmPlayerIndexFrTeam];
+
+        int rdmStrongPlayerTeamIndex = getRand().nextInt(getStrongestTeam().getPlayers().length);
+        Player rdmStrongPlayer = strongestTeam.getPlayers()[rdmStrongPlayerTeamIndex];
+
+        Swap swap = weakPlayer.getSwap(rdmStrongPlayer);
         if (swap.getStatus().equals("live")) {
             Card originalPlayerCard = playerArray[swap.getOriginalPlayer()].getHand().giveCard(swap.getOriginalPlayerCardNumber());
             Card otherPlayerCard = playerArray[swap.getRdmPlayerIndex()].getHand().giveCard(swap.getRdmPlayerCardNumber());
             playerArray[swap.getOriginalPlayer()].getHand().getCard(otherPlayerCard);
             playerArray[swap.getRdmPlayerIndex()].getHand().getCard(originalPlayerCard);
         }
-        if (rdmPlayer instanceof LocalPlayer) {
+        if (weakPlayer instanceof LocalPlayer) {
             for (Player player : playerArray) {
                 player.broadcastSwap(swap);
             }
         }
     }
 
-    public void runSwapHands(RdmEvent rdmEvent) {
-        Team weakestTeam = rdmEvent.getWeakestTeam();
-        Team strongestTeam = rdmEvent.getStrongestTeam();
+    public void runSwapHands() {
+        Team weakestTeam = getWeakestTeam();
+        Team strongestTeam = getStrongestTeam();
 
         Player weakPlayer = weakestTeam.getPlayers()[0];
         Player strongPlayer = strongestTeam.getPlayers()[0];
@@ -155,4 +156,99 @@ public class RdmEventsManager {
         System.out.println(playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex));
     }
 
+    public int getMaxAcceptableScoreSeparation() {
+        return maxAcceptableScoreSeparation;
+    }
+
+    public void setMaxAcceptableScoreSeparation(int maxAcceptableScoreSeparation) {
+        this.maxAcceptableScoreSeparation = maxAcceptableScoreSeparation;
+    }
+
+    public int getScoreThreshold() {
+        return scoreThreshold;
+    }
+
+    public void setScoreThreshold(int scoreThreshold) {
+        this.scoreThreshold = scoreThreshold;
+    }
+
+    public double getRdmEventProb() {
+        return rdmEventProb;
+    }
+
+    public void setRdmEventProb(double rdmEventProb) {
+        this.rdmEventProb = rdmEventProb;
+    }
+
+    public double getGetRdmEventProbDEFAULT() {
+        return getRdmEventProbDEFAULT;
+    }
+
+    public void setGetRdmEventProbDEFAULT(double getRdmEventProbDEFAULT) {
+        this.getRdmEventProbDEFAULT = getRdmEventProbDEFAULT;
+    }
+
+    public double getProbIncrement() {
+        return probIncrement;
+    }
+
+    public void setProbIncrement(double probIncrement) {
+        this.probIncrement = probIncrement;
+    }
+
+    public Team getWeakestTeam() {
+        return weakestTeam;
+    }
+
+    public void setWeakestTeam(Team weakestTeam) {
+        this.weakestTeam = weakestTeam;
+    }
+
+    public Team getStrongestTeam() {
+        return strongestTeam;
+    }
+
+    public void setStrongestTeam(Team strongestTeam) {
+        this.strongestTeam = strongestTeam;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Random getRand() {
+        return rand;
+    }
+
+    public void setRand(Random rand) {
+        this.rand = rand;
+    }
+
+    public Player[] getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(Player[] players) {
+        this.players = players;
+    }
+
+    public String[] getSpecialCardTypes() {
+        return specialCardTypes;
+    }
+
+    public void setSpecialCardTypes(String[] specialCardTypes) {
+        this.specialCardTypes = specialCardTypes;
+    }
+
+    public GameDesc getDesc() {
+        return desc;
+    }
+
+    public void setDesc(GameDesc desc) {
+        this.desc = desc;
+    }
 }

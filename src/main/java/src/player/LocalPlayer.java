@@ -95,36 +95,30 @@ public class LocalPlayer extends Player {
     }
 
     @Override
-    public Swap getSwap(RdmEvent rdmEvent) {
-        int currentPlayer = rdmEvent.getOriginalPlayer();
-        Player[] players = rdmEvent.getPlayers();
-        Player currentPlayerObj = players[currentPlayer];
-
-        Team strongestTeam = rdmEvent.getStrongestTeam();
-        int rdmPlayerTeamIndex = rdmEvent.getRand().nextInt(strongestTeam.getPlayers().length);
-        Player rdmPlayer = strongestTeam.getPlayers()[rdmPlayerTeamIndex];
-        int rdmPlayerIndex = rdmPlayer.getPlayerNumber();
-        System.out.println("Player " + (currentPlayer + 1) + ", you have been offered a card swap - you have the ability to swap one of your cards" +
-                " with one of Player " + (rdmPlayerIndex + 1) + "'s");
-        System.out.println("Your Cards: " + players[currentPlayer].getHand().toString());
-        System.out.println("Their Cards: " + rdmPlayer.getHand().toString());
+    public Swap getSwap(Player rdmStrongPlayer) {
+        int currentPlayerIndex = this.getPlayerNumber();
+        int rdmStrongPlayerIndex = rdmStrongPlayer.getPlayerNumber();
+        System.out.println("Player " + (currentPlayerIndex + 1) + ", you have been offered a card swap - you have the ability to swap one of your cards" +
+                " with one of Player " + (rdmStrongPlayerIndex + 1) + "'s");
+        System.out.println("Your Cards: " + getHand().toString());
+        System.out.println("Their Cards: " + rdmStrongPlayer.getHand().toString());
         System.out.println("Would you like to swap a card? (y/n)");
         Scanner scanner = new Scanner(System.in);
         String answer = scanner.next();
         if (answer.equals("y")) {
             int currentPlayerCardNumber = -1;
-            int rdmPlayerCardNumber = -1;
+            int rdmStrongPlayerCardNumber = -1;
             do {
                 System.out.println("Choose your card: ");
                 currentPlayerCardNumber = scanner.nextInt();
-            } while (currentPlayerCardNumber < 0 || currentPlayerCardNumber >= currentPlayerObj.getHand().getHandSize());
-            System.out.println("Card chosen: " + currentPlayerObj.getHand().get(currentPlayerCardNumber));
+            } while (currentPlayerCardNumber < 0 || currentPlayerCardNumber >= getHand().getHandSize());
+            System.out.println("Card chosen: " + getHand().get(currentPlayerCardNumber));
             do {
                 System.out.println("Choose a card from your opponent: ");
-                rdmPlayerCardNumber = scanner.nextInt();
-            } while (rdmPlayerCardNumber < 0 || rdmPlayerCardNumber >= rdmPlayer.getHand().getHandSize());
-            System.out.println("Card chosen: " + rdmPlayer.getHand().get(rdmPlayerCardNumber));
-            return new Swap(currentPlayer, currentPlayerCardNumber, rdmPlayerIndex, rdmPlayerCardNumber, "live");
+                rdmStrongPlayerCardNumber = scanner.nextInt();
+            } while (rdmStrongPlayerCardNumber < 0 || rdmStrongPlayerCardNumber >= rdmStrongPlayer.getHand().getHandSize());
+            System.out.println("Card chosen: " + rdmStrongPlayer.getHand().get(rdmStrongPlayerCardNumber));
+            return new Swap(currentPlayerIndex, currentPlayerCardNumber, rdmStrongPlayerIndex, rdmStrongPlayerCardNumber, "live");
         } else {
             return new Swap(0,0,0,0, "dead");
         }

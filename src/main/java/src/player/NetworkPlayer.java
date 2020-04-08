@@ -101,7 +101,7 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public Swap getSwap(RdmEvent rdmEvent) {
+    public Swap getSwap(Player strongPlayer) {
         JsonElement msg = null;
         msg = reader.next();
         JSONObject swapEvent = new JSONObject(msg.getAsJsonObject().toString()); //TODO catch exceptions

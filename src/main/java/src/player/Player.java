@@ -72,7 +72,7 @@ public abstract class Player {
 
     public abstract void broadcastBid(Bid bid, int playerNumber);
 
-    public abstract Swap getSwap(RdmEvent rdmEvent);
+    public abstract Swap getSwap(Player strongPlayer);
 
     public abstract void broadcastSwap(Swap swap);
 

@@ -135,7 +135,7 @@ public class GameEngine {
                 RdmEvent rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
                 if (rdmEventTRICK != null) {
                     if (rdmEventTRICK.getName().equals("SwapHands")) {
-                        rdmEventsManager.runSwapHands(rdmEventTRICK);
+                        rdmEventsManager.runSwapHands();
                     }
                     else {
                         rdmEventsManager.runSwapCards(rdmEventTRICK);
