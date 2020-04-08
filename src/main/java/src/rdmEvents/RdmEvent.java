@@ -13,12 +13,18 @@ public class RdmEvent {
     int originalPlayer;
     Player[] players;
 
-
-    public RdmEvent(String name, Team weakestTeam, Team strongestTeam, Random rand) {
+    public RdmEvent(String name, Team weakestTeam, Team strongestTeam, Random rand, Player[] players) {
         this.name = name;
         this.weakestTeam = weakestTeam;
         this.strongestTeam = strongestTeam;
         this.rand = rand;
+        this.players = players;
+    }
+
+    public RdmEvent(String name, Random rand, Player[] players) {
+        this.name = name;
+        this.rand = rand;
+        this.players = players;
     }
 
     public RdmEvent(String name, Random rand) {
