@@ -4,6 +4,8 @@ import src.card.Card;
 import src.functions.validCards;
 import src.gameEngine.Bid;
 import src.gameEngine.Hand;
+import src.rdmEvents.RdmEvent;
+import src.rdmEvents.Swap;
 
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
@@ -69,6 +71,10 @@ public abstract class Player {
     }
 
     public abstract void broadcastBid(Bid bid, int playerNumber);
+
+    public abstract Swap getSwap(Player strongPlayer);
+
+    public abstract void broadcastSwap(Swap swap);
 
     public void setHand(Hand hand) {
         this.hand = hand;

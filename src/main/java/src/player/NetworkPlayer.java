@@ -8,6 +8,7 @@ import src.exceptions.InvalidBidException;
 import src.exceptions.InvalidPlayerMoveException;
 import src.gameEngine.Bid;
 import src.gameEngine.Hand;
+import src.rdmEvents.Swap;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -45,6 +46,7 @@ public class NetworkPlayer extends Player {
         JSONObject cardEvent = new JSONObject(msg.getAsJsonObject().toString()); //TODO catch exceptions
         String type = cardEvent.getString("type");
         if (!type.equals("play")) {
+            System.out.println(type);
             throw new InvalidPlayerMoveException();
         }
         String suit = cardEvent.getString("suit");
@@ -75,6 +77,41 @@ public class NetworkPlayer extends Player {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void broadcastSwap(Swap swap) {
+        //Creates the json object to be sent.
+        JSONObject json = new JSONObject();
+        json.put("type", "swap");
+        json.put("currentPlayer", swap.getOriginalPlayerIndex());
+        json.put("currentPlayerCardNumber", swap.getOriginalPlayerCardNumber());
+        json.put("rdmPlayerIndex", swap.getRdmPlayerIndex());
+        json.put("rdmPlayerCardNumber", swap.getRdmPlayerCardNumber());
+        json.put("status", swap.getStatus());
+        System.out.println("Broadcasting swap to Player " + getPlayerNumber());
+        //Sends the json object over the socket.
+        try {
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8));
+            out.write(json.toString());
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public Swap getSwap(Player strongPlayer) {
+        JsonElement msg = null;
+        msg = reader.next();
+        JSONObject swapEvent = new JSONObject(msg.getAsJsonObject().toString()); //TODO catch exceptions
+        String type = swapEvent.getString("type");
+        if (!type.equals("swap")) {
+            throw new InvalidPlayerMoveException();
+        }
+        System.out.println("Player " + getPlayerNumber() + " received swap event");
+        return new Swap(swapEvent.getInt("currentPlayer"), swapEvent.getInt("currentPlayerCardNumber"),
+                swapEvent.getInt("rdmPlayerIndex"), swapEvent.getInt("rdmPlayerCardNumber"), swapEvent.getString("status"));
     }
 
     public Socket getPlayerSocket() {

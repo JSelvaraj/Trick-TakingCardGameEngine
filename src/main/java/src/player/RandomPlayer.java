@@ -3,6 +3,8 @@ package src.player;
 import src.card.Card;
 import src.gameEngine.Bid;
 import src.gameEngine.Hand;
+import src.rdmEvents.RdmEvent;
+import src.rdmEvents.Swap;
 
 import java.util.Random;
 import java.util.function.IntPredicate;
@@ -50,5 +52,15 @@ public class RandomPlayer extends Player {
 
     @Override
     public void broadcastBid(Bid bid, int playerNumber) {
+    }
+
+    @Override
+    public Swap getSwap(Player rdmStrongPlayer) {
+        return null;
+    }
+
+    @Override
+    public void broadcastSwap(Swap swap) {
+
     }
 }

@@ -53,7 +53,9 @@ public class Team {
         return players;
     }
 
-
+    public int getTeamNumber() {
+        return teamNumber;
+    }
 }
 
 

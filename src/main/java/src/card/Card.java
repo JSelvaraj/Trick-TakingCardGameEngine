@@ -7,6 +7,7 @@ public class Card {
 
     private final String SUIT;
     private final String RANK;
+    private String specialType;
 
     public Card(String suit, String rank) {
         SUIT = suit;
@@ -50,6 +51,15 @@ public class Card {
     public int hashCode() {
         return Objects.hash(SUIT, RANK);
     }
+
+    public void setSpecialType(String specialType) {
+        this.specialType = specialType;
+    }
+
+    public String getSpecialType() {
+        return specialType;
+    }
+
 }
 
 
