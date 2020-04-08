@@ -4,6 +4,7 @@ import src.card.Card;
 import src.gameEngine.Hand;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 public class validCards {
@@ -49,5 +50,16 @@ public class validCards {
      */
     public static Predicate<Card> getCanBePlayedPredicate(Hand playerHand, Predicate<Card> validCard) {
         return (card) -> playerHand.getHand().contains(card) && (validCard.test(card) || (playerHand.getHand().stream().noneMatch(validCard)));
+    }
+
+    /**
+     * Create a function that takes a trick and a function, and tests if that card can be played in the current trick.
+     *
+     * @param validLeadingCardPredicate A predicate checking if a card is a valid leading card.
+     *
+     * @return BiFunction taking a hand and a card, which tests if that card can be played.
+     */
+    public static BiFunction<Hand, Card, Boolean> getValidCardFunction(Predicate<Card> validLeadingCardPredicate){
+        return (currentTrick, card) -> currentTrick.getHand().size() == 0 ? validLeadingCardPredicate.test(card) : card.getSUIT().equals(currentTrick.get(0).getSUIT());
     }
 }
