@@ -55,7 +55,7 @@ public class RandomPlayer extends Player {
     }
 
     @Override
-    public Swap getSwap(RdmEvent rdmEvent) {
+    public Swap getSwap(Player rdmStrongPlayer) {
         return null;
     }
 

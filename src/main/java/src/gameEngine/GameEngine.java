@@ -91,8 +91,7 @@ public class GameEngine {
         }
 
         /* Initialise random events */
-        RdmEventsManager rdmEventsManager = new RdmEventsManager(gameDesc, 0.5, game.getTeams().get(0),
-                game.getTeams().get(1), rand, playerArray, enableRandomEvents);
+        RdmEventsManager rdmEventsManager = new RdmEventsManager(gameDesc, game.getTeams(), rand, playerArray, enableRandomEvents);
 
         Deck deck; // make standard deck from a linked list of Cards
         Shuffle shuffle = new Shuffle(seed);
@@ -117,9 +116,9 @@ public class GameEngine {
 
             currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
 
-            /*if (gameDesc.isBidding()) {
+            if (gameDesc.isBidding()) {
                 game.getBids(currentPlayer, playerArray);
-            }*/
+            }
             if (printMoves) {
                 System.out.println("-----------------------------------");
                 System.out.println("----------------PLAY---------------");
@@ -138,6 +137,7 @@ public class GameEngine {
                         rdmEventsManager.runSwapHands();
                     }
                     else {
+                        System.out.println("here");
                         rdmEventsManager.runSwapCards();
                     }
                 }
@@ -146,7 +146,7 @@ public class GameEngine {
                 for (int i = 0; i < playerArray.length; i++) {
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
-                    if (rdmEventHAND != null) {
+                    if (rdmEventTRICK != null) {
                         String playedCardType =  game.currentTrick.getHand().get(game.currentTrick.getHandSize()-1).getSpecialType();
                         if (playedCardType != null) {
                             rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer, game.getTeams());

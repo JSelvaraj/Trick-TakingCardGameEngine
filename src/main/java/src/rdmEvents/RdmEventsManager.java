@@ -16,8 +16,9 @@ public class RdmEventsManager {
     int maxAcceptableScoreSeparation;
     int scoreThreshold;
     double rdmEventProb;
-    double getRdmEventProbDEFAULT;
-    double probIncrement = 0.2;
+    final double getRdmEventProbDEFAULT = 0.5;
+    double probIncrement = 0.3;
+    ArrayList<Team> teams;
     Team weakestTeam;
     Team strongestTeam;
     boolean enabled;
@@ -27,19 +28,28 @@ public class RdmEventsManager {
     String[] TRICKEvents = {"SwapCard", "SwapHands"};
     GameDesc desc;
 
-    public RdmEventsManager(GameDesc desc, double rdmEventProb,
-                            Team initialTeam1, Team initialTeam2, Random rand, Player[] players, boolean enabled) {
-        this.maxAcceptableScoreSeparation = 10;
-        this.scoreThreshold = 10;
-        this.rdmEventProb = rdmEventProb;
-        this.getRdmEventProbDEFAULT = rdmEventProb;
-        this.weakestTeam = initialTeam1;
-        this.strongestTeam = initialTeam2;
+    public RdmEventsManager(GameDesc desc, ArrayList<Team> teams, Random rand, Player[] players, boolean enabled) {
+        this.teams = teams;
         this.enabled = enabled;
         this.rand = rand;
         this.players = players;
         this.desc = desc;
+        setup();
     }
+
+    public void setup() {
+        //For debugging
+        rdmEventProb = 0.99;
+        setWeakestTeam(teams.get(0));
+        setStrongestTeam(teams.get(1));
+        if (desc.getGameEnd().equals("scoreThreshold")) {
+            scoreThreshold = desc.getScoreThreshold();
+            maxAcceptableScoreSeparation = desc.getScoreThreshold() / 3;
+        } else {
+
+        }
+    }
+
 
     public void checkGameCloseness(ArrayList<Team> teams) {
         int highestScore = 0;
@@ -60,8 +70,7 @@ public class RdmEventsManager {
             System.out.println("Balancing needed");
             if ((rdmEventProb += probIncrement) <= 1) {
                 rdmEventProb += probIncrement;
-            }
-            else {
+            } else {
                 rdmEventProb = 1;
             }
         }
@@ -98,8 +107,8 @@ public class RdmEventsManager {
             Card otherPlayerCard = playerArray[swap.getRdmPlayerIndex()].getHand().giveCard(swap.getRdmPlayerCardNumber());
             playerArray[swap.getOriginalPlayerIndex()].getHand().getCard(otherPlayerCard);
             playerArray[swap.getRdmPlayerIndex()].getHand().getCard(originalPlayerCard);
-            System.out.println("Swapping " + originalPlayerCard + " from Player " + swap.getOriginalPlayerIndex() + " with " +
-                    otherPlayerCard + " from Player " + swap.getRdmPlayerIndex());
+            System.out.println("Swapping " + originalPlayerCard + " from Player " + (swap.getOriginalPlayerIndex() + 1) + " with " +
+                    otherPlayerCard + " from Player " + (swap.getRdmPlayerIndex() + 1));
         }
         if (weakPlayer instanceof LocalPlayer) {
             for (Player player : playerArray) {
@@ -135,8 +144,7 @@ public class RdmEventsManager {
                     if (getPlayers()[currentPlayer] instanceof LocalPlayer) {
                         System.out.println("You played a BOMB card: " + scoreChange + " deducted from your score");
                     }
-                }
-                else {
+                } else {
                     if (getPlayers()[currentPlayer] instanceof LocalPlayer) {
                         System.out.println("You played a HEAVEN card: " + scoreChange + " added to your score");
                     }
@@ -155,7 +163,7 @@ public class RdmEventsManager {
         int rdmPlayerIndex = getRand().nextInt(playerArray.length);
         int rdmCardIndex = getRand().nextInt(desc.getHandSize());
         playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex).setSpecialType(rdmEventHAND.getName());
-        System.out.println(playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex) +  " is a " + rdmEventHAND.getName() + " special card.");
+        System.out.println(playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex) + " is a " + rdmEventHAND.getName() + " special card.");
     }
 
     public int getMaxAcceptableScoreSeparation() {
@@ -164,38 +172,6 @@ public class RdmEventsManager {
 
     public void setMaxAcceptableScoreSeparation(int maxAcceptableScoreSeparation) {
         this.maxAcceptableScoreSeparation = maxAcceptableScoreSeparation;
-    }
-
-    public int getScoreThreshold() {
-        return scoreThreshold;
-    }
-
-    public void setScoreThreshold(int scoreThreshold) {
-        this.scoreThreshold = scoreThreshold;
-    }
-
-    public double getRdmEventProb() {
-        return rdmEventProb;
-    }
-
-    public void setRdmEventProb(double rdmEventProb) {
-        this.rdmEventProb = rdmEventProb;
-    }
-
-    public double getGetRdmEventProbDEFAULT() {
-        return getRdmEventProbDEFAULT;
-    }
-
-    public void setGetRdmEventProbDEFAULT(double getRdmEventProbDEFAULT) {
-        this.getRdmEventProbDEFAULT = getRdmEventProbDEFAULT;
-    }
-
-    public double getProbIncrement() {
-        return probIncrement;
-    }
-
-    public void setProbIncrement(double probIncrement) {
-        this.probIncrement = probIncrement;
     }
 
     public Team getWeakestTeam() {
@@ -214,20 +190,8 @@ public class RdmEventsManager {
         this.strongestTeam = strongestTeam;
     }
 
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
     public Random getRand() {
         return rand;
-    }
-
-    public void setRand(Random rand) {
-        this.rand = rand;
     }
 
     public Player[] getPlayers() {
@@ -238,12 +202,4 @@ public class RdmEventsManager {
         this.players = players;
     }
 
-
-    public GameDesc getDesc() {
-        return desc;
-    }
-
-    public void setDesc(GameDesc desc) {
-        this.desc = desc;
-    }
 }
