@@ -3,6 +3,7 @@ package src.functions;
 import src.card.Card;
 import src.gameEngine.Hand;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
@@ -53,13 +54,16 @@ public class validCards {
     }
 
     /**
-     * Create a function that takes a trick and a function, and tests if that card can be played in the current trick.
+     * Create a function that takes a trick and a function, and tests if that card is valid in the current trick.
      *
      * @param validLeadingCardPredicate A predicate checking if a card is a valid leading card.
      *
      * @return BiFunction taking a hand and a card, which tests if that card can be played.
      */
-    public static BiFunction<Hand, Card, Boolean> getValidCardFunction(Predicate<Card> validLeadingCardPredicate){
-        return (currentTrick, card) -> currentTrick.getHand().size() == 0 ? validLeadingCardPredicate.test(card) : card.getSUIT().equals(currentTrick.get(0).getSUIT());
+    public static BiFunction<List<Card>, Card, Boolean> getValidCardFunction(Predicate<Card> validLeadingCardPredicate){
+        return (currentTrick, card) -> currentTrick.size() == 0 ? validLeadingCardPredicate.test(card) : card.getSUIT().equals(currentTrick.get(0).getSUIT());
     }
+
+
+
 }
