@@ -2,12 +2,14 @@ package src.ai;
 
 import src.card.Card;
 import src.deck.Shuffle;
-import src.gameEngine.Hand;
 
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.function.BiFunction;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class CardPOMDP {
     //Random generators.
@@ -15,18 +17,25 @@ public class CardPOMDP {
     private Shuffle shuffle;
     //The player number of the AI.
     private int playerNumber;
-    private Predicate<Card> validCards;
+    //Game Information
+    private int playerCount;
+    private IntFunction<Integer> playerIncrementor;
+    private BiFunction<List<Card>, Card, Boolean> validCardFunction;
+    private Map<String, Integer> suitOrder;
+    StringBuilder trumpSuit;
+    //Values for the POMDP procedure.
     private double epsilon = 0.001;
     private double gamma = 1;
     private final double c = 0.5;
     long timeout;
 
-    public CardPOMDP(Predicate<Card> validCards, long timeout, int playerNumber) {
+    public CardPOMDP(BiFunction<List<Card>, Card, Boolean> validCards, long timeout, int playerNumber, int playerCount) {
         random = new Random();
         shuffle = new Shuffle(0); //TODO update seed
-        this.validCards = validCards;
+        this.validCardFunction = validCards;
         this.timeout = timeout;
         this.playerNumber = playerNumber;
+        this.playerCount = playerCount;
     }
 
     private Card search(GameObservation history) {
@@ -44,7 +53,33 @@ public class CardPOMDP {
         if (Math.pow(gamma, depth) < epsilon) {
             return 0;
         }
-        int r = 0;
+        TrickSimulator trickSimulator = new TrickSimulator(suitOrder, trumpSuit.toString());
+        //Find the player who started the trick.
+        int currentPlayer = history.getTrickStartedBy();
+        //Add the cards that have already been played.
+        for (Card card : history.getCurrentTrick()) {
+            trickSimulator.addCard(currentPlayer, card);
+            //Then go onto the next player.
+            currentPlayer = playerIncrementor.apply(currentPlayer);
+        }
+        //It should now be the player for this AI.
+        assert currentPlayer == playerNumber;
+        //Play a random action for each player until the trick is complete
+        while (trickSimulator.getTrick().size() < playerCount) {
+            //Make a random action for the current player.
+            List<Card> playerCards = state.getPlayerHands().get(currentPlayer);
+            List<Card> validCards = playerCards.stream().filter((card -> validCardFunction.apply(history.getCurrentTrick(), card))).collect(Collectors.toList());
+            if (validCards.size() == 0) {
+                validCards = playerCards;
+            }
+            trickSimulator.addCard(currentPlayer, validCards.get(random.nextInt(validCards.size())));
+            //Go to the next player
+            currentPlayer = playerIncrementor.apply(currentPlayer);
+        }
+        int winningPlayer = trickSimulator.evaluateWinner();
+        //TODO generate new observation for next part of trick and update the state.
+        //See if this player won the trick.
+        int r = winningPlayer == playerNumber ? 1 : 0;
         return r + gamma * rollout(null, null, depth + 1);
     }
 
