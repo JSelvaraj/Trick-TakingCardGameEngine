@@ -56,7 +56,7 @@ public class RandomPlayer extends Player {
 
     @Override
     public Swap getSwap(Player rdmStrongPlayer) {
-        return null;
+        return new Swap(0, 0, 0,0, "dead");
     }
 
     @Override
