@@ -4,6 +4,7 @@ import src.card.Card;
 import src.deck.Shuffle;
 import src.gameEngine.Hand;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
@@ -33,7 +34,7 @@ public class CardPOMDP {
         int bestScore = -1;
         Card bestAction = null;
         do {
-            State gameState = generateBeliefState(history);
+            State gameState = State.generateBeliefState(history, shuffle);
             simulate(gameState, history, 0);
         } while (System.nanoTime() - startTime < timeout);
         return bestAction;
@@ -56,29 +57,6 @@ public class CardPOMDP {
 
         }
         return rollout(state, history, depth);
-    }
-
-    /**
-     * Generate a possible state based on a game observation
-     *
-     * @param history The knowledge known about a game.
-     * @return A possible game state based on the observation.
-     */
-    private State generateBeliefState(GameObservation history) {
-        State state = new State(history.getDeck(), history.getPlayerObservations().size());
-        //Add the initial cards we know that each player has.
-        for (int i = 0; i < state.getPlayerHands().size(); i++) {
-            state.getPlayerHands().get(i).addAll(history.getPlayerObservations().get(i).getCardsPlayed());
-        }
-        //Shuffle the deck
-        shuffle.shuffle(state.getDeck());
-        //Iterate over each player, until each player has the correct number of cards.
-        for (int i = 0; i < state.getPlayerHands().size(); i++) {
-            while (state.getPlayerHands().get(i).size() < history.getPlayerObservations().get(i).getCardsLeft()){
-
-            }
-        }
-        return state;
     }
 
 }
