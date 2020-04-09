@@ -6,12 +6,12 @@ import src.gameEngine.Hand;
 /**
  * Class to encapsulate the game state at a particular turn
  */
-public class GameState implements Cloneable{
+public class GameObservation implements Cloneable{
     private Hand deck;
     private Hand currentTrick;
     private PlayerState[] playerStates;
 
-    public GameState(Hand deck, int playerCount, int initialHandSize) {
+    public GameObservation(Hand deck, int playerCount, int initialHandSize) {
         this.deck = deck;
         currentTrick = new Hand();
         playerStates = new PlayerState[playerCount];
@@ -20,7 +20,7 @@ public class GameState implements Cloneable{
         }
     }
 
-    public GameState(Hand deck, Hand currentTrick, PlayerState[] playerStates) {
+    public GameObservation(Hand deck, Hand currentTrick, PlayerState[] playerStates) {
         this.deck = deck;
         this.currentTrick = currentTrick;
         this.playerStates = playerStates;
@@ -38,16 +38,16 @@ public class GameState implements Cloneable{
         return playerStates;
     }
 
-    public GameState updateGameState(int playernumber, Card card){
-        GameState newGameState = this.clone();
-        newGameState.currentTrick.getCard(card);
-        newGameState.getPlayerStates()[playernumber].addCard(card);
-        return newGameState;
+    public GameObservation updateGameState(int playernumber, Card card){
+        GameObservation newGameObservation = this.clone();
+        newGameObservation.currentTrick.getCard(card);
+        newGameObservation.getPlayerStates()[playernumber].addCard(card);
+        return newGameObservation;
     }
 
     @Override
-    public GameState clone(){
-        return new GameState(deck.clone(), currentTrick.clone(), playerStates.clone());
+    public GameObservation clone(){
+        return new GameObservation(deck.clone(), currentTrick.clone(), playerStates.clone());
     }
 
 
