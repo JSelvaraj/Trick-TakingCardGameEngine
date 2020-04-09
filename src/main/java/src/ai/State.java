@@ -44,8 +44,10 @@ public class State {
         for (int i = 0; i < state.getPlayerHands().size(); i++) {
             while (state.getPlayerHands().get(i).size() < history.getPlayerObservations().get(i).getCardsLeft()) {
                 state.getPlayerHands().get(i).add(deckIterator.next());
+                deckIterator.remove();
             }
         }
+        //Update the deck to remove all the cards that were added to players hands.
         return state;
     }
 }
