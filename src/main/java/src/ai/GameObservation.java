@@ -1,7 +1,6 @@
 package src.ai;
 
 import src.card.Card;
-import src.gameEngine.Hand;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -12,6 +11,7 @@ import java.util.List;
  */
 public class GameObservation implements Cloneable {
     private int round;
+    private int trickStartedBy;
     private List<Card> deck;
     private List<Card> cardsRemaining;
     private List<Card> currentTrick;
@@ -67,5 +67,11 @@ public class GameObservation implements Cloneable {
         return cardsRemaining;
     }
 
+    public int getTrickStartedBy() {
+        return trickStartedBy;
+    }
 
+    public void setTrickStartedBy(int trickStartedBy) {
+        this.trickStartedBy = trickStartedBy;
+    }
 }
