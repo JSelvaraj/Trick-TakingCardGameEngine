@@ -3,55 +3,59 @@ package src.ai;
 import src.card.Card;
 import src.gameEngine.Hand;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Class to encapsulate the game state at a particular turn
  */
 public class GameObservation implements Cloneable {
     private int round;
-    private Hand deck;
-    private Hand cardsRemaining;
-    private Hand currentTrick;
-    private PlayerObservation[] playerObservations;
+    private List<Card> deck;
+    private List<Card> cardsRemaining;
+    private List<Card> currentTrick;
+    private List<PlayerObservation> playerObservations;
 
-    public GameObservation(Hand deck, int playerCount, int initialHandSize) {
+    public GameObservation(List<Card> deck, int playerCount, int initialHandSize) {
         round = 0;
         this.deck = deck;
-        currentTrick = new Hand();
-        cardsRemaining = deck.clone();
-        playerObservations = new PlayerObservation[playerCount];
-        for (int i = 0; i < playerObservations.length; i++) {
-            playerObservations[i] = new PlayerObservation(i, initialHandSize);
+        currentTrick = new LinkedList<>();
+        cardsRemaining = new LinkedList<>(deck);
+        playerObservations = new ArrayList<>(playerCount);
+        for (int i = 0; i < playerCount; i++) {
+            playerObservations.add(new PlayerObservation(i, initialHandSize));
         }
     }
 
-    public GameObservation(Hand deck, Hand currentTrick, Hand cardsRemaining, PlayerObservation[] playerObservations, int round) {
-        this.deck = deck;
-        this.currentTrick = currentTrick;
-        this.cardsRemaining = cardsRemaining;
-        this.playerObservations = playerObservations;
-        this.round = round;
+    public GameObservation(GameObservation gameObservation) {
+        this.deck = new LinkedList<>(gameObservation.deck);
+        this.currentTrick = new LinkedList<>(gameObservation.currentTrick);
+        this.cardsRemaining = new LinkedList<>(gameObservation.cardsRemaining);
+        this.playerObservations = new ArrayList<>(playerObservations);
+        this.round = gameObservation.round;
     }
 
-    public Hand getDeck() {
+    public List<Card> getDeck() {
         return deck;
     }
 
-    public Hand getCurrentTrick() {
+    public List<Card> getCurrentTrick() {
         return currentTrick;
     }
 
-    public PlayerObservation[] getPlayerObservations() {
+    public List<PlayerObservation> getPlayerObservations() {
         return playerObservations;
     }
 
     public GameObservation updateGameState(int playernumber, Card card) {
-        GameObservation newGameObservation = this.clone();
-        newGameObservation.currentTrick.getCard(card);
-        newGameObservation.getPlayerObservations()[playernumber].addCard(card);
+        GameObservation newGameObservation = new GameObservation(this);
+        newGameObservation.currentTrick.add(card);
+        newGameObservation.getPlayerObservations().get(playernumber).addCardPlayed(card);
         return newGameObservation;
     }
 
-    public void incrementRound(){
+    public void incrementRound() {
         round++;
     }
 
@@ -59,13 +63,8 @@ public class GameObservation implements Cloneable {
         return round;
     }
 
-    public Hand getCardsRemaining() {
+    public List<Card> getCardsRemaining() {
         return cardsRemaining;
-    }
-
-    @Override
-    public GameObservation clone() {
-        return new GameObservation(deck.clone(), currentTrick.clone(), cardsRemaining.clone(), playerObservations.clone(), round);
     }
 
 
