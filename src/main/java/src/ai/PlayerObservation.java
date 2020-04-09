@@ -8,12 +8,12 @@ import java.util.List;
 /**
  * Encapsulates the state of another player at a specific point in the game, from the POV of another player.
  */
-public class PlayerState {
+public class PlayerObservation {
     private final int playerIndex;
     private List<Card> cardsPlayed;
     private int cardsLeft;
 
-    public PlayerState(int playerIndex, int initialCards) {
+    public PlayerObservation(int playerIndex, int initialCards) {
         this.playerIndex = playerIndex;
         this.cardsPlayed = new LinkedList<>();
         this.cardsLeft = initialCards;
