@@ -9,11 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiFunction;
 
 /**
  * Class to simulate a trick being played.
  */
-public class TrickSimulator {
+public class TrickSimulator { //TODO test this
     private List<Pair<Card, Integer>> trick;
     private CardComparator cardComparator;
     String trumpSuit;
@@ -37,5 +38,9 @@ public class TrickSimulator {
 
     public void addCard(int playerNumber, Card card) {
         trick.add(new ImmutablePair<>(card, playerNumber));
+    }
+
+    public List<Pair<Card, Integer>> getTrick() {
+        return trick;
     }
 }
