@@ -10,7 +10,6 @@ class PostService {
         const res = await axios.get(url);
         const data = res.data;
         console.log(data)
-
         for(var subdata in data){
             var temp = ""
              for(var line in subdata){
@@ -33,14 +32,17 @@ class PostService {
 
   // Create Post
   static insertPosts(text) {
-    return axios.post(url, {
-      text
-    });
+    // return axios.post(url, {
+    //   text
+    // });
+    console.log(text);
+    this.$socket.sendObj({type:text})
   }
 
   // Delete Post
   static deletePost(id) {
-    return axios.delete("${url}${id}");
+    // return axios.delete("${url}${id}");
+  
   }
 }
 

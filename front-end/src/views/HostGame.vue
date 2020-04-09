@@ -32,7 +32,7 @@ import PostService from "../PostService";
 import Axios from "axios";
 import qs from "qs";
 export default {
-  // name: "GraphQuestion",
+  
   props: {
     source: String
   },
@@ -43,7 +43,7 @@ export default {
       id: "",
       gameTypes:[],
       numOfPlayers:[],
-      selectGameTypes:""
+      selectGameTypes: null
     },
     isDisable: false
   }),
@@ -54,15 +54,17 @@ export default {
   },
   methods: {
     getNumOfPlayer() {
-      console.log(this.selectGameTypes)
-      if(this.selectGameTypes==="Whist"||this.selectGameTypes ==="Contract Whist"||this.selectGameTypes==="Spades"){
-        this.numOfPlayers = [1,2,3,4]
-      }else if(this.selectGameTypes==="One Trick Pony"){
-        this.numOfPlayers = [1,2]
-      }
+      // console.log(this.selectGameTypes)
+      // if(this.selectGameTypes==="Whist"||this.selectGameTypes ==="Contract Whist"||this.selectGameTypes==="Spades"){
+      //   this.numOfPlayers = [1,2,3,4]
+      // }else if(this.selectGameTypes==="One Trick Pony"){
+      //   this.numOfPlayers = [1,2]
+      // }
     },
     toGameRoom() {
       this.$router.push("/gameRoom");
+      //PostService.insertPosts("HostGame");
+      this.$socket.sendObj({type:"HostGame"});
     },
     toHome() {
       this.$router.push("/");

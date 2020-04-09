@@ -11,7 +11,7 @@ import PostService from "../PostService";
 import Axios from "axios";
 import qs from "qs";
 export default {
-  name: "GraphQuestion",
+ 
   props: {
     source: String
   },

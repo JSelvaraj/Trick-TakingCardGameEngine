@@ -33,7 +33,7 @@ import Mermaid from "mermaid";
 import Axios from "axios";
 import qs from "qs";
 export default {
-  name: "GraphQuestion",
+
   props: {
     source: String
   },
@@ -54,7 +54,8 @@ export default {
   },
   methods: {
     stopDiscover(){
-      PostService.insertPosts("StopDiscoverGame");
+      // PostService.insertPosts("StopDiscoverGame");
+    this.$socket.sendObj({type:"StopDiscoverGame"});
     }
   }
 };

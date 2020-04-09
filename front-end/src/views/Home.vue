@@ -38,7 +38,8 @@ export default {
     },
     toGameDiscover() {
       this.$router.push("/gameDiscover");
-      PostService.insertPosts("DiscoverGame");
+      //PostService.insertPosts("DiscoverGame");
+      this.$socket.sendObj({type:"DiscoverGame"});
     },
   }
 };
