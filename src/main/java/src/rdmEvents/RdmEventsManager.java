@@ -4,6 +4,7 @@ import src.card.Card;
 import src.gameEngine.Hand;
 import src.parser.GameDesc;
 import src.player.LocalPlayer;
+import src.player.NetworkPlayer;
 import src.player.Player;
 import src.team.Team;
 
@@ -105,7 +106,7 @@ public class RdmEventsManager {
             System.out.println("Swapping " + originalPlayerCard + " from Player " + (swap.getOriginalPlayerIndex() + 1) + " with " +
                     otherPlayerCard + " from Player " + (swap.getRdmPlayerIndex() + 1));
         }
-        if (weakPlayer instanceof LocalPlayer) {
+        if (!(weakPlayer instanceof NetworkPlayer)) {
             for (Player player : playerArray) {
                 player.broadcastSwap(swap);
             }

@@ -47,4 +47,8 @@ public class Deck {
         return cards.pop();
     }
 
+    @Override
+    public String toString() {
+        return cards.toString();
+    }
 }

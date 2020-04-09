@@ -145,7 +145,7 @@ public class GameEngine {
                     game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                     //If a special card has been placed in deck, check if it has just been played - adjust points if it has.
-                    if (rdmEventTRICK != null) {
+                    if (rdmEventHAND != null) {
                         String playedCardType =  game.currentTrick.getHand().get(game.currentTrick.getHandSize()-1).getSpecialType();
                         if (playedCardType != null) {
                             rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer, game.getTeams());
@@ -228,11 +228,13 @@ public class GameEngine {
             }
 
             //Check if game needs balancing
-            rdmEventsManager.checkGameCloseness();
+            if (enableRandomEvents) {
+                rdmEventsManager.checkGameCloseness();
+            }
 
             game.printScore();
         } while (game.gameEnd());
-
+        System.out.println("End of Game");
     }
 
 
