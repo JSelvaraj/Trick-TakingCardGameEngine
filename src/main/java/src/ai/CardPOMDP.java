@@ -11,23 +11,22 @@ public class CardPOMDP {
     private double gamma;
     long timeout;
 
-    private void search(List<GameState> history) {
+    private void search(List<GameObservation> history) {
         long startTime = System.nanoTime();
         do {
 
         } while (System.nanoTime() - startTime < timeout);
     }
 
-    private double rollout(GameState state, List<GameState> history, int depth) {
+    private double rollout(GameObservation state, List<GameObservation> history, int depth) {
         if (Math.pow(gamma, depth) < epsilon) {
             return 0;
         }
         int r = 0;
         return r + gamma * rollout(null, null, depth + 1);
-
     }
 
-    private double simulate(GameState state, List<GameState> history, int depth) {
+    private double simulate(GameObservation state, List<GameObservation> history, int depth) {
         if (Math.pow(gamma, depth) < epsilon) {
             return 0;
         }
