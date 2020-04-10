@@ -17,6 +17,14 @@ public class State {
         }
     }
 
+    public State(State state) {
+        this.deck = new LinkedList<>(state.deck);
+        this.playerHands = new ArrayList<>(state.deck.size());
+        for (int i = 0; i < state.deck.size(); i++) {
+            playerHands.add(new LinkedList<Card>(state.playerHands.get(i)));
+        }
+    }
+
     public List<Card> getDeck() {
         return deck;
     }

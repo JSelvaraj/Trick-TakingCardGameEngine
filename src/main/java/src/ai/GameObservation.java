@@ -48,11 +48,9 @@ public class GameObservation implements Cloneable {
         return playerObservations;
     }
 
-    public GameObservation updateGameState(int playernumber, Card card) {
-        GameObservation newGameObservation = new GameObservation(this);
-        newGameObservation.currentTrick.add(card);
-        newGameObservation.getPlayerObservations().get(playernumber).addCardPlayed(card);
-        return newGameObservation;
+    public void updateGameState(int playernumber, Card card) {
+        currentTrick.add(card);
+        playerObservations.get(playernumber).addCardPlayed(card);
     }
 
     public void incrementRound() {

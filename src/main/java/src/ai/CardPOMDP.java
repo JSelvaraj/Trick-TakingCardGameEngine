@@ -54,10 +54,13 @@ public class CardPOMDP {
             return 0;
         }
         TrickSimulator trickSimulator = new TrickSimulator(suitOrder, trumpSuit.toString());
+        //Create new observation and state.
+        GameObservation newObservation = new GameObservation(history);
+        State newState = new State(state);
         //Find the player who started the trick.
         int currentPlayer = history.getTrickStartedBy();
         //Add the cards that have already been played.
-        for (Card card : history.getCurrentTrick()) {
+        for (Card card : newObservation.getCurrentTrick()) {
             trickSimulator.addCard(currentPlayer, card);
             //Then go onto the next player.
             currentPlayer = playerIncrementor.apply(currentPlayer);
@@ -66,32 +69,55 @@ public class CardPOMDP {
         assert currentPlayer == playerNumber;
         //Play a random action for each player until the trick is complete
         while (trickSimulator.getTrick().size() < playerCount) {
-            //Make a random action for the current player.
-            List<Card> playerCards = state.getPlayerHands().get(currentPlayer);
-            List<Card> validCards = playerCards.stream().filter((card -> validCardFunction.apply(history.getCurrentTrick(), card))).collect(Collectors.toList());
-            if (validCards.size() == 0) {
-                validCards = playerCards;
-            }
-            trickSimulator.addCard(currentPlayer, validCards.get(random.nextInt(validCards.size())));
+            //Make a random move.
+            Card playedCard = makeRandomMove(currentPlayer, newState, newObservation);
+            //Add that card to the simulated trick.
+            trickSimulator.addCard(currentPlayer, playedCard);
             //Go to the next player
             currentPlayer = playerIncrementor.apply(currentPlayer);
         }
         int winningPlayer = trickSimulator.evaluateWinner();
-        //TODO generate new observation for next part of trick and update the state.
         //See if this player won the trick.
         int r = winningPlayer == playerNumber ? 1 : 0;
-        return r + gamma * rollout(null, null, depth + 1);
+        //Then create an observation for the next trick.
+        currentPlayer = winningPlayer;
+        //Reset the trick
+        newObservation.getCurrentTrick().clear();
+        //TODO change for minimum hand size.
+        //If the player has no more cards, i.e reaches the end point.
+        if(newState.getPlayerHands().get(currentPlayer).size() == 0){
+            return r;
+        }
+        //Then play out the trick till we reach the next turn of the AI player.
+        while (currentPlayer != playerNumber) {
+            //Make a random action for the current player.
+            Card card = makeRandomMove(currentPlayer, newState, newObservation);
+            //Go to the next player
+            currentPlayer = playerIncrementor.apply(currentPlayer);
+        }
+        return r + gamma * rollout(newState, newObservation, depth + 1);
     }
 
     private double simulate(State state, GameObservation history, int depth) {
         if (Math.pow(gamma, depth) < epsilon) {
             return 0;
         }
-        //If this is the first round.
-        if (history.getRound() == 0) {
-
-        }
         return rollout(state, history, depth);
+    }
+
+    private Card makeRandomMove(int currentPlayer, State state, GameObservation observation) {
+        //Make a random action for the current player.
+        List<Card> playerCards = state.getPlayerHands().get(currentPlayer);
+        List<Card> validCards = playerCards.stream().filter((card -> validCardFunction.apply(observation.getCurrentTrick(), card))).collect(Collectors.toList());
+        //If no cards are valid, then any card can be played.
+        if (validCards.size() == 0) {
+            validCards = playerCards;
+        }
+        Card playedCard = validCards.get(random.nextInt(validCards.size()));
+        //Update the state and observation.
+        state.getPlayerHands().get(currentPlayer).remove(playedCard);
+        observation.updateGameState(playerNumber, playedCard);
+        return playedCard;
     }
 
 }
