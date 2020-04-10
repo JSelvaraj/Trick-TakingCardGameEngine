@@ -32,7 +32,7 @@ public class POMCPTreeNode {
     public boolean addNode(GameObservation observation, Card action){
         //TODO add check for if the observation isn't a subnode of the root.
         for (POMCPTreeNode child : this.children) {
-            if(child.getObservation().isSubHistory(observation)){
+            if(child.getObservation().isPreviousHistory(observation)){
                 return child.addNode(observation, action);
             }
         }

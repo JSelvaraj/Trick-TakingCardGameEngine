@@ -82,8 +82,13 @@ public class GameObservation implements Cloneable {
         return cardSequence;
     }
 
-    public boolean isSubHistory(GameObservation observation){
-        //Checks if the observation card sequence is a sublist of this card sequence, i.e the history is a previous version of this history.
+    /**
+     * Checks if a given observation is a previous history of this observation
+     *
+     * @param observation The observation to compare against
+     * @return True if the given cardSequence of the observation is a subsequence of this observation starting at 0.
+     */
+    public boolean isPreviousHistory(GameObservation observation){
         return Collections.indexOfSubList(cardSequence, observation.cardSequence) == 0;
     }
 }
