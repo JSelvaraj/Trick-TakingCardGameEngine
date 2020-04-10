@@ -18,11 +18,19 @@ public class validBids {
     /**
      * Creates a Predicate that checks if a given bid is valid.
      *
-     * @param minBid The minimum bid to be made
-     * @param maxBid The maximum bid to be made.
+     *
      * @return Predicate that will return true if the given bid is in [minBid, maxBid]
      */
-    public static IntPredicate isValidBidValue(int minBid, int maxBid) {
+    public static IntPredicate isValidBidValue(JSONObject bidObject) {
+        int minBid = bidObject.getInt("minBid");
+        int maxBid = bidObject.getInt("maxBid");
+        boolean trumpSuitBid = false;
+        if (!bidObject.isNull("trumpSuitBid")) {
+            boolean =
+        }
+        boolean trumpSuitBid = bidObject.getBoolean("trumpSuitBid");
+        boolean ascendingBid = bidObject.getBoolean("ascendingBid");
+        String[] suitBidRank = bidObject.getJSONArray("suitBidRank");
         if (minBid > maxBid) {
             throw new IllegalArgumentException("Minimum bid can't be greater than maximum bid");
         }

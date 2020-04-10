@@ -89,7 +89,7 @@ public class Networking {
         System.out.println("Sending spec + players + seed");
         forClients.put("spec", gameJSON);
         forClients.put("players", playersJSONArray);
-        forClients.put("seed", SEED); //TODO change to parser.seed when parser is edited.
+        forClients.put("seed", SEED);
 
         for (Socket playerSocket : networkPlayers) {
             try {

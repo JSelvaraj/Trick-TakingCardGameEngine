@@ -169,7 +169,6 @@ public class Parser {
             throw new InvalidGameDescriptionException("No trump suit specified with fixed trump mode.");
         }
         //Seed for generator
-        long seed = 2; //TODO remove this.
         assert trumpPickingMode != null;
         Iterator<String> trumpIterator = null;
         if (trumpPickingMode.equals("predefined") && trumpOrdering != null) {
@@ -179,7 +178,6 @@ public class Parser {
         GameDesc gameDesc = new GameDesc(name,
                 players,
                 teams,
-                seed,
                 suits,
                 ranks,
                 rank_order,
@@ -235,9 +233,7 @@ public class Parser {
     }
 
     private void initBidding(JSONObject bidObject, GameDesc gameDesc) {
-        int minBid = bidObject.getInt("minBid");
-        int maxBid = bidObject.getInt("maxBid");
-        gameDesc.setValidBid(validBids.isValidBidValue(minBid, maxBid));
+        gameDesc.setValidBid(validBids.isValidBidValue(bidObject));
         gameDesc.setEvaluateBid(validBids.evaluateBid(bidObject));
         gameDesc.setBidding(true);
     }

@@ -20,7 +20,6 @@ public class GameDesc {
     private final String name;
     private final int NUMBEROFPLAYERS;
     private final int[][] teams;
-    private final long SEED;
     private final String[] SUITS;
     private final String[] RANKS;
     private final LinkedList<Card> DECK;
@@ -48,7 +47,6 @@ public class GameDesc {
 
     /**
      * @param numOfPlayers     The number of Players in the game
-     * @param seed             The seed value for the random shuffle
      * @param suits            An array of the suits in the game in the order the deck is going to be initially made
      * @param ranks            An array of the ranks of cards in the game in the initial order of the deck
      * @param trumpPickingMode How the trump it is picked
@@ -56,7 +54,6 @@ public class GameDesc {
     public GameDesc(String name,
                     int numOfPlayers,
                     int[][] teams,
-                    long seed,
                     String[] suits,
                     String[] ranks,
                     String[] rankOrder,
@@ -78,7 +75,6 @@ public class GameDesc {
         this.name = name;
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
-        this.SEED = seed;
         this.SUITS = suits;
         this.RANKS = ranks;
         this.DECK = Deck.makeDeck(suits, ranks);
@@ -105,7 +101,6 @@ public class GameDesc {
         return "GameDesc{" +
                 "\nNUMBEROFPLAYERS=" + NUMBEROFPLAYERS +
                 "\nteams=" + Arrays.toString(teams) +
-                "\nSEED=" + SEED +
                 "\nSUITS=" + Arrays.toString(SUITS) +
                 "\nRANKS=" + Arrays.toString(RANKS) +
                 "\nDECK=" + DECK +
@@ -126,10 +121,6 @@ public class GameDesc {
 
     public int getNUMBEROFPLAYERS() {
         return NUMBEROFPLAYERS;
-    }
-
-    public long getSEED() {
-        return SEED;
     }
 
     public LinkedList<Card> getDECK() {
