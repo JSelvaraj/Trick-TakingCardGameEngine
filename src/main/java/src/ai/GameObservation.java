@@ -3,6 +3,7 @@ package src.ai;
 import src.card.Card;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -79,5 +80,10 @@ public class GameObservation implements Cloneable {
 
     public List<Card> getCardSequence() {
         return cardSequence;
+    }
+
+    public boolean isSubHistory(GameObservation observation){
+        //Checks if the observation card sequence is a sublist of this card sequence, i.e the history is a previous version of this history.
+        return Collections.indexOfSubList(cardSequence, observation.cardSequence) == 0;
     }
 }

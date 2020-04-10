@@ -15,7 +15,7 @@ public class POMCPTreeNode {
     //The action of this node, which in this case is a card played.
     private Card action;
     //The children nodes.
-    private List<POMCPTree> children;
+    private List<POMCPTreeNode> children;
 
     public POMCPTreeNode(int visit, int value, GameObservation observation, Card action) {
         this.visit = visit;
@@ -27,6 +27,18 @@ public class POMCPTreeNode {
 
     public POMCPTreeNode(GameObservation observation, Card action){
         this(0,0,observation, action);
+    }
+
+    public boolean addNode(GameObservation observation, Card action){
+        //TODO add check for if the observation isn't a subnode of the root.
+        for (POMCPTreeNode child : this.children) {
+            if(child.getObservation().isSubHistory(observation)){
+                return child.addNode(observation, action);
+            }
+        }
+        //Add it instead from the root.
+        this.children.add(new POMCPTreeNode(observation, action));
+        return true;
     }
 
     public void setVisit(int visit) {
@@ -61,7 +73,7 @@ public class POMCPTreeNode {
         return action;
     }
 
-    public List<POMCPTree> getChildren() {
+    public List<POMCPTreeNode> getChildren() {
         return children;
     }
 }
