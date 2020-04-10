@@ -16,6 +16,7 @@ public class GameObservation implements Cloneable {
     private List<Card> cardsRemaining;
     private List<Card> currentTrick;
     private List<PlayerObservation> playerObservations;
+    private List<Card> cardSequence;
 
     public GameObservation(List<Card> deck, int playerCount, int initialHandSize) {
         round = 0;
@@ -23,6 +24,7 @@ public class GameObservation implements Cloneable {
         currentTrick = new LinkedList<>();
         cardsRemaining = new LinkedList<>(deck);
         playerObservations = new ArrayList<>(playerCount);
+        cardSequence = new ArrayList<>(deck.size());
         for (int i = 0; i < playerCount; i++) {
             playerObservations.add(new PlayerObservation(i, initialHandSize));
         }
@@ -32,7 +34,8 @@ public class GameObservation implements Cloneable {
         this.deck = new LinkedList<>(gameObservation.deck);
         this.currentTrick = new LinkedList<>(gameObservation.currentTrick);
         this.cardsRemaining = new LinkedList<>(gameObservation.cardsRemaining);
-        this.playerObservations = new ArrayList<>(playerObservations);
+        this.playerObservations = new ArrayList<>(gameObservation.playerObservations);
+        this.cardSequence = new ArrayList<>(gameObservation.cardSequence);
         this.round = gameObservation.round;
     }
 
@@ -51,6 +54,7 @@ public class GameObservation implements Cloneable {
     public void updateGameState(int playernumber, Card card) {
         currentTrick.add(card);
         playerObservations.get(playernumber).addCardPlayed(card);
+        cardSequence.add(card);
     }
 
     public void incrementRound() {
@@ -71,5 +75,9 @@ public class GameObservation implements Cloneable {
 
     public void setTrickStartedBy(int trickStartedBy) {
         this.trickStartedBy = trickStartedBy;
+    }
+
+    public List<Card> getCardSequence() {
+        return cardSequence;
     }
 }
