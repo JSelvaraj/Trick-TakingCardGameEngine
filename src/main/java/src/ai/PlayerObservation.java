@@ -50,7 +50,7 @@ public class PlayerObservation implements Cloneable {
      */
     public void addCardPlayed(Card card) {
         cardsPlayed.add(card);
-        cardsPlayed.remove(card);
+        hasCards.remove(card);
         cardsLeft--;
     }
 
