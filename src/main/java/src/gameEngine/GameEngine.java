@@ -216,7 +216,7 @@ public class GameEngine {
                     for (Player player : team.getPlayers()) {
                         teamBid += game.bidTable[player.getPlayerNumber()].getBidValue();
                     }
-                    Bid bid = new Bid(teamBid, false);
+                    Bid bid = new Bid(false, null, teamBid, false);
                     //Increase score of winning team based on bid scoring system (See validBids.java)
                     team.setScore(team.getScore() + gameDesc.getEvaluateBid().apply(bid, team.getTricksWon()));
                     //Reset tricks won for next round.

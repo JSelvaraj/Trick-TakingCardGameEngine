@@ -175,6 +175,14 @@ public class Parser {
             trumpIterator = parseTrumpOrdering(trumpOrdering);
 
         }
+
+        //Pass any parameters that main engine needs that are bidding specific.
+        boolean trumpSuitBid = false;
+        if (!gameJSON.isNull("bid")) {
+            JSONObject bidObject = gameJSON.getJSONObject("bid");
+            trumpSuitBid = bidObject.getBoolean("trumpSuitBid");
+        }
+
         GameDesc gameDesc = new GameDesc(name,
                 players,
                 teams,
@@ -195,7 +203,7 @@ public class Parser {
                 trickWinner,
                 trickLeader,
                 handSize,
-                trumpIterator);
+                trumpIterator, trumpSuitBid);
 
         if (!gameJSON.isNull("bid")) {
             JSONObject bidObject = gameJSON.getJSONObject("bid");

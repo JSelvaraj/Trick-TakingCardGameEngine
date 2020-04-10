@@ -8,6 +8,7 @@ import src.rdmEvents.Swap;
 import src.team.Team;
 
 import java.util.Scanner;
+import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
@@ -136,15 +137,20 @@ public class LocalPlayer extends Player {
      * @return new bid
      */
     @Override
-    public Bid makeBid(IntPredicate validBid) {
+    public Bid makeBid(BiFunction<String, String, Boolean> validBid, boolean trumpSuitBid) {
         System.out.print(this.colour);
         System.out.println("-------------------------------------");
         System.out.println("-------------------------------------");
         System.out.println("Player " + (super.getPlayerNumber() + 1));
         System.out.println("-------------------------------------");
         System.out.println("-------------------------------------");
+
         int option = -1;
-        int bidNumber = 0;
+
+        String bidInput = null;
+        String bidSuit = null;
+        boolean doubling = false;
+
         boolean bidBlind = true;
         System.out.println("Select Option:");
         System.out.println("    1. Bid with seeing cards");
@@ -160,13 +166,25 @@ public class LocalPlayer extends Player {
             case 2:
                 Scanner scanner = new Scanner(System.in);
                 do {
-                    System.out.println("Enter your bid:");
-                    bidNumber = scanner.nextInt();
-                } while (!validBid.test(bidNumber));
+                    System.out.println("Enter your bid: (enter a negative int to pass, 'd' to double - if these are valid options)");
+                    bidSuit = null;
+                    bidInput = scanner.next();
+
+                    if (trumpSuitBid && !(bidInput.equals("p")) && !(bidInput.equals("d"))) {
+                        System.out.println("Enter your trump suit ('n' for NO TRUMP)");
+                        bidSuit = scanner.next();
+                    }
+                } while (!validBid.apply(bidInput, bidSuit));
                 break;
         }
         System.out.println(ANSI_RESET);
-        return new Bid(bidNumber, bidBlind);
-
+        int finalBidInput = 0;
+        if (bidInput.equals("d")) {
+            doubling = true;
+        }
+        else {
+            finalBidInput = Integer.parseInt(bidInput);
+        }
+        return new Bid(doubling, bidSuit, finalBidInput, bidBlind);
     }
 }

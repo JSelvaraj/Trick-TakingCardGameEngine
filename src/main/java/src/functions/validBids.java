@@ -21,20 +21,36 @@ public class validBids {
      *
      * @return Predicate that will return true if the given bid is in [minBid, maxBid]
      */
-    public static IntPredicate isValidBidValue(JSONObject bidObject) {
+    public static BiFunction<String, String, Boolean> isValidBidValue(JSONObject bidObject) {
         int minBid = bidObject.getInt("minBid");
         int maxBid = bidObject.getInt("maxBid");
         boolean trumpSuitBid = false;
+        boolean ascendingBid;
+        JSONArray suitBidRank;
         if (!bidObject.isNull("trumpSuitBid")) {
-            boolean =
+            trumpSuitBid = bidObject.getBoolean("trumpSuitBid");
         }
-        boolean trumpSuitBid = bidObject.getBoolean("trumpSuitBid");
-        boolean ascendingBid = bidObject.getBoolean("ascendingBid");
-        String[] suitBidRank = bidObject.getJSONArray("suitBidRank");
+        if (!bidObject.isNull("ascendingBid")) {
+            ascendingBid = bidObject.getBoolean("ascendingBid");
+        }
+        if (!bidObject.isNull("suitBidRank")) {
+            suitBidRank = bidObject.getJSONArray("suitBidRank");
+        }
         if (minBid > maxBid) {
             throw new IllegalArgumentException("Minimum bid can't be greater than maximum bid");
         }
-        return (bid) -> minBid <= bid && bid <= maxBid;
+
+        boolean finalTrumpSuitBid = trumpSuitBid;
+        return( (bidInput, bidSuit) -> {
+            if (finalTrumpSuitBid) {
+
+                return true;
+            }
+            else {
+                int bidValue = Integer.parseInt(bidInput);
+                return minBid <= bidValue && bidValue <= maxBid;
+            }
+        });
     }
 
     /**
