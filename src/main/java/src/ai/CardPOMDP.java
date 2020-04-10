@@ -28,6 +28,8 @@ public class CardPOMDP {
     private double gamma = 1;
     private final double c = 0.5;
     long timeout;
+    //Search Tree
+    private POMCPTree searchTree;
 
     public CardPOMDP(BiFunction<List<Card>, Card, Boolean> validCards, long timeout, int playerNumber, int playerCount) {
         random = new Random();
@@ -49,7 +51,7 @@ public class CardPOMDP {
         return bestAction;
     }
 
-    private double rollout(State state, GameObservation history, int depth) {
+    private double rollout(final State state, final GameObservation history, final int depth) {
         if (Math.pow(gamma, depth) < epsilon) {
             return 0;
         }
@@ -98,7 +100,7 @@ public class CardPOMDP {
         return r + gamma * rollout(newState, newObservation, depth + 1);
     }
 
-    private double simulate(State state, GameObservation history, int depth) {
+    private double simulate(final State state, final GameObservation history, final int depth) {
         if (Math.pow(gamma, depth) < epsilon) {
             return 0;
         }
