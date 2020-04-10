@@ -32,13 +32,30 @@ public class POMCPTreeNode {
     public boolean addNode(GameObservation observation, Card action){
         //TODO add check for if the observation isn't a subnode of the root.
         for (POMCPTreeNode child : this.children) {
-            if(child.getObservation().isPreviousHistory(observation)){
+            //Check if the node is a previous history of this observation.
+            if(observation.isPreviousHistory(child.getObservation())){
                 return child.addNode(observation, action);
             }
         }
         //Add it instead from the root.
         this.children.add(new POMCPTreeNode(observation, action));
         return true;
+    }
+
+    /**
+     * Find the node most closely associated with this observation sequence.
+     *
+     * @param observation The observation of the game.
+     *
+     * @return A node that matches the card sequence the best.
+     */
+    public POMCPTreeNode findNode(GameObservation observation){
+        for(POMCPTreeNode child : this.children){
+            if(observation.isPreviousHistory(child.getObservation())){
+                return child.findNode(observation);
+            }
+        }
+        return this;
     }
 
     public void setVisit(int visit) {
