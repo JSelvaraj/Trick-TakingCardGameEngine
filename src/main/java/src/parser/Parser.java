@@ -97,7 +97,7 @@ public class Parser {
         }
         boolean ascedingOrdering = gameJSON.getBoolean("ascending_ordering");
         int initialHandSize = gameJSON.getInt("initialHandSize");
-        int minHandSize = gameJSON.getInt("minimumHandSize");
+        int minHandSize = gameJSON.optInt("minimumHandSize");
         //Rules
         //TODO fill in defaults
         String calculateScore = null;
