@@ -16,21 +16,18 @@ Every time the Back-end responds to a request, it must add the type of request i
 3. When GUI wants to stop receiving JSONArray, it sends 'StopDiscoverGame'.
 
 Example response message:
-
+```
 {
-
     "type": "DiscoverGame", 
-    "beacons":[JsonArray of received beacons(Beacon format is in supergroupcode)]
-    
+    "beacons":[JsonArray of received beacons(Beacon format is in supergroupcode)] 
 }
-
+```
 -------------------
 
 #### GetGameList Messaging Protocol:
 Example response message:
-
+```
 {
-
     "type": "GetGameList",
     "games": [
             {
@@ -42,30 +39,58 @@ Example response message:
                 "gamedesc": {<Spades Description>}
         ]
 }            
-
+```
 
 
 -------------------------------------------------------------------------
 #### HostGame Messaging Protocol:
-
-Example response message:
-
+Request from GUI:
+```
 {
-
+    "type":"HostGame"
+}
+```
+Example response message:
+```
+{
     "type": "HostGame",
-    //"port": 0,
     "aiplayers": 1,
     "gamepath": "Games/whist.json"
 }
+```
+Then the game starts gathering players. As each player connects, their information is sent to the front end:
+```
+{
+    "type":"gameplay",
+    "subtype":"playerjoin",
+    "playerindex":1,
+    "player": {player object}
+}
+```
+the {player object} is from the supergroup code, copied here for ease:
+
+```
+{
+    ip: string,
+    port: number,
+    name: string 
+}
+```
   
 ------------
 
 #### JoinGame Messaging Protocol:
-
+Request from GUI:
+```
 {
-
+    "type":"JoinGame"
+}
+```
+```
+{
     "type":"JoinGame",
     "address":"pc3-013-l",
     "port":10293,
     "localport":6969,
 }
+```
