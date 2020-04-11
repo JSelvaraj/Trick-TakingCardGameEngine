@@ -177,20 +177,19 @@ public class GameEngine {
                 Trick trick = new Trick(winningCard, game.trumpSuit.toString(), currentPlayer, new LinkedList<>(game.currentTrick.getHand()));
                 game.trickHistory.add(trick);
                 //Find the team with the winning player and increment their tricks score
-                for (Team team : game.getTeams()) {
-                    if (team.findPlayer(currentPlayer)) {
-                        team.setTricksWon(team.getTricksWon() + 1);
-                        if (printMoves) {
-                            System.out.println("Player " + (currentPlayer + 1) + " was the winner of the trick with the " + winningCard.toString());
-                            System.out.println("Tricks won: " + team.getTricksWon());
-                        }
-                        break;
-                    }
-                    //Signal that trump suit was broken -> can now be played
-                    if (game.currentTrick.getHand().stream().anyMatch(card -> card.getSUIT().equals(game.trumpSuit.toString()))) {
-                        game.breakFlag.set(true);
-                    }
+
+                Team winningTeam = playerArray[currentPlayer].getTeam();
+                winningTeam.setTricksWon(winningTeam.getScore() + 1);
+                if (printMoves) {
+                    System.out.println("Player " + (currentPlayer + 1) + " was the winner of the trick with the " + winningCard.toString());
+                    System.out.println("Tricks won: " + winningTeam.getTricksWon());
                 }
+
+                //Signal that trump suit was broken -> can now be played
+                if (game.currentTrick.getHand().stream().anyMatch(card -> card.getSUIT().equals(game.trumpSuit.toString()))) {
+                    game.breakFlag.set(true);
+                }
+
                 //Reset trick hand
                 game.currentTrick.dropHand();
             } while (playerArray[0].getHand().getHandSize() > gameDesc.getMinHandSize());

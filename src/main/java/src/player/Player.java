@@ -21,6 +21,7 @@ public abstract class Player {
     private Hand hand = null;
     private Bid bid;
     private Predicate<Card> canBePlayed;
+    private Team team;
 
     Player(int playerNumber, Predicate<Card> canBePlayed) {
         this.playerNumber = playerNumber;
@@ -90,5 +91,13 @@ public abstract class Player {
 
     public void setBid(Bid bid) {
         this.bid = bid;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
 }

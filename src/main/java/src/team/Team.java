@@ -15,6 +15,13 @@ public class Team {
         this.teamNumber = teamNumber;
         score = 0;
         tricksWon = 0;
+        setPlayers(players);
+    }
+
+    private void setPlayers(Player[] players) {
+        for (Player player: players) {
+            player.setTeam(this);
+        }
     }
 
     public void printTeam() {
