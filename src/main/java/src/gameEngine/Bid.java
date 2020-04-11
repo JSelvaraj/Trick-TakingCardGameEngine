@@ -3,10 +3,11 @@ package src.gameEngine;
 /**
  * Object to represent a bid
  */
-public class Bid {
+public class Bid{
 
     private boolean doubling;
     private String suit;
+    //Negative if pass
     private int bidValue;
     private boolean blind;
 
@@ -33,5 +34,21 @@ public class Bid {
 
     public boolean isBlind() {
         return blind;
+    }
+
+    public void setDoubling(boolean doubling) {
+        this.doubling = doubling;
+    }
+
+    public void setSuit(String suit) {
+        this.suit = suit;
+    }
+
+    public void setBidValue(int bidValue) {
+        this.bidValue = bidValue;
+    }
+
+    public void setBlind(boolean blind) {
+        this.blind = blind;
     }
 }

@@ -1,21 +1,21 @@
 package src.gameEngine;
 
-import src.team.Team;
-
-import java.util.ArrayList;
+import src.player.Player;
 
 public class PotentialBid {
     String bidSuit;
     String bidInput;
     int currentPlayer;
-    ArrayList<Team> teams;
+    Player[] players;
+    Bid adjustedHighestBid;
 
 
-    public PotentialBid(String bidSuit, String bidInput, int currentPlayer, ArrayList<Team> teams) {
+    public PotentialBid(String bidSuit, String bidInput, int currentPlayer, Player[] players, Bid adjustedHighestBid) {
         this.bidSuit = bidSuit;
         this.bidInput = bidInput;
         this.currentPlayer = currentPlayer;
-        this.teams = teams;
+        this.players = players;
+        this.adjustedHighestBid = adjustedHighestBid;
     }
 
     public String getBidSuit() {
@@ -30,7 +30,11 @@ public class PotentialBid {
         return currentPlayer;
     }
 
-    public ArrayList<Team> getTeams() {
-        return teams;
+    public Player[] getPlayers() {
+        return players;
+    }
+
+    public Bid getAdjustedHighestBid() {
+        return adjustedHighestBid;
     }
 }

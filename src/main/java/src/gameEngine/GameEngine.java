@@ -36,7 +36,9 @@ public class GameEngine {
     private Predicate<Card> validCard;
     private Predicate<Card> validLeadingCard;
     private IntFunction<Integer> nextPlayerIndex;
+    //If you bid suits
     private boolean trumpSuitBid;
+    private Bid adjustedHighestBid;
 
     private ArrayList<Team> teams = new ArrayList<>();
 
@@ -268,7 +270,19 @@ public class GameEngine {
         System.out.println("-----------------------------------");
         for (int i = 0; i < players.length; i++) {
             //Adds the bids (checks they are valid in other class)
-            players[currentPlayer].setBid(players[currentPlayer].makeBid(this.desc.getValidBid(), trumpSuitBid, getTeams()));
+            Bid bid = players[currentPlayer].makeBid(this.desc.getValidBid(), trumpSuitBid, players, adjustedHighestBid);
+            if (bid.isDoubling()) {
+                getAdjustedHighestBid().setBidValue(getAdjustedHighestBid().getBidValue()*2);
+            }
+            else {
+                if (bid.getBidValue() >= 0) {
+                    if (trumpSuitBid) {
+                        getAdjustedHighestBid().setSuit(bid.getSuit());
+                    }
+                    getAdjustedHighestBid().setBidValue(bid.getBidValue());
+                }
+            }
+            players[currentPlayer].setBid(bid);
             broadcastBids(players[currentPlayer].getBid(), currentPlayer, players);
             currentPlayer = this.nextPlayerIndex.apply(currentPlayer);
         }
@@ -412,5 +426,13 @@ public class GameEngine {
 
     public ArrayList<Team> getTeams() {
         return teams;
+    }
+
+    public Bid getAdjustedHighestBid() {
+        return adjustedHighestBid;
+    }
+
+    public void setAdjustedHighestBid(Bid adjustedHighestBid) {
+        this.adjustedHighestBid = adjustedHighestBid;
     }
 }

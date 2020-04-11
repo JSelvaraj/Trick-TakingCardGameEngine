@@ -5,13 +5,11 @@ import org.json.JSONObject;
 import src.gameEngine.Bid;
 import src.gameEngine.PotentialBid;
 import src.gameEngine.SpecialBid;
+import src.player.Player;
+import src.team.Team;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 /**
@@ -31,8 +29,9 @@ public class validBids {
         boolean ascendingBid = false;
         boolean canPass = false;
         boolean canDouble = false;
+        boolean canRedouble = false;
         JSONArray suitBidRank;
-        String[] suitBidRankStr;
+        HashMap<String, Integer> suitBidRankStr = new HashMap<>();
         if (!bidObject.isNull("trumpSuitBid")) {
             trumpSuitBid = bidObject.getBoolean("trumpSuitBid");
         }
@@ -41,19 +40,18 @@ public class validBids {
         }
         if (!bidObject.isNull("suitBidRank")) {
             suitBidRank = bidObject.getJSONArray("suitBidRank");
-            suitBidRankStr = new String[suitBidRank.length()];
-            Iterator<Object> iterator = suitBidRank.iterator();
-            int counter = 0;
-            while(iterator.hasNext()) {
-                suitBidRankStr[counter] = (String) iterator.next();
-                counter++;
+            for (int i = 0; i < suitBidRank.length(); i++) {
+                suitBidRankStr.put((String) suitBidRank.get(i), i);
             }
         }
         if (!bidObject.isNull("canPass")) {
             trumpSuitBid = bidObject.getBoolean("canPass");
         }
         if (!bidObject.isNull("canDouble")) {
-            ascendingBid = bidObject.getBoolean("canDouble");
+            canDouble = bidObject.getBoolean("canDouble");
+        }
+        if (!bidObject.isNull("canRedouble")) {
+            canRedouble = bidObject.getBoolean("canRedouble");
         }
         if (minBid > maxBid) {
             throw new IllegalArgumentException("Minimum bid can't be greater than maximum bid");
@@ -63,21 +61,100 @@ public class validBids {
         return( (potentialBid) -> {
             String bidValue = potentialBid.getBidInput();
             String bidSuit = potentialBid.getBidSuit();
+            Player[] players = potentialBid.getPlayers();
+            int currentPlayerIndex = potentialBid.getCurrentPlayer();
+            Bid adjustedHighestBid = potentialBid.getAdjustedHighestBid();
+            Player currentPlayer = players[currentPlayerIndex];
+            Team currentTeam = currentPlayer.getTeam();
+            Team oppositionTeam = players[(currentPlayerIndex + 1) % players.length].getTeam();
+            Bid oppHighestBid = oppositionTeam.getHighestNormalBid();
+            Bid currHighestBid = currentTeam.getHighestNormalBid();
+
             if (bidValue.equals("d")) {
+                //Check if doubling is allowed
                 if (canDouble) {
-                    
+                    //Check for an existing double
+                    if (oppHighestBid != null && oppHighestBid.isDoubling()) {
+                        if (canRedouble) {
+                            //Current team's bid is the original bid that was doubled - check if redoubling is within bounds
+                            //Check there is an original bid to redouble
+                            if (currHighestBid != null) {
+                                return currHighestBid.getBidValue() * 2 <= maxBid;
+                            }
+                            else {
+                                return false;
+                            }
+                        }
+                        else {
+                            //Redoubling not allowed - invalid bid
+                            return false;
+                        }
+                    }
+                    //Check if there is an existing bid to double
+                    if (oppHighestBid != null) {
+                        //Check if a doubled bid is in bounds
+                        return currHighestBid.getBidValue() * 2 <= maxBid;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+            }
+            try {
+                Integer.parseInt(bidValue);
+            }
+            catch( Exception e ) {
+                //Input is not a 'd' or an integer
+                return false;
+            }
+            int bidValueInt = Integer.parseInt(bidValue);
+            //Check for input is pass
+            if (bidValueInt < 0) {
+                //Check if pass allowed
+                if (canPass) {
+                    return true;
                 }
                 else {
                     return false;
                 }
             }
-            if (finalTrumpSuitBid) {
-
-                return true;
+            //Check if bids contain suits
+            if (trumpSuitBid) {
+                if (ascendingBid) {
+                    //Case that no bids exist yet
+                    if (currHighestBid == null && oppHighestBid == null) {
+                        return bidValueInt <= maxBid && bidValueInt >= minBid && suitBidRankStr.containsKey(bidSuit);
+                    }
+                    else {
+                        //Check bid value is higher
+                        if (bidValueInt > adjustedHighestBid.getBidValue()) {
+                            return true;
+                        }
+                        else if (bidValueInt == adjustedHighestBid.getBidValue() && suitBidRankStr.get(adjustedHighestBid.getSuit()) < suitBidRank.get(suitBidRank) ) {
+                            return true;
+                        }
+                    }
+                }
+                //If not ascending bid
+                else {
+                    return bidValueInt <= maxBid && bidValueInt >= minBid && suitBidRankStr.containsKey(bidSuit);
+                }
             }
             else {
-                int bidValueInt = Integer.parseInt(bidValue);
-                return minBid <= bidValueInt && bidValueInt <= maxBid;
+                if (ascendingBid) {
+                    //Case that no bids exist yet
+                    if (currHighestBid == null && oppHighestBid == null) {
+                        return bidValueInt <= maxBid && bidValueInt >= minBid;
+                    }
+                    //Check bid value is higher
+                    else {
+                        return bidValueInt <= maxBid && bidValueInt > adjustedHighestBid.getBidValue();
+                    }
+                }
+                //If not ascending bid - only bounds
+                else {
+                    return bidValueInt <= maxBid && bidValueInt >= minBid;
+                }
             }
         });
     }

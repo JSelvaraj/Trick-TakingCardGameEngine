@@ -65,7 +65,7 @@ public abstract class Player {
 
     public abstract void broadcastPlay(Card card, int playerNumber);
 
-    public abstract Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ArrayList<Team> teams);
+    public abstract Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, Player[] players, Bid adjustedHighestBid);
 
     public Predicate<Card> getCanBePlayed() {
         return canBePlayed;

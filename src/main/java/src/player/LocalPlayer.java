@@ -139,7 +139,7 @@ public class LocalPlayer extends Player {
      * @return new bid
      */
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ArrayList<Team> teams) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, Player[] players, Bid adjustedHighestBid) {
         System.out.print(this.colour);
         System.out.println("-------------------------------------");
         System.out.println("-------------------------------------");
@@ -169,15 +169,15 @@ public class LocalPlayer extends Player {
                 Scanner scanner = new Scanner(System.in);
                 String[] bidInfoForFunction = {bidInput, bidSuit};
                 do {
-                    System.out.println("Enter your bid: (enter a negative int to pass, 'd' to double - if these are valid options)");
+                    System.out.println("Enter your bid: (enter a negative int to pass, 'd' to double/redouble - if these are valid options)");
                     bidSuit = null;
                     bidInput = scanner.next();
 
                     if (trumpSuitBid && !(bidInput.equals("d")) && Integer.parseInt(bidInput) > -1) {
-                        System.out.println("Enter your trump suit ('n' for NO TRUMP)");
+                        System.out.println("Enter your trump suit ('NO TRUMP' for no trump)");
                         bidSuit = scanner.next();
                     }
-                } while (!validBid.test(new PotentialBid(bidSuit, bidInput, this.getPlayerNumber(), teams)));
+                } while (!validBid.test(new PotentialBid(bidSuit, bidInput, this.getPlayerNumber(), players, adjustedHighestBid)));
                 break;
         }
         System.out.println(ANSI_RESET);
@@ -188,7 +188,11 @@ public class LocalPlayer extends Player {
         else {
             finalBidInput = Integer.parseInt(bidInput);
         }
-        return new Bid(doubling, bidSuit, finalBidInput, bidBlind);
+        Bid finalBid = new Bid(doubling, bidSuit, finalBidInput, bidBlind);
+        if (finalBidInput > 0 || doubling) {
+            this.getTeam().setHighestNormalBid(finalBid);
+        }
+        return finalBid;
     }
 
 
