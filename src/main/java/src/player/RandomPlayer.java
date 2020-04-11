@@ -3,6 +3,7 @@ package src.player;
 import src.card.Card;
 import src.gameEngine.Bid;
 import src.gameEngine.Hand;
+import src.gameEngine.PotentialBid;
 import src.rdmEvents.RdmEvent;
 import src.rdmEvents.Swap;
 
@@ -41,13 +42,13 @@ public class RandomPlayer extends Player {
     }
 
     @Override
-    public Bid makeBid(IntPredicate validBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, Player[] players, Bid adjustedHighestBid) {
         int handSize = super.getHand().getHandSize();
         int bid;
         do {
             bid = random.nextInt(handSize);
-        } while (!validBid.test(bid));
-        return new Bid(bid, true);
+        } while (!validBid.test(new PotentialBid(null, Integer.toString(bid), this.getPlayerNumber(), players, adjustedHighestBid)));
+        return new Bid(false, null, bid, true);
     }
 
     @Override
