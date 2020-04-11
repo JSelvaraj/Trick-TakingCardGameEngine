@@ -123,9 +123,12 @@ public class NetworkPlayer extends Player {
     public void broadcastBid(Bid bid, int playerNumber) {
         JSONObject json = new JSONObject();
         json.put("type", "bid");
+        json.put("doubling", bid.isDoubling());
+        if (bid.getSuit() != null) {
+            json.put("suit", bid.getSuit());
+        }
         json.put("value", bid.getBidValue());
         json.put("blindBid", bid.isBlind());
-        json.put("playerIndex", playerNumber);
         try {
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8));
             out.write(json.toString());
