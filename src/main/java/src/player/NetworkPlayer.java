@@ -8,6 +8,7 @@ import src.exceptions.InvalidBidException;
 import src.exceptions.InvalidPlayerMoveException;
 import src.gameEngine.Bid;
 import src.gameEngine.Hand;
+import src.gameEngine.PotentialBid;
 import src.rdmEvents.Swap;
 
 import java.io.BufferedWriter;
@@ -135,7 +136,7 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public Bid makeBid(IntPredicate validBid) { //TODO allow passing
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, Player[] players, Bid adjustedHighestBid) {
         JsonElement msg = null;
         try {
             JsonStreamParser reader = new JsonStreamParser(new InputStreamReader(playerSocket.getInputStream()));
@@ -149,13 +150,25 @@ public class NetworkPlayer extends Player {
         if (!type.equals("bid")) {
             throw new InvalidPlayerMoveException();
         }
-        //TODO take suit into account
-        int value = bidEvent.getInt("value");
-        boolean blind = bidEvent.optBoolean("blind", false);
-        if (!validBid.test(value)) {
+        Bid bid;
+        String value;
+        String suit = null;
+        boolean blind;
+        boolean doubling = bidEvent.optBoolean("doubling", false);
+        if (doubling) {
+            bid =  new Bid(true, null,0,false);
+            value = "d";
+        }
+        else {
+            suit = bidEvent.optString("suit", null);
+            int valueInt = bidEvent.getInt("value");
+            blind = bidEvent.optBoolean("blindBid", false);
+            bid = new Bid(false,suit,valueInt,blind);
+            value = Integer.toString(valueInt);
+        }
+        if (!validBid.test(new PotentialBid(suit, value, this.getPlayerNumber(), players, adjustedHighestBid))) {
             throw new InvalidBidException();
         }
-        return new Bid(value, blind);
-
+        return bid;
     }
 }

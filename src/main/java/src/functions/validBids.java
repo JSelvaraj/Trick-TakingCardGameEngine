@@ -45,7 +45,7 @@ public class validBids {
             }
         }
         if (!bidObject.isNull("canPass")) {
-            trumpSuitBid = bidObject.getBoolean("canPass");
+            canPass = bidObject.getBoolean("canPass");
         }
         if (!bidObject.isNull("canDouble")) {
             canDouble = bidObject.getBoolean("canDouble");
@@ -61,6 +61,7 @@ public class validBids {
         boolean finalAscendingBid = ascendingBid;
         boolean finalCanDouble = canDouble;
         boolean finalCanRedouble = canRedouble;
+        boolean finalCanPass = canPass;
         return( (potentialBid) -> {
             String bidValue = potentialBid.getBidInput();
             String bidSuit = potentialBid.getBidSuit();
@@ -114,7 +115,7 @@ public class validBids {
             //Check for input is pass
             if (bidValueInt < 0) {
                 //Check if pass allowed
-                if (canPass) {
+                if (finalCanPass) {
                     return true;
                 }
                 else {
