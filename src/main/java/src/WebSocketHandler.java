@@ -3,14 +3,10 @@ package src;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
+import com.google.gson.JsonPrimitive;
 import org.java_websocket.WebSocket;
-import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ClientHandshake;
-import org.java_websocket.handshake.ServerHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -23,11 +19,7 @@ import src.player.LocalPlayer;
 import src.player.RandomPlayer;
 
 import java.io.File;
-
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import java.util.Objects;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -35,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class WebSocketHandler extends WebSocketServer {
     private AtomicBoolean discoveringGames = new AtomicBoolean(false);
     private static String LOCATION = "ws://localhost:8081";
+    private static final int PORT = 9091;
 
     public WebSocketHandler(InetSocketAddress address) {
         super(address);
@@ -43,8 +36,8 @@ public class WebSocketHandler extends WebSocketServer {
 
 
 
-    public static void main(String[] args) throws URISyntaxException {
-        InetSocketAddress home = new InetSocketAddress(9091);
+    public static void main(String[] args) {
+        InetSocketAddress home = new InetSocketAddress(PORT);
         WebSocketHandler connection = new WebSocketHandler(home);
         connection.start();
         System.out.println("Done");
@@ -71,39 +64,36 @@ public class WebSocketHandler extends WebSocketServer {
         switch (type) {
             case "DiscoverGame":
                 TreeSet<String> beacons;
-                discoveringGames.set(true);
-                while (discoveringGames.get()) {
-                    beacons = DiscoverGames.search();
-                    JsonArray array = new JsonArray();
-                    for (String beacon : beacons) {
-                        array.add(beacon);
-                    }
-                    JsonObject object = new JsonObject();
-                    object.add("beacons", array);
-                    conn.send(object.getAsString());
+                beacons = DiscoverGames.search();
+                JsonArray array = new JsonArray();
+                for (String beacon : beacons) {
+                    System.out.println(beacon);
+                    array.add(beacon);
                 }
-                break;
-            case "StopDiscoverGames":
-                discoveringGames.set(false);
+                JsonObject discoverGamesResponse = new JsonObject();
+                discoverGamesResponse.add("type", new JsonPrimitive("DiscoverGame"));
+                discoverGamesResponse.add("beacons", array);
+                System.out.println("Object: " + discoverGamesResponse.toString());
+                conn.send(discoverGamesResponse.toString());
                 break;
             case "GetGameList":
                 File folder = new File("Games/");
                 JSONObject object = new JSONObject();
-                JSONArray array = new JSONArray();
+                JSONArray gameListArray = new JSONArray();
                 for (File game : Objects.requireNonNull(folder.listFiles())) { // iterates through the Games folder to get all game descriptions
                     JSONObject gameDesc = Parser.readJSONFile(game.getPath());
                     JSONObject gameDescAndPath = new JSONObject();
                     gameDescAndPath.put("path", game.getPath());
                     gameDescAndPath.put("gamedesc", gameDesc);
-                    array.put(gameDescAndPath);
+                    gameListArray.put(gameDescAndPath);
                 }
                 object.put("type", "GetGameList");
-                object.put("games", array);
+                object.put("games", gameListArray);
                 conn.send(object.toString());
                 break;
             case "HostGame":
                 String path = request.get("gamepath").getAsString();
-                Thread thread = new Thread(new HostRunner(new LocalPlayer(), request.get("port").getAsInt(), path));
+                Thread thread = new Thread(new HostRunner(new LocalPlayer(), 0, path)); //local port as 0 means its assigned at runtime by system.
                 thread.start();
                 for (int i = 0; i < request.get("aiplayers").getAsInt(); i++) {
                     System.out.println("AI started");
@@ -147,6 +137,7 @@ public class WebSocketHandler extends WebSocketServer {
 
     @Override
     public void onStart() {
+        System.out.println("Server Started \nwaiting for connection...");
 
     }
 }
