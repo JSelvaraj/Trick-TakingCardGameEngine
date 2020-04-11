@@ -4,12 +4,14 @@ import src.card.Card;
 import src.deck.Deck;
 import src.functions.handFunctions;
 import src.gameEngine.Bid;
+import src.gameEngine.PotentialBid;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -37,7 +39,7 @@ public class GameDesc {
     private final String trickLeader;
     //Bidding functions
     private boolean bidding;
-    private IntPredicate validBid;
+    private Predicate<PotentialBid> validBid;
     private BiFunction<Bid, Integer, Integer> evaluateBid;
     private Supplier<Integer> getHandSize;
     private int minHandSize;
@@ -177,11 +179,11 @@ public class GameDesc {
         return RANKORDER;
     }
 
-    public IntPredicate getValidBid() {
+    public Predicate<PotentialBid> getValidBid() {
         return validBid;
     }
 
-    public void setValidBid(IntPredicate validBid) {
+    public void setValidBid(Predicate<PotentialBid> validBid) {
         this.validBid = validBid;
     }
 

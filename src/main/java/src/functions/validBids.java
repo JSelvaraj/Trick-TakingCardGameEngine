@@ -3,13 +3,16 @@ package src.functions;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import src.gameEngine.Bid;
+import src.gameEngine.PotentialBid;
 import src.gameEngine.SpecialBid;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
+import java.util.function.Predicate;
 
 /**
  * Creates custom functions based on the game description rules that describe how bids work - validity and scoring.
@@ -21,12 +24,15 @@ public class validBids {
      *
      * @return Predicate that will return true if the given bid is in [minBid, maxBid]
      */
-    public static BiFunction<String, String, Boolean> isValidBidValue(JSONObject bidObject) {
+    public static Predicate<PotentialBid> isValidBidValue(JSONObject bidObject) {
         int minBid = bidObject.getInt("minBid");
         int maxBid = bidObject.getInt("maxBid");
         boolean trumpSuitBid = false;
-        boolean ascendingBid;
+        boolean ascendingBid = false;
+        boolean canPass = false;
+        boolean canDouble = false;
         JSONArray suitBidRank;
+        String[] suitBidRankStr;
         if (!bidObject.isNull("trumpSuitBid")) {
             trumpSuitBid = bidObject.getBoolean("trumpSuitBid");
         }
@@ -35,20 +41,43 @@ public class validBids {
         }
         if (!bidObject.isNull("suitBidRank")) {
             suitBidRank = bidObject.getJSONArray("suitBidRank");
+            suitBidRankStr = new String[suitBidRank.length()];
+            Iterator<Object> iterator = suitBidRank.iterator();
+            int counter = 0;
+            while(iterator.hasNext()) {
+                suitBidRankStr[counter] = (String) iterator.next();
+                counter++;
+            }
+        }
+        if (!bidObject.isNull("canPass")) {
+            trumpSuitBid = bidObject.getBoolean("canPass");
+        }
+        if (!bidObject.isNull("canDouble")) {
+            ascendingBid = bidObject.getBoolean("canDouble");
         }
         if (minBid > maxBid) {
             throw new IllegalArgumentException("Minimum bid can't be greater than maximum bid");
         }
 
         boolean finalTrumpSuitBid = trumpSuitBid;
-        return( (bidInput, bidSuit) -> {
+        return( (potentialBid) -> {
+            String bidValue = potentialBid.getBidInput();
+            String bidSuit = potentialBid.getBidSuit();
+            if (bidValue.equals("d")) {
+                if (canDouble) {
+                    
+                }
+                else {
+                    return false;
+                }
+            }
             if (finalTrumpSuitBid) {
 
                 return true;
             }
             else {
-                int bidValue = Integer.parseInt(bidInput);
-                return minBid <= bidValue && bidValue <= maxBid;
+                int bidValueInt = Integer.parseInt(bidValue);
+                return minBid <= bidValueInt && bidValueInt <= maxBid;
             }
         });
     }

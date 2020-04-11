@@ -3,6 +3,7 @@ package src.player;
 import src.card.Card;
 import src.gameEngine.Bid;
 import src.gameEngine.Hand;
+import src.gameEngine.PotentialBid;
 import src.rdmEvents.RdmEvent;
 import src.rdmEvents.Swap;
 import src.team.Team;
@@ -137,7 +138,7 @@ public class LocalPlayer extends Player {
      * @return new bid
      */
     @Override
-    public Bid makeBid(BiFunction<String, String, Boolean> validBid, boolean trumpSuitBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, Bid[] bidTable) {
         System.out.print(this.colour);
         System.out.println("-------------------------------------");
         System.out.println("-------------------------------------");
@@ -165,16 +166,17 @@ public class LocalPlayer extends Player {
                 bidBlind = false;
             case 2:
                 Scanner scanner = new Scanner(System.in);
+                String[] bidInfoForFunction = {bidInput, bidSuit};
                 do {
                     System.out.println("Enter your bid: (enter a negative int to pass, 'd' to double - if these are valid options)");
                     bidSuit = null;
                     bidInput = scanner.next();
 
-                    if (trumpSuitBid && !(bidInput.equals("p")) && !(bidInput.equals("d"))) {
+                    if (trumpSuitBid && !(bidInput.equals("d")) && Integer.parseInt(bidInput) > -1) {
                         System.out.println("Enter your trump suit ('n' for NO TRUMP)");
                         bidSuit = scanner.next();
                     }
-                } while (!validBid.apply(bidInput, bidSuit));
+                } while (!validBid.test(new PotentialBid(bidSuit, bidInput, bidTable, this.getPlayerNumber())));
                 break;
         }
         System.out.println(ANSI_RESET);
