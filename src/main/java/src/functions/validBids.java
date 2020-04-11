@@ -58,6 +58,9 @@ public class validBids {
         }
 
         boolean finalTrumpSuitBid = trumpSuitBid;
+        boolean finalAscendingBid = ascendingBid;
+        boolean finalCanDouble = canDouble;
+        boolean finalCanRedouble = canRedouble;
         return( (potentialBid) -> {
             String bidValue = potentialBid.getBidInput();
             String bidSuit = potentialBid.getBidSuit();
@@ -72,10 +75,10 @@ public class validBids {
 
             if (bidValue.equals("d")) {
                 //Check if doubling is allowed
-                if (canDouble) {
+                if (finalCanDouble) {
                     //Check for an existing double
                     if (oppHighestBid != null && oppHighestBid.isDoubling()) {
-                        if (canRedouble) {
+                        if (finalCanRedouble) {
                             //Current team's bid is the original bid that was doubled - check if redoubling is within bounds
                             //Check there is an original bid to redouble
                             if (currHighestBid != null) {
@@ -119,8 +122,8 @@ public class validBids {
                 }
             }
             //Check if bids contain suits
-            if (trumpSuitBid) {
-                if (ascendingBid) {
+            if (finalTrumpSuitBid) {
+                if (finalAscendingBid) {
                     //Case that no bids exist yet
                     if (currHighestBid == null && oppHighestBid == null) {
                         return bidValueInt <= maxBid && bidValueInt >= minBid && suitBidRankStr.containsKey(bidSuit);
@@ -130,8 +133,11 @@ public class validBids {
                         if (bidValueInt > adjustedHighestBid.getBidValue()) {
                             return true;
                         }
-                        else if (bidValueInt == adjustedHighestBid.getBidValue() && suitBidRankStr.get(adjustedHighestBid.getSuit()) < suitBidRank.get(suitBidRank) ) {
+                        else if (bidValueInt == adjustedHighestBid.getBidValue() && suitBidRankStr.get(adjustedHighestBid.getSuit()) < suitBidRankStr.get(bidSuit)) {
                             return true;
+                        }
+                        else {
+                            return false;
                         }
                     }
                 }
@@ -141,7 +147,7 @@ public class validBids {
                 }
             }
             else {
-                if (ascendingBid) {
+                if (finalAscendingBid) {
                     //Case that no bids exist yet
                     if (currHighestBid == null && oppHighestBid == null) {
                         return bidValueInt <= maxBid && bidValueInt >= minBid;
