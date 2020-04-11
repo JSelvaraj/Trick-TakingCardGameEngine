@@ -31,12 +31,12 @@ public class GameEngine {
     private AtomicBoolean breakFlag; // if the trump/hearts are broken
     //Stores the scores/metrics of the game
     private int handsPlayed = 0;
-    private Bid[] bidTable;
     private List<Trick> trickHistory;
     //Predicate functions used in determining if card moves are valid
     private Predicate<Card> validCard;
     private Predicate<Card> validLeadingCard;
     private IntFunction<Integer> nextPlayerIndex;
+    private boolean trumpSuitBid;
 
     private ArrayList<Team> teams = new ArrayList<>();
 
@@ -60,10 +60,8 @@ public class GameEngine {
         this.validLeadingCard = validCards.getValidLeadingCardPredicate(desc.getLeadingCardForEachTrick(), this.trumpSuit, breakFlag);
         this.validCard = validCards.getValidCardPredicate("trick", this.trumpSuit, this.currentTrick, this.validLeadingCard);
         this.nextPlayerIndex = PlayerIncrementer.generateNextPlayerFunction(desc.isDEALCARDSCLOCKWISE(), desc.getNUMBEROFPLAYERS());
-        if (desc.isBidding()) {
-            bidTable = new Bid[this.desc.getNUMBEROFPLAYERS()];
-        }
         this.trickHistory = new LinkedList<>();
+        this.trumpSuitBid = desc.isTrumpSuitBid();
     }
 
     public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) {
@@ -214,7 +212,7 @@ public class GameEngine {
                     int teamBid = 0;
                     //Get collective team bids
                     for (Player player : team.getPlayers()) {
-                        teamBid += game.bidTable[player.getPlayerNumber()].getBidValue();
+                        teamBid += player.getBid().getBidValue();
                     }
                     Bid bid = new Bid(false, null, teamBid, false);
                     //Increase score of winning team based on bid scoring system (See validBids.java)
@@ -271,8 +269,8 @@ public class GameEngine {
         System.out.println("-----------------------------------");
         for (int i = 0; i < players.length; i++) {
             //Adds the bids (checks they are valid in other class)
-            bidTable[currentPlayer] = players[currentPlayer].makeBid(this.desc.getValidBid());
-            broadcastBids(bidTable[currentPlayer], currentPlayer, players);
+            players[currentPlayer].setBid(players[currentPlayer].makeBid(this.desc.getValidBid(), trumpSuitBid, getTeams()));
+            broadcastBids(players[currentPlayer].getBid(), currentPlayer, players);
             currentPlayer = this.nextPlayerIndex.apply(currentPlayer);
         }
     }
@@ -411,10 +409,6 @@ public class GameEngine {
 
     private Predicate<Card> getValidCard() {
         return validCard;
-    }
-
-    public Bid[] getBidTable() {
-        return bidTable;
     }
 
     public ArrayList<Team> getTeams() {

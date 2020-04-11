@@ -8,6 +8,7 @@ import src.rdmEvents.RdmEvent;
 import src.rdmEvents.Swap;
 import src.team.Team;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
@@ -138,7 +139,7 @@ public class LocalPlayer extends Player {
      * @return new bid
      */
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, Bid[] bidTable) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ArrayList<Team> teams) {
         System.out.print(this.colour);
         System.out.println("-------------------------------------");
         System.out.println("-------------------------------------");
@@ -176,7 +177,7 @@ public class LocalPlayer extends Player {
                         System.out.println("Enter your trump suit ('n' for NO TRUMP)");
                         bidSuit = scanner.next();
                     }
-                } while (!validBid.test(new PotentialBid(bidSuit, bidInput, bidTable, this.getPlayerNumber())));
+                } while (!validBid.test(new PotentialBid(bidSuit, bidInput, this.getPlayerNumber(), teams)));
                 break;
         }
         System.out.println(ANSI_RESET);
@@ -189,4 +190,7 @@ public class LocalPlayer extends Player {
         }
         return new Bid(doubling, bidSuit, finalBidInput, bidBlind);
     }
+
+
+
 }
