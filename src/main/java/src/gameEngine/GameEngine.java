@@ -282,6 +282,7 @@ public class GameEngine {
                 players[currentPlayer].getTeam().setHighestNormalBid(bid);
             }
             if (bid.isDoubling()) {
+                passCounter = 0;
                 if (getAdjustedHighestBid().isDoubling()) {
                     getAdjustedHighestBid().setDoubling(false);
                     getAdjustedHighestBid().setRedoubling(true);
@@ -294,6 +295,7 @@ public class GameEngine {
             }
             else {
                 if (bid.getBidValue() >= 0) {
+                    passCounter = 0;
                     if (getAdjustedHighestBid() == null) {
                         String suit = null;
                         if (trumpSuitBid) {

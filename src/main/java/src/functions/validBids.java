@@ -83,7 +83,6 @@ public class validBids {
                     //Check if there is an existing bid to double
                     if (adjustedHighestBid != null) {
                         //Check if a doubled bid is in bounds
-                        System.out.println("here");
                         return adjustedHighestBid.getBidValue() * 2 <= maxBid;
                     }
                     else {
