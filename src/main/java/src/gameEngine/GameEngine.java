@@ -126,6 +126,9 @@ public class GameEngine {
             }
             //Loop until trick has completed (all cards have been played)
             do {
+                if (gameDesc.getTrumpPickingMode().equals("bid")) {
+                    game.trumpSuit.replace(0, game.trumpSuit.length(), game.getAdjustedHighestBid().getSuit());
+                }
                 if (printMoves) {
                     System.out.println("Trump is " + game.trumpSuit.toString());
                 }
@@ -225,12 +228,6 @@ public class GameEngine {
             }
             if (gameDesc.getTrumpPickingMode().equals("predefined")) {
                 game.trumpSuit.replace(0, game.trumpSuit.length(), gameDesc.getTrumpIterator().next());
-            }
-            else if (gameDesc.getTrumpPickingMode().equals("bid")) {
-                game.trumpSuit.replace(0, game.trumpSuit.length(), game.getAdjustedHighestBid().getSuit());
-            }
-            else {
-                System.out.println("Trump picking mode invalid");
             }
 
             //Check if game needs balancing
