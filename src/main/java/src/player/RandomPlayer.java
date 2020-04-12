@@ -43,12 +43,12 @@ public class RandomPlayer extends Player {
     }
 
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, Player[] players, ContractBid adjustedHighestBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
         int handSize = super.getHand().getHandSize();
         int bid;
         do {
             bid = random.nextInt(handSize);
-        } while (!validBid.test(new PotentialBid(null, Integer.toString(bid), this.getPlayerNumber(), players, adjustedHighestBid)));
+        } while (!validBid.test(new PotentialBid(null, Integer.toString(bid), adjustedHighestBid)));
         return new Bid(false, null, bid, true);
     }
 

@@ -103,7 +103,7 @@ public class validBids {
                         if (bidValueInt > adjustedHighestBid.getBidValue()) {
                             return true;
                         }
-                        else return bidValueInt == adjustedHighestBid.getBidValue() && suitBidRankStr.get(adjustedHighestBid.getSuit()) > suitBidRankStr.get(bidSuit);
+                        else return bidValueInt == adjustedHighestBid.getBidValue() && suitBidRankStr.get(adjustedHighestBid.getSuit()) < suitBidRankStr.get(bidSuit);
                     }
                 }
                 //If not ascending bid

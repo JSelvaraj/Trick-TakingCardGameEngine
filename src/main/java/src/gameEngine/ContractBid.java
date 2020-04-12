@@ -14,11 +14,11 @@ public class ContractBid extends Bid {
     @Override
     public String toString() {
         return "ContractBid{" +
-                "redoubling=" + redoubling +
-                "doubling=" + super.isDoubling() +
-                "suit=" + super.getSuit() +
-                "value=" + super.getBidValue() +
-                "declarer=" + declarer +
+                ", redoubling=" + redoubling +
+                ", doubling=" + super.isDoubling() +
+                ", suit=" + super.getSuit() +
+                ", value=" + super.getBidValue() +
+                ", declarer=" + declarer +
                 '}';
     }
 
