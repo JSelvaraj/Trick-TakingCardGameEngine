@@ -8,6 +8,9 @@ import src.rdmEvents.RdmEvent;
 import src.rdmEvents.Swap;
 import src.team.Team;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.function.BiFunction;
@@ -154,30 +157,38 @@ public class LocalPlayer extends Player {
         boolean doubling = false;
 
         boolean bidBlind = true;
+
+        InputStreamReader r=new InputStreamReader(System.in);
+        BufferedReader br=new BufferedReader(r);
         System.out.println("Select Option:");
         System.out.println("    1. Bid with seeing cards");
         System.out.println("    2. Bid blind");
         while (option > 2 || option < 1) {
-            Scanner scanner = new Scanner(System.in);
-            option = scanner.nextInt();
+            Scanner scan = new Scanner(System.in);
+            option =  scan.nextInt();
         }
         switch (option) {
             case 1:
                 System.out.println("Current Hand: " + super.getHand().toString());
                 bidBlind = false;
             case 2:
-                Scanner scanner = new Scanner(System.in);
-                do {
-                    System.out.println("Enter your bid: (enter a negative int to pass, 'd' to double/redouble - if these are valid options)");
-                    bidSuit = null;
-                    bidInput = scanner.next();
+                try {
+                    do {
+                        System.out.println("Enter your bid: (enter a negative int to pass, 'd' to double/redouble - if these are valid options)");
+                        bidSuit = null;
+                        bidInput = br.readLine();
 
-                    if (trumpSuitBid && !(bidInput.equals("d")) && Integer.parseInt(bidInput) > -1) {
-                        System.out.println("Enter your trump suit ('NO TRUMP' for no trump)");
-                        bidSuit = scanner.next();
-                    }
-                } while (!validBid.test(new PotentialBid(bidSuit, bidInput, this.getPlayerNumber(), players, adjustedHighestBid)));
-                break;
+                        if (trumpSuitBid && bidInput.matches("\\d+")) {
+                            System.out.println("Enter your trump suit ('NO TRUMP' for no trump)");
+                            bidSuit = br.readLine();
+                        }
+                    } while (!validBid.test(new PotentialBid(bidSuit, bidInput, this.getPlayerNumber(), players, adjustedHighestBid)));
+                    break;
+                }
+                catch (IOException e) {
+                    System.out.println(e.getStackTrace());
+                    System.exit(0);
+                }
         }
         System.out.println(ANSI_RESET);
         int finalBidInput = 0;
@@ -187,11 +198,7 @@ public class LocalPlayer extends Player {
         else {
             finalBidInput = Integer.parseInt(bidInput);
         }
-        Bid finalBid = new Bid(doubling, bidSuit, finalBidInput, bidBlind);
-        if (finalBidInput > 0 || doubling) {
-            this.getTeam().setHighestNormalBid(finalBid);
-        }
-        return finalBid;
+        return new Bid(doubling, bidSuit, finalBidInput, bidBlind);
     }
 
 

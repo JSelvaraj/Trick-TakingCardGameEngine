@@ -9,6 +9,7 @@ import src.rdmEvents.RdmEvent;
 import src.rdmEvents.Swap;
 import src.team.Team;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;

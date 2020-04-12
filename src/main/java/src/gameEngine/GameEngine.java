@@ -38,7 +38,8 @@ public class GameEngine {
     private IntFunction<Integer> nextPlayerIndex;
     //If you bid suits
     private boolean trumpSuitBid;
-    private Bid adjustedHighestBid;
+    //Redoubling field set to true if the contract was a redoubling, the BidValue is the adjusted value based on any redoubling/doubling, bidSuit is the trumpSuit for the trick
+    private ContractBid adjustedHighestBid;
 
     private ArrayList<Team> teams = new ArrayList<>();
 
@@ -271,7 +272,17 @@ public class GameEngine {
         for (int i = 0; i < players.length; i++) {
             //Adds the bids (checks they are valid in other class)
             Bid bid = players[currentPlayer].makeBid(this.desc.getValidBid(), trumpSuitBid, players, adjustedHighestBid);
+            if (bid.getBidValue() >= 0 || bid.isDoubling()) {
+                players[currentPlayer].getTeam().setHighestNormalBid(bid);
+            }
             if (bid.isDoubling()) {
+                if (getAdjustedHighestBid().isDoubling()) {
+                    getAdjustedHighestBid().setDoubling(false);
+                    getAdjustedHighestBid().setRedoubling(true);
+                }
+                else {
+                    getAdjustedHighestBid().setDoubling(true);
+                }
                 getAdjustedHighestBid().setBidValue(getAdjustedHighestBid().getBidValue()*2);
             }
             else {
@@ -281,7 +292,7 @@ public class GameEngine {
                         if (trumpSuitBid) {
                             suit = bid.getSuit();
                         }
-                        setAdjustedHighestBid(new Bid(false, suit, bid.getBidValue(), false));
+                        setAdjustedHighestBid(new ContractBid(false, suit, bid.getBidValue(), false, false));
                         }
                     else {
                         if (trumpSuitBid) {
@@ -291,6 +302,7 @@ public class GameEngine {
                     }
                 }
             }
+            System.out.println(getAdjustedHighestBid());
             players[currentPlayer].setBid(bid);
             broadcastBids(players[currentPlayer].getBid(), currentPlayer, players);
             currentPlayer = this.nextPlayerIndex.apply(currentPlayer);
@@ -437,11 +449,11 @@ public class GameEngine {
         return teams;
     }
 
-    public Bid getAdjustedHighestBid() {
+    public ContractBid getAdjustedHighestBid() {
         return adjustedHighestBid;
     }
 
-    public void setAdjustedHighestBid(Bid adjustedHighestBid) {
+    public void setAdjustedHighestBid(ContractBid adjustedHighestBid) {
         this.adjustedHighestBid = adjustedHighestBid;
     }
 }
