@@ -287,6 +287,7 @@ public class GameEngine {
                     getAdjustedHighestBid().setDoubling(true);
                 }
                 getAdjustedHighestBid().setBidValue(getAdjustedHighestBid().getBidValue()*2);
+                getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
             }
             else {
                 if (bid.getBidValue() >= 0) {
@@ -295,13 +296,14 @@ public class GameEngine {
                         if (trumpSuitBid) {
                             suit = bid.getSuit();
                         }
-                        setAdjustedHighestBid(new ContractBid(false, suit, bid.getBidValue(), false, false));
+                        setAdjustedHighestBid(new ContractBid(false, suit, bid.getBidValue(), false, false, players[currentPlayer]));
                     }
                     else {
                         if (trumpSuitBid) {
                             getAdjustedHighestBid().setSuit(bid.getSuit());
                         }
                         getAdjustedHighestBid().setBidValue(bid.getBidValue());
+                        getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
                     }
                 }
                 else {

@@ -1,14 +1,14 @@
 package src.gameEngine;
 
+import src.player.Player;
+
 public class ContractBid extends Bid {
     boolean redoubling;
-    public ContractBid(boolean doubling, String suit, int bidValue, boolean blind, boolean redoubling) {
+    Player declarer;
+    public ContractBid(boolean doubling, String suit, int bidValue, boolean blind, boolean redoubling, Player declarer) {
         super(doubling, suit, bidValue, blind);
         this.redoubling = redoubling;
-    }
-
-    public boolean isRedoubling() {
-        return redoubling;
+        this.declarer = declarer;
     }
 
     @Override
@@ -18,10 +18,24 @@ public class ContractBid extends Bid {
                 "doubling=" + super.isDoubling() +
                 "suit=" + super.getSuit() +
                 "value=" + super.getBidValue() +
+                "declarer=" + declarer +
                 '}';
     }
 
+    public boolean isRedoubling() {
+        return redoubling;
+    }
+
+
     public void setRedoubling(boolean redoubling) {
         this.redoubling = redoubling;
+    }
+
+    public Player getDeclarer() {
+        return declarer;
+    }
+
+    public void setDeclarer(Player declarer) {
+        this.declarer = declarer;
     }
 }
