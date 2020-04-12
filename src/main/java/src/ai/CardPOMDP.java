@@ -126,4 +126,14 @@ public class CardPOMDP {
         return playedCard;
     }
 
+    private List<Card> validMoves(final GameObservation observation){
+        //The cards the player has.
+        List<Card> playerCards = observation.getPlayerObservations().get(playerNumber).getHasCards();
+        List<Card> validCards = playerCards.stream().filter((card -> validCardFunction.apply(observation.getCurrentTrick(), card))).collect(Collectors.toList());
+        if(validCards.size() == 0) {
+            validCards = playerCards;
+        }
+        return validCards;
+    }
+
 }
