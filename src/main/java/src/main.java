@@ -43,7 +43,7 @@ public class main {
         private int port;
     }
 
-    public static void main(String[] args) throws InvalidGameDescriptionException, InterruptedException {
+    public static void main(String[] args) {
         System.setProperty("java.net.preferIPv4Stack" , "false");
         CommandHost host = new CommandHost();
         CommandJoin join = new CommandJoin();
@@ -66,7 +66,7 @@ public class main {
                 if (host.broadcast) {
                     //TODO implement starting to broadcast.
                 } else {
-                    Thread thread = new Thread(new HostRunner(new RandomPlayer(), host.port, host.game, host.enableRandomEvents));
+                    Thread thread = new Thread(new HostRunner(new LocalPlayer(), host.port, host.game, host.enableRandomEvents));
                     thread.start();
                     System.out.println("Host Player1 started");
 

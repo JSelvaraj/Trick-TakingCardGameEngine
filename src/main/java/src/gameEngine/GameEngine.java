@@ -269,7 +269,9 @@ public class GameEngine {
         System.out.println("-----------------------------------");
         System.out.println("--------------BIDDING--------------");
         System.out.println("-----------------------------------");
-        for (int i = 0; i < players.length; i++) {
+        int originalCurrentPlayer = currentPlayer;
+        int passCounter = 0;
+        do {
             //Adds the bids (checks they are valid in other class)
             Bid bid = players[currentPlayer].makeBid(this.desc.getValidBid(), trumpSuitBid, players, adjustedHighestBid);
             if (bid.getBidValue() >= 0 || bid.isDoubling()) {
@@ -294,7 +296,7 @@ public class GameEngine {
                             suit = bid.getSuit();
                         }
                         setAdjustedHighestBid(new ContractBid(false, suit, bid.getBidValue(), false, false));
-                        }
+                    }
                     else {
                         if (trumpSuitBid) {
                             getAdjustedHighestBid().setSuit(bid.getSuit());
@@ -302,11 +304,26 @@ public class GameEngine {
                         getAdjustedHighestBid().setBidValue(bid.getBidValue());
                     }
                 }
+                else {
+                    passCounter += 1;
+                }
             }
             System.out.println(getAdjustedHighestBid());
             players[currentPlayer].setBid(bid);
             broadcastBids(players[currentPlayer].getBid(), currentPlayer, players);
             currentPlayer = this.nextPlayerIndex.apply(currentPlayer);
+        }
+        while (getBiddingEnd(players, currentPlayer, originalCurrentPlayer, passCounter));
+    }
+
+    public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter) {
+        //Bool that indicates at what condition the bidding is complete - TODO:get this from game description when added
+        String biddingEndCondition = "PASS";
+        if (biddingEndCondition.equals("PASS")) {
+            return passCounter != players.length - 1;
+        }
+        else {
+            return currentPlayer != originalPlayer;
         }
     }
 
