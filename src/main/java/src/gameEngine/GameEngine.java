@@ -306,11 +306,13 @@ public class GameEngine {
                     else {
                         if (trumpSuitBid) {
                             getAdjustedHighestBid().setSuit(bid.getSuit());
+                            if (!(getAdjustedHighestBid().getSuit().equals(bid.getSuit()))) {
+                                getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
+                            }
                         }
                         getAdjustedHighestBid().setRedoubling(false);
                         getAdjustedHighestBid().setDoubling(false);
                         getAdjustedHighestBid().setBidValue(bid.getBidValue());
-                        getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
                     }
                 }
                 else {
