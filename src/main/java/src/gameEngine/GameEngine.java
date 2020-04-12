@@ -226,6 +226,12 @@ public class GameEngine {
             if (gameDesc.getTrumpPickingMode().equals("predefined")) {
                 game.trumpSuit.replace(0, game.trumpSuit.length(), gameDesc.getTrumpIterator().next());
             }
+            else if (gameDesc.getTrumpPickingMode().equals("bid")) {
+                game.trumpSuit.replace(0, game.trumpSuit.length(), game.getAdjustedHighestBid().getSuit());
+            }
+            else {
+                System.out.println("Trump picking mode invalid");
+            }
 
             //Check if game needs balancing
             if (enableRandomEvents) {
