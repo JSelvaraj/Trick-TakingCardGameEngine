@@ -18,6 +18,7 @@ public class GameObservation implements Cloneable {
     private List<Card> currentTrick;
     private List<PlayerObservation> playerObservations;
     private List<Card> cardSequence;
+    private boolean done;
 
     public GameObservation(List<Card> deck, int playerCount, int initialHandSize) {
         round = 0;
@@ -29,6 +30,7 @@ public class GameObservation implements Cloneable {
         for (int i = 0; i < playerCount; i++) {
             playerObservations.add(new PlayerObservation(i, initialHandSize));
         }
+        this.done = false;
     }
 
     public GameObservation(GameObservation gameObservation) {
@@ -90,5 +92,13 @@ public class GameObservation implements Cloneable {
      */
     public boolean isPreviousHistory(GameObservation observation){
         return Collections.indexOfSubList(cardSequence, observation.cardSequence) == 0;
+    }
+
+    public boolean isDone() {
+        return done;
+    }
+
+    public void setDone(boolean done) {
+        this.done = done;
     }
 }
