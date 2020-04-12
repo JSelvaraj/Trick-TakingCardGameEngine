@@ -1,7 +1,5 @@
 package src.ai;
 
-import src.card.Card;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -48,13 +46,13 @@ public class POMCPTreeNode {
      * @param observation The observation of the game.
      * @return A node that matches the card sequence the best.
      */
-    public POMCPTreeNode findNode(GameObservation observation) {
+    public POMCPTreeNode findClosestNode(GameObservation observation) {
         if (!observation.isPreviousHistory(this.observation)) {
             return null;
         }
         for (POMCPTreeNode child : this.children) {
             if (observation.isPreviousHistory(child.getObservation())) {
-                return child.findNode(observation);
+                return child.findClosestNode(observation);
             }
         }
         return this;
