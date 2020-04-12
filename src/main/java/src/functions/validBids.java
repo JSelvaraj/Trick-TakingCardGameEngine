@@ -111,7 +111,6 @@ public class validBids {
                 if (finalAscendingBid) {
                     //Case that no bids exist yet
                     if (currHighestBid == null && oppHighestBid == null) {
-                        System.out.println("here");
                         return bidValueInt <= maxBid && bidValueInt >= minBid && suitBidRankStr.containsKey(bidSuit);
                     }
                     else {
@@ -119,7 +118,7 @@ public class validBids {
                         if (bidValueInt > adjustedHighestBid.getBidValue()) {
                             return true;
                         }
-                        else return bidValueInt == adjustedHighestBid.getBidValue() && suitBidRankStr.get(adjustedHighestBid.getSuit()) < suitBidRankStr.get(bidSuit);
+                        else return bidValueInt == adjustedHighestBid.getBidValue() && suitBidRankStr.get(adjustedHighestBid.getSuit()) > suitBidRankStr.get(bidSuit);
                     }
                 }
                 //If not ascending bid
