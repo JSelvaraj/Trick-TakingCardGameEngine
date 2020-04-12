@@ -46,6 +46,6 @@ class POMCPTreeNodeTest {
         GameObservation nonAddedObservation = new GameObservation(newObservation);
         //Make sure they aren't the same reference.
         assertNotSame(nonAddedObservation, newObservation);
-        assertEquals(root.getChildren().get(0), root.findNode(nonAddedObservation));
+        assertEquals(root.getChildren().get(0), root.findClosestNode(nonAddedObservation));
     }
 }
