@@ -133,9 +133,8 @@ public class LocalPlayer extends Player {
 
     @Override
     public void broadcastBid(Bid bid, int playerNumber) {
-//        if (!localPrinted) {
+        //TODO: Update so it communicates doubles, redoubles, and suits
         System.out.println("Player " + (playerNumber + 1) + " bid " + bid.getBidValue() + (bid.isBlind() ? " blind" : ""));
-//        }
     }
 
     /**
