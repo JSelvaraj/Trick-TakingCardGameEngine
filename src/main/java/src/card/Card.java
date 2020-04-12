@@ -62,6 +62,11 @@ public class Card {
         return Objects.hash(SUIT, RANK);
     }
 
+    public static Card fromJson(String card) {
+        JsonObject cardJson = new Gson().fromJson(card, JsonObject.class);
+        return new Card(cardJson.get("suit").getAsString(), cardJson.get("rank").getAsString());
+    }
+
 
 }
 

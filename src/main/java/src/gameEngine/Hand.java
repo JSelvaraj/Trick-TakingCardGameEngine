@@ -75,4 +75,8 @@ public class Hand {
     public void dropHand() {
         this.hand = new LinkedList<>();
     }
+
+    public void dropLast() {
+        this.hand.removeLast();
+    }
 }

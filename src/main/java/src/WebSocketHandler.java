@@ -15,6 +15,7 @@ import src.gameEngine.HostRunner;
 import src.gameEngine.PlayerRunner;
 import src.networking.DiscoverGames;
 import src.parser.Parser;
+import src.player.GUIPlayer;
 import src.player.LocalPlayer;
 import src.player.RandomPlayer;
 
@@ -46,15 +47,6 @@ public class WebSocketHandler extends WebSocketServer {
     }
 
 
-    @Override
-    public void onOpen(WebSocket conn, ClientHandshake handshake) {
-        System.out.println("Opened connection");
-    }
-
-    @Override
-    public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-        System.out.println("Connection closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " Reason: " + reason);
-    }
 
     @Override
     public void onMessage(WebSocket conn, String message) {
@@ -93,7 +85,7 @@ public class WebSocketHandler extends WebSocketServer {
                 break;
             case "HostGame":
                 String path = request.get("gamepath").getAsString();
-                Thread thread = new Thread(new HostRunner(new LocalPlayer(), 0, path)); //local port as 0 means its assigned at runtime by system.
+                Thread thread = new Thread(new HostRunner(new GUIPlayer(), 0, path, conn)); //local port as 0 means its assigned at runtime by system.
                 thread.start();
                 for (int i = 0; i < request.get("aiplayers").getAsInt(); i++) {
                     System.out.println("AI started");
@@ -129,6 +121,15 @@ public class WebSocketHandler extends WebSocketServer {
 
 
     }
+    @Override
+    public void onOpen(WebSocket conn, ClientHandshake handshake) {
+        System.out.println("Opened connection");
+    }
+
+    @Override
+    public void onClose(WebSocket conn, int code, String reason, boolean remote) {
+        System.out.println("Connection closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " Reason: " + reason);
+    }
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
@@ -137,7 +138,7 @@ public class WebSocketHandler extends WebSocketServer {
 
     @Override
     public void onStart() {
-        System.out.println("Server Started \nwaiting for connection...");
+        System.out.println("Server Started \nwaiting for connection on port: " + getPort() + "...");
 
     }
 }

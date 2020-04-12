@@ -15,6 +15,7 @@ import src.deck.Trick;
 import src.functions.PlayerIncrementer;
 import src.functions.validCards;
 import src.parser.GameDesc;
+import src.player.GUIPlayer;
 import src.player.LocalPlayer;
 import src.player.NetworkPlayer;
 import src.player.Player;
@@ -22,9 +23,7 @@ import src.rdmEvents.rdmEvent;
 import src.rdmEvents.rdmEventsManager;
 import src.team.Team;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -55,6 +54,7 @@ public class GameEngine extends WebSocketServer {
     //Starts as 1 in 10 chance;
     double rdmEventProb = 10;
     WebSocket webSocket;
+    static Object  getCardLock = new Object();
 
     /**
      * Set up game engine
@@ -62,7 +62,7 @@ public class GameEngine extends WebSocketServer {
      * @param desc game description
      */
     public GameEngine(GameDesc desc) {
-        this(desc, new InetSocketAddress("localhost", 8081));
+        this(desc, new InetSocketAddress("localhost", 0));
     }
 
     public GameEngine (GameDesc desc, InetSocketAddress address) {
@@ -243,8 +243,18 @@ public class GameEngine extends WebSocketServer {
 
     }
 
-    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, WebSocket webSocket ) {
+    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, WebSocket oldWebSocket ) throws InterruptedException {
         GameEngine game = new GameEngine(gameDesc);
+
+        game.start();
+        JsonObject gameSetup = new JsonObject();
+        gameSetup.add("type", new JsonPrimitive("gameplay"));
+        gameSetup.add("subtype", new JsonPrimitive("gameSetup"));
+        gameSetup.add("port", new JsonPrimitive(game.getPort()));
+        oldWebSocket.send(gameSetup.getAsString());
+
+
+
 
         assert playerArray.length == gameDesc.getNUMBEROFPLAYERS(); //TODO remove
 
@@ -285,8 +295,8 @@ public class GameEngine extends WebSocketServer {
 
             //Sends every player's hand to the GUI
             JsonObject jsonMessage = new JsonObject();
-            jsonMessage.add("type", new JsonPrimitive("gameplay"));
-            jsonMessage.add("subtype", new JsonPrimitive("playerhands"));
+//            jsonMessage.add("type", new JsonPrimitive("gameplay"));
+            jsonMessage.add("type", new JsonPrimitive("playerhands"));
             JsonObject jsonPlayers = new JsonObject();
             JsonArray jsonPlayersArray = new JsonArray();
             for (int i = 0; i < playerArray.length; i++) {
@@ -294,14 +304,14 @@ public class GameEngine extends WebSocketServer {
                 JsonObject jsonPlayer = new JsonObject();
                 JsonArray jsonCards = new JsonArray();
                 for (Card card: hand) {
-                    jsonCards.add(new Gson().fromJson(card.getJSON(), JsonObject.class));
+                    jsonCards.add(new Gson().fromJson(card.getJSON(), JsonObject.class)); //converts hand to JSON array of JSON objects
                 }
                 jsonPlayer.add("playerindex", new JsonPrimitive(i));
                 jsonPlayer.add("hand", jsonCards);
                 jsonPlayersArray.add(jsonPlayer);
             }
             jsonPlayers.add("players", jsonPlayersArray);
-            webSocket.send(jsonPlayers.getAsString());
+            game.webSocket.send(jsonPlayers.getAsString());
 
 
 
@@ -309,6 +319,20 @@ public class GameEngine extends WebSocketServer {
 
             if (gameDesc.isBidding()) {
                 game.getBids(currentPlayer, playerArray);
+
+                //Send bids to GUI
+                JsonObject bidsJson = new JsonObject();
+                bidsJson.add("type", new JsonPrimitive("bids"));
+                JsonArray bids = new JsonArray();
+                for (int i = 0; i < game.bidTable.length; i++) {
+                    JsonObject bidJson = new JsonObject();
+                    bidJson.add("playerindex", new JsonPrimitive(i));
+                    bidJson.add("bidvalue", new JsonPrimitive(game.bidTable[i].getBidValue()));
+                    bidJson.add("isblind:", new JsonPrimitive(game.bidTable[i].isBlind()));
+                    bids.add(bidJson);
+                }
+                bidsJson.add("bids", bids);
+                game.webSocket.send(bidsJson.getAsString());
             }
             if (printMoves) {
                 System.out.println("-----------------------------------");
@@ -334,7 +358,17 @@ public class GameEngine extends WebSocketServer {
                             rdmEventHappenedTRICK = true;
                         }
                     }
-                    game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
+                    if (playerArray[currentPlayer] instanceof GUIPlayer) {
+                        game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
+                        synchronized (getCardLock) {
+                            while(game.currentTrick.getHand().getLast().equals(null)) {
+                                getCardLock.wait();
+                            }
+                        }
+                    } else {
+                        game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
+
+                    }
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
 
                     //Send card played to GUI
@@ -343,7 +377,7 @@ public class GameEngine extends WebSocketServer {
                     cardPlayed.add("subtype", new JsonPrimitive("cardplayed"));
                     cardPlayed.add("playerindex", new JsonPrimitive(currentPlayer));
                     cardPlayed.add("card", new Gson().fromJson(game.currentTrick.get(i).getJSON(), JsonObject.class));
-                    webSocket.send(cardPlayed.getAsString());
+                    game.webSocket.send(cardPlayed.getAsString());
 
                     currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                 }
@@ -473,6 +507,7 @@ public class GameEngine extends WebSocketServer {
             currentPlayer = this.nextPlayerIndex.apply(currentPlayer);
         }
     }
+
 
 
     /**
@@ -636,26 +671,43 @@ public class GameEngine extends WebSocketServer {
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
-
+        System.out.println("Opened connection");
+        if (getConnections().size() == 0) {
+            this.webSocket = conn;
+        }
     }
 
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-
+        System.out.println("Connection closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " Reason: " + reason);
     }
+
 
     @Override
     public void onMessage(WebSocket conn, String message) {
+        JsonObject request = new Gson().fromJson(message, JsonObject.class);
+        switch(request.get("type").getAsString()) {
+            case "playcard":
+                synchronized (getCardLock) {
+                    currentTrick.dropLast();
+                    currentTrick.getCard(Card.fromJson(request.get("card").getAsString()));
+                    getCardLock.notifyAll();
+                }
+                break;
+        }
 
     }
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
-
+        ex.printStackTrace();
     }
 
     @Override
     public void onStart() {
+        System.out.println("Server Started \nwaiting for connection on port: " + getPort() + "...");
 
     }
+
+
 }
