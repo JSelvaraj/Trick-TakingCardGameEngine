@@ -276,10 +276,19 @@ public class GameEngine {
             }
             else {
                 if (bid.getBidValue() >= 0) {
-                    if (trumpSuitBid) {
-                        getAdjustedHighestBid().setSuit(bid.getSuit());
+                    if (getAdjustedHighestBid() == null) {
+                        String suit = null;
+                        if (trumpSuitBid) {
+                            suit = bid.getSuit();
+                        }
+                        setAdjustedHighestBid(new Bid(false, suit, bid.getBidValue(), false));
+                        }
+                    else {
+                        if (trumpSuitBid) {
+                            getAdjustedHighestBid().setSuit(bid.getSuit());
+                        }
+                        getAdjustedHighestBid().setBidValue(bid.getBidValue());
                     }
-                    getAdjustedHighestBid().setBidValue(bid.getBidValue());
                 }
             }
             players[currentPlayer].setBid(bid);

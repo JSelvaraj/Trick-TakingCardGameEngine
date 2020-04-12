@@ -168,7 +168,7 @@ public class Parser {
         if (trumpPickingMode.equals("fixed") && trumpSuit == null) {
             throw new InvalidGameDescriptionException("No trump suit specified with fixed trump mode.");
         }
-        //Seed for generator
+
         assert trumpPickingMode != null;
         Iterator<String> trumpIterator = null;
         if (trumpPickingMode.equals("predefined") && trumpOrdering != null) {
@@ -178,10 +178,11 @@ public class Parser {
 
         //Pass any parameters that main engine needs that are bidding specific.
         boolean trumpSuitBid = false;
-        if (!gameJSON.isNull("bid")) {
-            JSONObject bidObject = gameJSON.getJSONObject("bid");
-            trumpSuitBid = bidObject.getBoolean("trumpSuitBid");
+        JSONObject bidObject = gameJSON.optJSONObject("bid");
+        if (bidObject != null) {
+            trumpSuitBid = bidObject.optBoolean("trumpSuitBid", false);
         }
+
 
         GameDesc gameDesc = new GameDesc(name,
                 players,
@@ -205,8 +206,8 @@ public class Parser {
                 handSize,
                 trumpIterator, trumpSuitBid);
 
-        if (!gameJSON.isNull("bid")) {
-            JSONObject bidObject = gameJSON.getJSONObject("bid");
+        if (bidObject != null) {
+            bidObject = gameJSON.getJSONObject("bid");
             initBidding(bidObject, gameDesc);
         }
         return gameDesc;

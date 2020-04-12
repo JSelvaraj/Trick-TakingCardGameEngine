@@ -25,38 +25,27 @@ public class validBids {
     public static Predicate<PotentialBid> isValidBidValue(JSONObject bidObject) {
         int minBid = bidObject.getInt("minBid");
         int maxBid = bidObject.getInt("maxBid");
-        boolean trumpSuitBid = false;
-        boolean ascendingBid = false;
-        boolean canPass = false;
-        boolean canDouble = false;
-        boolean canRedouble = false;
+        boolean trumpSuitBid;
+        boolean ascendingBid;
+        boolean canPass;
+        boolean canDouble;
+        boolean canRedouble;
         JSONArray suitBidRank;
         HashMap<String, Integer> suitBidRankStr = new HashMap<>();
-        if (!bidObject.isNull("trumpSuitBid")) {
-            trumpSuitBid = bidObject.getBoolean("trumpSuitBid");
-        }
-        if (!bidObject.isNull("ascendingBid")) {
-            ascendingBid = bidObject.getBoolean("ascendingBid");
-        }
+        trumpSuitBid = bidObject.optBoolean("trumpSuitBid", false);
+        ascendingBid = bidObject.optBoolean("ascendingBid", false);
         if (!bidObject.isNull("suitBidRank")) {
             suitBidRank = bidObject.getJSONArray("suitBidRank");
             for (int i = 0; i < suitBidRank.length(); i++) {
                 suitBidRankStr.put((String) suitBidRank.get(i), i);
             }
         }
-        if (!bidObject.isNull("canPass")) {
-            canPass = bidObject.getBoolean("canPass");
-        }
-        if (!bidObject.isNull("canDouble")) {
-            canDouble = bidObject.getBoolean("canDouble");
-        }
-        if (!bidObject.isNull("canRedouble")) {
-            canRedouble = bidObject.getBoolean("canRedouble");
-        }
+        canPass = bidObject.optBoolean("canPass", false);
+        canDouble = bidObject.optBoolean("canDouble", false);
+        canRedouble = bidObject.optBoolean("canRedouble");
         if (minBid > maxBid) {
             throw new IllegalArgumentException("Minimum bid can't be greater than maximum bid");
         }
-
         boolean finalTrumpSuitBid = trumpSuitBid;
         boolean finalAscendingBid = ascendingBid;
         boolean finalCanDouble = canDouble;
@@ -115,12 +104,7 @@ public class validBids {
             //Check for input is pass
             if (bidValueInt < 0) {
                 //Check if pass allowed
-                if (finalCanPass) {
-                    return true;
-                }
-                else {
-                    return false;
-                }
+                return finalCanPass;
             }
             //Check if bids contain suits
             if (finalTrumpSuitBid) {
@@ -134,12 +118,7 @@ public class validBids {
                         if (bidValueInt > adjustedHighestBid.getBidValue()) {
                             return true;
                         }
-                        else if (bidValueInt == adjustedHighestBid.getBidValue() && suitBidRankStr.get(adjustedHighestBid.getSuit()) < suitBidRankStr.get(bidSuit)) {
-                            return true;
-                        }
-                        else {
-                            return false;
-                        }
+                        else return bidValueInt == adjustedHighestBid.getBidValue() && suitBidRankStr.get(adjustedHighestBid.getSuit()) < suitBidRankStr.get(bidSuit);
                     }
                 }
                 //If not ascending bid

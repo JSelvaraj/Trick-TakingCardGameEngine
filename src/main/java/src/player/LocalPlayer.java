@@ -167,7 +167,6 @@ public class LocalPlayer extends Player {
                 bidBlind = false;
             case 2:
                 Scanner scanner = new Scanner(System.in);
-                String[] bidInfoForFunction = {bidInput, bidSuit};
                 do {
                     System.out.println("Enter your bid: (enter a negative int to pass, 'd' to double/redouble - if these are valid options)");
                     bidSuit = null;
