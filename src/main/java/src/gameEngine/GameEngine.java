@@ -305,6 +305,8 @@ public class GameEngine {
                         if (trumpSuitBid) {
                             getAdjustedHighestBid().setSuit(bid.getSuit());
                         }
+                        getAdjustedHighestBid().setRedoubling(false);
+                        getAdjustedHighestBid().setDoubling(false);
                         getAdjustedHighestBid().setBidValue(bid.getBidValue());
                         getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
                     }

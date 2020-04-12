@@ -26,7 +26,7 @@
             "pointsPerBid" : 0,
             "overtrickPoints" : 0,
             "penaltyPoints" : 0,
-            "minBid" : 0,
+            "minBid" : 1,
             "maxBid" : 7,
             "suitBidRank": ["CLUBS", "DIAMONDS", "HEARTS", "SPADES", "NO TRUMP"],
             "preset": false,

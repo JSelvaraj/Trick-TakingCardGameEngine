@@ -7,6 +7,7 @@ import src.card.Card;
 import src.exceptions.InvalidBidException;
 import src.exceptions.InvalidPlayerMoveException;
 import src.gameEngine.Bid;
+import src.gameEngine.ContractBid;
 import src.gameEngine.Hand;
 import src.gameEngine.PotentialBid;
 import src.rdmEvents.Swap;
@@ -139,7 +140,7 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, Player[] players, Bid adjustedHighestBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, Player[] players, ContractBid adjustedHighestBid) {
         JsonElement msg = null;
         try {
             JsonStreamParser reader = new JsonStreamParser(new InputStreamReader(playerSocket.getInputStream()));

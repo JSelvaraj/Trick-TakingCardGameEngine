@@ -2,6 +2,7 @@ package src.player;
 
 import src.card.Card;
 import src.gameEngine.Bid;
+import src.gameEngine.ContractBid;
 import src.gameEngine.Hand;
 import src.gameEngine.PotentialBid;
 import src.rdmEvents.RdmEvent;
@@ -142,7 +143,7 @@ public class LocalPlayer extends Player {
      * @return new bid
      */
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, Player[] players, Bid adjustedHighestBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, Player[] players, ContractBid adjustedHighestBid) {
         System.out.print(this.colour);
         System.out.println("-------------------------------------");
         System.out.println("-------------------------------------");

@@ -2,6 +2,7 @@ package src.player;
 
 import src.card.Card;
 import src.gameEngine.Bid;
+import src.gameEngine.ContractBid;
 import src.gameEngine.Hand;
 import src.gameEngine.PotentialBid;
 import src.rdmEvents.RdmEvent;
@@ -42,7 +43,7 @@ public class RandomPlayer extends Player {
     }
 
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, Player[] players, Bid adjustedHighestBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, Player[] players, ContractBid adjustedHighestBid) {
         int handSize = super.getHand().getHandSize();
         int bid;
         do {

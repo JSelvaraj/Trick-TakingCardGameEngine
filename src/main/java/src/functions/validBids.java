@@ -3,6 +3,7 @@ package src.functions;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import src.gameEngine.Bid;
+import src.gameEngine.ContractBid;
 import src.gameEngine.PotentialBid;
 import src.gameEngine.SpecialBid;
 import src.player.Player;
@@ -56,7 +57,7 @@ public class validBids {
             String bidSuit = potentialBid.getBidSuit();
             Player[] players = potentialBid.getPlayers();
             int currentPlayerIndex = potentialBid.getCurrentPlayer();
-            Bid adjustedHighestBid = potentialBid.getAdjustedHighestBid();
+            ContractBid adjustedHighestBid = potentialBid.getAdjustedHighestBid();
             Player currentPlayer = players[currentPlayerIndex];
             Team currentTeam = currentPlayer.getTeam();
             Team oppositionTeam = players[(currentPlayerIndex + 1) % players.length].getTeam();
@@ -66,17 +67,13 @@ public class validBids {
             if (bidValue.equals("d")) {
                 //Check if doubling is allowed
                 if (finalCanDouble) {
+                    if (adjustedHighestBid.isRedoubling()) {
+                        return false;
+                    }
                     //Check for an existing double
-                    if (oppHighestBid != null && oppHighestBid.isDoubling()) {
+                    if (adjustedHighestBid != null && adjustedHighestBid.isDoubling()) {
                         if (finalCanRedouble) {
-                            //Current team's bid is the original bid that was doubled - check if redoubling is within bounds
-                            //Check there is an original bid to redouble
-                            if (currHighestBid != null) {
-                                return currHighestBid.getBidValue() * 2 <= maxBid;
-                            }
-                            else {
-                                return false;
-                            }
+                            return adjustedHighestBid.getBidValue() * 2 <= maxBid;
                         }
                         else {
                             //Redoubling not allowed - invalid bid
@@ -84,9 +81,10 @@ public class validBids {
                         }
                     }
                     //Check if there is an existing bid to double
-                    if (oppHighestBid != null) {
+                    if (adjustedHighestBid != null) {
                         //Check if a doubled bid is in bounds
-                        return oppHighestBid.getBidValue() * 2 <= maxBid;
+                        System.out.println("here");
+                        return adjustedHighestBid.getBidValue() * 2 <= maxBid;
                     }
                     else {
                         return false;

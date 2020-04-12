@@ -7,10 +7,10 @@ public class PotentialBid {
     String bidInput;
     int currentPlayer;
     Player[] players;
-    Bid adjustedHighestBid;
+    ContractBid adjustedHighestBid;
 
 
-    public PotentialBid(String bidSuit, String bidInput, int currentPlayer, Player[] players, Bid adjustedHighestBid) {
+    public PotentialBid(String bidSuit, String bidInput, int currentPlayer, Player[] players, ContractBid adjustedHighestBid) {
         this.bidSuit = bidSuit;
         this.bidInput = bidInput;
         this.currentPlayer = currentPlayer;
@@ -34,7 +34,7 @@ public class PotentialBid {
         return players;
     }
 
-    public Bid getAdjustedHighestBid() {
+    public ContractBid getAdjustedHighestBid() {
         return adjustedHighestBid;
     }
 }

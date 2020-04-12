@@ -3,6 +3,7 @@ package src.player;
 import src.card.Card;
 import src.functions.validCards;
 import src.gameEngine.Bid;
+import src.gameEngine.ContractBid;
 import src.gameEngine.Hand;
 import src.gameEngine.PotentialBid;
 import src.rdmEvents.RdmEvent;
@@ -66,7 +67,7 @@ public abstract class Player {
 
     public abstract void broadcastPlay(Card card, int playerNumber);
 
-    public abstract Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, Player[] players, Bid adjustedHighestBid);
+    public abstract Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, Player[] players, ContractBid adjustedHighestBid);
 
     public Predicate<Card> getCanBePlayed() {
         return canBePlayed;
