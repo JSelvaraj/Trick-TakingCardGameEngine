@@ -9,7 +9,7 @@ public class POMCPTree {
         this.root = root;
     }
 
-    public boolean addNode(GameObservation observation, Card action) {
-        return root.addNode(observation, action);
+    public boolean addNode(GameObservation observation) {
+        return root.addNode(observation);
     }
 }
