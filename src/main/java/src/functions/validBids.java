@@ -55,23 +55,16 @@ public class validBids {
         return( (potentialBid) -> {
             String bidValue = potentialBid.getBidInput();
             String bidSuit = potentialBid.getBidSuit();
-            Player[] players = potentialBid.getPlayers();
-            int currentPlayerIndex = potentialBid.getCurrentPlayer();
             ContractBid adjustedHighestBid = potentialBid.getAdjustedHighestBid();
-            Player currentPlayer = players[currentPlayerIndex];
-            Team currentTeam = currentPlayer.getTeam();
-            Team oppositionTeam = players[(currentPlayerIndex + 1) % players.length].getTeam();
-            Bid oppHighestBid = oppositionTeam.getHighestNormalBid();
-            Bid currHighestBid = currentTeam.getHighestNormalBid();
 
             if (bidValue.equals("d")) {
                 //Check if doubling is allowed
                 if (finalCanDouble) {
-                    if (adjustedHighestBid.isRedoubling()) {
+                    if (adjustedHighestBid == null || adjustedHighestBid.isRedoubling()) {
                         return false;
                     }
                     //Check for an existing double
-                    if (adjustedHighestBid != null && adjustedHighestBid.isDoubling()) {
+                    if (adjustedHighestBid.isDoubling()) {
                         if (finalCanRedouble) {
                             return adjustedHighestBid.getBidValue() * 2 <= maxBid;
                         }
@@ -81,13 +74,8 @@ public class validBids {
                         }
                     }
                     //Check if there is an existing bid to double
-                    if (adjustedHighestBid != null) {
-                        //Check if a doubled bid is in bounds
-                        return adjustedHighestBid.getBidValue() * 2 <= maxBid;
-                    }
-                    else {
-                        return false;
-                    }
+                    //Check if a doubled bid is in bounds
+                    return adjustedHighestBid.getBidValue() * 2 <= maxBid;
                 }
             }
             try {
@@ -107,7 +95,7 @@ public class validBids {
             if (finalTrumpSuitBid) {
                 if (finalAscendingBid) {
                     //Case that no bids exist yet
-                    if (currHighestBid == null && oppHighestBid == null) {
+                    if (adjustedHighestBid == null) {
                         return bidValueInt <= maxBid && bidValueInt >= minBid && suitBidRankStr.containsKey(bidSuit);
                     }
                     else {
@@ -126,7 +114,7 @@ public class validBids {
             else {
                 if (finalAscendingBid) {
                     //Case that no bids exist yet
-                    if (currHighestBid == null && oppHighestBid == null) {
+                    if (adjustedHighestBid == null) {
                         return bidValueInt <= maxBid && bidValueInt >= minBid;
                     }
                     //Check bid value is higher

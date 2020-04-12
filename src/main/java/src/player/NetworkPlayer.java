@@ -140,7 +140,7 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, Player[] players, ContractBid adjustedHighestBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
         JsonElement msg = null;
         try {
             JsonStreamParser reader = new JsonStreamParser(new InputStreamReader(playerSocket.getInputStream()));
@@ -170,7 +170,7 @@ public class NetworkPlayer extends Player {
             bid = new Bid(false,suit,valueInt,blind);
             value = Integer.toString(valueInt);
         }
-        if (!validBid.test(new PotentialBid(suit, value, this.getPlayerNumber(), players, adjustedHighestBid))) {
+        if (!validBid.test(new PotentialBid(suit, value, adjustedHighestBid))) {
             throw new InvalidBidException();
         }
         return bid;

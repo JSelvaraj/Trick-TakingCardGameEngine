@@ -143,7 +143,7 @@ public class LocalPlayer extends Player {
      * @return new bid
      */
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, Player[] players, ContractBid adjustedHighestBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
         System.out.print(this.colour);
         System.out.println("-------------------------------------");
         System.out.println("-------------------------------------");
@@ -159,8 +159,8 @@ public class LocalPlayer extends Player {
 
         boolean bidBlind = true;
 
-        InputStreamReader r=new InputStreamReader(System.in);
-        BufferedReader br=new BufferedReader(r);
+        InputStreamReader r =new InputStreamReader(System.in);
+        BufferedReader br = new BufferedReader(r);
         System.out.println("Select Option:");
         System.out.println("    1. Bid with seeing cards");
         System.out.println("    2. Bid blind");
@@ -183,7 +183,7 @@ public class LocalPlayer extends Player {
                             System.out.println("Enter your trump suit ('NO TRUMP' for no trump)");
                             bidSuit = br.readLine();
                         }
-                    } while (!validBid.test(new PotentialBid(bidSuit, bidInput, this.getPlayerNumber(), players, adjustedHighestBid)));
+                    } while (!validBid.test(new PotentialBid(bidSuit, bidInput, adjustedHighestBid)));
                     break;
                 }
                 catch (IOException e) {
