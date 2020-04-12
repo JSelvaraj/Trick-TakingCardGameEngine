@@ -290,7 +290,6 @@ public class GameEngine {
                     getAdjustedHighestBid().setDoubling(true);
                 }
                 getAdjustedHighestBid().setBidValue(getAdjustedHighestBid().getBidValue()*2);
-                getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
             }
             else {
                 if (bid.getBidValue() >= 0) {
