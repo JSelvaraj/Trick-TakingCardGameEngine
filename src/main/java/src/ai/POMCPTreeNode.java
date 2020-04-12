@@ -12,8 +12,6 @@ public class POMCPTreeNode {
     private int value;
     //The observation associated with the node.
     private GameObservation observation;
-    //The action of this node, which in this case is a card played.
-    private Card action;
     //The children nodes.
     private List<POMCPTreeNode> children;
 
@@ -21,19 +19,21 @@ public class POMCPTreeNode {
         this.visit = visit;
         this.value = value;
         this.observation = observation;
-        this.action = action;
         this.children = new LinkedList<>();
     }
 
-    public POMCPTreeNode(GameObservation observation, Card action){
-        this(0,0,observation, action);
+    public POMCPTreeNode(GameObservation observation, Card action) {
+        this(0, 0, observation, action);
     }
 
-    public boolean addNode(GameObservation observation, Card action){
-        //TODO add check for if the observation isn't a subnode of the root.
+    public boolean addNode(GameObservation observation, Card action) {
+        //Check that the observation is a subhistory of this.
+        if (!observation.isPreviousHistory(this.observation)) {
+            return false;
+        }
         for (POMCPTreeNode child : this.children) {
             //Check if the node is a previous history of this observation.
-            if(observation.isPreviousHistory(child.getObservation())){
+            if (observation.isPreviousHistory(child.getObservation())) {
                 return child.addNode(observation, action);
             }
         }
@@ -46,12 +46,11 @@ public class POMCPTreeNode {
      * Find the node most closely associated with this observation sequence.
      *
      * @param observation The observation of the game.
-     *
      * @return A node that matches the card sequence the best.
      */
-    public POMCPTreeNode findNode(GameObservation observation){
-        for(POMCPTreeNode child : this.children){
-            if(observation.isPreviousHistory(child.getObservation())){
+    public POMCPTreeNode findNode(GameObservation observation) {
+        for (POMCPTreeNode child : this.children) {
+            if (observation.isPreviousHistory(child.getObservation())) {
                 return child.findNode(observation);
             }
         }
@@ -70,9 +69,6 @@ public class POMCPTreeNode {
         this.observation = observation;
     }
 
-    public void setAction(Card action) {
-        this.action = action;
-    }
 
     public int getVisit() {
         return visit;
@@ -86,9 +82,6 @@ public class POMCPTreeNode {
         return observation;
     }
 
-    public Card getAction() {
-        return action;
-    }
 
     public List<POMCPTreeNode> getChildren() {
         return children;
