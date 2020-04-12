@@ -42,7 +42,7 @@ public class CardPOMDP {
 
     private Card search(GameObservation history) {
         //Initialise the search tree if it hasn't already.
-        if(root == null){
+        if (root == null) {
             root = new POMCPTreeNode(history);
         }
         long startTime = System.nanoTime();
@@ -91,7 +91,7 @@ public class CardPOMDP {
         newObservation.getCurrentTrick().clear();
         //TODO change for minimum hand size.
         //If the player has no more cards, i.e reaches the end point.
-        if(newState.getPlayerHands().get(currentPlayer).size() == 0){
+        if (newState.getPlayerHands().get(currentPlayer).size() == 0) {
             return r;
         }
         //Then play out the trick till we reach the next turn of the AI player.
@@ -104,21 +104,21 @@ public class CardPOMDP {
         return r + gamma * rollout(newState, newObservation, depth + 1);
     }
 
-    private double simulate(final State state, final GameObservation history, final int depth) {
+    private double simulate(final State state, final GameObservation observation, final int depth) {
         if (Math.pow(gamma, depth) < epsilon) {
             return 0;
         }
-        return rollout(state, history, depth);
+        POMCPTreeNode closestNode = root.findClosestNode(observation);
+        //If this history isn't in the tree already.
+        if (!closestNode.getObservation().equals(observation)) {
+            List<Card> validAction = observation.
+        }
+        return rollout(state, observation, depth);
     }
 
     private Card makeRandomMove(int currentPlayer, State state, GameObservation observation) {
         //Make a random action for the current player.
-        List<Card> playerCards = state.getPlayerHands().get(currentPlayer);
-        List<Card> validCards = playerCards.stream().filter((card -> validCardFunction.apply(observation.getCurrentTrick(), card))).collect(Collectors.toList());
-        //If no cards are valid, then any card can be played.
-        if (validCards.size() == 0) {
-            validCards = playerCards;
-        }
+        List<Card> validCards = validMoves(currentPlayer, observation, state);
         Card playedCard = validCards.get(random.nextInt(validCards.size()));
         //Update the state and observation.
         state.getPlayerHands().get(currentPlayer).remove(playedCard);
@@ -126,11 +126,11 @@ public class CardPOMDP {
         return playedCard;
     }
 
-    private List<Card> validMoves(final GameObservation observation){
+    private List<Card> validMoves(int playerNumber, final GameObservation observation, final State state) {
         //The cards the player has.
-        List<Card> playerCards = observation.getPlayerObservations().get(playerNumber).getHasCards();
+        List<Card> playerCards = state.getPlayerHands().get(playerNumber);
         List<Card> validCards = playerCards.stream().filter((card -> validCardFunction.apply(observation.getCurrentTrick(), card))).collect(Collectors.toList());
-        if(validCards.size() == 0) {
+        if (validCards.size() == 0) {
             validCards = playerCards;
         }
         return validCards;
