@@ -114,6 +114,10 @@ public class CardPOMDP {
         State newState = simulationOutcome.getLeft();
         GameObservation newObservation = simulationOutcome.getMiddle();
         int r = simulationOutcome.getRight();
+        //If the game is done.
+        if (newObservation.isDone()) {
+            return r;
+        }
         return r + gamma * rollout(newState, newObservation, depth + 1);
     }
 
@@ -144,7 +148,18 @@ public class CardPOMDP {
         //Get the action of that observation.
         assert mostPromising != null;
         Card mostPromisingAction = mostPromising.getObservation().getCardSequence().get(mostPromising.getObservation().getCardSequence().size());
-
+        //Simulate the outcome.
+        Triple<State, GameObservation, Integer> simulationOutcome = BlackBoxSimulator(state, observation, mostPromisingAction);
+        //Unpack the result.
+        State newState = simulationOutcome.getLeft();
+        GameObservation newObservation = simulationOutcome.getMiddle();
+        r = simulationOutcome.getRight();
+        if (!newObservation.isDone()) {
+            r += gamma * simulate(newState, newObservation, depth + 1);
+        }
+        observationNode.incrementVisit();
+        mostPromising.incrementVisit();
+        mostPromising.increaseValue((r - mostPromising.getValue()) / mostPromising.getVisit());
         return r;
     }
 

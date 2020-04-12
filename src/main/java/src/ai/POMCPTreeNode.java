@@ -7,13 +7,13 @@ public class POMCPTreeNode {
     //How many times this node has been visited in the search
     private int visit;
     //The value of this node
-    private int value;
+    private double value;
     //The observation associated with the node.
     private GameObservation observation;
     //The children nodes.
     private List<POMCPTreeNode> children;
 
-    public POMCPTreeNode(int visit, int value, GameObservation observation) {
+    public POMCPTreeNode(int visit, double value, GameObservation observation) {
         this.visit = visit;
         this.value = value;
         this.observation = observation;
@@ -62,8 +62,16 @@ public class POMCPTreeNode {
         this.visit = visit;
     }
 
-    public void setValue(int value) {
+    public void incrementVisit() {
+        this.visit++;
+    }
+
+    public void setValue(double value) {
         this.value = value;
+    }
+
+    public void increaseValue(double value) {
+        this.value += value;
     }
 
     public void setObservation(GameObservation observation) {
@@ -75,7 +83,7 @@ public class POMCPTreeNode {
         return visit;
     }
 
-    public int getValue() {
+    public double getValue() {
         return value;
     }
 
