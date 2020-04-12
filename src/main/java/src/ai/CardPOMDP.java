@@ -108,48 +108,12 @@ public class CardPOMDP {
         if (Math.pow(gamma, depth) < epsilon) {
             return 0;
         }
-        TrickSimulator trickSimulator = new TrickSimulator(suitOrder, trumpSuit.toString());
-        //Create new observation and state.
-        GameObservation newObservation = new GameObservation(history);
-        State newState = new State(state);
-        //Find the player who started the trick.
-        int currentPlayer = history.getTrickStartedBy();
-        //Add the cards that have already been played.
-        for (Card card : newObservation.getCurrentTrick()) {
-            trickSimulator.addCard(currentPlayer, card);
-            //Then go onto the next player.
-            currentPlayer = playerIncrementor.apply(currentPlayer);
-        }
-        //It should now be the player for this AI.
-        assert currentPlayer == playerNumber;
-        //Play a random action for each player until the trick is complete
-        while (trickSimulator.getTrick().size() < playerCount) {
-            //Make a random move.
-            Card playedCard = makeRandomMove(currentPlayer, newState, newObservation);
-            //Add that card to the simulated trick.
-            trickSimulator.addCard(currentPlayer, playedCard);
-            //Go to the next player
-            currentPlayer = playerIncrementor.apply(currentPlayer);
-        }
-        int winningPlayer = trickSimulator.evaluateWinner();
-        //See if this player won the trick.
-        int r = (winningPlayer == playerNumber) ? 1 : 0;
-        //Then create an observation for the next trick.
-        currentPlayer = winningPlayer;
-        //Reset the trick
-        newObservation.getCurrentTrick().clear();
-        //TODO change for minimum hand size.
-        //If the player has no more cards, i.e reaches the end point.
-        if (newState.getPlayerHands().get(currentPlayer).size() == 0) {
-            return r;
-        }
-        //Then play out the trick till we reach the next turn of the AI player.
-        while (currentPlayer != playerNumber) {
-            //Make a random action for the current player.
-            Card card = makeRandomMove(currentPlayer, newState, newObservation);
-            //Go to the next player
-            currentPlayer = playerIncrementor.apply(currentPlayer);
-        }
+        Card playerAction = makeRandomMove(playerNumber, state, history);
+        Triple<State, GameObservation, Integer> simulationOutcome = BlackBoxSimulator(state, history, playerAction);
+        //Unpack the result.
+        State newState = simulationOutcome.getLeft();
+        GameObservation newObservation = simulationOutcome.getMiddle();
+        int r = simulationOutcome.getRight();
         return r + gamma * rollout(newState, newObservation, depth + 1);
     }
 
