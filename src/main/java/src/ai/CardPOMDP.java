@@ -29,7 +29,7 @@ public class CardPOMDP {
     private final double c = 0.5;
     long timeout;
     //Search Tree
-    private POMCPTree searchTree;
+    private POMCPTreeNode root;
 
     public CardPOMDP(BiFunction<List<Card>, Card, Boolean> validCards, long timeout, int playerNumber, int playerCount) {
         random = new Random();
@@ -41,6 +41,10 @@ public class CardPOMDP {
     }
 
     private Card search(GameObservation history) {
+        //Initialise the search tree if it hasn't already.
+        if(root == null){
+            root = new POMCPTreeNode(history);
+        }
         long startTime = System.nanoTime();
         int bestScore = -1;
         Card bestAction = null;
