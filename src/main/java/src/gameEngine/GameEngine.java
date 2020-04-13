@@ -450,12 +450,11 @@ public class GameEngine extends WebSocketServer {
                 game.currentTrick.dropHand();
             } while (playerArray[0].getHand().getHandSize() > gameDesc.getMinHandSize());
 
-            JsonObject roundEndMessage = new JsonObject();
-            roundEndMessage.add("type", new JsonPrimitive("roundendmessage"));
-            game.webSocket.send(roundEndMessage.getAsString());
+
 
             game.handsPlayed++;
             //Calculate the score of the hand
+
             if (gameDesc.getCalculateScore().equals("tricksWon")) {
                 for (Team team : teams) {
                     int score = team.getTricksWon();
@@ -480,16 +479,41 @@ public class GameEngine extends WebSocketServer {
                     team.setTricksWon(0);
                 }
             }
+
+
+
             if (gameDesc.getTrumpPickingMode().equals("predefined")) {
                 game.trumpSuit.replace(0, game.trumpSuit.length(), gameDesc.getTrumpIterator().next());
             }
+            //send updated scores and new trumpsuit when round has ended
+            JsonObject roundEndMessage = new JsonObject();
+            roundEndMessage.add("type", new JsonPrimitive("roundendmessage"));
+            sendTeamScoresJson(game, roundEndMessage);
 
             //Check if game needs balancing
             rdmEventsManager.checkGameCloseness(teams);
 
             game.printScore();
         } while (game.gameEnd());
+        //send updated scores and new trumpsuit when round has ended
+        JsonObject gameEndMessage = new JsonObject();
+        gameEndMessage.add("type", new JsonPrimitive("gameendmessage"));
+        sendTeamScoresJson(game, gameEndMessage);
 
+
+    }
+
+    private static void sendTeamScoresJson(GameEngine game, JsonObject gameEndMessage) {
+        JsonArray scoresArray = new JsonArray();
+        for (Team team: teams) {
+            JsonObject teamJson = new JsonObject();
+            teamJson.add("teamnumber", new JsonPrimitive(team.getTeamNumber()));
+            teamJson.add("teamscore", new JsonPrimitive(team.getScore()));
+            scoresArray.add(teamJson);
+        }
+        gameEndMessage.add("scores", scoresArray);
+        gameEndMessage.add("trumpsuit", new JsonPrimitive(game.trumpSuit.toString()));
+        game.webSocket.send(gameEndMessage.getAsString());
     }
 
 
