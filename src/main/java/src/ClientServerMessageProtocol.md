@@ -94,3 +94,133 @@ Request from GUI:
     "localport":6969,
 }
 ```
+
+----
+##GamePlay Messaging
+These are the messages that will occur once a game is started.
+
+
+### 1. GameServer Connect
+The game has its own websocket, the address of this websocket is sent along the old websocket when the game starts.
+It expects a connection as response.
+```
+{
+    "type":"gamesetup",
+    "port":"6969" /* This is just an example number the number is randomly chosen normally */
+}
+```
+### 2. Player Hands at the top of the trick
+At the start of each trick every player's hand is sent to the front-end. An example JSON object is shown below:
+```
+{
+    "type":"playerhands",
+    "players":
+    [{
+        "playerindex":1,
+        "hand":
+        [
+            {
+                "suit":"SPADES",
+                "rank":"QUEEN"
+            } 
+        ],              /* assume there usually be more than one card in this array */ 
+    }] /* Assume there will be more than one player in this array*
+}
+```
+###Get Bids from Front-end  - Ignore Bidding for now, I need to merge my branch with the main branch.
+The back-end sends a request for a bid from the front-end. The request will look like this:
+
+```
+{
+    "type":"makebid",
+    "validbids":[0,1,2,3,4,5,6,7,8]
+}
+```
+The response from the front end should be in the following format:
+```
+{
+    "type":"makebid",
+    "bid": 
+    { /* example values*/
+        "bidvalue":3,
+        "isblind":true   /* if the game doesn't allow blind bids then default to false */
+    }
+}
+```
+###Send received Bids
+The complete list of bids is sent to the 
+
+
+
+###Playing a card in the Trick
+First the Back-end makes a request to the front end, with a list of valid cards in the players hand:
+```
+{
+    "type":"playcard",
+    "validcards":
+    [{
+        "rank":"TWO",
+        "suit":"SPADES"
+    },
+    {   "rank":"ACE",
+        "suit":"CLUBS"
+    }]
+}
+```
+It then expects a response from the Front end with the card played:
+```
+{
+    "type":"playcard",
+    "card":
+    {
+        "rank":"ACE",
+        "suit":"CLUBS"
+    }
+}
+```
+###Broadcast plays
+Every card(including the one played by the local player) is sent to the front-end when it is played. In the following format:
+```
+{
+    "type":"cardplayed",
+    "playerindex":1,
+    "card":
+    {
+        "rank":"ACE",
+        "suit":"CLUBS"
+    }
+}
+```
+###Winning Card
+At the end of each trick the winning card and the owner of the winning card is sent to  the front-end:
+```
+{
+    "type":"winningcard",
+    "card":
+    {
+        "rank":"ACE",
+        "suit":"CLUBS"
+    }
+    "playerindex":1
+}
+```
+### Trump Broken
+When the trump suit is played for the first time in a game that needs to break the trump suit the following message is sent:
+```
+{
+    "type":"trumpbroken"
+}
+```
+### Round ended
+When the round ends a message is played:
+```
+{
+    "type":"roundendmessage"
+}
+```
+
+
+        
+
+
+    

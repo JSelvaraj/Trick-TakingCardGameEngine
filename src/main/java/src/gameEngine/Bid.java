@@ -21,4 +21,6 @@ public class Bid {
     public boolean isBlind() {
         return blind;
     }
+
+
 }
