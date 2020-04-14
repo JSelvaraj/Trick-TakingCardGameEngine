@@ -68,9 +68,29 @@ public class validBidsBridgeTest {
     }
 
     @Test
+    void reDoubleAReDouble() {
+        ContractBid adjustedHighestBid = new ContractBid(false, null, 4, false, true, null);
+        assertFalse(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid)));
+    }
+
+    @Test
     void passAfterDouble() {
         ContractBid adjustedHighestBid = new ContractBid(true, null, 4, false, false, null);
         assertFalse(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid)));
     }
+
+    @Test
+    void raiseBidIncreaseValue() {
+        ContractBid adjustedHighestBid = new ContractBid(false, "NO TRUMP", 4, false, false, null);
+        assertTrue(bidValidator.test(new PotentialBid("NO TRUMP", Integer.toString(5), adjustedHighestBid)));
+    }
+
+    @Test
+    void raiseBidIncreaseSuit() {
+        ContractBid adjustedHighestBid = new ContractBid(false, "CLUBS", 4, false, false, null);
+        assertTrue(bidValidator.test(new PotentialBid("SPADES", Integer.toString(4), adjustedHighestBid)));
+    }
+
+
 
 }

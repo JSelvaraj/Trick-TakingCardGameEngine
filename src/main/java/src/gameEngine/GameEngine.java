@@ -38,7 +38,8 @@ public class GameEngine {
     private IntFunction<Integer> nextPlayerIndex;
     //If you bid suits
     private boolean trumpSuitBid;
-    //Redoubling field set to true if the contract was a redoubling, the BidValue is the adjusted value based on any redoubling/doubling, bidSuit is the trumpSuit for the trick
+    //Redoubling field set to true if the contract was a redoubling, doubling field same,
+    // the BidValue is the adjusted value based on any redoubling/doubling, bidSuit is the trumpSuit for the trick
     private ContractBid adjustedHighestBid;
 
     private ArrayList<Team> teams = new ArrayList<>();

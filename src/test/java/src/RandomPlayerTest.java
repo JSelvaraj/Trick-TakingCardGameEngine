@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import src.card.Card;
 import src.functions.validBids;
 import src.functions.validCards;
+import src.gameEngine.Bid;
 import src.gameEngine.Hand;
 import src.gameEngine.PotentialBid;
 import src.player.RandomPlayer;
@@ -82,6 +83,9 @@ class RandomPlayerTest {
         Predicate<PotentialBid> validBid = validBids.isValidBidValue(bidObject);
         RandomPlayer randomPlayer = new RandomPlayer(0, null);
         for (int i = 0; i < 10; i++) randomPlayer.getHand().getCard(new Card("", ""));
-        //for (int i = 0; i < 1000; i++) assertTrue(validBid.test(randomPlayer.makeBid(validBid, false, null).getBidValue()));
+        for (int i = 0; i < 1000; i++) {
+            Bid randomBid = randomPlayer.makeBid(validBid, false, null);
+            assertTrue(validBid.test(new PotentialBid(Integer.toString(randomBid.getBidValue()), randomBid.getSuit(), null)));
+        }
     }
 }

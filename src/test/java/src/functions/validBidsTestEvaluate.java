@@ -12,7 +12,7 @@ import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
-public class validBidsTest {
+public class validBidsTestEvaluate {
 
 
     @Test
