@@ -52,7 +52,7 @@ public abstract class Player {
      *
      * @param validCard Predicate that checks if a card is valid.
      */
-    public void initPlayer(Predicate<Card> validCard, GameDesc desc) {
+    public void initPlayer(Predicate<Card> validCard, GameDesc desc, StringBuilder trumpSuit) {
         this.canBePlayed = validCards.getCanBePlayedPredicate(this.hand, validCard);
     }
 
