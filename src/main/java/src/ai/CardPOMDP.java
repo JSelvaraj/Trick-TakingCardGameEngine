@@ -45,6 +45,9 @@ public class CardPOMDP {
         this.timeout = timeout;
         this.playerNumber = playerNumber;
         this.playerCount = gameDesc.getNUMBEROFPLAYERS();
+        if (gameDesc.getTrumpPickingMode().equals("break")) {
+            throw new UnsupportedOperationException();
+        }
         breakFlag = new AtomicBoolean(false);
         Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate(gameDesc.getLeadingCardForEachTrick(), trumpSuit, breakFlag);
         validCardFunction = validCards.getValidCardFunction(validLeadingCard);
