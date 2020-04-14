@@ -49,13 +49,14 @@ public class CardPOMDP {
             root = new POMCPTreeNode(history);
         }
         long startTime = System.nanoTime();
-        int bestScore = -1;
-        Card bestAction = null;
         do {
             State gameState = State.generateBeliefState(history, shuffle);
             simulate(gameState, history, 0);
         } while (System.nanoTime() - startTime < timeout);
-        return bestAction;
+        POMCPTreeNode bestNode = root.getChildren().stream().max(Comparator.comparing(POMCPTreeNode::getValue)).orElse(null);
+        assert bestNode != null;
+        //Return the action associated with the observation.
+        return bestNode.getObservation().getCardSequence().get(bestNode.getObservation().getCardSequence().size());
     }
 
     private Triple<State, GameObservation, Integer> BlackBoxSimulator(State state, GameObservation observation, Card action) {
@@ -85,7 +86,7 @@ public class CardPOMDP {
         }
         int winningPlayer = trickSimulator.evaluateWinner();
         //See if this player won the trick.
-        int r = (winningPlayer == playerNumber) ? 1 : 0;
+        int r = (winningPlayer == playerNumber) ? 1 : 0; //TODO add check for teams, as it is still a good move if your teammate wins it.
         currentPlayer = winningPlayer;
         newObservation.getCurrentTrick().clear();
         newObservation.setTrickStartedBy(currentPlayer);
@@ -154,6 +155,7 @@ public class CardPOMDP {
         State newState = simulationOutcome.getLeft();
         GameObservation newObservation = simulationOutcome.getMiddle();
         r = simulationOutcome.getRight();
+        //If the hand isn't finished, then continue the simulation.
         if (!newObservation.isDone()) {
             r += gamma * simulate(newState, newObservation, depth + 1);
         }
