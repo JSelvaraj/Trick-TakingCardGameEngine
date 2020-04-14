@@ -77,7 +77,7 @@ public class GameEngine {
         /* initialize each players hands */
 
         for (Player player : playerArray) {
-            player.initPlayer(game.getValidCard(), gameDesc);
+            player.initPlayer(game.getValidCard(), gameDesc, game.trumpSuit);
         }
 
         /* Assign players to teams */
@@ -348,7 +348,7 @@ public class GameEngine {
         while (deck.getDeckSize() > cardsLeft) {
             //Deal card to player by adding to their hand and removing from the deck
             players[dealerIndex].getHand().getCard(deck.drawCard());
-            
+
             dealerIndex = this.nextPlayerIndex.apply(dealerIndex);
             //Sets the trump suit based on the last card if defined by game desc
             if (desc.getTrumpPickingMode().compareTo("lastDealt") == 0 && deck.getDeckSize() == cardsLeft + 1) {
