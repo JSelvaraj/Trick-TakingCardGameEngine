@@ -57,11 +57,13 @@ public class CardPOMDP {
         } while (System.nanoTime() - startTime < timeout);
         POMCPTreeNode bestNode = root.getChildren().stream().max(Comparator.comparing(POMCPTreeNode::getValue)).orElse(null);
         assert bestNode != null;
+        //Update the root of the search tree.
+        root = bestNode;
         //Return the action associated with the observation.
-        return bestNode.getObservation().getCardSequence().get(bestNode.getObservation().getCardSequence().size());
+        return bestNode.getObservation().getCardSequence().get(bestNode.getObservation().getCardSequence().size() - 1);
     }
 
-    private Triple<State, GameObservation, Integer> BlackBoxSimulator(State state, GameObservation observation, Card action) {
+    private Triple<State, GameObservation, Integer> BlackBoxSimulator(final State state, final GameObservation observation, final Card action) {
         TrickSimulator trickSimulator = new TrickSimulator(trumpSuit);
         //Create new observation and state.
         GameObservation newObservation = new GameObservation(observation);
@@ -98,6 +100,7 @@ public class CardPOMDP {
         if (newState.getPlayerHands().get(currentPlayer).size() == 0) {
             newObservation.setDone(true);
         } else {
+            //Fill the observation until it is the AI players turn.
             while (currentPlayer != playerNumber) {
                 //Make a random action for the current player.
                 Card card = makeRandomMove(currentPlayer, newState, newObservation);
@@ -150,7 +153,7 @@ public class CardPOMDP {
         POMCPTreeNode mostPromising = observationNode.getChildren().stream().max(Comparator.comparing((node -> node.getValue() + c * Math.sqrt(Math.log(observationNode.getVisit() / Math.log(node.getVisit())))))).orElse(null);
         //Get the action of that observation.
         assert mostPromising != null;
-        Card mostPromisingAction = mostPromising.getObservation().getCardSequence().get(mostPromising.getObservation().getCardSequence().size());
+        Card mostPromisingAction = mostPromising.getObservation().getCardSequence().get(mostPromising.getObservation().getCardSequence().size() - 1);
         //Simulate the outcome.
         Triple<State, GameObservation, Integer> simulationOutcome = BlackBoxSimulator(state, observation, mostPromisingAction);
         //Unpack the result.
@@ -180,7 +183,9 @@ public class CardPOMDP {
     private List<Card> validMoves(int playerNumber, final GameObservation observation, final State state) {
         //The cards the player has.
         List<Card> playerCards = state.getPlayerHands().get(playerNumber);
+        //Filter the cards that the player can play
         List<Card> validCards = playerCards.stream().filter((card -> validCardFunction.apply(observation.getCurrentTrick(), card))).collect(Collectors.toList());
+        //If no cards are valid, then anything  can be played
         if (validCards.size() == 0) {
             validCards = playerCards;
         }
