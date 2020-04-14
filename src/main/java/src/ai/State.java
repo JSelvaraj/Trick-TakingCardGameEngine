@@ -29,6 +29,26 @@ public class State {
         return deck;
     }
 
+    public void playCard(int playerNumber, Card card) {
+        if (this.playerHands.get(playerNumber).remove(card)) throw new IllegalArgumentException();
+    }
+
+    public void addCard(int playerNumber, Card card) {
+        this.playerHands.get(playerNumber).add(card);
+    }
+
+    public void addCardCollection(int playerNumber, Collection<? extends Card> cards) {
+        this.playerHands.get(playerNumber).addAll(cards);
+    }
+
+    public int getNumberOfPlayers() {
+        return this.playerHands.size();
+    }
+
+    public int getHandSize(int playerNumber) {
+        return this.playerHands.get(playerNumber).size();
+    }
+
     public List<List<Card>> getPlayerHands() {
         return playerHands;
     }
@@ -42,20 +62,33 @@ public class State {
     public static State generateBeliefState(GameObservation history, Shuffle shuffle) {
         State state = new State(history.getCardsRemaining(), history.getPlayerObservations().size());
         //Add the initial cards we know that each player has.
-        for (int i = 0; i < state.getPlayerHands().size(); i++) {
-            state.getPlayerHands().get(i).addAll(history.getPlayerObservations().get(i).getHasCards());
+        for (int i = 0; i < state.getNumberOfPlayers(); i++) {
+            state.addCardCollection(i, history.getPlayerObservations().get(i).getHasCards());
         }
         //Shuffle the deck
         shuffle.shuffle(state.getDeck());
         Iterator<Card> deckIterator = state.getDeck().iterator();
         //Iterate over each player, until each player has the correct number of cards.
-        for (int i = 0; i < state.getPlayerHands().size(); i++) {
-            while (state.getPlayerHands().get(i).size() < (history.getPlayerObservations().get(i).getCardsLeft() - history.getPlayerObservations().get(i).getHasCards().size())) {
-                state.getPlayerHands().get(i).add(deckIterator.next());
+        for (int i = 0; i < state.getNumberOfPlayers(); i++) {
+            while (state.getHandSize(i) < (history.getPlayerObservations().get(i).getCardsLeft() - history.getPlayerObservations().get(i).getHasCards().size())) {
+                state.addCard(i, deckIterator.next());
                 deckIterator.remove();
             }
         }
         //Update the deck to remove all the cards that were added to players hands.
         return state;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        State state = (State) o;
+        return deck.equals(state.deck) && ((State) o).playerHands.equals(playerHands);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(deck, playerHands);
     }
 }
