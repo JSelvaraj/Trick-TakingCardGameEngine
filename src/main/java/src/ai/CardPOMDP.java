@@ -66,14 +66,14 @@ public class CardPOMDP {
         int i = 0;
         do {
             State gameState = State.generateBeliefState(history, shuffle);
-            System.out.println("Starting Simulation");
             simulate(gameState, history, 0);
             i++;
         } while (i < 100); //TODO revert to timeout
         POMCPTreeNode bestNode = root.getChildren().stream().max(Comparator.comparing(POMCPTreeNode::getValue)).orElse(null);
         assert bestNode != null;
         //Update the root of the search tree.
-        root = bestNode;
+//        root = bestNode;
+        root = null;
         //Return the action associated with the observation.
         return bestNode.getObservation().getCardSequence().get(bestNode.getObservation().getCardSequence().size() - 1);
     }
@@ -90,6 +90,9 @@ public class CardPOMDP {
             trickSimulator.addCard(currentPlayer, card);
             //Then go onto the next player.
             currentPlayer = playerIncrementor.apply(currentPlayer);
+        }
+        if(currentPlayer != playerNumber){
+            return null;
         }
         assert currentPlayer == playerNumber;
         //Have this player make their move.
@@ -114,7 +117,7 @@ public class CardPOMDP {
         newObservation.setTrickStartedBy(currentPlayer);
         //TODO change for minimum hand size.
         //If the player has no more cards, i.e reaches the end point.
-        if (newState.getHandSize(currentPlayer) == 0) {
+        if (newObservation.getCardsRemaining().size() == 0) {
             newObservation.setDone(true);
         } else {
             //Fill the observation until it is the AI players turn.
@@ -154,20 +157,23 @@ public class CardPOMDP {
         POMCPTreeNode observationNode;
         if(root != null){
             closestNode = root.findClosestNode(observation);
+        } else {
+            closestNode = root = new POMCPTreeNode(observation);
         }
         //If this history isn't in the tree already.
-        if (closestNode == null || !closestNode.getObservation().getCardSequence().equals(observation.getCardSequence())){
-            observationNode = new POMCPTreeNode(observation);
-            if(closestNode != null){
-                closestNode.getChildren().add(observationNode);
-            } else {
-                root = observationNode;
-            }
+        if (closestNode == root || !closestNode.getObservation().getCardSequence().equals(observation.getCardSequence())){
+//            observationNode = new POMCPTreeNode(observation);
+//            if(closestNode != null){
+//                closestNode.getChildren().add(observationNode);
+//            } else {
+//                root = observationNode;
+//            }
             for (Card validMove : validMoves(playerNumber, observation, state)) {
                 GameObservation newObservation = new GameObservation(observation);
                 newObservation.updateGameState(playerNumber, validMove);
                 //Add the new node to the tree.
-                assert observationNode.addNode(newObservation);
+                assert closestNode != null;
+                assert closestNode.addNode(newObservation);
             }
             return rollout(state, observation, depth);
         }
@@ -175,6 +181,9 @@ public class CardPOMDP {
         //Get the node that seems most promising
         POMCPTreeNode mostPromising = observationNode.getChildren().stream().max(Comparator.comparing((node -> node.getValue() + c * Math.sqrt(Math.log(observationNode.getVisit() / Math.log(node.getVisit())))))).orElse(null);
         //Get the action of that observation.
+        if(mostPromising == null){
+            return 0;
+        }
         assert mostPromising != null;
         Card mostPromisingAction = mostPromising.getObservation().getCardSequence().get(mostPromising.getObservation().getCardSequence().size() - 1);
         //Simulate the outcome.
