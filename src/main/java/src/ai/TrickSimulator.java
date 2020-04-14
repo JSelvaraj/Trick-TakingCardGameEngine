@@ -4,6 +4,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import src.card.Card;
 import src.card.CardComparator;
+import src.gameEngine.GameEngine;
+import src.parser.GameDesc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,16 +18,18 @@ import java.util.function.BiFunction;
  */
 public class TrickSimulator { //TODO test this
     private List<Pair<Card, Integer>> trick;
-    private CardComparator cardComparator;
-    String trumpSuit;
+    StringBuilder trumpSuit;
     AtomicBoolean breakflag;
 
-    public TrickSimulator(Map<String, Integer> suitOrder, String trumpSuit) {
+    public TrickSimulator(StringBuilder trumpSuit) {
         this.trick = new ArrayList<>();
-        this.cardComparator = new CardComparator(suitOrder);
+        this.trumpSuit = trumpSuit;
     }
     
-    public int evaluateWinner() {
+    public int evaluateWinner(GameDesc desc) {
+        Map<String, Integer> suitOrder = GameEngine.generateSuitOrder(desc, trumpSuit, trick.get(0).getLeft());
+        CardComparator cardComparator = new CardComparator(suitOrder);
+        CardComparator
         Pair<Card, Integer> currentWinner = trick.get(0);
         Pair<Card, Integer> card;
         for (int i = 1; i < trick.size(); i++) {
@@ -43,4 +47,7 @@ public class TrickSimulator { //TODO test this
     public List<Pair<Card, Integer>> getTrick() {
         return trick;
     }
+
+
+
 }
