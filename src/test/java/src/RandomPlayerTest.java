@@ -85,7 +85,7 @@ class RandomPlayerTest {
         for (int i = 0; i < 10; i++) randomPlayer.getHand().getCard(new Card("", ""));
         for (int i = 0; i < 1000; i++) {
             Bid randomBid = randomPlayer.makeBid(validBid, false, null);
-            assertTrue(validBid.test(new PotentialBid(Integer.toString(randomBid.getBidValue()), randomBid.getSuit(), null)));
+            assertTrue(validBid.test(new PotentialBid(randomBid.getSuit(), Integer.toString(randomBid.getBidValue()), null)));
         }
     }
 }

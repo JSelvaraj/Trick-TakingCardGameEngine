@@ -56,7 +56,6 @@ public class validBids {
             String bidValue = potentialBid.getBidInput();
             String bidSuit = potentialBid.getBidSuit();
             ContractBid adjustedHighestBid = potentialBid.getAdjustedHighestBid();
-
             if (bidValue.equals("d")) {
                 //Check if doubling is allowed
                 if (finalCanDouble) {
