@@ -4,6 +4,8 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import src.card.Card;
 import src.deck.Shuffle;
+import src.gameEngine.GameEngine;
+import src.parser.GameDesc;
 
 import java.util.Comparator;
 import java.util.List;
@@ -24,8 +26,8 @@ public class CardPOMDP {
     private int playerCount;
     private IntFunction<Integer> playerIncrementor;
     private BiFunction<List<Card>, Card, Boolean> validCardFunction;
-    private Map<String, Integer> suitOrder;
     StringBuilder trumpSuit;
+    private GameDesc gameDesc;
     //Values for the POMDP procedure.
     private double epsilon = 0.001;
     private double gamma = 1;
@@ -60,7 +62,7 @@ public class CardPOMDP {
     }
 
     private Triple<State, GameObservation, Integer> BlackBoxSimulator(State state, GameObservation observation, Card action) {
-        TrickSimulator trickSimulator = new TrickSimulator(suitOrder, trumpSuit.toString());
+        TrickSimulator trickSimulator = new TrickSimulator(trumpSuit);
         //Create new observation and state.
         GameObservation newObservation = new GameObservation(observation);
         State newState = new State(state);
@@ -84,7 +86,8 @@ public class CardPOMDP {
             //Go to the next player
             currentPlayer = playerIncrementor.apply(currentPlayer);
         }
-        int winningPlayer = trickSimulator.evaluateWinner();
+        //Evaluate the winning player of this trick.
+        int winningPlayer = trickSimulator.evaluateWinner(gameDesc);
         //See if this player won the trick.
         int r = (winningPlayer == playerNumber) ? 1 : 0; //TODO add check for teams, as it is still a good move if your teammate wins it.
         currentPlayer = winningPlayer;
@@ -142,7 +145,6 @@ public class CardPOMDP {
             }
             return rollout(state, observation, depth);
         }
-        int r = 0;
         observationNode = closestNode;
         //Get the node that seems most promising
         POMCPTreeNode mostPromising = observationNode.getChildren().stream().max(Comparator.comparing((node -> node.getValue() + c * Math.sqrt(Math.log(observationNode.getVisit() / Math.log(node.getVisit())))))).orElse(null);
@@ -154,7 +156,7 @@ public class CardPOMDP {
         //Unpack the result.
         State newState = simulationOutcome.getLeft();
         GameObservation newObservation = simulationOutcome.getMiddle();
-        r = simulationOutcome.getRight();
+        int r = simulationOutcome.getRight();
         //If the hand isn't finished, then continue the simulation.
         if (!newObservation.isDone()) {
             r += gamma * simulate(newState, newObservation, depth + 1);
@@ -171,7 +173,7 @@ public class CardPOMDP {
         Card playedCard = validCards.get(random.nextInt(validCards.size()));
         //Update the state and observation.
         state.getPlayerHands().get(currentPlayer).remove(playedCard);
-        observation.updateGameState(playerNumber, playedCard);
+        observation.updateGameState(currentPlayer, playedCard);
         return playedCard;
     }
 
