@@ -66,7 +66,7 @@ public class main {
                 if (host.broadcast) {
                     //TODO implement starting to broadcast.
                 } else {
-                    Thread thread = new Thread(new HostRunner(new LocalPlayer(), host.port, host.game, host.enableRandomEvents));
+                    Thread thread = new Thread(new HostRunner(new RandomPlayer(), host.port, host.game, host.enableRandomEvents));
                     thread.start();
                     System.out.println("Host Player1 started");
 
@@ -81,7 +81,7 @@ public class main {
                     for (int i = 0; i < host.aiPlayers; i++) {
                         System.out.println("AI started");
                         PlayerRunner runner = new PlayerRunner(new RandomPlayer(), "localhost", host.port,
-                                true, false, host.enableRandomEvents);
+                                true, true, host.enableRandomEvents);
                         Thread aiThread = new Thread(runner);
                         aiThread.start();
                     }

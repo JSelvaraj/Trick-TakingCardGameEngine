@@ -17,7 +17,7 @@ public class RdmEventsManager {
     int maxAcceptableScoreSeparation;
     int scoreThreshold;
     double rdmEventProb;
-    final double rdmEventProbDEFAULT = 0.5;
+    final double rdmEventProbDEFAULT = 0.4;
     double probIncrement = 0.3;
     ArrayList<Team> teams;
     Team weakestTeam;
@@ -135,18 +135,12 @@ public class RdmEventsManager {
         Team affectedTeam = getPlayers()[currentPlayer].getTeam();
         int scoreChange = 10;
         if (cardType.equals("BOMB")) {
+            System.out.println("Player " + currentPlayer + " played a BOMB card: " + scoreChange + " deducted from their teams score");
             scoreChange *= (-1);
-            if (getPlayers()[currentPlayer] instanceof LocalPlayer) {
-                System.out.println("You played a BOMB card: " + scoreChange + " deducted from your score");
-            }
         } else {
-            if (getPlayers()[currentPlayer] instanceof LocalPlayer) {
-                System.out.println("You played a HEAVEN card: " + scoreChange + " added to your score");
-            }
+            System.out.println("Player " + currentPlayer + "played a HEAVEN card: " + scoreChange + " added to their teams score");
         }
-        if (getPlayers()[currentPlayer] instanceof LocalPlayer) {
-            System.out.println("Changing score of team " + affectedTeam.getTeamNumber());
-        }
+        System.out.println("Changing score of team " + affectedTeam.getTeamNumber());
         affectedTeam.setScore(Math.max((affectedTeam.getScore() + scoreChange), 0));
     }
 

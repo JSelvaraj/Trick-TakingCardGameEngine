@@ -95,7 +95,7 @@ public class GameEngine {
 
         Deck deck; // make standard deck from a linked list of Cards
         Shuffle shuffle = new Shuffle(seed);
-        //Shuffle.seedGenerator(seed); // TODO remove cast to int
+
         if (printMoves) {
             game.printScore();
         }
@@ -327,7 +327,7 @@ public class GameEngine {
 
     public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter) {
         //Bool that indicates at what condition the bidding is complete - TODO:get this from game description when added
-        String biddingEndCondition = "PASS";
+        String biddingEndCondition = "";
         if (biddingEndCondition.equals("PASS")) {
             return passCounter != players.length - 1;
         }
