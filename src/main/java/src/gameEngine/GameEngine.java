@@ -370,7 +370,7 @@ public class GameEngine {
      */
     public Card winningCard() {
         //Generate suit ranking
-        HashMap<String, Integer> suitMap = generateSuitOrder(desc, trumpSuit, currentTrick.getHand());
+        HashMap<String, Integer> suitMap = generateSuitOrder(desc, trumpSuit, currentTrick.get(0));
         //Get comparator for comparing cards based on the suit ranking
         CardComparator comparator = new CardComparator(suitMap);
 
@@ -387,7 +387,7 @@ public class GameEngine {
      * @return suit-value hashmap where the value is its rank based on how the game ranks suits
      * Note: lower map value = higher rank
      */
-    public static HashMap<String, Integer> generateSuitOrder(GameDesc desc, StringBuilder trumpSuit, List<Card> currentTrick) {
+    public static HashMap<String, Integer> generateSuitOrder(GameDesc desc, StringBuilder trumpSuit, Card leadingCard) {
         HashMap<String, Integer> suitMap = new HashMap<>();
         //Set default value for suits
         for (String suit : desc.getSUITS()) {
@@ -398,8 +398,8 @@ public class GameEngine {
             case "lastDealt": //follows through to 'fixed' case
             case "fixed":
                 suitMap.put(trumpSuit.toString(), 1);
-                if (!currentTrick.get(0).getSUIT().equals(trumpSuit.toString()))
-                    suitMap.put(currentTrick.get(0).getSUIT(), 2);
+                if (leadingCard.getSUIT().equals(trumpSuit.toString()))
+                    suitMap.put(leadingCard.getSUIT(), 2);
                 break;
             case "none":
                 break;
