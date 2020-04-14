@@ -21,8 +21,8 @@ public class POMDPPlayer extends Player {
     private StringBuilder trumpSuit;
     private GameDesc desc;
 
-    public POMDPPlayer(int playerNumber) {
-        super(playerNumber);
+    public POMDPPlayer() {
+//        super(playerNumber);
     }
 
     @Override
@@ -33,7 +33,8 @@ public class POMDPPlayer extends Player {
     }
 
     @Override
-    public void startHand() {
+    public void startHand(StringBuilder trumpSuit) {
+        this.trumpSuit = trumpSuit;
         Deck deck = new Deck(); //TODO work for more than standard deck.
         observation = new GameObservation(deck.cards, desc.getNUMBEROFPLAYERS(), desc.getInitialHandSize());
         //Add the cards that this player has.

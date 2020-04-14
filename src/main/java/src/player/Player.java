@@ -34,7 +34,7 @@ public abstract class Player {
         this.canBePlayed = null;
     }
 
-    public void startHand() {
+    public void startHand(StringBuilder trumpSuit) {
 
     }
 
