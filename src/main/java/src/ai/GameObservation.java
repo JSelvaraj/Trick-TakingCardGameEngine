@@ -63,6 +63,7 @@ public class GameObservation implements Cloneable {
         //Empty trick if it is full.
         if(currentTrick.size() == playerObservations.size()){
             currentTrick.clear();
+            trickStartedBy = playernumber;
         } else if (currentTrick.size() == 0) {
             trickStartedBy = playernumber;
         }
