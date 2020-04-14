@@ -12,6 +12,19 @@ import static org.junit.jupiter.api.Assertions.*;
 class StateTest {
 
     @Test
+    void copyConstructor() {
+        List<Card> deck = new Deck().cards;
+        final int handSize = 13;
+        final int playerCount = 4;
+        GameObservation observation = new GameObservation(deck, playerCount, handSize);
+        Shuffle shuffle = new Shuffle(0);
+        State state = State.generateBeliefState(observation, shuffle);
+        State copyState = new State(state);
+        assertNotSame(state, copyState);
+        assertEquals(state, copyState);
+    }
+
+    @Test
     void generateBeliefStateEmptyObservation1() {
         List<Card> deck = new Deck().cards;
         final int handSize = 13;
