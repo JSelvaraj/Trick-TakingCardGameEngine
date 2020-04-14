@@ -370,7 +370,7 @@ public class GameEngine {
      */
     public Card winningCard() {
         //Generate suit ranking
-        HashMap<String, Integer> suitMap = generateSuitOrder();
+        HashMap<String, Integer> suitMap = generateSuitOrder(desc, trumpSuit, currentTrick.getHand());
         //Get comparator for comparing cards based on the suit ranking
         CardComparator comparator = new CardComparator(suitMap);
 
@@ -387,7 +387,7 @@ public class GameEngine {
      * @return suit-value hashmap where the value is its rank based on how the game ranks suits
      * Note: lower map value = higher rank
      */
-    private HashMap<String, Integer> generateSuitOrder() {
+    private static HashMap<String, Integer> generateSuitOrder(GameDesc desc, StringBuilder trumpSuit, List<Card> currentTrick) {
         HashMap<String, Integer> suitMap = new HashMap<>();
         //Set default value for suits
         for (String suit : desc.getSUITS()) {
