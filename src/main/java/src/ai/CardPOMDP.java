@@ -4,6 +4,7 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import src.card.Card;
 import src.deck.Shuffle;
+import src.functions.PlayerIncrementer;
 import src.functions.validCards;
 import src.gameEngine.GameEngine;
 import src.parser.GameDesc;
@@ -40,6 +41,7 @@ public class CardPOMDP {
     private POMCPTreeNode root;
 
     public CardPOMDP(GameDesc gameDesc, long timeout, int playerNumber, StringBuilder trumpSuit) {
+        this.gameDesc = gameDesc;
         random = new Random();
         shuffle = new Shuffle(0); //TODO update seed
         this.timeout = timeout;
@@ -48,9 +50,11 @@ public class CardPOMDP {
         if (gameDesc.getTrumpPickingMode().equals("break")) {
             throw new UnsupportedOperationException();
         }
+        this.trumpSuit = trumpSuit;
         breakFlag = new AtomicBoolean(false);
         Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate(gameDesc.getLeadingCardForEachTrick(), trumpSuit, breakFlag);
         validCardFunction = validCards.getValidCardFunction(validLeadingCard);
+        playerIncrementor = PlayerIncrementer.generateNextPlayerFunction(gameDesc.isDEALCARDSCLOCKWISE(), playerCount);
     }
 
     public Card search(GameObservation history) {
@@ -78,11 +82,13 @@ public class CardPOMDP {
         State newState = new State(state);
         //Find the player who started the trick.
         int currentPlayer = observation.getTrickStartedBy();
-        //Add the cards that have already been played.
-        for (Card card : newObservation.getCurrentTrick()) {
-            trickSimulator.addCard(currentPlayer, card);
-            //Then go onto the next player.
-            currentPlayer = playerIncrementor.apply(currentPlayer);
+        //Add the cards that have already been played, if the current player didn't lead the trick
+        if (currentPlayer != playerNumber) {
+            for (Card card : newObservation.getCurrentTrick()) {
+                trickSimulator.addCard(currentPlayer, card);
+                //Then go onto the next player.
+                currentPlayer = playerIncrementor.apply(currentPlayer);
+            }
         }
         assert currentPlayer == playerNumber;
         trickSimulator.addCard(playerNumber, action);
@@ -145,7 +151,7 @@ public class CardPOMDP {
         //Should not be null.
         assert closestNode != null;
         //If this history isn't in the tree already.
-        if (!closestNode.getObservation().equals(observation)) {
+        if (closestNode == root || (!closestNode.getObservation().getCardSequence().equals(observation.getCardSequence()))) {
             observationNode = new POMCPTreeNode(observation);
             closestNode.getChildren().add(observationNode);
             for (Card validMove : validMoves(playerNumber, observation, state)) {
