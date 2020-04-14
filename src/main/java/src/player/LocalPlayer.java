@@ -174,7 +174,7 @@ public class LocalPlayer extends Player {
             case 2:
                 try {
                     do {
-                        System.out.println("Enter your bid: (enter a negative int to pass, 'd' to double/redouble - if these are valid options)");
+                        System.out.println("Enter your bid: (enter '-2' to pass, 'd' to double/redouble - if these are valid options)");
                         bidSuit = null;
                         bidInput = br.readLine();
 
