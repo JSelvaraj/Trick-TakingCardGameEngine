@@ -90,10 +90,11 @@ public class validBids {
             if (bidValueInt < 0) {
                 //Check if pass allowed
                 if (finalCanPass) {
-                    if (adjustedHighestBid !=)
+                    return adjustedHighestBid != null;
                 }
-
-                return finalCanPass;
+                else {
+                    return false;
+                }
             }
             //Check if bids contain suits
             if (finalTrumpSuitBid) {
