@@ -30,7 +30,9 @@ public class State {
     }
 
     public void playCard(int playerNumber, Card card) {
-        if (this.playerHands.get(playerNumber).remove(card)) throw new IllegalArgumentException();
+        if (!this.playerHands.get(playerNumber).remove(card)){
+            throw new IllegalArgumentException();
+        }
     }
 
     public void addCard(int playerNumber, Card card) {

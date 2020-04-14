@@ -17,7 +17,7 @@ import java.util.function.Predicate;
 public class POMDPPlayer extends Player {
     private GameObservation observation;
     private CardPOMDP cardPOMDP;
-    private static final long timeout = 100000;
+    private static final long timeout = 1000000000;
     private StringBuilder trumpSuit;
     private GameDesc desc;
 
@@ -44,6 +44,11 @@ public class POMDPPlayer extends Player {
 
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) {
+        //If the trick is empty
+        if(currentTrick.getHandSize() == 0){
+            //Signify that this player starts the trick
+            observation.setTrickStartedBy(getPlayerNumber());
+        }
         Card card = cardPOMDP.search(observation);
         assert super.getCanBePlayed().test(card);
         return card;
@@ -51,10 +56,6 @@ public class POMDPPlayer extends Player {
 
     @Override
     public void broadcastPlay(Card card, int playerNumber) {
-        //If the trick is full.
-        if (observation.getCurrentTrick().size() == observation.getPlayerObservations().size()) {
-            observation.getCurrentTrick().clear();
-        }
         observation.updateGameState(playerNumber, card);
     }
 
