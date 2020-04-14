@@ -78,7 +78,7 @@ public class GameEngine {
         /* initialize each players hands */
 
         for (Player player : playerArray) {
-            player.initCanBePlayed(game.getValidCard());
+            player.initPlayer(game.getValidCard(), gameDesc);
         }
 
         /* Assign players to teams */

@@ -4,6 +4,7 @@ import src.card.Card;
 import src.functions.validCards;
 import src.gameEngine.Bid;
 import src.gameEngine.Hand;
+import src.parser.GameDesc;
 
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
@@ -38,11 +39,11 @@ public abstract class Player {
     }
 
     /**
-     * Initialises the predicate that checks if a move is valid.
+     * Initialises the player..
      *
      * @param validCard Predicate that checks if a card is valid.
      */
-    public void initCanBePlayed(Predicate<Card> validCard) {
+    public void initPlayer(Predicate<Card> validCard, GameDesc desc) {
         this.canBePlayed = validCards.getCanBePlayedPredicate(this.hand, validCard);
     }
 
