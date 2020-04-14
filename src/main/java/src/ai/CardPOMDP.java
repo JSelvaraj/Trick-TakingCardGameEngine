@@ -4,6 +4,7 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import src.card.Card;
 import src.deck.Shuffle;
+import src.functions.validCards;
 import src.gameEngine.GameEngine;
 import src.parser.GameDesc;
 
@@ -11,6 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
@@ -28,6 +30,7 @@ public class CardPOMDP {
     private BiFunction<List<Card>, Card, Boolean> validCardFunction;
     StringBuilder trumpSuit;
     private GameDesc gameDesc;
+    AtomicBoolean breakFlag;
     //Values for the POMDP procedure.
     private double epsilon = 0.001;
     private double gamma = 1;
@@ -36,16 +39,18 @@ public class CardPOMDP {
     //Search Tree
     private POMCPTreeNode root;
 
-    public CardPOMDP(BiFunction<List<Card>, Card, Boolean> validCards, long timeout, int playerNumber, int playerCount) {
+    public CardPOMDP(GameDesc gameDesc, long timeout, int playerNumber, StringBuilder trumpSuit) {
         random = new Random();
         shuffle = new Shuffle(0); //TODO update seed
-        this.validCardFunction = validCards;
         this.timeout = timeout;
         this.playerNumber = playerNumber;
-        this.playerCount = playerCount;
+        this.playerCount = gameDesc.getNUMBEROFPLAYERS();
+        breakFlag = new AtomicBoolean(false);
+        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate(gameDesc.getLeadingCardForEachTrick(), trumpSuit, breakFlag);
+        validCardFunction = validCards.getValidCardFunction(validLeadingCard);
     }
 
-    private Card search(GameObservation history) {
+    public Card search(GameObservation history) {
         //Initialise the search tree if it hasn't already.
         if (root == null) {
             root = new POMCPTreeNode(history);

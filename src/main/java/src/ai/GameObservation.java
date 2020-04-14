@@ -55,9 +55,17 @@ public class GameObservation implements Cloneable {
     }
 
     public void updateGameState(int playernumber, Card card) {
+        if (currentTrick.size() == 0) {
+            trickStartedBy = playernumber;
+        }
         currentTrick.add(card);
         playerObservations.get(playernumber).addCardPlayed(card);
         cardSequence.add(card);
+    }
+
+    public void addKnownCards(int playerNumber, List<Card> cards){
+        playerObservations.get(playerNumber).getHasCards().addAll(cards);
+        cardsRemaining.removeAll(cards);
     }
 
     public void incrementRound() {
@@ -90,7 +98,7 @@ public class GameObservation implements Cloneable {
      * @param observation The observation to compare against
      * @return True if the given cardSequence of the observation is a subsequence of this observation starting at 0.
      */
-    public boolean isPreviousHistory(GameObservation observation){
+    public boolean isPreviousHistory(GameObservation observation) {
         return Collections.indexOfSubList(cardSequence, observation.cardSequence) == 0;
     }
 

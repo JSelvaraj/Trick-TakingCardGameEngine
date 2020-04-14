@@ -40,7 +40,7 @@ public class State {
      * @return A possible game state based on the observation.
      */
     public static State generateBeliefState(GameObservation history, Shuffle shuffle) {
-        State state = new State(history.getDeck(), history.getPlayerObservations().size());
+        State state = new State(history.getCardsRemaining(), history.getPlayerObservations().size());
         //Add the initial cards we know that each player has.
         for (int i = 0; i < state.getPlayerHands().size(); i++) {
             state.getPlayerHands().get(i).addAll(history.getPlayerObservations().get(i).getCardsPlayed());
