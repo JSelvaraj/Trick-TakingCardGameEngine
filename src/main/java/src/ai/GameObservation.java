@@ -68,6 +68,7 @@ public class GameObservation implements Cloneable {
         }
         currentTrick.add(card);
         playerObservations.get(playernumber).addCardPlayed(card);
+        cardsRemaining.remove(card);
         cardSequence.add(card);
     }
 
