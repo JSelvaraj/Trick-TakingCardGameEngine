@@ -36,10 +36,8 @@ public class PlayerObservation implements Cloneable {
      */
     public PlayerObservation(PlayerObservation observation) {
         this.playerIndex = observation.playerIndex;
-        this.cardsPlayed = new LinkedList<>();
-        Collections.copy(cardsPlayed, observation.cardsPlayed);
-        this.hasCards = new LinkedList<>();
-        Collections.copy(hasCards, observation.hasCards);
+        this.cardsPlayed = new LinkedList<>(observation.cardsPlayed);
+        this.hasCards = new LinkedList<>(observation.hasCards);
         this.cardsLeft = observation.cardsLeft;
     }
 

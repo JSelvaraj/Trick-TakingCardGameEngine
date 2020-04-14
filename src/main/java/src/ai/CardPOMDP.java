@@ -59,14 +59,17 @@ public class CardPOMDP {
 
     public Card search(GameObservation history) {
         //Initialise the search tree if it hasn't already.
-        if (root == null) {
-            root = new POMCPTreeNode(history);
-        }
+//        if (root == null) {
+//            root = new POMCPTreeNode(history);
+//        }
         long startTime = System.nanoTime();
+        int i = 0;
         do {
             State gameState = State.generateBeliefState(history, shuffle);
+            System.out.println("Starting Simulation");
             simulate(gameState, history, 0);
-        } while (System.nanoTime() - startTime < timeout);
+            i++;
+        } while (i < 100); //TODO revert to timeout
         POMCPTreeNode bestNode = root.getChildren().stream().max(Comparator.comparing(POMCPTreeNode::getValue)).orElse(null);
         assert bestNode != null;
         //Update the root of the search tree.
@@ -81,17 +84,17 @@ public class CardPOMDP {
         GameObservation newObservation = new GameObservation(observation);
         State newState = new State(state);
         //Find the player who started the trick.
-        int currentPlayer = observation.getTrickStartedBy();
+        int currentPlayer = newObservation.getTrickStartedBy();
         //Add the cards that have already been played, if the current player didn't lead the trick
-        if (currentPlayer != playerNumber) {
-            for (Card card : newObservation.getCurrentTrick()) {
-                trickSimulator.addCard(currentPlayer, card);
-                //Then go onto the next player.
-                currentPlayer = playerIncrementor.apply(currentPlayer);
-            }
+        for (Card card : newObservation.getCurrentTrick()) {
+            trickSimulator.addCard(currentPlayer, card);
+            //Then go onto the next player.
+            currentPlayer = playerIncrementor.apply(currentPlayer);
         }
         assert currentPlayer == playerNumber;
+        //Have this player make their move.
         trickSimulator.addCard(playerNumber, action);
+        makeMove(currentPlayer, newState, newObservation, action);
         currentPlayer = playerIncrementor.apply(currentPlayer);
         //Keep going till all players have played.
         while (trickSimulator.getTrick().size() < playerCount) {
@@ -111,7 +114,7 @@ public class CardPOMDP {
         newObservation.setTrickStartedBy(currentPlayer);
         //TODO change for minimum hand size.
         //If the player has no more cards, i.e reaches the end point.
-        if (newState.getPlayerHands().get(currentPlayer).size() == 0) {
+        if (newState.getHandSize(currentPlayer) == 0) {
             newObservation.setDone(true);
         } else {
             //Fill the observation until it is the AI players turn.
@@ -129,7 +132,7 @@ public class CardPOMDP {
         if (Math.pow(gamma, depth) < epsilon) {
             return 0;
         }
-        Card playerAction = makeRandomMove(playerNumber, state, history);
+        Card playerAction = pickRandomMove(playerNumber, state, history);
         Triple<State, GameObservation, Integer> simulationOutcome = BlackBoxSimulator(state, history, playerAction);
         //Unpack the result.
         State newState = simulationOutcome.getLeft();
@@ -146,14 +149,20 @@ public class CardPOMDP {
         if (Math.pow(gamma, depth) < epsilon) {
             return 0;
         }
-        POMCPTreeNode closestNode = root.findClosestNode(observation);
+        //Parent node of the observation.
+        POMCPTreeNode closestNode = null;
         POMCPTreeNode observationNode;
-        //Should not be null.
-        assert closestNode != null;
+        if(root != null){
+            closestNode = root.findClosestNode(observation);
+        }
         //If this history isn't in the tree already.
-        if (closestNode == root || (!closestNode.getObservation().getCardSequence().equals(observation.getCardSequence()))) {
+        if (closestNode == null || !closestNode.getObservation().getCardSequence().equals(observation.getCardSequence())){
             observationNode = new POMCPTreeNode(observation);
-            closestNode.getChildren().add(observationNode);
+            if(closestNode != null){
+                closestNode.getChildren().add(observationNode);
+            } else {
+                root = observationNode;
+            }
             for (Card validMove : validMoves(playerNumber, observation, state)) {
                 GameObservation newObservation = new GameObservation(observation);
                 newObservation.updateGameState(playerNumber, validMove);
@@ -185,13 +194,23 @@ public class CardPOMDP {
     }
 
     private Card makeRandomMove(int currentPlayer, State state, GameObservation observation) {
-        //Make a random action for the current player.
-        List<Card> validCards = validMoves(currentPlayer, observation, state);
-        Card playedCard = validCards.get(random.nextInt(validCards.size()));
+        Card playedCard = pickRandomMove(currentPlayer, state, observation);
         //Update the state and observation.
-        state.getPlayerHands().get(currentPlayer).remove(playedCard);
-        observation.updateGameState(currentPlayer, playedCard);
+        makeMove(currentPlayer, state, observation, playedCard);
         return playedCard;
+    }
+
+    private Card pickRandomMove(int currentPlayer, State state, GameObservation observation) {
+        List<Card> validCards = validMoves(currentPlayer, observation, state);
+        if (validCards.size() == 0) {
+            throw new IllegalArgumentException();
+        }
+        return validCards.get(random.nextInt(validCards.size()));
+    }
+
+    private void makeMove(int currentPlayer, State state, GameObservation observation, Card card) {
+        state.playCard(currentPlayer, card);
+        observation.updateGameState(currentPlayer, card);
     }
 
     private List<Card> validMoves(int playerNumber, final GameObservation observation, final State state) {

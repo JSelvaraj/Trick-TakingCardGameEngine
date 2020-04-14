@@ -37,9 +37,14 @@ public class GameObservation implements Cloneable {
         this.deck = new LinkedList<>(gameObservation.deck);
         this.currentTrick = new LinkedList<>(gameObservation.currentTrick);
         this.cardsRemaining = new LinkedList<>(gameObservation.cardsRemaining);
-        this.playerObservations = new ArrayList<>(gameObservation.playerObservations);
+        this.playerObservations = new ArrayList<>();
+        for (PlayerObservation playerObservation : gameObservation.playerObservations) {
+            this.playerObservations.add(new PlayerObservation(playerObservation));
+        }
         this.cardSequence = new ArrayList<>(gameObservation.cardSequence);
         this.round = gameObservation.round;
+        this.trickStartedBy = gameObservation.trickStartedBy;
+        this.done = gameObservation.done;
     }
 
     public List<Card> getDeck() {
@@ -55,7 +60,10 @@ public class GameObservation implements Cloneable {
     }
 
     public void updateGameState(int playernumber, Card card) {
-        if (currentTrick.size() == 0) {
+        //Empty trick if it is full.
+        if(currentTrick.size() == playerObservations.size()){
+            currentTrick.clear();
+        } else if (currentTrick.size() == 0) {
             trickStartedBy = playernumber;
         }
         currentTrick.add(card);

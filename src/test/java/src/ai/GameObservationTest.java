@@ -12,6 +12,17 @@ import static org.junit.jupiter.api.Assertions.*;
 class GameObservationTest {
 
     @Test
+    void copyConstructor() {
+        List<Card> deck = new Deck().cards;
+        Iterator<Card> cardIterator = deck.iterator();
+        GameObservation observation = new GameObservation(deck, 4, 13);
+        GameObservation copiedObservation = new GameObservation(observation);
+        assertNotSame(observation, copiedObservation);
+        assertNotSame(observation.getCardSequence(), copiedObservation.getCardSequence());
+
+    }
+
+    @Test
     void isPreviousHistory() {
         List<Card> deck = new Deck().cards;
         Iterator<Card> cardIterator = deck.iterator();
