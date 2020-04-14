@@ -89,6 +89,10 @@ public class validBids {
             //Check for input is pass
             if (bidValueInt < 0) {
                 //Check if pass allowed
+                if (finalCanPass) {
+                    if (adjustedHighestBid !=)
+                }
+
                 return finalCanPass;
             }
             //Check if bids contain suits

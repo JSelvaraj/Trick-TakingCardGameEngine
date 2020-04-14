@@ -126,7 +126,11 @@ public class NetworkPlayer extends Player {
         json.put("type", "bid");
         json.put("doubling", bid.isDoubling());
         if (bid.getSuit() != null) {
-            json.put("suit", bid.getSuit());
+            String suit = bid.getSuit();
+            if (suit.equals("NO TRUMP")) {
+                suit = "N";
+            }
+            json.put("suit", suit);
         }
         json.put("value", bid.getBidValue());
         json.put("blindBid", bid.isBlind());
@@ -165,6 +169,9 @@ public class NetworkPlayer extends Player {
         }
         else {
             suit = bidEvent.optString("suit", null);
+            if (suit.equals("NO TRUMP")) {
+                suit = "N";
+            }
             int valueInt = bidEvent.getInt("value");
             blind = bidEvent.optBoolean("blindBid", false);
             bid = new Bid(false,suit,valueInt,blind);
