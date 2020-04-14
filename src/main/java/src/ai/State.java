@@ -43,14 +43,14 @@ public class State {
         State state = new State(history.getCardsRemaining(), history.getPlayerObservations().size());
         //Add the initial cards we know that each player has.
         for (int i = 0; i < state.getPlayerHands().size(); i++) {
-            state.getPlayerHands().get(i).addAll(history.getPlayerObservations().get(i).getCardsPlayed());
+            state.getPlayerHands().get(i).addAll(history.getPlayerObservations().get(i).getHasCards());
         }
         //Shuffle the deck
         shuffle.shuffle(state.getDeck());
         Iterator<Card> deckIterator = state.getDeck().iterator();
         //Iterate over each player, until each player has the correct number of cards.
         for (int i = 0; i < state.getPlayerHands().size(); i++) {
-            while (state.getPlayerHands().get(i).size() < history.getPlayerObservations().get(i).getCardsLeft()) {
+            while (state.getPlayerHands().get(i).size() < (history.getPlayerObservations().get(i).getCardsLeft() - history.getPlayerObservations().get(i).getHasCards().size())) {
                 state.getPlayerHands().get(i).add(deckIterator.next());
                 deckIterator.remove();
             }
