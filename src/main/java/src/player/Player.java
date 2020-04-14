@@ -43,6 +43,10 @@ public abstract class Player {
         this.canBePlayed = null;
     }
 
+    public void startHand() {
+
+    }
+
     public void setPlayerNumber(int playerNumber) {
         this.playerNumber = playerNumber;
     }

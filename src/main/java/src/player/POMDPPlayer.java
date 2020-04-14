@@ -18,6 +18,8 @@ public class POMDPPlayer extends Player {
     private GameObservation observation;
     private CardPOMDP cardPOMDP;
     private static final long timeout = 100000;
+    private StringBuilder trumpSuit;
+    private GameDesc desc;
 
     public POMDPPlayer(int playerNumber) {
         super(playerNumber);
@@ -26,6 +28,12 @@ public class POMDPPlayer extends Player {
     @Override
     public void initPlayer(Predicate<Card> validCard, GameDesc desc, StringBuilder trumpSuit) {
         super.initPlayer(validCard, desc, trumpSuit);
+        this.desc = desc;
+        this.trumpSuit = trumpSuit;
+    }
+
+    @Override
+    public void startHand() {
         Deck deck = new Deck(); //TODO work for more than standard deck.
         observation = new GameObservation(deck.cards, desc.getNUMBEROFPLAYERS(), desc.getInitialHandSize());
         //Add the cards that this player has.

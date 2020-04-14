@@ -116,6 +116,10 @@ public class GameEngine {
             }
 
             currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
+            //Signify to players that a new hand has started.
+            for (Player player : playerArray) {
+                player.startHand();
+            }
 
             if (gameDesc.isBidding()) {
                 game.getBids(currentPlayer, playerArray, gameDesc);
