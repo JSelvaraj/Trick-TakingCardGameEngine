@@ -315,7 +315,7 @@ public class GameEngine {
      * @return suit-value hashmap where the value is its rank based on how the game ranks suits
      * Note: lower map value = higher rank
      */
-    private static HashMap<String, Integer> generateSuitOrder(GameDesc desc, StringBuilder trumpSuit, List<Card> currentTrick) {
+    public static HashMap<String, Integer> generateSuitOrder(GameDesc desc, StringBuilder trumpSuit, List<Card> currentTrick) {
         HashMap<String, Integer> suitMap = new HashMap<>();
         //Set default value for suits
         for (String suit : desc.getSUITS()) {
