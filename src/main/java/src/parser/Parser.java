@@ -97,7 +97,7 @@ public class Parser {
         }
         boolean ascedingOrdering = gameJSON.getBoolean("ascending_ordering");
         int initialHandSize = gameJSON.getInt("initialHandSize");
-        int minHandSize = gameJSON.getInt("minimumHandSize");
+        int minHandSize = gameJSON.optInt("minimumHandSize");
         //Rules
         //TODO fill in defaults
         String calculateScore = null;
@@ -168,18 +168,27 @@ public class Parser {
         if (trumpPickingMode.equals("fixed") && trumpSuit == null) {
             throw new InvalidGameDescriptionException("No trump suit specified with fixed trump mode.");
         }
-        //Seed for generator
-        long seed = 2; //TODO remove this.
+
         assert trumpPickingMode != null;
         Iterator<String> trumpIterator = null;
         if (trumpPickingMode.equals("predefined") && trumpOrdering != null) {
             trumpIterator = parseTrumpOrdering(trumpOrdering);
 
         }
+
+        //Pass any parameters that main engine needs that are bidding specific.
+        boolean trumpSuitBid = false;
+        boolean canPass = false;
+        JSONObject bidObject = gameJSON.optJSONObject("bid");
+        if (bidObject != null) {
+            trumpSuitBid = bidObject.optBoolean("trumpSuitBid", false);
+            canPass = bidObject.optBoolean("canPass", false);
+        }
+
+
         GameDesc gameDesc = new GameDesc(name,
                 players,
                 teams,
-                seed,
                 suits,
                 ranks,
                 rank_order,
@@ -197,10 +206,12 @@ public class Parser {
                 trickWinner,
                 trickLeader,
                 handSize,
-                trumpIterator);
+                trumpIterator,
+                trumpSuitBid,
+                canPass);
 
-        if (!gameJSON.isNull("bid")) {
-            JSONObject bidObject = gameJSON.getJSONObject("bid");
+        if (bidObject != null) {
+            bidObject = gameJSON.getJSONObject("bid");
             initBidding(bidObject, gameDesc);
         }
         return gameDesc;
@@ -235,9 +246,7 @@ public class Parser {
     }
 
     private void initBidding(JSONObject bidObject, GameDesc gameDesc) {
-        int minBid = bidObject.getInt("minBid");
-        int maxBid = bidObject.getInt("maxBid");
-        gameDesc.setValidBid(validBids.isValidBidValue(minBid, maxBid));
+        gameDesc.setValidBid(validBids.isValidBidValue(bidObject));
         gameDesc.setEvaluateBid(validBids.evaluateBid(bidObject));
         gameDesc.setBidding(true);
     }

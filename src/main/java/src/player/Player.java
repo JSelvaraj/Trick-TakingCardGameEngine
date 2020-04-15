@@ -3,10 +3,15 @@ package src.player;
 import src.card.Card;
 import src.functions.validCards;
 import src.gameEngine.Bid;
+import src.gameEngine.ContractBid;
 import src.gameEngine.Hand;
+import src.gameEngine.PotentialBid;
 import src.rdmEvents.RdmEvent;
 import src.rdmEvents.Swap;
+import src.team.Team;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
@@ -16,7 +21,9 @@ import java.util.function.Predicate;
 public abstract class Player {
     private int playerNumber;
     private Hand hand = null;
+    private Bid bid;
     private Predicate<Card> canBePlayed;
+    private Team team;
 
     Player(int playerNumber, Predicate<Card> canBePlayed) {
         this.playerNumber = playerNumber;
@@ -60,7 +67,7 @@ public abstract class Player {
 
     public abstract void broadcastPlay(Card card, int playerNumber);
 
-    public abstract Bid makeBid(IntPredicate validBid);
+    public abstract Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid);
 
     public Predicate<Card> getCanBePlayed() {
         return canBePlayed;
@@ -78,5 +85,21 @@ public abstract class Player {
 
     public void setHand(Hand hand) {
         this.hand = hand;
+    }
+
+    public Bid getBid() {
+        return bid;
+    }
+
+    public void setBid(Bid bid) {
+        this.bid = bid;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
 }

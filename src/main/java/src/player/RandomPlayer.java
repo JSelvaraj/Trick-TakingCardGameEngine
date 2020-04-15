@@ -2,11 +2,14 @@ package src.player;
 
 import src.card.Card;
 import src.gameEngine.Bid;
+import src.gameEngine.ContractBid;
 import src.gameEngine.Hand;
+import src.gameEngine.PotentialBid;
 import src.rdmEvents.RdmEvent;
 import src.rdmEvents.Swap;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
@@ -38,16 +41,21 @@ public class RandomPlayer extends Player {
 
     @Override
     public void broadcastPlay(Card card, int playerNumber) {
+        System.out.println(card + " played by Player " + (playerNumber + 1));
     }
 
     @Override
-    public Bid makeBid(IntPredicate validBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
         int handSize = super.getHand().getHandSize();
         int bid;
+        String suit = null;
         do {
             bid = random.nextInt(handSize);
-        } while (!validBid.test(bid));
-        return new Bid(bid, true);
+            if (trumpSuitBid) {
+                suit = "SPADES";
+            }
+        } while (!validBid.test(new PotentialBid(null, Integer.toString(bid), adjustedHighestBid)));
+        return new Bid(false, suit, bid, true);
     }
 
     @Override

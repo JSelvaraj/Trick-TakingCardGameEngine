@@ -43,7 +43,7 @@ public class main {
         private int port;
     }
 
-    public static void main(String[] args) throws InvalidGameDescriptionException, InterruptedException {
+    public static void main(String[] args) {
         System.setProperty("java.net.preferIPv4Stack" , "false");
         CommandHost host = new CommandHost();
         CommandJoin join = new CommandJoin();
@@ -81,7 +81,7 @@ public class main {
                     for (int i = 0; i < host.aiPlayers; i++) {
                         System.out.println("AI started");
                         PlayerRunner runner = new PlayerRunner(new RandomPlayer(), "localhost", host.port,
-                                true, false, host.enableRandomEvents);
+                                true, true, host.enableRandomEvents);
                         Thread aiThread = new Thread(runner);
                         aiThread.start();
                     }

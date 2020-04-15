@@ -7,7 +7,9 @@ import src.card.Card;
 import src.exceptions.InvalidBidException;
 import src.exceptions.InvalidPlayerMoveException;
 import src.gameEngine.Bid;
+import src.gameEngine.ContractBid;
 import src.gameEngine.Hand;
+import src.gameEngine.PotentialBid;
 import src.rdmEvents.Swap;
 
 import java.io.BufferedWriter;
@@ -122,9 +124,16 @@ public class NetworkPlayer extends Player {
     public void broadcastBid(Bid bid, int playerNumber) {
         JSONObject json = new JSONObject();
         json.put("type", "bid");
+        json.put("doubling", bid.isDoubling());
+        if (bid.getSuit() != null) {
+            String suit = bid.getSuit();
+            if (suit.equals("NO TRUMP")) {
+                suit = "N";
+            }
+            json.put("suit", suit);
+        }
         json.put("value", bid.getBidValue());
         json.put("blindBid", bid.isBlind());
-        json.put("playerIndex", playerNumber);
         try {
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8));
             out.write(json.toString());
@@ -135,7 +144,7 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public Bid makeBid(IntPredicate validBid) { //TODO allow passing
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
         JsonElement msg = null;
         try {
             JsonStreamParser reader = new JsonStreamParser(new InputStreamReader(playerSocket.getInputStream()));
@@ -149,13 +158,28 @@ public class NetworkPlayer extends Player {
         if (!type.equals("bid")) {
             throw new InvalidPlayerMoveException();
         }
-        //TODO take suit into account
-        int value = bidEvent.getInt("value");
-        boolean blind = bidEvent.optBoolean("blind", false);
-        if (!validBid.test(value)) {
+        Bid bid;
+        String value;
+        String suit = null;
+        boolean blind;
+        boolean doubling = bidEvent.optBoolean("doubling", false);
+        if (doubling) {
+            bid =  new Bid(true, null,0,false);
+            value = "d";
+        }
+        else {
+            suit = bidEvent.optString("suit", null);
+            if (suit != null && suit.equals("NO TRUMP")) {
+                suit = "N";
+            }
+            int valueInt = bidEvent.getInt("value");
+            blind = bidEvent.optBoolean("blindBid", false);
+            bid = new Bid(false,suit,valueInt,blind);
+            value = Integer.toString(valueInt);
+        }
+        if (!validBid.test(new PotentialBid(suit, value, adjustedHighestBid))) {
             throw new InvalidBidException();
         }
-        return new Bid(value, blind);
-
+        return bid;
     }
 }

@@ -1,5 +1,6 @@
 package src.team;
 
+import src.gameEngine.Bid;
 import src.player.Player;
 
 public class Team {
@@ -15,6 +16,13 @@ public class Team {
         this.teamNumber = teamNumber;
         score = 0;
         tricksWon = 0;
+        setPlayers(players);
+    }
+
+    private void setPlayers(Player[] players) {
+        for (Player player: players) {
+            player.setTeam(this);
+        }
     }
 
     public void printTeam() {
@@ -22,15 +30,6 @@ public class Team {
         for (Player player: players) {
             System.out.println("Player no. : " + player.getPlayerNumber() );
         }
-    }
-
-    public boolean findPlayer(int targetPlayerNumber) {
-        for (Player player : players) {
-            if(player.getPlayerNumber() == targetPlayerNumber) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public void setTricksWon(int tricksWon) {
@@ -56,6 +55,7 @@ public class Team {
     public int getTeamNumber() {
         return teamNumber;
     }
+
 }
 
 

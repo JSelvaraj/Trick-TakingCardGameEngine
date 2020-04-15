@@ -1,10 +1,13 @@
 package src;
 
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import src.card.Card;
 import src.functions.validBids;
 import src.functions.validCards;
+import src.gameEngine.Bid;
 import src.gameEngine.Hand;
+import src.gameEngine.PotentialBid;
 import src.player.RandomPlayer;
 
 import java.util.function.IntPredicate;
@@ -74,11 +77,15 @@ class RandomPlayerTest {
 
     @Test
     void makeBid() {
-        int minBid = 0;
-        int maxBid = 10;
-        IntPredicate validBid = validBids.isValidBidValue(minBid, maxBid);
+        JSONObject bidObject = new JSONObject();
+        bidObject.put("minBid", 0);
+        bidObject.put("maxBid", 10);
+        Predicate<PotentialBid> validBid = validBids.isValidBidValue(bidObject);
         RandomPlayer randomPlayer = new RandomPlayer(0, null);
         for (int i = 0; i < 10; i++) randomPlayer.getHand().getCard(new Card("", ""));
-        for (int i = 0; i < 1000; i++) assertTrue(validBid.test(randomPlayer.makeBid(validBid).getBidValue()));
+        for (int i = 0; i < 1000; i++) {
+            Bid randomBid = randomPlayer.makeBid(validBid, false, null);
+            assertTrue(validBid.test(new PotentialBid(randomBid.getSuit(), Integer.toString(randomBid.getBidValue()), null)));
+        }
     }
 }

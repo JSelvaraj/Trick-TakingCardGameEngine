@@ -3,13 +3,15 @@ package src.functions;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import src.gameEngine.Bid;
+import src.gameEngine.ContractBid;
+import src.gameEngine.PotentialBid;
 import src.gameEngine.SpecialBid;
+import src.player.Player;
+import src.team.Team;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
-import java.util.function.IntPredicate;
+import java.util.function.Predicate;
 
 /**
  * Creates custom functions based on the game description rules that describe how bids work - validity and scoring.
@@ -18,15 +20,123 @@ public class validBids {
     /**
      * Creates a Predicate that checks if a given bid is valid.
      *
-     * @param minBid The minimum bid to be made
-     * @param maxBid The maximum bid to be made.
+     *
      * @return Predicate that will return true if the given bid is in [minBid, maxBid]
      */
-    public static IntPredicate isValidBidValue(int minBid, int maxBid) {
+    public static Predicate<PotentialBid> isValidBidValue(JSONObject bidObject) {
+        int minBid = bidObject.getInt("minBid");
+        int maxBid = bidObject.getInt("maxBid");
+        boolean trumpSuitBid;
+        boolean ascendingBid;
+        boolean canPass;
+        boolean canDouble;
+        boolean canRedouble;
+        JSONArray suitBidRank;
+        HashMap<String, Integer> suitBidRankStr = new HashMap<>();
+        trumpSuitBid = bidObject.optBoolean("trumpSuitBid", false);
+        ascendingBid = bidObject.optBoolean("ascendingBid", false);
+        if (!bidObject.isNull("suitBidRank")) {
+            suitBidRank = bidObject.getJSONArray("suitBidRank");
+            for (int i = 0; i < suitBidRank.length(); i++) {
+                suitBidRankStr.put((String) suitBidRank.get(i), i);
+            }
+        }
+        canPass = bidObject.optBoolean("canPass", false);
+        canDouble = bidObject.optBoolean("canDouble", false);
+        canRedouble = bidObject.optBoolean("canRedouble", false);
         if (minBid > maxBid) {
             throw new IllegalArgumentException("Minimum bid can't be greater than maximum bid");
         }
-        return (bid) -> minBid <= bid && bid <= maxBid;
+        boolean finalTrumpSuitBid = trumpSuitBid;
+        boolean finalAscendingBid = ascendingBid;
+        boolean finalCanDouble = canDouble;
+        boolean finalCanRedouble = canRedouble;
+        boolean finalCanPass = canPass;
+        return( (potentialBid) -> {
+            String bidValue = potentialBid.getBidInput();
+            String bidSuit = potentialBid.getBidSuit();
+            ContractBid adjustedHighestBid = potentialBid.getAdjustedHighestBid();
+            if (bidValue.equals("d")) {
+                //Check if doubling is allowed
+                if (finalCanDouble) {
+                    if (adjustedHighestBid == null || adjustedHighestBid.isRedoubling()) {
+                        return false;
+                    }
+                    //Check for an existing double
+                    if (adjustedHighestBid.isDoubling()) {
+                        if (finalCanRedouble) {
+                            return adjustedHighestBid.getBidValue() * 2 <= maxBid;
+                        }
+                        else {
+                            //Redoubling not allowed - invalid bid
+                            return false;
+                        }
+                    }
+                    //Check if there is an existing bid to double
+                    //Check if a doubled bid is in bounds
+                    return adjustedHighestBid.getBidValue() * 2 <= maxBid;
+                }
+            }
+            try {
+                Integer.parseInt(bidValue);
+            }
+            catch( Exception e ) {
+                //Input is not a 'd' or an integer
+                return false;
+            }
+            int bidValueInt = Integer.parseInt(bidValue);
+            //Check for input is pass
+            if (bidValueInt == -2) {
+                //Check if pass allowed
+                if (finalCanPass) {
+                    return adjustedHighestBid != null;
+                }
+                else {
+                    return false;
+                }
+            }
+            else if (bidValueInt >= minBid) {
+                //Check if bids contain suits
+                if (finalTrumpSuitBid) {
+                    if (finalAscendingBid) {
+                        //Case that no bids exist yet
+                        if (adjustedHighestBid == null) {
+                            return bidValueInt <= maxBid && suitBidRankStr.containsKey(bidSuit);
+                        }
+                        else {
+                            //Check bid value is higher
+                            if (bidValueInt > adjustedHighestBid.getBidValue()) {
+                                return true;
+                            }
+                            else return bidValueInt == adjustedHighestBid.getBidValue() && suitBidRankStr.get(adjustedHighestBid.getSuit()) < suitBidRankStr.get(bidSuit);
+                        }
+                    }
+                    //If not ascending bid
+                    else {
+                        return bidValueInt <= maxBid && suitBidRankStr.containsKey(bidSuit);
+                    }
+                }
+                else {
+                    if (finalAscendingBid) {
+                        //Case that no bids exist yet
+                        if (adjustedHighestBid == null) {
+                            return bidValueInt <= maxBid;
+                        }
+                        //Check bid value is higher
+                        else {
+                            return bidValueInt <= maxBid && bidValueInt > adjustedHighestBid.getBidValue();
+                        }
+                    }
+                    //If not ascending bid - only bounds
+                    else {
+                        return bidValueInt <= maxBid;
+                    }
+                }
+            }
+            else {
+                return false;
+            }
+        });
     }
 
     /**
@@ -47,10 +157,10 @@ public class validBids {
             JSONArray specialBids = bidObject.getJSONArray("specialBids");
             for (int i = 0; i < specialBids.length(); i++) {
                 JSONObject specialBid = specialBids.getJSONObject(i);
-                specialBidList.add(new SpecialBid(specialBid.getInt("bidValue"),
-                        specialBid.getInt("pointsGained"),
-                        specialBid.getInt("penalty"),
-                        specialBid.getBoolean("blind")));
+                specialBidList.add(new SpecialBid(specialBid.optInt("bidValue"),
+                        specialBid.optInt("pointsGained"),
+                        specialBid.optInt("penalty"),
+                        specialBid.optBoolean("blind")));
             }
         }
         return ((bid, value) -> {
