@@ -153,16 +153,16 @@ public class validBids {
         int points_for_matching = bidObject.optInt("pointsForMatch", 0); //TODO add to spec
         //Create list for special bids rules
         List<SpecialBid> specialBidList = new LinkedList<>();
-        /*if (bidObject.has("specialBids") && !bidObject.isNull("specialBids")) {
+        if (bidObject.has("specialBids") && !bidObject.isNull("specialBids")) {
             JSONArray specialBids = bidObject.getJSONArray("specialBids");
             for (int i = 0; i < specialBids.length(); i++) {
                 JSONObject specialBid = specialBids.getJSONObject(i);
-                specialBidList.add(new SpecialBid(specialBid.getInt("bidValue"),
-                        specialBid.getInt("pointsGained"),
-                        specialBid.getInt("penalty"),
-                        specialBid.getBoolean("blind")));
+                specialBidList.add(new SpecialBid(specialBid.optInt("bidValue"),
+                        specialBid.optInt("pointsGained"),
+                        specialBid.optInt("penalty"),
+                        specialBid.optBoolean("blind")));
             }
-        }*/
+        }
         return ((bid, value) -> {
             //First finds if the bid matches a special bid that was defined in the game decription
             Optional<SpecialBid> matchingSpecialBid = specialBidList.stream()
