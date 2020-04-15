@@ -171,7 +171,7 @@ public class CardPOMDP {
             closestNode = root = new POMCPTreeNode(observation);
         }
         //If this history isn't in the tree already.
-        if (closestNode == root || !closestNode.getObservation().getCardSequence().equals(observation.getCardSequence())) {
+        if ((closestNode.getChildren().size() == 0) || !closestNode.getObservation().getCardSequence().equals(observation.getCardSequence())) {
 //            observationNode = new POMCPTreeNode(observation);
 //            if(closestNode != null){
 //                closestNode.getChildren().add(observationNode);
@@ -182,8 +182,7 @@ public class CardPOMDP {
                 GameObservation newObservation = new GameObservation(observation);
                 newObservation.updateGameState(playerNumber, validMove);
                 //Add the new node to the tree.
-                assert closestNode != null;
-                assert closestNode.addNode(newObservation);
+                closestNode.addNode(newObservation);
             }
             return rollout(state, observation, depth);
         }
