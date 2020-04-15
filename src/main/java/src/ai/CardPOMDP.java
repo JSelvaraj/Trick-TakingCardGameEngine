@@ -8,11 +8,9 @@ import src.functions.PlayerIncrementer;
 import src.functions.validCards;
 import src.gameEngine.GameEngine;
 import src.parser.GameDesc;
+import src.team.Team;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.IntFunction;
@@ -32,10 +30,11 @@ public class CardPOMDP {
     StringBuilder trumpSuit;
     private GameDesc gameDesc;
     AtomicBoolean breakFlag;
+    private List<Integer> teamMates;
     //Values for the POMDP procedure.
     private double epsilon = 0.001;
     private double gamma = 1;
-    private final double c = 0.5;
+    private final double c = 4;
     long timeout;
     //Search Tree
     private POMCPTreeNode root;
@@ -49,6 +48,14 @@ public class CardPOMDP {
         this.playerCount = gameDesc.getNUMBEROFPLAYERS();
         if (gameDesc.getTrumpPickingMode().equals("break")) {
             throw new UnsupportedOperationException();
+        }
+        //Find of the team of this player.
+        for (int[] team : gameDesc.getTeams()) {
+            for (int i : team) {
+                if (i == playerNumber) {
+                    teamMates = Arrays.stream(team).boxed().collect(Collectors.toList());
+                }
+            }
         }
         this.trumpSuit = trumpSuit;
         breakFlag = new AtomicBoolean(false);
@@ -69,7 +76,7 @@ public class CardPOMDP {
             simulate(gameState, history, 0);
             i++;
         } while (System.currentTimeMillis() - startTime < timeout);
-//        System.out.println(i);
+        System.out.println(i);
         POMCPTreeNode bestNode = root.getChildren().stream().max(Comparator.comparing(POMCPTreeNode::getValue)).orElse(null);
         assert bestNode != null;
         //Update the root of the search tree.
@@ -110,7 +117,7 @@ public class CardPOMDP {
         //Evaluate the winning player of this trick.
         int winningPlayer = trickSimulator.evaluateWinner(gameDesc);
         //See if this player won the trick.
-        int r = (winningPlayer == playerNumber) ? 1 : 0; //TODO add check for teams, as it is still a good move if your teammate wins it.
+        int r = (teamMates.contains(winningPlayer)) ? 1 : 0;
         currentPlayer = winningPlayer;
         newObservation.getCurrentTrick().clear();
         newObservation.setTrickStartedBy(currentPlayer);
