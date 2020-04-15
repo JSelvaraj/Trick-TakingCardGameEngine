@@ -91,6 +91,18 @@ public class validBidsBridgeTest {
         assertTrue(bidValidator.test(new PotentialBid("SPADES", Integer.toString(4), adjustedHighestBid)));
     }
 
+    @Test
+    void badRaiseBidIncreaseSuit1() {
+        ContractBid adjustedHighestBid = new ContractBid(false, "SPADES", 4, false, false, null);
+        assertFalse(bidValidator.test(new PotentialBid("SPADES", Integer.toString(4), adjustedHighestBid)));
+    }
+
+    @Test
+    void badRaiseBidIncreaseValue() {
+        ContractBid adjustedHighestBid = new ContractBid(false, "SPADES", 4, false, false, null);
+        assertFalse(bidValidator.test(new PotentialBid("SPADES", Integer.toString(3), adjustedHighestBid)));
+    }
+
 
 
 }

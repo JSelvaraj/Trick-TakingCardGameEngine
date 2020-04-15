@@ -46,6 +46,7 @@ public class GameDesc {
     private int initialHandSize;
     private Iterator<String> trumpIterator;
     private boolean trumpSuitBid;
+    private boolean canPass;
 
 
     /**
@@ -74,7 +75,9 @@ public class GameDesc {
                     String trickWinner,
                     String trickLeader,
                     String handSize,
-                    Iterator<String> trumpIterator, boolean trumpSuitBid) {
+                    Iterator<String> trumpIterator,
+                    boolean trumpSuitBid,
+                    boolean canPass) {
         this.name = name;
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
@@ -98,6 +101,7 @@ public class GameDesc {
         this.getHandSize = handFunctions.getHandSize(initialHandSize, minHandSize, handSize);
         this.trumpIterator = trumpIterator;
         this.trumpSuitBid = trumpSuitBid;
+        this.canPass = canPass;
     }
 
     @Override
@@ -225,5 +229,9 @@ public class GameDesc {
 
     public boolean isTrumpSuitBid() {
         return trumpSuitBid;
+    }
+
+    public boolean isCanPass() {
+        return canPass;
     }
 }
