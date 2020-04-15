@@ -17,7 +17,7 @@ import java.util.function.Predicate;
 public class POMDPPlayer extends Player {
     private GameObservation observation;
     private CardPOMDP cardPOMDP;
-    private static final long timeout = 1000000000;
+    private static final long timeout = 1000;
     private StringBuilder trumpSuit;
     private GameDesc desc;
 
@@ -51,7 +51,7 @@ public class POMDPPlayer extends Player {
         }
         Card card = cardPOMDP.search(observation);
         assert super.getCanBePlayed().test(card);
-        return card;
+        return super.getHand().giveCard(card);
     }
 
     @Override
