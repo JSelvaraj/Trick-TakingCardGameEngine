@@ -169,7 +169,7 @@ public class NetworkPlayer extends Player {
         }
         else {
             suit = bidEvent.optString("suit", null);
-            if (suit.equals("NO TRUMP")) {
+            if (suit != null && suit.equals("NO TRUMP")) {
                 suit = "N";
             }
             int valueInt = bidEvent.getInt("value");

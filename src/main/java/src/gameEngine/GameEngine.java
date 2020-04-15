@@ -315,7 +315,7 @@ public class GameEngine {
                     passCounter += 1;
                 }
             }
-            System.out.println(getAdjustedHighestBid());
+            //System.out.println(getAdjustedHighestBid());
             players[currentPlayer].setBid(bid);
             broadcastBids(players[currentPlayer].getBid(), currentPlayer, players);
             currentPlayer = this.nextPlayerIndex.apply(currentPlayer);
