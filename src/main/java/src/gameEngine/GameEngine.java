@@ -10,6 +10,7 @@ import src.functions.validCards;
 import src.parser.GameDesc;
 import src.player.LocalPlayer;
 import src.player.NetworkPlayer;
+import src.player.POMDPPlayer;
 import src.player.Player;
 import src.rdmEvents.rdmEventsManager;
 import src.team.Team;
@@ -391,7 +392,7 @@ public class GameEngine {
             }
         } else { //Only need to print out network moves to local players
             for (Player player : playerArray) {
-                if (player.getClass() == LocalPlayer.class) {
+                if (player.getClass() == LocalPlayer.class || player.getClass() == POMDPPlayer.class) {
                     player.broadcastPlay(card, playerNumber);
                 }
             }
