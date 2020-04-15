@@ -10,14 +10,12 @@ public class Team {
     int score;
     int tricksWon;
     Player[] players;
-    Bid highestNormalBid;
 
     public Team(Player[] players, int teamNumber) {
         this.players = players;
         this.teamNumber = teamNumber;
         score = 0;
         tricksWon = 0;
-        highestNormalBid = null;
         setPlayers(players);
     }
 
@@ -58,13 +56,6 @@ public class Team {
         return teamNumber;
     }
 
-    public Bid getHighestNormalBid() {
-        return highestNormalBid;
-    }
-
-    public void setHighestNormalBid(Bid highestNormalBid) {
-        this.highestNormalBid = highestNormalBid;
-    }
 }
 
 

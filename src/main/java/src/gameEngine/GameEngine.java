@@ -118,7 +118,7 @@ public class GameEngine {
             currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
 
             if (gameDesc.isBidding()) {
-                game.getBids(currentPlayer, playerArray);
+                game.getBids(currentPlayer, playerArray, gameDesc);
             }
             if (printMoves) {
                 System.out.println("-----------------------------------");
@@ -269,7 +269,7 @@ public class GameEngine {
      * @param currentPlayer
      * @param players
      */
-    public void getBids(int currentPlayer, Player[] players) {
+    public void getBids(int currentPlayer, Player[] players, GameDesc desc) {
         System.out.println("-----------------------------------");
         System.out.println("--------------BIDDING--------------");
         System.out.println("-----------------------------------");
@@ -323,13 +323,12 @@ public class GameEngine {
             broadcastBids(players[currentPlayer].getBid(), currentPlayer, players);
             currentPlayer = this.nextPlayerIndex.apply(currentPlayer);
         }
-        while (getBiddingEnd(players, currentPlayer, originalCurrentPlayer, passCounter));
+        while (getBiddingEnd(players, currentPlayer, originalCurrentPlayer, passCounter, desc));
     }
 
-    public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter) {
-        //Bool that indicates at what condition the bidding is complete - TODO:get this from game description when added
-        String biddingEndCondition = "";
-        if (biddingEndCondition.equals("PASS")) {
+    public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter, GameDesc desc) {
+        //TODO:Adjust this if game desc field gets added
+        if (desc.isCanPass()) {
             return passCounter != players.length - 1;
         }
         else {

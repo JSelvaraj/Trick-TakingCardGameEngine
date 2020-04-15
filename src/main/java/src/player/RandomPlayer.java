@@ -48,10 +48,14 @@ public class RandomPlayer extends Player {
     public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
         int handSize = super.getHand().getHandSize();
         int bid;
+        String suit = null;
         do {
             bid = random.nextInt(handSize);
+            if (trumpSuitBid) {
+                suit = "SPADES";
+            }
         } while (!validBid.test(new PotentialBid(null, Integer.toString(bid), adjustedHighestBid)));
-        return new Bid(false, null, bid, true);
+        return new Bid(false, suit, bid, true);
     }
 
     @Override
