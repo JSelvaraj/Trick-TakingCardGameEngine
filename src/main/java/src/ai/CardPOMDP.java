@@ -92,9 +92,6 @@ public class CardPOMDP {
             currentPlayer = playerIncrementor.apply(currentPlayer);
         }
         assert newObservation.getCardSequence().size() % playerCount == newObservation.getCurrentTrick().size();
-        if (currentPlayer != playerNumber) {
-            return null;
-        }
         assert currentPlayer == playerNumber;
         //Have this player make their move.
         trickSimulator.addCard(playerNumber, action);
