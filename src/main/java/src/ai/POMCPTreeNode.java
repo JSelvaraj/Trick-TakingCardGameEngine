@@ -95,4 +95,14 @@ public class POMCPTreeNode {
     public List<POMCPTreeNode> getChildren() {
         return children;
     }
+
+    @Override
+    public String toString() {
+        return "POMCPTreeNode{" +
+                "visit=" + visit +
+                ", value=" + value +
+                ", observation=" + observation.toString() +
+                ", children=" + children.size() +
+                '}';
+    }
 }
