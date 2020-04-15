@@ -278,9 +278,6 @@ public class GameEngine {
         do {
             //Adds the bids (checks they are valid in other class)
             Bid bid = players[currentPlayer].makeBid(this.desc.getValidBid(), trumpSuitBid, adjustedHighestBid);
-            if (bid.getBidValue() >= 0 || bid.isDoubling()) {
-                players[currentPlayer].getTeam().setHighestNormalBid(bid);
-            }
             if (bid.isDoubling()) {
                 passCounter = 0;
                 if (getAdjustedHighestBid().isDoubling()) {
