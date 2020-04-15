@@ -4,12 +4,14 @@ import src.card.Card;
 import src.deck.Deck;
 import src.functions.handFunctions;
 import src.gameEngine.Bid;
+import src.gameEngine.PotentialBid;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -20,7 +22,6 @@ public class GameDesc {
     private final String name;
     private final int NUMBEROFPLAYERS;
     private final int[][] teams;
-    private final long SEED;
     private final String[] SUITS;
     private final String[] RANKS;
     private final LinkedList<Card> DECK;
@@ -38,17 +39,18 @@ public class GameDesc {
     private final String trickLeader;
     //Bidding functions
     private boolean bidding;
-    private IntPredicate validBid;
+    private Predicate<PotentialBid> validBid;
     private BiFunction<Bid, Integer, Integer> evaluateBid;
     private Supplier<Integer> getHandSize;
     private int minHandSize;
     private int initialHandSize;
     private Iterator<String> trumpIterator;
+    private boolean trumpSuitBid;
+    private boolean canPass;
 
 
     /**
      * @param numOfPlayers     The number of Players in the game
-     * @param seed             The seed value for the random shuffle
      * @param suits            An array of the suits in the game in the order the deck is going to be initially made
      * @param ranks            An array of the ranks of cards in the game in the initial order of the deck
      * @param trumpPickingMode How the trump it is picked
@@ -56,7 +58,6 @@ public class GameDesc {
     public GameDesc(String name,
                     int numOfPlayers,
                     int[][] teams,
-                    long seed,
                     String[] suits,
                     String[] ranks,
                     String[] rankOrder,
@@ -74,11 +75,12 @@ public class GameDesc {
                     String trickWinner,
                     String trickLeader,
                     String handSize,
-                    Iterator<String> trumpIterator) {
+                    Iterator<String> trumpIterator,
+                    boolean trumpSuitBid,
+                    boolean canPass) {
         this.name = name;
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
-        this.SEED = seed;
         this.SUITS = suits;
         this.RANKS = ranks;
         this.DECK = Deck.makeDeck(suits, ranks);
@@ -98,6 +100,8 @@ public class GameDesc {
         this.trickLeader = trickLeader;
         this.getHandSize = handFunctions.getHandSize(initialHandSize, minHandSize, handSize);
         this.trumpIterator = trumpIterator;
+        this.trumpSuitBid = trumpSuitBid;
+        this.canPass = canPass;
     }
 
     @Override
@@ -105,7 +109,6 @@ public class GameDesc {
         return "GameDesc{" +
                 "\nNUMBEROFPLAYERS=" + NUMBEROFPLAYERS +
                 "\nteams=" + Arrays.toString(teams) +
-                "\nSEED=" + SEED +
                 "\nSUITS=" + Arrays.toString(SUITS) +
                 "\nRANKS=" + Arrays.toString(RANKS) +
                 "\nDECK=" + DECK +
@@ -126,10 +129,6 @@ public class GameDesc {
 
     public int getNUMBEROFPLAYERS() {
         return NUMBEROFPLAYERS;
-    }
-
-    public long getSEED() {
-        return SEED;
     }
 
     public LinkedList<Card> getDECK() {
@@ -184,11 +183,11 @@ public class GameDesc {
         return RANKORDER;
     }
 
-    public IntPredicate getValidBid() {
+    public Predicate<PotentialBid> getValidBid() {
         return validBid;
     }
 
-    public void setValidBid(IntPredicate validBid) {
+    public void setValidBid(Predicate<PotentialBid> validBid) {
         this.validBid = validBid;
     }
 
@@ -226,5 +225,13 @@ public class GameDesc {
 
     public String getName() {
         return name;
+    }
+
+    public boolean isTrumpSuitBid() {
+        return trumpSuitBid;
+    }
+
+    public boolean isCanPass() {
+        return canPass;
     }
 }

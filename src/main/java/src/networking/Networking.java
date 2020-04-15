@@ -22,12 +22,13 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 public class Networking {
 
     private static final int PORTNUMBER = 6969;
-    private static final int SEED = 420;
+    private static final int SEED = new Random().nextInt();
     private static int currentNumberOfPlayers = 1;
     private static final Semaphore hostStarted = new Semaphore(0);
 
@@ -35,7 +36,7 @@ public class Networking {
         return currentNumberOfPlayers;
     }
 
-    public static void hostGame(String gameDescFile, int hostPort, Player localPlayer) throws InvalidGameDescriptionException {
+    public static void hostGame(String gameDescFile, int hostPort, Player localPlayer, boolean enableRandomEvents) throws InvalidGameDescriptionException {
         JSONObject gameJSON = Parser.readJSONFile(gameDescFile);
         Parser parser = new Parser();
         GameDesc gameDesc = parser.parseGameDescription(gameJSON);
@@ -54,7 +55,7 @@ public class Networking {
             ServerSocket socket = new ServerSocket(hostPort);
             for (int i = 1; i < players.length; i++) {
                 System.out.println("IP: " + address);
-                System.out.println(" Port: " + socket.getLocalPort());
+                System.out.println("Port: " + socket.getLocalPort());
                 NetworkPlayer networkPlayer;
                 //Starts the connection and allows local players to connect.
                 synchronized (hostStarted) {
@@ -89,7 +90,7 @@ public class Networking {
         System.out.println("Sending spec + players + seed");
         forClients.put("spec", gameJSON);
         forClients.put("players", playersJSONArray);
-        forClients.put("seed", SEED); //TODO change to parser.seed when parser is edited.
+        forClients.put("seed", SEED);
 
         for (Socket playerSocket : networkPlayers) {
             try {
@@ -130,7 +131,7 @@ public class Networking {
                 e.printStackTrace();
             }
         }
-        GameEngine.main(gameDesc, 0, players, SEED, true);
+        GameEngine.main(gameDesc, 0, players, SEED, true, enableRandomEvents);
 
 
     }
@@ -373,7 +374,7 @@ public class Networking {
             GameDesc gameDesc = parser.parseGameDescription(gameJSON);
 
             System.out.println("Starting game");
-            GameEngine.main(gameDesc, 0, players, seed, printMoves);
+            GameEngine.main(gameDesc, 0, players, seed, printMoves, enableRandomEvents);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -13,8 +13,9 @@ public class PlayerRunner implements Runnable {
     boolean localConnection = false;
     private boolean printMoves = true;
     WebSocket webSocket;
+    boolean enableRandomEvents;
 
-    public PlayerRunner(Player player, String hostAddress, int hostPort, int localPort, boolean localConnection, boolean printMoves, WebSocket webSocket) {
+    public PlayerRunner(Player player, String hostAddress, int hostPort, int localPort, boolean localConnection, boolean printMoves, boolean enableRandomEvents, WebSocket webSocket) {
         this.player = player;
         this.hostAddress = hostAddress;
         this.hostPort = hostPort;
@@ -22,22 +23,18 @@ public class PlayerRunner implements Runnable {
         this.localConnection = localConnection;
         this.printMoves = printMoves;
         this.webSocket = webSocket;
-    }
-
-    public PlayerRunner(Player player, String hostAddress, int hostPort, int localPort, boolean localConnection, boolean printMoves) {
-        this(player,hostAddress,hostPort,localPort,localConnection,printMoves,null);
-
+        this.enableRandomEvents = enableRandomEvents;
     }
 
     public PlayerRunner(Player player, String hostAddress, int hostPort, boolean localConnection, boolean printMoves) {
-        this(player, hostAddress, hostPort, 0, localConnection, printMoves);
+        this(player, hostAddress, hostPort, 0, localConnection, printMoves, false, null);
     }
 
     @Override
     public void run() {
         try {
             if (webSocket == null) {
-                Networking.connectToGame(this.localPort, this.hostAddress, this.hostPort, player, this.localConnection, printMoves);
+            Networking.connectToGame(this.localPort, this.hostAddress, this.hostPort, player, this.localConnection, printMoves, enableRandomEvents);
             } else {
                 Networking.connectToGame(this.localPort, this.hostAddress, this.hostPort, player, this.localConnection, printMoves, webSocket);
             }

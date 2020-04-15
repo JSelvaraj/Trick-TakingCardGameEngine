@@ -11,6 +11,7 @@ public class Card {
 
     private final String SUIT;
     private final String RANK;
+    private String specialType;
 
     public Card(String suit, String rank) {
         SUIT = suit;
@@ -61,13 +62,16 @@ public class Card {
     public int hashCode() {
         return Objects.hash(SUIT, RANK);
     }
-
+    public void setSpecialType(String specialType) {
+        this.specialType = specialType;
+    }
+    public String getSpecialType() {
+        return specialType;
+    }
     public static Card fromJson(String card) {
         JsonObject cardJson = new Gson().fromJson(card, JsonObject.class);
         return new Card(cardJson.get("suit").getAsString(), cardJson.get("rank").getAsString());
     }
-
-
 }
 
 

@@ -9,7 +9,7 @@ public class SpecialBid extends Bid {
     private int penalty;
 
     public SpecialBid(int bidValue, int pointsGained, int penalty, boolean blind) {
-        super(bidValue, blind);
+        super(false,null, bidValue, blind);
         this.pointsGained = pointsGained;
         this.penalty = penalty;
     }

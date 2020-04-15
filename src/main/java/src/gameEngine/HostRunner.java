@@ -9,13 +9,14 @@ public class HostRunner implements Runnable {
     private Player player;
     private int localPort;
     private String gameFile;
+    boolean enableRandomEvents;
     private WebSocket webSocket = null;
-
 
     public HostRunner(Player player, int localPort, String gameFile, WebSocket webSocket) {
         this.player = player;
         this.localPort = localPort;
         this.gameFile = gameFile;
+        this.enableRandomEvents = enableRandomEvents;
         this.webSocket = webSocket;
     }
 
@@ -24,14 +25,14 @@ public class HostRunner implements Runnable {
     }
 
     public HostRunner(Player player, String gameFile) {
-        this(player, 0, gameFile);
+        this(player, 0, gameFile, false);
     }
 
     @Override
     public void run() {
         try {
             if (webSocket == null) {
-                Networking.hostGame(this.gameFile, this.localPort, this.player);
+            Networking.hostGame(this.gameFile, this.localPort, this.player, enableRandomEvents);
             } else {
                 Networking.hostGame(this.gameFile, this.localPort, this.player, webSocket);
             }

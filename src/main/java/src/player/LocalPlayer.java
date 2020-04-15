@@ -2,9 +2,19 @@ package src.player;
 
 import src.card.Card;
 import src.gameEngine.Bid;
+import src.gameEngine.ContractBid;
 import src.gameEngine.Hand;
+import src.gameEngine.PotentialBid;
+import src.rdmEvents.RdmEvent;
+import src.rdmEvents.Swap;
+import src.team.Team;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
@@ -87,10 +97,44 @@ public class LocalPlayer extends Player {
     }
 
     @Override
+    public void broadcastSwap(Swap swap) {
+
+    }
+
+    @Override
+    public Swap getSwap(Player rdmStrongPlayer) {
+        int currentPlayerIndex = this.getPlayerNumber();
+        int rdmStrongPlayerIndex = rdmStrongPlayer.getPlayerNumber();
+        System.out.println("Player " + (currentPlayerIndex + 1) + ", you have been offered a card swap - you have the ability to swap one of your cards" +
+                " with one of Player " + (rdmStrongPlayerIndex + 1) + "'s");
+        System.out.println("Your Cards: " + getHand().toString());
+        System.out.println("Their Cards: " + rdmStrongPlayer.getHand().toString());
+        System.out.println("Would you like to swap a card? (y/n)");
+        Scanner scanner = new Scanner(System.in);
+        String answer = scanner.next();
+        if (answer.equals("y")) {
+            int currentPlayerCardNumber = -1;
+            int rdmStrongPlayerCardNumber = -1;
+            do {
+                System.out.println("Choose your card: ");
+                currentPlayerCardNumber = scanner.nextInt();
+            } while (currentPlayerCardNumber < 0 || currentPlayerCardNumber >= getHand().getHandSize());
+            System.out.println("Card chosen: " + getHand().get(currentPlayerCardNumber));
+            do {
+                System.out.println("Choose a card from your opponent: ");
+                rdmStrongPlayerCardNumber = scanner.nextInt();
+            } while (rdmStrongPlayerCardNumber < 0 || rdmStrongPlayerCardNumber >= rdmStrongPlayer.getHand().getHandSize());
+            System.out.println("Card chosen: " + rdmStrongPlayer.getHand().get(rdmStrongPlayerCardNumber));
+            return new Swap(currentPlayerIndex, currentPlayerCardNumber, rdmStrongPlayerIndex, rdmStrongPlayerCardNumber, "live");
+        } else {
+            return new Swap(0,0,0,0, "dead");
+        }
+    }
+
+    @Override
     public void broadcastBid(Bid bid, int playerNumber) {
-//        if (!localPrinted) {
+        //TODO: Update so it communicates doubles, redoubles, and suits
         System.out.println("Player " + (playerNumber + 1) + " bid " + bid.getBidValue() + (bid.isBlind() ? " blind" : ""));
-//        }
     }
 
     /**
@@ -98,37 +142,65 @@ public class LocalPlayer extends Player {
      * @return new bid
      */
     @Override
-    public Bid makeBid(IntPredicate validBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
         System.out.print(this.colour);
         System.out.println("-------------------------------------");
         System.out.println("-------------------------------------");
         System.out.println("Player " + (super.getPlayerNumber() + 1));
         System.out.println("-------------------------------------");
         System.out.println("-------------------------------------");
+
         int option = -1;
-        int bidNumber = 0;
+
+        String bidInput = null;
+        String bidSuit = null;
+        boolean doubling = false;
+
         boolean bidBlind = true;
+
+        InputStreamReader r =new InputStreamReader(System.in);
+        BufferedReader br = new BufferedReader(r);
         System.out.println("Select Option:");
         System.out.println("    1. Bid with seeing cards");
         System.out.println("    2. Bid blind");
         while (option > 2 || option < 1) {
-            Scanner scanner = new Scanner(System.in);
-            option = scanner.nextInt();
+            Scanner scan = new Scanner(System.in);
+            option =  scan.nextInt();
         }
         switch (option) {
             case 1:
                 System.out.println("Current Hand: " + super.getHand().toString());
                 bidBlind = false;
             case 2:
-                Scanner scanner = new Scanner(System.in);
-                do {
-                    System.out.println("Enter your bid:");
-                    bidNumber = scanner.nextInt();
-                } while (!validBid.test(bidNumber));
-                break;
+                try {
+                    do {
+                        System.out.println("Enter your bid: (enter '-2' to pass, 'd' to double/redouble - if these are valid options)");
+                        bidSuit = null;
+                        bidInput = br.readLine();
+
+                        if (trumpSuitBid && bidInput.matches("\\d+")) {
+                            System.out.println("Enter your trump suit ('NO TRUMP' for no trump)");
+                            bidSuit = br.readLine();
+                        }
+                    } while (!validBid.test(new PotentialBid(bidSuit, bidInput, adjustedHighestBid)));
+                    break;
+                }
+                catch (IOException e) {
+                    System.out.println(e.getStackTrace());
+                    System.exit(0);
+                }
         }
         System.out.println(ANSI_RESET);
-        return new Bid(bidNumber, bidBlind);
-
+        int finalBidInput = 0;
+        if (bidInput.equals("d")) {
+            doubling = true;
+        }
+        else {
+            finalBidInput = Integer.parseInt(bidInput);
+        }
+        return new Bid(doubling, bidSuit, finalBidInput, bidBlind);
     }
+
+
+
 }
