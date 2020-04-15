@@ -68,7 +68,8 @@ public class CardPOMDP {
             State gameState = State.generateBeliefState(history, shuffle);
             simulate(gameState, history, 0);
             i++;
-        } while (i < 100); //TODO revert to timeout
+        } while (System.currentTimeMillis() - startTime < timeout);
+//        System.out.println(i);
         POMCPTreeNode bestNode = root.getChildren().stream().max(Comparator.comparing(POMCPTreeNode::getValue)).orElse(null);
         assert bestNode != null;
         //Update the root of the search tree.
