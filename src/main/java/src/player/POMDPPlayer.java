@@ -6,8 +6,11 @@ import src.card.Card;
 import src.deck.Deck;
 import src.functions.validCards;
 import src.gameEngine.Bid;
+import src.gameEngine.ContractBid;
 import src.gameEngine.Hand;
+import src.gameEngine.PotentialBid;
 import src.parser.GameDesc;
+import src.rdmEvents.Swap;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -60,7 +63,15 @@ public class POMDPPlayer extends Player {
     }
 
     @Override
-    public Bid makeBid(IntPredicate validBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
+        throw new UnsupportedOperationException();
+    }
+
+    public Swap getSwap(Player strongPlayer){
+        throw new UnsupportedOperationException();
+    }
+
+    public void broadcastSwap(Swap swap){
         throw new UnsupportedOperationException();
     }
 
