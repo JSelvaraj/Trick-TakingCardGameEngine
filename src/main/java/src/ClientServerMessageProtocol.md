@@ -55,14 +55,14 @@ Example response message:
 {
     "type": "HostGame",
     "aiplayers": 1,
-    "gamepath": "Games/whist.json"
+    "gamepath": "Games/whist.json",
+    "enableRdmEvents":false
 }
 ```
 Then the game starts gathering players. As each player connects, their information is sent to the front end:
 ```
 {
-    "type":"gameplay",
-    "subtype":"playerjoin",
+    "type":"playerjoin",
     "playerindex":1,
     "player": {player object}
 }

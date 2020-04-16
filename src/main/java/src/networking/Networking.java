@@ -179,8 +179,8 @@ public class Networking {
 
                 //Sends the received player to the GUI
                 JSONObject GUImessage = new JSONObject();
-                GUImessage.put("type", "gameplay");
-                GUImessage.put("subtype", "playerjoin");
+//                GUImessage.put("type", "gameplay");
+                GUImessage.put("type", "playerjoin");
                 GUImessage.put("playerindex", i);
                 GUImessage.put("player", object);
                 webSocket.send(GUImessage.toString());

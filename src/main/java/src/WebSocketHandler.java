@@ -22,11 +22,8 @@ import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.Objects;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WebSocketHandler extends WebSocketServer {
-    private AtomicBoolean discoveringGames = new AtomicBoolean(false);
-    private static String LOCATION = "ws://localhost:8081";
     private static final int PORT = 9091;
 
     public WebSocketHandler(InetSocketAddress address) {
@@ -84,7 +81,8 @@ public class WebSocketHandler extends WebSocketServer {
                 break;
             case "HostGame":
                 String path = request.get("gamepath").getAsString();
-                Thread thread = new Thread(new HostRunner(new GUIPlayer(), 0, path, conn)); //local port as 0 means its assigned at runtime by system.
+                boolean enableRdmEvents = request.get("enableRdmEvents").getAsBoolean();
+                Thread thread = new Thread(new HostRunner(new GUIPlayer(), 0, path,enableRdmEvents, conn)); //local port as 0 means its assigned at runtime by system.
                 thread.start();
                 for (int i = 0; i < request.get("aiplayers").getAsInt(); i++) {
                     System.out.println("AI started");
