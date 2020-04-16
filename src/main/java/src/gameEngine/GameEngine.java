@@ -38,6 +38,7 @@ public class GameEngine {
     private IntFunction<Integer> nextPlayerIndex;
     //If you bid suits
     private boolean trumpSuitBid;
+    private boolean ascendingBidding;
     //Redoubling field set to true if the contract was a redoubling, doubling field same,
     // the BidValue is the adjusted value based on any redoubling/doubling, bidSuit is the trumpSuit for the trick
     private ContractBid adjustedHighestBid;
@@ -66,6 +67,7 @@ public class GameEngine {
         this.nextPlayerIndex = PlayerIncrementer.generateNextPlayerFunction(desc.isDEALCARDSCLOCKWISE(), desc.getNUMBEROFPLAYERS());
         this.trickHistory = new LinkedList<>();
         this.trumpSuitBid = desc.isTrumpSuitBid();
+        this.ascendingBidding = desc.isAscendingBidding();
     }
 
     public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) {
@@ -118,7 +120,7 @@ public class GameEngine {
             currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
 
             if (gameDesc.isBidding()) {
-                game.getBids(currentPlayer, playerArray, gameDesc);
+                game.getBids(currentPlayer, playerArray);
             }
             if (printMoves) {
                 System.out.println("-----------------------------------");
@@ -269,7 +271,7 @@ public class GameEngine {
      * @param currentPlayer
      * @param players
      */
-    public void getBids(int currentPlayer, Player[] players, GameDesc desc) {
+    public void getBids(int currentPlayer, Player[] players) {
         System.out.println("-----------------------------------");
         System.out.println("--------------BIDDING--------------");
         System.out.println("-----------------------------------");
@@ -320,12 +322,12 @@ public class GameEngine {
             broadcastBids(players[currentPlayer].getBid(), currentPlayer, players);
             currentPlayer = this.nextPlayerIndex.apply(currentPlayer);
         }
-        while (getBiddingEnd(players, currentPlayer, originalCurrentPlayer, passCounter, desc));
+        while (getBiddingEnd(players, currentPlayer, originalCurrentPlayer, passCounter));
     }
 
-    public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter, GameDesc desc) {
+    public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter) {
         //TODO:Adjust this if game desc field gets added
-        if (desc.isCanPass()) {
+        if (ascendingBidding) {
             return passCounter != players.length - 1;
         }
         else {

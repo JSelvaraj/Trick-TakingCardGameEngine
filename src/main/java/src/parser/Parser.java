@@ -178,11 +178,11 @@ public class Parser {
 
         //Pass any parameters that main engine needs that are bidding specific.
         boolean trumpSuitBid = false;
-        boolean canPass = false;
+        boolean ascendingBidding = false;
         JSONObject bidObject = gameJSON.optJSONObject("bid");
         if (bidObject != null) {
             trumpSuitBid = bidObject.optBoolean("trumpSuitBid", false);
-            canPass = bidObject.optBoolean("canPass", false);
+            ascendingBidding = bidObject.optBoolean("ascendingBidding", false);
         }
 
 
@@ -208,7 +208,7 @@ public class Parser {
                 handSize,
                 trumpIterator,
                 trumpSuitBid,
-                canPass);
+                ascendingBidding);
 
         if (bidObject != null) {
             bidObject = gameJSON.getJSONObject("bid");
