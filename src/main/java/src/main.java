@@ -6,14 +6,11 @@ package src;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import src.exceptions.InvalidGameDescriptionException;
 import src.gameEngine.HostRunner;
 import src.gameEngine.PlayerRunner;
 import src.networking.DiscoverGames;
 import src.player.LocalPlayer;
 import src.player.RandomPlayer;
-
-import java.util.concurrent.TimeUnit;
 
 public class main {
     @Parameters(commandNames = "host", commandDescription = "Host a game")
@@ -97,7 +94,7 @@ public class main {
                 if (join.search) {
 
                 } else {
-                    Thread thread = new Thread(new PlayerRunner(new LocalPlayer(), join.address, join.port, join.localPort, false, true, false));
+                    Thread thread = new Thread(new PlayerRunner(new LocalPlayer(), join.address, join.port, true, true, false));
                     thread.start();
                 }
                 break;

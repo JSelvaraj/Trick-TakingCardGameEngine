@@ -24,10 +24,7 @@ import src.rdmEvents.RdmEventsManager;
 import src.team.Team;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
@@ -91,7 +88,7 @@ public class GameEngine extends WebSocketServer {
         this.trumpSuitBid = desc.isTrumpSuitBid();
     }
 
-    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) {
+    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) throws InterruptedException {
         GameEngine game = new GameEngine(gameDesc);
         Random rand = new Random(seed);
 
@@ -110,7 +107,7 @@ public class GameEngine extends WebSocketServer {
             for (int i = 0; i < team.length; i++) {
                 players[i] = playerArray[team[i]];
             }
-            teams.add(new Team(players, teamCounter));
+            game.getTeams().add(new Team(players, teamCounter));
             teamCounter++;
         }
 
@@ -227,7 +224,7 @@ public class GameEngine extends WebSocketServer {
             game.handsPlayed++;
             //Calculate the score of the hand
             if (gameDesc.getCalculateScore().equals("tricksWon")) {
-                for (Team team : teams) {
+                for (Team team : game.getTeams()) {
                     int score = team.getTricksWon();
                     if (score > gameDesc.getTrickThreshold()) { // if score greater than trick threshold
                         team.setScore(team.getScore() + (score - gameDesc.getTrickThreshold())); // add score to team's running total
@@ -237,7 +234,7 @@ public class GameEngine extends WebSocketServer {
             }
             //
             if (gameDesc.getCalculateScore().equals("bid")) { //TODO handle special bids.
-                for (Team team : teams) {
+                for (Team team : game.getTeams()) {
                     int teamBid = 0;
                     //Get collective team bids
                     for (Player player : team.getPlayers()) {
@@ -264,15 +261,15 @@ public class GameEngine extends WebSocketServer {
         System.out.println("End of Game");
     }
 
-    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, WebSocket oldWebSocket) throws InterruptedException {
+    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents, WebSocket oldWebSocket) throws InterruptedException {
         GameEngine game = new GameEngine(gameDesc);
+        Random rand = new Random(seed);
 
         game.start();
         JsonObject gameSetup = new JsonObject();
         gameSetup.add("subtype", new JsonPrimitive("gameSetup"));
         gameSetup.add("port", new JsonPrimitive(game.getPort()));
         oldWebSocket.send(gameSetup.getAsString());
-
 
         assert playerArray.length == gameDesc.getNUMBEROFPLAYERS(); //TODO remove
 
@@ -294,6 +291,7 @@ public class GameEngine extends WebSocketServer {
             }
         }
 
+
         /* Assign players to teams */
         int teamCounter = 0;
         for (int[] team : gameDesc.getTeams()) {
@@ -301,16 +299,16 @@ public class GameEngine extends WebSocketServer {
             for (int i = 0; i < team.length; i++) {
                 players[i] = playerArray[team[i]];
             }
-            teams.add(new Team(players, teamCounter));
+            game.getTeams().add(new Team(players, teamCounter));
             teamCounter++;
         }
 
         /* Initialise random events */
-        rdmEventsManager rdmEventsManager = new rdmEventsManager(2, gameDesc.getScoreThreshold(),
-                1, 3, teams.get(0), teams.get(1));
+        RdmEventsManager rdmEventsManager = new RdmEventsManager(gameDesc, game.getTeams(), rand, playerArray, enableRandomEvents);
 
         Deck deck; // make standard deck from a linked list of Cards
         Shuffle shuffle = new Shuffle(seed);
+
         if (printMoves) {
             game.printScore();
         }
@@ -319,8 +317,15 @@ public class GameEngine extends WebSocketServer {
         do {
             int currentPlayer = dealer;
             deck = new Deck(gameDesc.getDECK());
+
             shuffle.shuffle(deck.cards); //shuffle deck according to the given seed
             game.dealCards(playerArray, deck, currentPlayer);
+
+            //Check for a random event at start of hand - run logic if successful
+            RdmEvent rdmEventHAND = rdmEventsManager.eventChooser("SPECIAL-CARD");
+            if (rdmEventHAND != null) {
+                rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
+            }
 
             //Sends every player's hand to the GUI
             JsonObject jsonMessage = new JsonObject();
@@ -341,25 +346,11 @@ public class GameEngine extends WebSocketServer {
             jsonPlayers.add("players", jsonPlayersArray);
             game.webSocket.send(jsonPlayers.getAsString());
 
-
             currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
 
             if (gameDesc.isBidding()) {
-                game.getBids(currentPlayer, playerArray);
-
-                //Send bids to GUI
-//                JsonObject bidsJson = new JsonObject();
-//                bidsJson.add("type", new JsonPrimitive("bids"));
-//                JsonArray bids = new JsonArray();
-//                for (int i = 0; i < game.bidTable.length; i++) {
-//                    JsonObject bidJson = new JsonObject();
-//                    bidJson.add("playerindex", new JsonPrimitive(i));
-//                    bidJson.add("bidvalue", new JsonPrimitive(game.bidTable[i].getBidValue()));
-//                    bidJson.add("isblind:", new JsonPrimitive(game.bidTable[i].isBlind()));
-//                    bids.add(bidJson);
-//                }
-//                bidsJson.add("bids", bids);
-//                game.webSocket.send(bidsJson.getAsString());
+                game.getBids(currentPlayer, playerArray, gameDesc);
+                //TODO add messaging for Bidding
             }
             if (printMoves) {
                 System.out.println("-----------------------------------");
@@ -368,31 +359,33 @@ public class GameEngine extends WebSocketServer {
             }
             //Loop until trick has completed (all cards have been played)
             do {
-                //Check for random event probability
-                boolean rdmEventHappenedTRICK = false;
-
+                if (gameDesc.getTrumpPickingMode().equals("bid")) {
+                    game.trumpSuit.replace(0, game.trumpSuit.length(), game.getAdjustedHighestBid().getSuit());
+                    //TODO add setTrump messaging
+                }
                 if (printMoves) {
                     System.out.println("Trump is " + game.trumpSuit.toString());
                 }
+
+                //Check for a random event at start of trick - run logic if successful
+                RdmEvent rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
+                if (rdmEventTRICK != null) {
+                    if (rdmEventTRICK.getName().equals("SwapHands")) {
+                        rdmEventsManager.runSwapHands();
+                    }
+                    else {
+                        rdmEventsManager.runSwapCards();
+                    }
+                }
+
                 //Each player plays a card
                 for (int i = 0; i < playerArray.length; i++) {
-                    if (!rdmEventHappenedTRICK) {
-                        rdmEvent rdmEvent = rdmEventsManager.eventChooser("TRICK");
-                        if (rdmEvent != null) {
-                            //Do rdmevent
-                            System.out.println("Random event creation start");
-                            game.runRdmEvent(rdmEvent);
-                            rdmEventHappenedTRICK = true;
-                        }
-                    }
-
                     synchronized (getCardLock) {
                         game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
                         while (game.currentTrick.getHand().getLast() == null) {//last card should only be null if GUIplayer
                             getCardLock.wait();
                         }
                     }
-
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
 
                     //Send card played to GUI
@@ -403,6 +396,14 @@ public class GameEngine extends WebSocketServer {
                     System.out.println("cardplayed: " + cardPlayed);
                     game.webSocket.send(cardPlayed.getAsString());
 
+
+                    //If a special card has been placed in deck, check if it has just been played - adjust points if it has.
+                    if (rdmEventHAND != null) {
+                        String playedCardType =  game.currentTrick.getHand().get(game.currentTrick.getHandSize()-1).getSpecialType();
+                        if (playedCardType != null) {
+                            rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer, game.getTeams());
+                        }
+                    }
                     currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                 }
                 //Determine winning card
@@ -429,6 +430,8 @@ public class GameEngine extends WebSocketServer {
                 }
                 //Adds the trick to the trick history.
                 Trick trick = new Trick(winningCard, game.trumpSuit.toString(), currentPlayer, new LinkedList<>(game.currentTrick.getHand()));
+                game.trickHistory.add(trick);
+                //Find the team with the winning player and increment their tricks score
 
                 //send WinningCard, player and trick to front-end
                 JsonObject winningCardJson = new JsonObject();
@@ -443,39 +446,30 @@ public class GameEngine extends WebSocketServer {
                 System.out.println("winningCardJson: " + winningCardJson.getAsString());
                 game.webSocket.send(winningCardJson.getAsString());
 
-
-                game.trickHistory.add(trick);
-                //Find the team with the winning player and increment their tricks score
-                for (Team team : teams) {
-                    if (team.findPlayer(currentPlayer)) {
-                        team.setTricksWon(team.getTricksWon() + 1);
-                        if (printMoves) {
-                            System.out.println("Player " + (currentPlayer + 1) + " was the winner of the trick with the " + winningCard.toString());
-                            System.out.println("Tricks won: " + team.getTricksWon());
-                        }
-                        break;
-                    }
-                    //Signal that trump suit was broken -> can now be played
-                    //TODO this needs to be moved because otherwise even if the trump is broken at the beginning of the round, it can't be played till the end of the round when the flag is changed.
-                    if (game.currentTrick.getHand().stream().anyMatch(card -> card.getSUIT().equals(game.trumpSuit.toString()))) {
-                        game.breakFlag.set(true);
-                        //send trumpbroken message to front-end
-                        JsonObject trumpBroken = new JsonObject();
-                        trumpBroken.add("type", new JsonPrimitive("trumpbroken"));
-                        game.webSocket.send(trumpBroken.getAsString());
-                    }
+                Team winningTeam = playerArray[currentPlayer].getTeam();
+                winningTeam.setTricksWon(winningTeam.getScore() + 1);
+                if (printMoves) {
+                    System.out.println("Player " + (currentPlayer + 1) + " was the winner of the trick with the " + winningCard.toString());
+                    System.out.println("Tricks won: " + winningTeam.getTricksWon());
                 }
+
+                //Signal that trump suit was broken -> can now be played
+                if (game.currentTrick.getHand().stream().anyMatch(card -> card.getSUIT().equals(game.trumpSuit.toString()))) {
+                    game.breakFlag.set(true);
+                    //send trumpbroken message to front-end
+                    JsonObject trumpBroken = new JsonObject();
+                    trumpBroken.add("type", new JsonPrimitive("trumpbroken"));
+                    game.webSocket.send(trumpBroken.getAsString());
+                }
+
                 //Reset trick hand
                 game.currentTrick.dropHand();
             } while (playerArray[0].getHand().getHandSize() > gameDesc.getMinHandSize());
 
-
-
             game.handsPlayed++;
             //Calculate the score of the hand
-
             if (gameDesc.getCalculateScore().equals("tricksWon")) {
-                for (Team team : teams) {
+                for (Team team : game.getTeams()) {
                     int score = team.getTricksWon();
                     if (score > gameDesc.getTrickThreshold()) { // if score greater than trick threshold
                         team.setScore(team.getScore() + (score - gameDesc.getTrickThreshold())); // add score to team's running total
@@ -485,41 +479,36 @@ public class GameEngine extends WebSocketServer {
             }
             //
             if (gameDesc.getCalculateScore().equals("bid")) { //TODO handle special bids.
-                for (Team team : teams) {
+                for (Team team : game.getTeams()) {
                     int teamBid = 0;
                     //Get collective team bids
                     for (Player player : team.getPlayers()) {
-                        teamBid += game.bidTable[player.getPlayerNumber()].getBidValue();
+                        teamBid += player.getBid().getBidValue();
                     }
-                    Bid bid = new Bid(teamBid, false);
+                    Bid bid = new Bid(false, null, teamBid, false);
                     //Increase score of winning team based on bid scoring system (See validBids.java)
                     team.setScore(team.getScore() + gameDesc.getEvaluateBid().apply(bid, team.getTricksWon()));
                     //Reset tricks won for next round.
                     team.setTricksWon(0);
                 }
             }
-
-
-
             if (gameDesc.getTrumpPickingMode().equals("predefined")) {
                 game.trumpSuit.replace(0, game.trumpSuit.length(), gameDesc.getTrumpIterator().next());
             }
+
             //send updated scores and new trumpsuit when round has ended
             JsonObject roundEndMessage = new JsonObject();
             roundEndMessage.add("type", new JsonPrimitive("roundendmessage"));
             sendTeamScoresJson(game, roundEndMessage);
 
             //Check if game needs balancing
-            rdmEventsManager.checkGameCloseness(teams);
+            if (enableRandomEvents) {
+                rdmEventsManager.checkGameCloseness();
+            }
 
             game.printScore();
         } while (game.gameEnd());
-        //send updated scores and new trumpsuit when round has ended
-        JsonObject gameEndMessage = new JsonObject();
-        gameEndMessage.add("type", new JsonPrimitive("gameendmessage"));
-        sendTeamScoresJson(game, gameEndMessage);
-
-
+        System.out.println("End of Game");
     }
 
     private static void sendTeamScoresJson(GameEngine game, JsonObject gameEndMessage) {
@@ -767,9 +756,6 @@ public class GameEngine extends WebSocketServer {
     public ArrayList<Team> getTeams() {
         return teams;
     }
-    public Bid[] getBidTable() {
-        return bidTable;
-    }
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
@@ -810,11 +796,7 @@ public class GameEngine extends WebSocketServer {
             case "makebid":
                 JsonObject bidJson = request.getAsJsonObject("bid");
                 synchronized (getBidLock) {
-                    for (int i = 0; i < bidTable.length; i++) {
-                        if (bidTable[i] == null) {
-                            bidTable[i] = new Bid(bidJson.get("bidvalue").getAsInt(), bidJson.get("isblind").getAsBoolean());
-                        }
-                    }
+
 
                 }
 

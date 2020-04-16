@@ -16,7 +16,6 @@ import src.gameEngine.PlayerRunner;
 import src.networking.DiscoverGames;
 import src.parser.Parser;
 import src.player.GUIPlayer;
-import src.player.LocalPlayer;
 import src.player.RandomPlayer;
 
 import java.io.File;
@@ -99,13 +98,7 @@ public class WebSocketHandler extends WebSocketServer {
                 }
                 break;
             case "JoinGame":
-                Thread thread2 = new Thread(new PlayerRunner(
-                        new LocalPlayer(),
-                        request.get("address").getAsString(),
-                        request.get("port").getAsInt(),
-                        request.get("localport").getAsInt(),
-                        false,
-                        true)
+                Thread thread2 = new Thread(new PlayerRunner( new GUIPlayer(), request.get("address").getAsString(), request.get("port").getAsInt(), request.get("localport").getAsInt(), true, false, conn, false)
                 );
                 thread2.start();
                 break;

@@ -1,6 +1,6 @@
 package src.team;
 
-import src.gameEngine.Bid;
+
 import src.player.Player;
 
 public class Team {

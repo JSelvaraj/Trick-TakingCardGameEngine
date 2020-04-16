@@ -36,7 +36,7 @@ public class Networking {
         return currentNumberOfPlayers;
     }
 
-    public static void hostGame(String gameDescFile, int hostPort, Player localPlayer, boolean enableRandomEvents) throws InvalidGameDescriptionException {
+    public static void hostGame(String gameDescFile, int hostPort, Player localPlayer, boolean enableRandomEvents) throws InvalidGameDescriptionException, InterruptedException {
         JSONObject gameJSON = Parser.readJSONFile(gameDescFile);
         Parser parser = new Parser();
         GameDesc gameDesc = parser.parseGameDescription(gameJSON);
@@ -136,7 +136,7 @@ public class Networking {
 
     }
 
-    public static void hostGame(String gameDescFile, int hostPort, Player localPlayer, WebSocket webSocket) throws InvalidGameDescriptionException {
+    public static void hostGame(String gameDescFile, int hostPort, Player localPlayer, WebSocket webSocket) throws InvalidGameDescriptionException, InterruptedException {
         JSONObject gameJSON = Parser.readJSONFile(gameDescFile);
         Parser parser = new Parser();
         GameDesc gameDesc = parser.parseGameDescription(gameJSON);
@@ -239,12 +239,12 @@ public class Networking {
                 e.printStackTrace();
             }
         }
-        GameEngine.main(gameDesc, 0, players, SEED, true, webSocket);
+        GameEngine.main(gameDesc, 0, players, SEED, true, false, webSocket);
 
 
     }
 
-    public static void connectToGame(int localPort, String ip, int port, Player localPlayer, boolean localConnection, boolean printMoves) throws InvalidGameDescriptionException {
+    public static void connectToGame(int localPort, String ip, int port, Player localPlayer, boolean localConnection, boolean printMoves, boolean enableRandomEvents) throws InvalidGameDescriptionException, InterruptedException {
         //Wait for host to start if connecting to a local one.
         if (localConnection) {
             try {
@@ -381,7 +381,7 @@ public class Networking {
 
     }
 
-    public static void connectToGame(int localPort, String ip, int port, Player localPlayer, boolean localConnection, boolean printMoves, WebSocket webSocket) throws InvalidGameDescriptionException {
+    public static void connectToGame(int localPort, String ip, int port, Player localPlayer, boolean localConnection, boolean printMoves, boolean enableRandomEvents, WebSocket webSocket) throws InvalidGameDescriptionException, InterruptedException {
         //Wait for host to start if connecting to a local one.
         if (localConnection) {
             try {
@@ -511,7 +511,7 @@ public class Networking {
             GameDesc gameDesc = parser.parseGameDescription(gameJSON);
 
             System.out.println("Starting game");
-            GameEngine.main(gameDesc, 0, players, seed, printMoves);
+            GameEngine.main(gameDesc, 0, players, seed, printMoves, enableRandomEvents, webSocket);
         } catch (IOException e) {
             e.printStackTrace();
         }

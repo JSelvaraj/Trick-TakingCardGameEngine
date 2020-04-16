@@ -15,7 +15,7 @@ public class PlayerRunner implements Runnable {
     WebSocket webSocket;
     boolean enableRandomEvents;
 
-    public PlayerRunner(Player player, String hostAddress, int hostPort, int localPort, boolean localConnection, boolean printMoves, boolean enableRandomEvents, WebSocket webSocket) {
+    public PlayerRunner(Player player, String hostAddress, int hostPort, int localPort, boolean localConnection, boolean printMoves, WebSocket webSocket, boolean enableRandomEvents) {
         this.player = player;
         this.hostAddress = hostAddress;
         this.hostPort = hostPort;
@@ -26,9 +26,15 @@ public class PlayerRunner implements Runnable {
         this.enableRandomEvents = enableRandomEvents;
     }
 
-    public PlayerRunner(Player player, String hostAddress, int hostPort, boolean localConnection, boolean printMoves) {
-        this(player, hostAddress, hostPort, 0, localConnection, printMoves, false, null);
+    public PlayerRunner(Player player, String hostAddress, int hostPort, boolean localConnection, boolean printMoves, boolean enableRdmEvents) {
+        this(player, hostAddress, hostPort, 0, localConnection, printMoves, null, enableRdmEvents);
     }
+
+    public PlayerRunner(Player player, String hostAddress, int hostPort, boolean localConnection, boolean printMoves) {
+        this(player, hostAddress, hostPort, 0, localConnection, printMoves, null, false);
+    }
+
+
 
     @Override
     public void run() {
@@ -36,9 +42,11 @@ public class PlayerRunner implements Runnable {
             if (webSocket == null) {
             Networking.connectToGame(this.localPort, this.hostAddress, this.hostPort, player, this.localConnection, printMoves, enableRandomEvents);
             } else {
-                Networking.connectToGame(this.localPort, this.hostAddress, this.hostPort, player, this.localConnection, printMoves, webSocket);
+                Networking.connectToGame(this.localPort, this.hostAddress, this.hostPort, player, this.localConnection, printMoves, enableRandomEvents, webSocket);
             }
         } catch (InvalidGameDescriptionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
