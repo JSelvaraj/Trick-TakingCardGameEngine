@@ -122,6 +122,13 @@ public class GameEngine {
             if (gameDesc.isBidding()) {
                 game.getBids(currentPlayer, playerArray);
             }
+
+            //Set first player to left of declarer if needed. TODO: Get this from game description when added
+            if (game.getAdjustedHighestBid().getSuit() == null) {
+                currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
+                currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
+            }
+
             if (printMoves) {
                 System.out.println("-----------------------------------");
                 System.out.println("----------------PLAY---------------");
