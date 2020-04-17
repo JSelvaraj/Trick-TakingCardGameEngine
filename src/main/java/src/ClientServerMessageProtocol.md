@@ -150,8 +150,42 @@ The response from the front end should be in the following format:
 ###Send received Bids
 The complete list of bids is sent to the 
 
-
-
+###Swap Hands
+Request to swap hands
+```
+{
+    "type":swaphands,
+    "choosingplayer":1, /* index of the player choosing the cards to swap */
+    "otherplayer":3     /* index of the player having a card swapped */
+}
+```
+###Swap Card
+Request to swap card:
+```
+{
+    "type":"getswap",
+    "choosingplayer":1,
+    "otherplayer":3
+}
+```
+Response:
+```
+{
+    "type":"getswap",
+    "choosingplayer":1,
+    "otherplayer":3,
+    "choosingplayercard":
+    {
+        "rank":"TWO",
+        "suit":"CLUBS"
+    },
+    "otherplayercard":
+    {
+        "rank":"ACE",
+        "suit":"SPADES"
+    }
+}        
+```
 ###Playing a card in the Trick
 First the Back-end makes a request to the front end, with a list of valid cards in the players hand:
 ```

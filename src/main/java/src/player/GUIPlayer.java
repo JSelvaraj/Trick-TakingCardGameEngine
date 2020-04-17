@@ -7,6 +7,7 @@ import com.google.gson.JsonPrimitive;
 import org.java_websocket.WebSocket;
 import src.card.Card;
 import src.gameEngine.Hand;
+import src.rdmEvents.Swap;
 
 import java.util.function.Consumer;
 
@@ -41,6 +42,16 @@ public class GUIPlayer extends LocalPlayer {
 //        webSocket.send(request.getAsString());
 //        return null;
 //    }
+
+    @Override
+    public Swap getSwap(Player strongPlayer) {
+        JsonObject request = new JsonObject();
+        request.add("type", new JsonPrimitive("getswap"));
+        request.add("choosingPlayer", new JsonPrimitive(getPlayerNumber()));
+        request.add("otherplayer", new JsonPrimitive(strongPlayer.getPlayerNumber()));
+        webSocket.send(request.getAsString());
+        return null;
+    }
 
     public void setWebSocket(WebSocket webSocket) {
         this.webSocket = webSocket;

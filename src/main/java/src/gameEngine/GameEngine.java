@@ -56,9 +56,12 @@ public class GameEngine extends WebSocketServer {
     //Starts as 1 in 10 chance;
     double rdmEventProb = 10;
     WebSocket webSocket = null;
-    static final Object GUIConnectLock = new Object();
-    static final Object getCardLock = new Object();
-    static final Object getBidLock = new Object();
+    private static final Object GUIConnectLock = new Object();
+    private static final Object getCardLock = new Object();
+    private static final Object getBidLock = new Object();
+    private static final Object getCardSwapLock = new Object();
+    private static boolean cardSwapFlag = false;
+    private Player[] playerArray;
 
     /**
      * Set up game engine
@@ -66,10 +69,10 @@ public class GameEngine extends WebSocketServer {
      * @param desc game description
      */
     public GameEngine(GameDesc desc) {
-        this(desc, new InetSocketAddress("localhost", 0));
+        this(desc, new InetSocketAddress("localhost", 0),null);
     }
 
-    public GameEngine(GameDesc desc, InetSocketAddress address) {
+    public GameEngine(GameDesc desc, InetSocketAddress address, Player[] playerArray) {
         super(address);
         this.desc = desc;
         this.trumpSuit = new StringBuilder();
@@ -87,6 +90,7 @@ public class GameEngine extends WebSocketServer {
         this.nextPlayerIndex = PlayerIncrementer.generateNextPlayerFunction(desc.isDEALCARDSCLOCKWISE(), desc.getNUMBEROFPLAYERS());
         this.trickHistory = new LinkedList<>();
         this.trumpSuitBid = desc.isTrumpSuitBid();
+        this.playerArray = playerArray;
     }
 
     public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) throws InterruptedException {
@@ -384,7 +388,12 @@ public class GameEngine extends WebSocketServer {
                         swappedHandsEvent.add("playerswapped", swappedPlayersJson);
                     }
                     else {
-                        rdmEventsManager.runSwapCards();
+                        synchronized (getCardSwapLock) {
+                            while (!cardSwapFlag) {
+                                cardSwapFlag = rdmEventsManager.runSwapCards();
+                                getCardSwapLock.wait();
+                            }
+                        }
                     }
                 }
 
@@ -809,6 +818,23 @@ public class GameEngine extends WebSocketServer {
 
 
                 }
+                break;
+            case "getswap":
+                synchronized (getCardSwapLock) {
+                    Player swapper = playerArray[request.get("choosingplayer").getAsInt()];
+                    Player beingSwapped = playerArray[request.get("otherplayer").getAsInt()];
+                    Card swapperCard = Card.fromJson(request.get("choosingplayercard").getAsString());
+                    Card beingSwappedCard = Card.fromJson(request.get("otherplayercard").getAsString());
+                    beingSwapped.getHand().getCard(swapper.getHand().giveCard(swapperCard));
+                    swapper.getHand().getCard(beingSwapped.getHand().giveCard(beingSwappedCard));
+                    cardSwapFlag = true;
+                    getCardSwapLock.notify();
+                    System.out.println("Swappers Cards: " + swapper.getHand().toString());
+                    System.out.println("Swappee's Cards: " + beingSwapped.getHand().toString());
+                }
+
+                break;
+
 
         }
 

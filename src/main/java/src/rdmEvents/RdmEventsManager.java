@@ -6,6 +6,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import src.card.Card;
 import src.gameEngine.Hand;
 import src.parser.GameDesc;
+import src.player.GUIPlayer;
 import src.player.NetworkPlayer;
 import src.player.Player;
 import src.team.Team;
@@ -16,20 +17,20 @@ import java.util.function.Predicate;
 
 public class RdmEventsManager {
 
-    int maxAcceptableScoreSeparation;
-    int scoreThreshold;
-    double rdmEventProb;
-    final double rdmEventProbDEFAULT = 0.4;
-    double probIncrement = 0.3;
-    ArrayList<Team> teams;
-    Team weakestTeam;
-    Team strongestTeam;
-    boolean enabled;
-    Random rand;
-    Player[] players;
-    String[] specialCardEvents = {"BOMB", "HEAVEN"};
-    String[] TRICKEvents = {"SwapCard", "SwapHands"};
-    GameDesc desc;
+    private int maxAcceptableScoreSeparation;
+    private int scoreThreshold;
+    private double rdmEventProb;
+    private final double rdmEventProbDEFAULT = 0.4;
+    private double probIncrement = 0.3;
+    private ArrayList<Team> teams;
+    private Team weakestTeam;
+    private Team strongestTeam;
+    private boolean enabled;
+    private Random rand;
+    private Player[] players;
+    private String[] specialCardEvents = {"BOMB", "HEAVEN"};
+    private String[] TRICKEvents = {"SwapCard", "SwapHands"};
+    private GameDesc desc;
 
     public RdmEventsManager(GameDesc desc, ArrayList<Team> teams, Random rand, Player[] players, boolean enabled) {
         this.teams = teams;
@@ -91,7 +92,7 @@ public class RdmEventsManager {
         }
     }
 
-    public void runSwapCards() {
+    public boolean runSwapCards() {
         Player[] playerArray = getPlayers();
         int rdmPlayerIndexFrTeam = getRand().nextInt(getWeakestTeam().getPlayers().length);
         Player weakPlayer = getWeakestTeam().getPlayers()[rdmPlayerIndexFrTeam];
@@ -99,7 +100,11 @@ public class RdmEventsManager {
         int rdmStrongPlayerTeamIndex = getRand().nextInt(getStrongestTeam().getPlayers().length);
         Player rdmStrongPlayer = strongestTeam.getPlayers()[rdmStrongPlayerTeamIndex];
 
-        Swap swap = weakPlayer.getSwap(rdmStrongPlayer);
+        Swap swap = null;
+                swap = weakPlayer.getSwap(rdmStrongPlayer);
+        if (weakPlayer instanceof GUIPlayer) {
+            return false;
+        }
         if (swap.getStatus().equals("live")) {
             Card originalPlayerCard = playerArray[swap.getOriginalPlayerIndex()].getHand().giveCard(swap.getOriginalPlayerCardNumber());
             Card otherPlayerCard = playerArray[swap.getRdmPlayerIndex()].getHand().giveCard(swap.getRdmPlayerCardNumber());
@@ -113,6 +118,7 @@ public class RdmEventsManager {
                 player.broadcastSwap(swap);
             }
         }
+        return true;
     }
 
     public Pair<Player,Player> runSwapHands() {
