@@ -1,9 +1,11 @@
 package src.rdmEvents;
 
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import src.card.Card;
 import src.gameEngine.Hand;
 import src.parser.GameDesc;
-import src.player.LocalPlayer;
 import src.player.NetworkPlayer;
 import src.player.Player;
 import src.team.Team;
@@ -113,7 +115,7 @@ public class RdmEventsManager {
         }
     }
 
-    public void runSwapHands() {
+    public Pair<Player,Player> runSwapHands() {
         Team weakestTeam = getWeakestTeam();
         Team strongestTeam = getStrongestTeam();
 
@@ -129,6 +131,8 @@ public class RdmEventsManager {
         weakPlayer.setCanBePlayed(strongPlayer.getCanBePlayed());
         strongPlayer.setHand(tempHand);
         strongPlayer.setCanBePlayed(tempPredicate);
+        ImmutablePair<Player,Player> swappedPlayers = new ImmutablePair<>(weakPlayer,strongPlayer);
+        return swappedPlayers;
     }
 
     public void runSpecialCardOps(String cardType, int currentPlayer, ArrayList<Team> teams) {

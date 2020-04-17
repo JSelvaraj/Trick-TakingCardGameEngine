@@ -47,9 +47,6 @@ dependencies {
 
     //Websocket library
     compile "org.java-websocket:Java-WebSocket:1.4.1"
-
-    //Library with tuples
-    implementation 'org.javatuples:javatuples:1.2'
 }
 
 // Define the main class for the application

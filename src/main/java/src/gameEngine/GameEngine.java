@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.apache.commons.lang3.tuple.Pair;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -372,7 +373,15 @@ public class GameEngine extends WebSocketServer {
                 RdmEvent rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
                 if (rdmEventTRICK != null) {
                     if (rdmEventTRICK.getName().equals("SwapHands")) {
-                        rdmEventsManager.runSwapHands();
+                        Pair<Player,Player> swappedPlayers = rdmEventsManager.runSwapHands();
+
+                        //Send swapped hand event to front-end
+                        JsonObject swappedHandsEvent = new JsonObject();
+                        swappedHandsEvent.add("type", new JsonPrimitive("handswap"));
+                        JsonArray swappedPlayersJson = new JsonArray();
+                        swappedPlayersJson.add(swappedPlayers.getLeft().getPlayerNumber());
+                        swappedPlayersJson.add(swappedPlayers.getRight().getPlayerNumber());
+                        swappedHandsEvent.add("playerswapped", swappedPlayersJson);
                     }
                     else {
                         rdmEventsManager.runSwapCards();
