@@ -421,6 +421,14 @@ public class GameEngine extends WebSocketServer {
                         String playedCardType =  game.currentTrick.getHand().get(game.currentTrick.getHandSize()-1).getSpecialType();
                         if (playedCardType != null) {
                             rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer, game.getTeams());
+
+                            //Message Special card event
+                            JsonObject specialCardEvent = new JsonObject();
+                            specialCardEvent.add("type", new JsonPrimitive("specialcard"));
+                            specialCardEvent.add("player", new JsonPrimitive(currentPlayer));
+                            specialCardEvent.add("team", new JsonPrimitive(playerArray[currentPlayer].getTeam().getTeamNumber()));
+                            specialCardEvent.add("cardtype", new JsonPrimitive(playedCardType));
+
                         }
                     }
                     currentPlayer = game.nextPlayerIndex.apply(currentPlayer);

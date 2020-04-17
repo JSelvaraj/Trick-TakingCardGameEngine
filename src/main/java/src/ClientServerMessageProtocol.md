@@ -184,7 +184,8 @@ Response:
         "rank":"ACE",
         "suit":"SPADES"
     }
-}        
+}
+        
 ```
 ###Playing a card in the Trick
 First the Back-end makes a request to the front end, with a list of valid cards in the players hand:
@@ -223,6 +224,15 @@ Every card(including the one played by the local player) is sent to the front-en
         "rank":"ACE",
         "suit":"CLUBS"
     }
+}
+```
+### Special Card Played
+```
+{
+    "type":"specialcard",
+    "player":1,
+    "team":1,
+    "cardtype":"bomb"
 }
 ```
 ###Winning Card
