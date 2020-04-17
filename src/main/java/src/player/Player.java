@@ -9,6 +9,8 @@ import src.gameEngine.PotentialBid;
 import src.rdmEvents.RdmEvent;
 import src.rdmEvents.Swap;
 import src.team.Team;
+import src.parser.GameDesc;
+import src.parser.GameDesc;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,16 +44,20 @@ public abstract class Player {
         this.canBePlayed = null;
     }
 
+    public void startHand(StringBuilder trumpSuit) {
+
+    }
+
     public void setPlayerNumber(int playerNumber) {
         this.playerNumber = playerNumber;
     }
 
     /**
-     * Initialises the predicate that checks if a move is valid.
+     * Initialises the player..
      *
      * @param validCard Predicate that checks if a card is valid.
      */
-    public void initCanBePlayed(Predicate<Card> validCard) {
+    public void initPlayer(Predicate<Card> validCard, GameDesc desc, StringBuilder trumpSuit) {
         this.canBePlayed = validCards.getCanBePlayedPredicate(this.hand, validCard);
     }
 
