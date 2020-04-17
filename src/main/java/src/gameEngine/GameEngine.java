@@ -366,6 +366,7 @@ public class GameEngine extends WebSocketServer {
                 if (printMoves) {
                     System.out.println("Trump is " + game.trumpSuit.toString());
                 }
+                //TODO send current trump
 
                 //Check for a random event at start of trick - run logic if successful
                 RdmEvent rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
@@ -549,10 +550,10 @@ public class GameEngine extends WebSocketServer {
     /**
      * Gets the bids from the players
      *
-     * @param currentPlayer
-     * @param players
+     * @param currentPlayer index of current player in the player array
+     * @param players the array of players
      */
-    public void getBids(int currentPlayer, Player[] players, GameDesc desc) {
+    private void getBids(int currentPlayer, Player[] players, GameDesc desc) {
         System.out.println("-----------------------------------");
         System.out.println("--------------BIDDING--------------");
         System.out.println("-----------------------------------");
@@ -606,7 +607,7 @@ public class GameEngine extends WebSocketServer {
         while (getBiddingEnd(players, currentPlayer, originalCurrentPlayer, passCounter, desc));
     }
 
-    public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter, GameDesc desc) {
+    private boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter, GameDesc desc) {
         //TODO:Adjust this if game desc field gets added
         if (desc.isCanPass()) {
             return passCounter != players.length - 1;
@@ -768,11 +769,11 @@ public class GameEngine extends WebSocketServer {
         }
     }
 
-    public ContractBid getAdjustedHighestBid() {
+    private ContractBid getAdjustedHighestBid() {
         return adjustedHighestBid;
     }
 
-    public void setAdjustedHighestBid(ContractBid adjustedHighestBid) {
+    private void setAdjustedHighestBid(ContractBid adjustedHighestBid) {
         this.adjustedHighestBid = adjustedHighestBid;
     }
 
