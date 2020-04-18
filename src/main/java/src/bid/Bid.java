@@ -72,4 +72,8 @@ public class Bid{
     public int hashCode() {
         return Objects.hash(doubling, suit, bidValue, blind, vulnerable);
     }
+
+    public boolean isVulnerable() {
+        return vulnerable;
+    }
 }

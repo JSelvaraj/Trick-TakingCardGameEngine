@@ -55,8 +55,17 @@ public class SpecialBid extends Bid {
         return super.isBlind();
     }
 
+    /**
+     * Tests if this special bid matches a given bid.
+     *
+     * @param bid The bid that has been made.
+     * @return True if the bid matches.
+     */
     public boolean bidMatches(Bid bid) {
-        return super.equals(bid);
+        return (bid.getBidValue() == super.getBidValue() || super.getBidValue() == -1) &&
+                bid.isBlind() == super.isBlind() &&
+                bid.isDoubling() == super.isDoubling() &&
+                bid.isVulnerable() == super.isVulnerable();
     }
 
     public String getTrumpSuit() {
