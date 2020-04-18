@@ -59,6 +59,7 @@ public class GameEngine extends WebSocketServer {
     private static final Object GUIConnectLock = new Object();
     private static final Object getCardLock = new Object();
     private static final Object getBidLock = new Object();
+    private Bid currentBid = null;
     private static final Object getCardSwapLock = new Object();
     private static boolean cardSwapFlag = false;
     private Player[] playerArray;
@@ -355,7 +356,6 @@ public class GameEngine extends WebSocketServer {
 
             if (gameDesc.isBidding()) {
                 game.getBids(currentPlayer, playerArray, gameDesc);
-                //TODO add messaging for Bidding
             }
             if (printMoves) {
                 System.out.println("-----------------------------------");
@@ -366,12 +366,14 @@ public class GameEngine extends WebSocketServer {
             do {
                 if (gameDesc.getTrumpPickingMode().equals("bid")) {
                     game.trumpSuit.replace(0, game.trumpSuit.length(), game.getAdjustedHighestBid().getSuit());
-                    //TODO add setTrump messaging
                 }
                 if (printMoves) {
                     System.out.println("Trump is " + game.trumpSuit.toString());
                 }
-                //TODO send current trump
+                //send trump suit to front-end
+                JsonObject currentTrumpMsg = new JsonObject();
+                currentTrumpMsg.add("type", new JsonPrimitive("currenttrump"));
+                currentTrumpMsg.add("suit", new JsonPrimitive(game.trumpSuit.toString()));
 
                 //Check for a random event at start of trick - run logic if successful
                 RdmEvent rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
@@ -579,7 +581,7 @@ public class GameEngine extends WebSocketServer {
      * @param currentPlayer index of current player in the player array
      * @param players the array of players
      */
-    private void getBids(int currentPlayer, Player[] players, GameDesc desc) {
+    private void getBids(int currentPlayer, Player[] players, GameDesc desc) throws InterruptedException {
         System.out.println("-----------------------------------");
         System.out.println("--------------BIDDING--------------");
         System.out.println("-----------------------------------");
@@ -587,7 +589,13 @@ public class GameEngine extends WebSocketServer {
         int passCounter = 0;
         do {
             //Adds the bids (checks they are valid in other class)
-            Bid bid = players[currentPlayer].makeBid(this.desc.getValidBid(), trumpSuitBid, adjustedHighestBid);
+            synchronized (getBidLock) {
+                while (currentBid == null) {
+                    currentBid = players[currentPlayer].makeBid(this.desc.getValidBid(), trumpSuitBid, adjustedHighestBid);
+                    getBidLock.wait();
+                }
+            }
+            Bid bid = currentBid;
             if (bid.isDoubling()) {
                 passCounter = 0;
                 if (getAdjustedHighestBid().isDoubling()) {
@@ -823,8 +831,12 @@ public class GameEngine extends WebSocketServer {
             case "makebid":
                 JsonObject bidJson = request.getAsJsonObject("bid");
                 synchronized (getBidLock) {
-
-
+                    boolean doubling = bidJson.get("doubling").getAsBoolean();
+                    String suit = bidJson.get("suit").getAsString();
+                    int bidValue = bidJson.get("bidValue").getAsInt();
+                    boolean blind = bidJson.get("blindBid").getAsBoolean();
+                    currentBid = new Bid(doubling, suit, bidValue, blind);
+                    getBidLock.notify();
                 }
                 break;
             case "getswap":
@@ -840,7 +852,6 @@ public class GameEngine extends WebSocketServer {
                     System.out.println("Swappers Cards: " + swapper.getHand().toString());
                     System.out.println("Swappee's Cards: " + beingSwapped.getHand().toString());
                 }
-
                 break;
 
 

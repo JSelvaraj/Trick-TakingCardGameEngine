@@ -6,10 +6,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.java_websocket.WebSocket;
 import src.card.Card;
+import src.gameEngine.Bid;
+import src.gameEngine.ContractBid;
 import src.gameEngine.Hand;
+import src.gameEngine.PotentialBid;
 import src.rdmEvents.Swap;
 
+import java.util.ArrayList;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class GUIPlayer extends LocalPlayer {
 
@@ -31,17 +36,47 @@ public class GUIPlayer extends LocalPlayer {
         return null;
     }
 
-//    @Override
-//    public Bid makeBid(IntPredicate validBid) {
-//        JsonObject request = new JsonObject();
-//        request.add("type", new JsonPrimitive("makebid"));
-//        JsonArray validBidsJson = new JsonArray();
-//        IntConsumer integerConsumer = validBidsJson::add;
-//        IntStream.range(0,52).filter(validBid).forEach(integerConsumer);
-//        request.add("validbids", validBidsJson);
-//        webSocket.send(request.getAsString());
-//        return null;
-//    }
+    @Override
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
+        JsonObject request = new JsonObject();
+        request.add("type", new JsonPrimitive("makebid"));
+        //initialize possible bid values for each field of PotentialBid
+        String[] suits;
+        if (trumpSuitBid) {
+            suits = new String[]{"CLUBS", "SPADES", "HEARTS", "DIAMONDS", "NO TRUMP"};
+        } else {
+            suits = new String[]{null};
+        }
+        ArrayList<String> bidInputs = new ArrayList<>();
+        for (int i = 0; i < getHand().getHandSize() + 1; i++) {
+            bidInputs.add(String.valueOf(i));
+        }
+        bidInputs.add(String.valueOf(-2));
+        bidInputs.add("d");
+
+        //create an arraylist of all possible potential bids
+        ArrayList<PotentialBid> bids = new ArrayList<>();
+        for (String input: bidInputs) {
+            for (String suit: suits) {
+                bids.add(new PotentialBid(suit, input, adjustedHighestBid));
+            }
+        }
+        JsonArray validBidsJson = new JsonArray();
+        //tests every potential bid for validity and adds it to a JsonArray to be sent to front-end
+        bids.forEach(new Consumer<PotentialBid>() {
+            @Override
+            public void accept(PotentialBid potentialBid) {
+                if (validBid.test(potentialBid)){
+                    Gson gson = new Gson();
+                    validBidsJson.add(potentialBid.toBid(true).toJson());
+                    validBidsJson.add(potentialBid.toBid(false).toJson());
+                }
+            }
+        });
+        request.add("validBids", validBidsJson);
+        webSocket.send(request.getAsString());
+        return null;
+    }
 
     @Override
     public Swap getSwap(Player strongPlayer) {

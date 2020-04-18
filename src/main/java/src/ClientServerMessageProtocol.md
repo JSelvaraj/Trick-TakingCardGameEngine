@@ -185,8 +185,54 @@ Response:
         "suit":"SPADES"
     }
 }
-        
 ```
+### Making a bid
+Request:
+```
+{
+    "type":"makebid",
+    "validbids":
+    [ /* Bids are in same format as supergroup schema*/
+        {
+            type: "bid",
+            doubling: boolean,
+            suit: Suit,
+            value: number,
+            blindBid : boolean
+        },
+        {
+            type: "bid",
+            doubling: boolean,
+            suit: Suit,
+            value: number,
+            blindBid : boolean
+        }
+    ]
+}
+```
+Response Format:
+```
+{
+    "type":"makebid",
+    "bid":
+    {
+        "type": "bid",
+        "doubling": boolean,
+        "suit": Suit,
+        "value": number,
+        "blindBid" : boolean
+    }
+}
+```
+### Telling front-end the current trump suit
+Message format:
+```
+{
+    "type":"currenttrump",
+    "suit":suit
+}
+```
+
 ###Playing a card in the Trick
 First the Back-end makes a request to the front end, with a list of valid cards in the players hand:
 ```
