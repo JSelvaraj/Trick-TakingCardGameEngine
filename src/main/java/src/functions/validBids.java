@@ -18,7 +18,6 @@ public class validBids {
     /**
      * Creates a Predicate that checks if a given bid is valid.
      *
-     *
      * @return Predicate that will return true if the given bid is in [minBid, maxBid]
      */
     public static Predicate<PotentialBid> isValidBidValue(JSONObject bidObject) {
@@ -50,7 +49,7 @@ public class validBids {
         boolean finalCanDouble = canDouble;
         boolean finalCanRedouble = canRedouble;
         boolean finalCanPass = canPass;
-        return( (potentialBid) -> {
+        return ((potentialBid) -> {
             String bidValue = potentialBid.getBidInput();
             String bidSuit = potentialBid.getBidSuit();
             ContractBid adjustedHighestBid = potentialBid.getAdjustedHighestBid();
@@ -64,8 +63,7 @@ public class validBids {
                     if (adjustedHighestBid.isDoubling()) {
                         if (finalCanRedouble) {
                             return adjustedHighestBid.getBidValue() * 2 <= maxBid;
-                        }
-                        else {
+                        } else {
                             //Redoubling not allowed - invalid bid
                             return false;
                         }
@@ -77,8 +75,7 @@ public class validBids {
             }
             try {
                 Integer.parseInt(bidValue);
-            }
-            catch( Exception e ) {
+            } catch (Exception e) {
                 //Input is not a 'd' or an integer
                 return false;
             }
@@ -88,33 +85,29 @@ public class validBids {
                 //Check if pass allowed
                 if (finalCanPass) {
                     return adjustedHighestBid != null;
-                }
-                else {
+                } else {
                     return false;
                 }
-            }
-            else if (bidValueInt >= minBid) {
+            } else if (bidValueInt >= minBid) {
                 //Check if bids contain suits
                 if (finalTrumpSuitBid) {
                     if (finalAscendingBid) {
                         //Case that no bids exist yet
                         if (adjustedHighestBid == null) {
                             return bidValueInt <= maxBid && suitBidRankStr.containsKey(bidSuit);
-                        }
-                        else {
+                        } else {
                             //Check bid value is higher
                             if (bidValueInt > adjustedHighestBid.getBidValue()) {
                                 return true;
-                            }
-                            else return bidValueInt == adjustedHighestBid.getBidValue() && suitBidRankStr.get(adjustedHighestBid.getSuit()) < suitBidRankStr.get(bidSuit);
+                            } else
+                                return bidValueInt == adjustedHighestBid.getBidValue() && suitBidRankStr.get(adjustedHighestBid.getSuit()) < suitBidRankStr.get(bidSuit);
                         }
                     }
                     //If not ascending bid
                     else {
                         return bidValueInt <= maxBid && suitBidRankStr.containsKey(bidSuit);
                     }
-                }
-                else {
+                } else {
                     if (finalAscendingBid) {
                         //Case that no bids exist yet
                         if (adjustedHighestBid == null) {
@@ -130,14 +123,13 @@ public class validBids {
                         return bidValueInt <= maxBid;
                     }
                 }
-            }
-            else {
+            } else {
                 return false;
             }
         });
     }
 
-    public static TriFunction<Bid, ContractBid, Integer, Integer> evaluateBidContract(JSONObject bidObject){
+    public static BiFunction<Bid, Integer, Integer> evaluateBidContract(JSONObject bidObject) {
         //Get the bid specifications.
         int pointsPerBid = bidObject.getInt("pointsPerBid");
         int overTrickPoints = bidObject.getInt("overtrickPoints");
@@ -154,15 +146,83 @@ public class validBids {
                 int overtrickPoints = specialBid.optInt("overtrickPoints");
                 int pointsGained = specialBid.optInt("bonusPoints");
                 int penalty = specialBid.optInt("penalty");
+                int undertrickPoints = specialBid.optInt("undertrickPoints");
+                JSONArray undertrickIncrementJSON = specialBid.has("undertrickIncrement") ? specialBid.getJSONArray("undertrickIncrement") : null;
+                int[] undertrickIncrement = null;
+                if (undertrickIncrementJSON != null) {
+                    undertrickIncrement = new int[undertrickIncrementJSON.length()];
+                    for (int j = 0; j < undertrickIncrementJSON.length(); j++) {
+                        undertrickIncrement[j] = undertrickIncrementJSON.getInt(j);
+                    }
+                }
                 boolean blind = specialBid.optBoolean("blind");
                 boolean doubled = specialBid.optBoolean("doubled");
                 boolean vulnerable = specialBid.optBoolean("vulnerable");
                 int contractPoints = specialBid.optInt("contractPoints");
-                int undertrickPoints = specialBid.optInt("undertrickPoints");
+                specialBidList.add(new SpecialBid(doubled, trumpSuit, bidValue, blind, vulnerable, pointsGained, penalty, trumpSuit, contractPoints, overtrickPoints, undertrickPoints, undertrickIncrement));
             }
+
         }
-        return (((bid, contractBid, value) -> {
-            return 0;
+        return (((bid, value) -> {
+            if (bid instanceof ContractBid) {
+                ContractBid contractBid = (ContractBid) bid;
+                Optional<SpecialBid> matchingBid = specialBidList.stream()
+                        .filter((specialBid -> specialBid.bidMatches(contractBid))).findFirst();
+                if (!matchingBid.isPresent()) {
+                    throw new IllegalArgumentException();
+                }
+                SpecialBid specialBid = matchingBid.get();
+                int score = 0;
+                //If they don't meet their bid.
+                if (value >= bid.getBidValue()) {
+                    score += bid.getBidValue() * specialBid.getContractPoints();
+                    if (value > bid.getBidValue()) {
+                        score += (value - bid.getBidValue()) * specialBid.getOvertrickPoints();
+                    }
+                } else {
+                    int tricksUnder = (bid.getBidValue() - value);
+                    //The default cause if no increment is provided.
+                    if (specialBid.getUndertrickIncrement() == null) {
+                        return tricksUnder * specialBid.getUndertrickPoints();
+                    } else {
+                        //Add the initial undertrick points.
+                        score += specialBid.getUndertrickPoints();
+                        //Create an iterator for the incrementing undertrick values.
+                        Iterator<Integer> undertrickIncrement = Arrays.stream(specialBid.getUndertrickIncrement()).iterator();
+                        //This stores the current undertrick points.
+                        int undertrickPoints = undertrickIncrement.next();
+                        //Loop for the number of points under, starting at 1 as you have already considered the initial undertrick points.
+                        for (int i = 1; i < tricksUnder; i++) {
+                            score += undertrickPoints;
+                            //Only take the next one if there is one, otherwise keep the same value.
+                            if (undertrickIncrement.hasNext()) {
+                                undertrickPoints = undertrickIncrement.next();
+                            }
+                        }
+                    }
+                }
+                return score;
+            } else { //Evaluate as a regular bid;
+                //First finds if the bid matches a special bid that was defined in the game decription
+                Optional<SpecialBid> matchingSpecialBid = specialBidList.stream()
+                        .filter((specialBid) -> specialBid.isBlind() == bid.isBlind() && specialBid.getBidValue() == bid.getBidValue())
+                        .findFirst();
+                //If there is a matching special bid
+                if (matchingSpecialBid.isPresent()) {
+                    //If the
+                    if (bid.getBidValue() == value) {
+                        return matchingSpecialBid.get().getBonusPoints();
+                    } else {
+                        return -matchingSpecialBid.get().getPenalty();
+                    }
+                } else { //Otherwise just evaluate the bid normally.
+                    if (value >= bid.getBidValue()) {
+                        return (value == bid.getBidValue() ? points_for_matching : 0) + bid.getBidValue() * pointsPerBid + (value - bid.getBidValue()) * overTrickPoints;
+                    } else {
+                        return value * -penaltyPoints;
+                    }
+                }
+            }
         }));
     }
 
@@ -199,7 +259,7 @@ public class validBids {
             if (matchingSpecialBid.isPresent()) {
                 //If the
                 if (bid.getBidValue() == value) {
-                    return matchingSpecialBid.get().getPointsGained();
+                    return matchingSpecialBid.get().getBonusPoints();
                 } else {
                     return -matchingSpecialBid.get().getPenalty();
                 }
