@@ -1,16 +1,12 @@
 package src.functions;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.jupiter.api.BeforeAll;
-import src.functions.validBids;
+
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-import src.gameEngine.Bid;
-import src.gameEngine.PotentialBid;
+import src.bid.Bid;
 
 import java.util.function.BiFunction;
-import java.util.function.IntPredicate;
-import java.util.function.Predicate;
 
 public class validBidsTestEvaluate {
 

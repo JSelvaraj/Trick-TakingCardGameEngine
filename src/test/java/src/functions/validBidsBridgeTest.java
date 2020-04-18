@@ -4,12 +4,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import src.gameEngine.Bid;
-import src.gameEngine.ContractBid;
-import src.gameEngine.PotentialBid;
+import src.bid.ContractBid;
+import src.bid.PotentialBid;
 
-import java.net.InetAddress;
-import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.*;

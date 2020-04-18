@@ -2,12 +2,10 @@ package src.functions;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import src.gameEngine.Bid;
-import src.gameEngine.ContractBid;
-import src.gameEngine.PotentialBid;
-import src.gameEngine.SpecialBid;
-import src.player.Player;
-import src.team.Team;
+import src.bid.Bid;
+import src.bid.ContractBid;
+import src.bid.PotentialBid;
+import src.bid.SpecialBid;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -139,6 +137,35 @@ public class validBids {
         });
     }
 
+    public static TriFunction<Bid, ContractBid, Integer, Integer> evaluateBidContract(JSONObject bidObject){
+        //Get the bid specifications.
+        int pointsPerBid = bidObject.getInt("pointsPerBid");
+        int overTrickPoints = bidObject.getInt("overtrickPoints");
+        int penaltyPoints = bidObject.getInt("penaltyPoints");
+        int points_for_matching = bidObject.optInt("pointsForMatch", 0); //TODO add to spec
+        //Create list for special bids rules
+        List<SpecialBid> specialBidList = new LinkedList<>();
+        if (bidObject.has("specialBids") && !bidObject.isNull("specialBids")) {
+            JSONArray specialBids = bidObject.getJSONArray("specialBids");
+            for (int i = 0; i < specialBids.length(); i++) {
+                JSONObject specialBid = specialBids.getJSONObject(i);
+                int bidValue = specialBid.optInt("bidValue");
+                String trumpSuit = specialBid.optString("trumpSuit");
+                int overtrickPoints = specialBid.optInt("overtrickPoints");
+                int pointsGained = specialBid.optInt("bonusPoints");
+                int penalty = specialBid.optInt("penalty");
+                boolean blind = specialBid.optBoolean("blind");
+                boolean doubled = specialBid.optBoolean("doubled");
+                boolean vulnerable = specialBid.optBoolean("vulnerable");
+                int contractPoints = specialBid.optInt("contractPoints");
+                int undertrickPoints = specialBid.optInt("undertrickPoints");
+            }
+        }
+        return (((bid, contractBid, value) -> {
+            return 0;
+        }));
+    }
+
     /**
      * Creates a bifuction that calculates how many points you get for a bid.
      *
@@ -158,7 +185,7 @@ public class validBids {
             for (int i = 0; i < specialBids.length(); i++) {
                 JSONObject specialBid = specialBids.getJSONObject(i);
                 specialBidList.add(new SpecialBid(specialBid.optInt("bidValue"),
-                        specialBid.optInt("pointsGained"),
+                        specialBid.optInt("bonusPoints"),
                         specialBid.optInt("penalty"),
                         specialBid.optBoolean("blind")));
             }

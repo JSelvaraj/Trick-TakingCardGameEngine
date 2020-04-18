@@ -1,5 +1,7 @@
 package src.gameEngine;
 
+import src.bid.Bid;
+import src.bid.ContractBid;
 import src.card.Card;
 import src.card.CardComparator;
 import src.deck.Deck;

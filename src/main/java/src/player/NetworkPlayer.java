@@ -6,10 +6,10 @@ import org.json.JSONObject;
 import src.card.Card;
 import src.exceptions.InvalidBidException;
 import src.exceptions.InvalidPlayerMoveException;
-import src.gameEngine.Bid;
-import src.gameEngine.ContractBid;
+import src.bid.Bid;
+import src.bid.ContractBid;
 import src.gameEngine.Hand;
-import src.gameEngine.PotentialBid;
+import src.bid.PotentialBid;
 import src.rdmEvents.Swap;
 
 import java.io.BufferedWriter;
@@ -18,7 +18,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 public class NetworkPlayer extends Player {

@@ -4,17 +4,13 @@ import src.ai.CardPOMDP;
 import src.ai.GameObservation;
 import src.card.Card;
 import src.deck.Deck;
-import src.functions.validCards;
-import src.gameEngine.Bid;
-import src.gameEngine.ContractBid;
+import src.bid.Bid;
+import src.bid.ContractBid;
 import src.gameEngine.Hand;
-import src.gameEngine.PotentialBid;
+import src.bid.PotentialBid;
 import src.parser.GameDesc;
 import src.rdmEvents.Swap;
 
-import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 public class POMDPPlayer extends Player {

@@ -1,5 +1,6 @@
-package src.gameEngine;
+package src.bid;
 
+import src.bid.Bid;
 import src.player.Player;
 
 public class ContractBid extends Bid {

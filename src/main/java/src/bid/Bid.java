@@ -1,4 +1,4 @@
-package src.gameEngine;
+package src.bid;
 
 /**
  * Object to represent a bid
