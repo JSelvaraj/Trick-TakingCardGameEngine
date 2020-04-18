@@ -193,7 +193,7 @@ public class LocalPlayer extends Player {
         else {
             finalBidInput = Integer.parseInt(bidInput);
         }
-        return new Bid(doubling, bidSuit, finalBidInput, bidBlind);
+        return new Bid(doubling, bidSuit, finalBidInput, bidBlind, false);
     }
 
 

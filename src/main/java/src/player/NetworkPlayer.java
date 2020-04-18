@@ -163,7 +163,7 @@ public class NetworkPlayer extends Player {
         boolean blind;
         boolean doubling = bidEvent.optBoolean("doubling", false);
         if (doubling) {
-            bid =  new Bid(true, null,0,false);
+            bid =  new Bid(true, null,0,false, false);
             value = "d";
         }
         else {
@@ -173,7 +173,7 @@ public class NetworkPlayer extends Player {
             }
             int valueInt = bidEvent.getInt("value");
             blind = bidEvent.optBoolean("blindBid", false);
-            bid = new Bid(false,suit,valueInt,blind);
+            bid = new Bid(false,suit,valueInt,blind, false);
             value = Integer.toString(valueInt);
         }
         if (!validBid.test(new PotentialBid(suit, value, adjustedHighestBid))) {

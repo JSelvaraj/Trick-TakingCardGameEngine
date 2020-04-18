@@ -52,7 +52,7 @@ public class RandomPlayer extends Player {
                 suit = "SPADES";
             }
         } while (!validBid.test(new PotentialBid(null, Integer.toString(bid), adjustedHighestBid)));
-        return new Bid(false, suit, bid, true);
+        return new Bid(false, suit, bid, true, false);
     }
 
     @Override
