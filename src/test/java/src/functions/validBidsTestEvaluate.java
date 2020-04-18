@@ -18,7 +18,7 @@ public class validBidsTestEvaluate {
         bidObject.put("overtrickPoints", 1);
         bidObject.put("penaltyPoints", 5);
         BiFunction<Bid, Integer, Integer> bidEvaluator = validBids.evaluateBid(bidObject);
-        Bid bid1 = new Bid(false, null,6, false);
+        Bid bid1 = new Bid(false, null,6, false, false);
         assertEquals(60, bidEvaluator.apply(bid1, 6).intValue());
         assertEquals(64, bidEvaluator.apply(bid1, 10).intValue());
         assertEquals(-25, bidEvaluator.apply(bid1, 5).intValue());
@@ -34,13 +34,13 @@ public class validBidsTestEvaluate {
         //Special bid for blind nil bid
         JSONObject blindNilBid = new JSONObject();
         blindNilBid.put("bidValue", 0);
-        blindNilBid.put("pointsGained", 200);
+        blindNilBid.put("bonusPoints", 200);
         blindNilBid.put("penalty", 100);
         blindNilBid.put("blind", true);
         //Special bid for nil bidding
         JSONObject nilBid = new JSONObject();
         nilBid.put("bidValue", 0);
-        nilBid.put("pointsGained", 100);
+        nilBid.put("bonusPoints", 100);
         nilBid.put("penalty", 50);
         nilBid.put("blind", false);
         specialBids.put(blindNilBid);
@@ -48,8 +48,8 @@ public class validBidsTestEvaluate {
         bidObject.put("specialBids", specialBids);
         BiFunction<Bid, Integer, Integer> bidEvaluator = validBids.evaluateBid(bidObject);
         //Bids to check.
-        Bid bidNil = new Bid(false, null, 0, false);
-        Bid bidBlindNil = new Bid(false, null,0, true);
+        Bid bidNil = new Bid(false, null, 0, false,false);
+        Bid bidBlindNil = new Bid(false, null,0, true, false);
         //checks if they evaluate correctly.
         assertEquals(100, bidEvaluator.apply(bidNil, 0).intValue());
         assertEquals(-50, bidEvaluator.apply(bidNil, 1).intValue());
