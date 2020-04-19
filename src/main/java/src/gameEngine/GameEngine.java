@@ -273,7 +273,7 @@ public class GameEngine extends WebSocketServer {
 
         game.start();
         JsonObject gameSetup = new JsonObject();
-        gameSetup.add("subtype", new JsonPrimitive("gameSetup"));
+        gameSetup.add("type", new JsonPrimitive("gameSetup"));
         gameSetup.add("port", new JsonPrimitive(game.getPort()));
         oldWebSocket.send(gameSetup.getAsString());
 
@@ -525,7 +525,7 @@ public class GameEngine extends WebSocketServer {
                 game.trumpSuit.replace(0, game.trumpSuit.length(), gameDesc.getTrumpIterator().next());
             }
 
-            //send updated scores and new trumpsuit when round has ended
+            //send updated scores when round has ended
             JsonObject roundEndMessage = new JsonObject();
             roundEndMessage.add("type", new JsonPrimitive("roundendmessage"));
             sendTeamScoresJson(game, roundEndMessage);
@@ -537,10 +537,15 @@ public class GameEngine extends WebSocketServer {
 
             game.printScore();
         } while (game.gameEnd());
+        //send updated scores when game has ended
+        JsonObject roundEndMessage = new JsonObject();
+        roundEndMessage.add("type", new JsonPrimitive("gameendmessage"));
+        sendTeamScoresJson(game, roundEndMessage);
+
         System.out.println("End of Game");
     }
 
-    private static void sendTeamScoresJson(GameEngine game, JsonObject gameEndMessage) {
+    private static void sendTeamScoresJson(GameEngine game, JsonObject message) {
         JsonArray scoresArray = new JsonArray();
         for (Team team: teams) {
             JsonObject teamJson = new JsonObject();
@@ -548,9 +553,8 @@ public class GameEngine extends WebSocketServer {
             teamJson.add("teamscore", new JsonPrimitive(team.getScore()));
             scoresArray.add(teamJson);
         }
-        gameEndMessage.add("scores", scoresArray);
-        gameEndMessage.add("trumpsuit", new JsonPrimitive(game.trumpSuit.toString()));
-        game.webSocket.send(gameEndMessage.getAsString());
+        message.add("scores", scoresArray);
+        game.webSocket.send(message.getAsString());
     }
 
 

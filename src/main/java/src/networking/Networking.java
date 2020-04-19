@@ -373,6 +373,7 @@ public class Networking {
             Parser parser = new Parser();
             GameDesc gameDesc = parser.parseGameDescription(gameJSON);
 
+            //TODO messaging for joingame protocol
             System.out.println("Starting game");
             GameEngine.main(gameDesc, 0, players, seed, printMoves, enableRandomEvents);
         } catch (IOException e) {

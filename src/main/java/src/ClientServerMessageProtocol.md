@@ -127,28 +127,6 @@ At the start of each trick every player's hand is sent to the front-end. An exam
     }] /* Assume there will be more than one player in this array*
 }
 ```
-###Get Bids from Front-end  - Ignore Bidding for now, I need to merge my branch with the main branch.
-The back-end sends a request for a bid from the front-end. The request will look like this:
-
-```
-{
-    "type":"makebid",
-    "validbids":[0,1,2,3,4,5,6,7,8]
-}
-```
-The response from the front end should be in the following format:
-```
-{
-    "type":"makebid",
-    "bid": 
-    { /* example values*/
-        "bidvalue":3,
-        "isblind":true   /* if the game doesn't allow blind bids then default to false */
-    }
-}
-```
-###Send received Bids
-The complete list of bids is sent to the 
 
 ###Swap Hands
 Request to swap hands
@@ -243,7 +221,8 @@ First the Back-end makes a request to the front end, with a list of valid cards 
         "rank":"TWO",
         "suit":"SPADES"
     },
-    {   "rank":"ACE",
+    {   
+        "rank":"ACE",
         "suit":"CLUBS"
     }]
 }
@@ -306,9 +285,33 @@ When the round ends a message is played:
 ```
 {
     "type":"roundendmessage"
+    "scores":
+    [{
+        "teamnumber":number,
+        "teamscore":number,
+    },
+    {
+        "teamnumber":number,
+        "teamscore":number,
+    }]
 }
 ```
-
+### game ended
+When the round ends a message is played:
+```
+{
+    "type":"roundendmessage"
+    "scores":
+    [{
+        "teamnumber":number,
+        "teamscore":number,
+    },
+    {
+        "teamnumber":number,
+        "teamscore":number,
+    }]
+}
+```
 
         
 
