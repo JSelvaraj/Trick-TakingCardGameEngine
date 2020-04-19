@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.json.JSONTokener;
 import org.junit.jupiter.api.Test;
 import src.bid.Bid;
+import src.bid.ContractBid;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,8 +67,23 @@ public class validBidsTestEvaluate {
     }
 
     @Test
-    void evaluateBridgeBid() {
+    void evaluateBridgeBid1() {
         BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
+        ContractBid bid = new ContractBid(false, "CLUBS", 7, false, false, null);
+        assertEquals(650, (int) bidEvaluator.apply(bid,  0));
+        assertEquals(600, (int) bidEvaluator.apply(bid,  1));
+        assertEquals(550, (int) bidEvaluator.apply(bid,  2));
+        assertEquals(500, (int) bidEvaluator.apply(bid,  3));
+        assertEquals(450, (int) bidEvaluator.apply(bid,  4));
+        assertEquals(400, (int) bidEvaluator.apply(bid,  5));
+        assertEquals(350, (int) bidEvaluator.apply(bid,  6));
+        assertEquals(300, (int) bidEvaluator.apply(bid,  7));
+        assertEquals(250, (int) bidEvaluator.apply(bid,  8));
+        assertEquals(200, (int) bidEvaluator.apply(bid,  9));
+        assertEquals(150, (int) bidEvaluator.apply(bid,  10));
+        assertEquals(100, (int) bidEvaluator.apply(bid,  11));
+        assertEquals(50, (int) bidEvaluator.apply(bid,  12));
+        assertEquals(140, (int) bidEvaluator.apply(bid,  13));
     }
 
     BiFunction<Bid, Integer, Integer> importBidFunction() {

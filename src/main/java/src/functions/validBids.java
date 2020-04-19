@@ -135,6 +135,7 @@ public class validBids {
         int overTrickPoints = bidObject.getInt("overtrickPoints");
         int penaltyPoints = bidObject.getInt("penaltyPoints");
         int points_for_matching = bidObject.optInt("pointsForMatch", 0); //TODO add to spec
+        int bidThreshold = bidObject.optInt("bidThreshold");
         //Create list for special bids rules
         List<SpecialBid> specialBidList = new LinkedList<>();
         if (bidObject.has("specialBids") && !bidObject.isNull("specialBids")) {
@@ -165,6 +166,7 @@ public class validBids {
         }
         return (((bid, value) -> {
             if (bid instanceof ContractBid) {
+                value -= bidThreshold;
                 ContractBid contractBid = (ContractBid) bid;
                 Optional<SpecialBid> matchingBid = specialBidList.stream()
                         .filter((specialBid -> specialBid.bidMatches(contractBid))).findFirst();
@@ -180,7 +182,7 @@ public class validBids {
                         score += (value - bid.getBidValue()) * specialBid.getOvertrickPoints();
                     }
                 } else {
-                    int tricksUnder = (bid.getBidValue() - value);
+                    int tricksUnder = -value + bidThreshold + 1;
                     //The default cause if no increment is provided.
                     if (specialBid.getUndertrickIncrement() == null) {
                         return tricksUnder * specialBid.getUndertrickPoints();
