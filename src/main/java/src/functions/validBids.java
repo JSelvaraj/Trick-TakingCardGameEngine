@@ -186,19 +186,7 @@ public class validBids {
                         return tricksUnder * specialBid.getUndertrickPoints();
                     } else {
                         //Add the initial undertrick points.
-                        score += specialBid.getUndertrickPoints();
-                        //Create an iterator for the incrementing undertrick values.
-                        Iterator<Integer> undertrickIncrement = Arrays.stream(specialBid.getUndertrickIncrement()).iterator();
-                        //This stores the current undertrick points.
-                        int undertrickPoints = undertrickIncrement.next();
-                        //Loop for the number of points under, starting at 1 as you have already considered the initial undertrick points.
-                        for (int i = 1; i < tricksUnder; i++) {
-                            score += undertrickPoints;
-                            //Only take the next one if there is one, otherwise keep the same value.
-                            if (undertrickIncrement.hasNext()) {
-                                undertrickPoints = undertrickIncrement.next();
-                            }
-                        }
+                        score += specialBid.getUndertrickIncrement()[tricksUnder];
                     }
                 }
                 return score;
