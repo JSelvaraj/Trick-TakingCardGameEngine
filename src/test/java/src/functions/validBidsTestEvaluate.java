@@ -70,60 +70,80 @@ public class validBidsTestEvaluate {
     void evaluateBridgeBid1() {
         BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
         ContractBid bid = new ContractBid(false, "CLUBS", 7, false, false, null);
-        assertEquals(650, (int) bidEvaluator.apply(bid,  0));
-        assertEquals(600, (int) bidEvaluator.apply(bid,  1));
-        assertEquals(550, (int) bidEvaluator.apply(bid,  2));
-        assertEquals(500, (int) bidEvaluator.apply(bid,  3));
-        assertEquals(450, (int) bidEvaluator.apply(bid,  4));
-        assertEquals(400, (int) bidEvaluator.apply(bid,  5));
-        assertEquals(350, (int) bidEvaluator.apply(bid,  6));
-        assertEquals(300, (int) bidEvaluator.apply(bid,  7));
-        assertEquals(250, (int) bidEvaluator.apply(bid,  8));
-        assertEquals(200, (int) bidEvaluator.apply(bid,  9));
-        assertEquals(150, (int) bidEvaluator.apply(bid,  10));
-        assertEquals(100, (int) bidEvaluator.apply(bid,  11));
-        assertEquals(50, (int) bidEvaluator.apply(bid,  12));
-        assertEquals(140, (int) bidEvaluator.apply(bid,  13));
+        assertEquals(650, (int) bidEvaluator.apply(bid, 0));
+        assertEquals(600, (int) bidEvaluator.apply(bid, 1));
+        assertEquals(550, (int) bidEvaluator.apply(bid, 2));
+        assertEquals(500, (int) bidEvaluator.apply(bid, 3));
+        assertEquals(450, (int) bidEvaluator.apply(bid, 4));
+        assertEquals(400, (int) bidEvaluator.apply(bid, 5));
+        assertEquals(350, (int) bidEvaluator.apply(bid, 6));
+        assertEquals(300, (int) bidEvaluator.apply(bid, 7));
+        assertEquals(250, (int) bidEvaluator.apply(bid, 8));
+        assertEquals(200, (int) bidEvaluator.apply(bid, 9));
+        assertEquals(150, (int) bidEvaluator.apply(bid, 10));
+        assertEquals(100, (int) bidEvaluator.apply(bid, 11));
+        assertEquals(50, (int) bidEvaluator.apply(bid, 12));
+        assertEquals(140, (int) bidEvaluator.apply(bid, 13));
     }
 
     @Test
     void evaluateBridgeBid2() {
         BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
         ContractBid bid = new ContractBid(true, "CLUBS", 7, false, false, null);
-        assertEquals(3400, (int) bidEvaluator.apply(bid,  0));
-        assertEquals(3100, (int) bidEvaluator.apply(bid,  1));
-        assertEquals(2900, (int) bidEvaluator.apply(bid,  2));
-        assertEquals(2600, (int) bidEvaluator.apply(bid,  3));
-        assertEquals(2300, (int) bidEvaluator.apply(bid,  4));
-        assertEquals(2000, (int) bidEvaluator.apply(bid,  5));
-        assertEquals(1700, (int) bidEvaluator.apply(bid,  6));
-        assertEquals(1400, (int) bidEvaluator.apply(bid,  7));
-        assertEquals(1100, (int) bidEvaluator.apply(bid,  8));
-        assertEquals(800, (int) bidEvaluator.apply(bid,  9));
-        assertEquals(500, (int) bidEvaluator.apply(bid,  10));
-        assertEquals(300, (int) bidEvaluator.apply(bid,  11));
-        assertEquals(100, (int) bidEvaluator.apply(bid,  12));
-        assertEquals(280, (int) bidEvaluator.apply(bid,  13));
+        assertEquals(3400, (int) bidEvaluator.apply(bid, 0));
+        assertEquals(3100, (int) bidEvaluator.apply(bid, 1));
+        assertEquals(2900, (int) bidEvaluator.apply(bid, 2));
+        assertEquals(2600, (int) bidEvaluator.apply(bid, 3));
+        assertEquals(2300, (int) bidEvaluator.apply(bid, 4));
+        assertEquals(2000, (int) bidEvaluator.apply(bid, 5));
+        assertEquals(1700, (int) bidEvaluator.apply(bid, 6));
+        assertEquals(1400, (int) bidEvaluator.apply(bid, 7));
+        assertEquals(1100, (int) bidEvaluator.apply(bid, 8));
+        assertEquals(800, (int) bidEvaluator.apply(bid, 9));
+        assertEquals(500, (int) bidEvaluator.apply(bid, 10));
+        assertEquals(300, (int) bidEvaluator.apply(bid, 11));
+        assertEquals(100, (int) bidEvaluator.apply(bid, 12));
+        assertEquals(280, (int) bidEvaluator.apply(bid, 13));
     }
 
     @Test
     void evaluateBridgeBid3() {
         BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
         ContractBid bid = new ContractBid(true, "CLUBS", 3, false, false, null);
-        assertEquals(2300, (int) bidEvaluator.apply(bid,  0));
-        assertEquals(2000, (int) bidEvaluator.apply(bid,  1));
-        assertEquals(1700, (int) bidEvaluator.apply(bid,  2));
-        assertEquals(1400, (int) bidEvaluator.apply(bid,  3));
-        assertEquals(1100, (int) bidEvaluator.apply(bid,  4));
-        assertEquals(800, (int) bidEvaluator.apply(bid,  5));
-        assertEquals(500, (int) bidEvaluator.apply(bid,  6));
-        assertEquals(300, (int) bidEvaluator.apply(bid,  7));
-        assertEquals(100, (int) bidEvaluator.apply(bid,  8));
-        assertEquals(120, (int) bidEvaluator.apply(bid,  9));
-        assertEquals(220, (int) bidEvaluator.apply(bid,  10));
-        assertEquals(320, (int) bidEvaluator.apply(bid,  11));
-        assertEquals(420, (int) bidEvaluator.apply(bid,  12));
-        assertEquals(520, (int) bidEvaluator.apply(bid,  13));
+        assertEquals(2300, (int) bidEvaluator.apply(bid, 0));
+        assertEquals(2000, (int) bidEvaluator.apply(bid, 1));
+        assertEquals(1700, (int) bidEvaluator.apply(bid, 2));
+        assertEquals(1400, (int) bidEvaluator.apply(bid, 3));
+        assertEquals(1100, (int) bidEvaluator.apply(bid, 4));
+        assertEquals(800, (int) bidEvaluator.apply(bid, 5));
+        assertEquals(500, (int) bidEvaluator.apply(bid, 6));
+        assertEquals(300, (int) bidEvaluator.apply(bid, 7));
+        assertEquals(100, (int) bidEvaluator.apply(bid, 8));
+        assertEquals(120, (int) bidEvaluator.apply(bid, 9));
+        assertEquals(220, (int) bidEvaluator.apply(bid, 10));
+        assertEquals(320, (int) bidEvaluator.apply(bid, 11));
+        assertEquals(420, (int) bidEvaluator.apply(bid, 12));
+        assertEquals(520, (int) bidEvaluator.apply(bid, 13));
+    }
+
+    @Test
+    void evaluateBridgeBid4() {
+        BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
+        ContractBid bid = new ContractBid(false, "NO TRUMP", 5, false, false, null);
+        assertEquals(550, (int) bidEvaluator.apply(bid, 0));
+        assertEquals(500, (int) bidEvaluator.apply(bid, 1));
+        assertEquals(450, (int) bidEvaluator.apply(bid, 2));
+        assertEquals(400, (int) bidEvaluator.apply(bid, 3));
+        assertEquals(350, (int) bidEvaluator.apply(bid, 4));
+        assertEquals(300, (int) bidEvaluator.apply(bid, 5));
+        assertEquals(250, (int) bidEvaluator.apply(bid, 6));
+        assertEquals(200, (int) bidEvaluator.apply(bid, 7));
+        assertEquals(150, (int) bidEvaluator.apply(bid, 8));
+        assertEquals(100, (int) bidEvaluator.apply(bid, 9));
+        assertEquals(50, (int) bidEvaluator.apply(bid, 10));
+        assertEquals(150, (int) bidEvaluator.apply(bid, 11));
+        assertEquals(180, (int) bidEvaluator.apply(bid, 12));
+        assertEquals(210, (int) bidEvaluator.apply(bid, 13));
     }
 
     BiFunction<Bid, Integer, Integer> importBidFunction() {
