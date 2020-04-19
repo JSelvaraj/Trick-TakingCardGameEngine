@@ -65,7 +65,8 @@ public class SpecialBid extends Bid {
         return (bid.getBidValue() == super.getBidValue() || super.getBidValue() == -1) &&
                 bid.isBlind() == super.isBlind() &&
                 bid.isDoubling() == super.isDoubling() &&
-                bid.isVulnerable() == super.isVulnerable();
+                bid.isVulnerable() == super.isVulnerable() &&
+                super.getSuit().equals(bid.getSuit());
     }
 
     public String getTrumpSuit() {
