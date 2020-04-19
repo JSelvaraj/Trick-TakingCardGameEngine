@@ -1,11 +1,18 @@
 package src.functions;
+
+import jdk.nashorn.internal.parser.JSONParser;
+import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.json.JSONTokener;
 import org.junit.jupiter.api.Test;
 import src.bid.Bid;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.function.BiFunction;
 
 public class validBidsTestEvaluate {
@@ -18,7 +25,7 @@ public class validBidsTestEvaluate {
         bidObject.put("overtrickPoints", 1);
         bidObject.put("penaltyPoints", 5);
         BiFunction<Bid, Integer, Integer> bidEvaluator = validBids.evaluateBid(bidObject);
-        Bid bid1 = new Bid(false, null,6, false, false);
+        Bid bid1 = new Bid(false, null, 6, false, false);
         assertEquals(60, bidEvaluator.apply(bid1, 6).intValue());
         assertEquals(64, bidEvaluator.apply(bid1, 10).intValue());
         assertEquals(-25, bidEvaluator.apply(bid1, 5).intValue());
@@ -48,13 +55,30 @@ public class validBidsTestEvaluate {
         bidObject.put("specialBids", specialBids);
         BiFunction<Bid, Integer, Integer> bidEvaluator = validBids.evaluateBid(bidObject);
         //Bids to check.
-        Bid bidNil = new Bid(false, null, 0, false,false);
-        Bid bidBlindNil = new Bid(false, null,0, true, false);
+        Bid bidNil = new Bid(false, null, 0, false, false);
+        Bid bidBlindNil = new Bid(false, null, 0, true, false);
         //checks if they evaluate correctly.
         assertEquals(100, bidEvaluator.apply(bidNil, 0).intValue());
         assertEquals(-50, bidEvaluator.apply(bidNil, 1).intValue());
         assertEquals(200, bidEvaluator.apply(bidBlindNil, 0).intValue());
         assertEquals(-100, bidEvaluator.apply(bidBlindNil, 1).intValue());
 
+    }
+
+    @Test
+    void evaluateBridgeBid() {
+        BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
+    }
+
+    BiFunction<Bid, Integer, Integer> importBidFunction() {
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("bridgeBid.json")) {
+            if (inputStream == null) {
+                throw new IOException();
+            }
+            JSONObject bidObject = new JSONObject(new JSONTokener(inputStream));
+            return validBids.evaluateBidContract(bidObject);
+        } catch (IOException e) {
+            return null;
+        }
     }
 }
