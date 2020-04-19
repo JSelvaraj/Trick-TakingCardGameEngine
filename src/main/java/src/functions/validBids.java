@@ -166,7 +166,7 @@ public class validBids {
         }
         return (((bid, value) -> {
             if (bid instanceof ContractBid) {
-                value -= bidThreshold;
+                int adjustedValue = value - bidThreshold;
                 ContractBid contractBid = (ContractBid) bid;
                 Optional<SpecialBid> matchingBid = specialBidList.stream()
                         .filter((specialBid -> specialBid.bidMatches(contractBid))).findFirst();
@@ -176,19 +176,19 @@ public class validBids {
                 SpecialBid specialBid = matchingBid.get();
                 int score = 0;
                 //If they don't meet their bid.
-                if (value >= bid.getBidValue()) {
+                if (adjustedValue >= bid.getBidValue()) {
                     score += bid.getBidValue() * specialBid.getContractPoints();
-                    if (value > bid.getBidValue()) {
-                        score += (value - bid.getBidValue()) * specialBid.getOvertrickPoints();
+                    if (adjustedValue > bid.getBidValue()) {
+                        score += (adjustedValue - bid.getBidValue()) * specialBid.getOvertrickPoints();
                     }
                 } else {
-                    int tricksUnder = -value + bidThreshold + 1;
+                    int tricksUnder = bid.getBidValue() + bidThreshold - value;
                     //The default cause if no increment is provided.
                     if (specialBid.getUndertrickIncrement() == null) {
                         return tricksUnder * specialBid.getUndertrickPoints();
                     } else {
                         //Add the initial undertrick points.
-                        score += specialBid.getUndertrickIncrement()[tricksUnder];
+                        score += specialBid.getUndertrickIncrement()[tricksUnder - 1];
                     }
                 }
                 return score;

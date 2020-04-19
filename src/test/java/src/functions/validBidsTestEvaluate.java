@@ -86,6 +86,26 @@ public class validBidsTestEvaluate {
         assertEquals(140, (int) bidEvaluator.apply(bid,  13));
     }
 
+    @Test
+    void evaluateBridgeBid2() {
+        BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
+        ContractBid bid = new ContractBid(true, "CLUBS", 7, false, false, null);
+        assertEquals(3400, (int) bidEvaluator.apply(bid,  0));
+        assertEquals(3100, (int) bidEvaluator.apply(bid,  1));
+        assertEquals(2900, (int) bidEvaluator.apply(bid,  2));
+        assertEquals(2600, (int) bidEvaluator.apply(bid,  3));
+        assertEquals(2300, (int) bidEvaluator.apply(bid,  4));
+        assertEquals(2000, (int) bidEvaluator.apply(bid,  5));
+        assertEquals(1700, (int) bidEvaluator.apply(bid,  6));
+        assertEquals(1400, (int) bidEvaluator.apply(bid,  7));
+        assertEquals(1100, (int) bidEvaluator.apply(bid,  8));
+        assertEquals(800, (int) bidEvaluator.apply(bid,  9));
+        assertEquals(500, (int) bidEvaluator.apply(bid,  10));
+        assertEquals(300, (int) bidEvaluator.apply(bid,  11));
+        assertEquals(100, (int) bidEvaluator.apply(bid,  12));
+        assertEquals(280, (int) bidEvaluator.apply(bid,  13));
+    }
+
     BiFunction<Bid, Integer, Integer> importBidFunction() {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("bridgeBid.json")) {
             if (inputStream == null) {
