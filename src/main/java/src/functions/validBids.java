@@ -2,14 +2,12 @@ package src.functions;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import src.bid.Bid;
-import src.bid.ContractBid;
-import src.bid.PotentialBid;
-import src.bid.SpecialBid;
+import src.bid.*;
 
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Creates custom functions based on the game description rules that describe how bids work - validity and scoring.
@@ -163,7 +161,26 @@ public class validBids {
             }
 
         }
-        return (((bid, value) -> {
+        List<BonusScore> bonusScoresList = new LinkedList<>();
+        if (bidObject.has("bonusScores") && !bidObject.isNull("bonusScores")) {
+            JSONArray bonusScores = bidObject.getJSONArray("bonusScores");
+            for (int i = 0; i < bonusScores.length(); i++) {
+                JSONObject bonusScore = bonusScores.getJSONObject(i);
+                BonusScore toAdd = null;
+                int bonus = bonusScore.getInt("bonusPoints");
+                boolean vulnerable = bonusScore.optBoolean("vulnerable");
+                if (bonusScore.has("handScoreMin") && bonusScore.has("trickTotal")) {
+                    throw new IllegalArgumentException("Can't have both keys.");
+                }
+                if (bonusScore.has("handScoreMin")) {
+                    toAdd = new handScore(bonus, vulnerable, bonusScore.getInt("handScoreMin"), bonusScore.getInt("handScoreMax"));
+                } else {
+                    toAdd = new SlamBonus(bonus, vulnerable, bonusScore.getInt("trickTotal"));
+                }
+                bonusScoresList.add(toAdd);
+            }
+        }
+        return (bid, value) -> {
             if (bid instanceof ContractBid) {
                 int adjustedValue = value - trickThreshold;
                 ContractBid contractBid = (ContractBid) bid;
@@ -174,9 +191,11 @@ public class validBids {
                 }
                 SpecialBid specialBid = matchingBid.get();
                 int score = 0;
+                int handScore = 0;
                 //If they don't meet their bid.
                 if (adjustedValue >= bid.getBidValue()) {
-                    score += bid.getBidValue() * specialBid.getContractPoints();
+                    handScore = bid.getBidValue() * specialBid.getContractPoints();
+                    score += handScore;
                     if (adjustedValue > bid.getBidValue()) {
                         score += (adjustedValue - bid.getBidValue()) * specialBid.getOvertrickPoints();
                     }
@@ -190,6 +209,9 @@ public class validBids {
                         score += specialBid.getUndertrickIncrement()[tricksUnder - 1];
                     }
                 }
+                //Find any score bonuses to apply;
+                int finalHandScore = handScore;
+                score += bonusScoresList.stream().filter(b -> b.matches(bid, finalHandScore, value)).mapToInt(BonusScore::getBonusScore).sum();
                 //Double if it is redoubling
                 if (contractBid.isRedoubling()) {
                     if (!contractBid.isDoubling()) {
@@ -219,7 +241,7 @@ public class validBids {
                     }
                 }
             }
-        }));
+        };
     }
 
     /**
