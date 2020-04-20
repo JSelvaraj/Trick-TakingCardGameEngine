@@ -129,13 +129,12 @@ public class validBids {
         });
     }
 
-    public static BiFunction<Bid, Integer, Integer> evaluateBidContract(JSONObject bidObject) {
+    public static BiFunction<Bid, Integer, Integer> evaluateBidContract(JSONObject bidObject, int trickThreshold) {
         //Get the bid specifications.
         int pointsPerBid = bidObject.getInt("pointsPerBid");
         int overTrickPoints = bidObject.getInt("overtrickPoints");
         int penaltyPoints = bidObject.getInt("penaltyPoints");
         int points_for_matching = bidObject.optInt("pointsForMatch", 0); //TODO add to spec
-        int bidThreshold = bidObject.optInt("bidThreshold");
         //Create list for special bids rules
         List<SpecialBid> specialBidList = new LinkedList<>();
         if (bidObject.has("specialBids") && !bidObject.isNull("specialBids")) {
@@ -166,7 +165,7 @@ public class validBids {
         }
         return (((bid, value) -> {
             if (bid instanceof ContractBid) {
-                int adjustedValue = value - bidThreshold;
+                int adjustedValue = value - trickThreshold;
                 ContractBid contractBid = (ContractBid) bid;
                 Optional<SpecialBid> matchingBid = specialBidList.stream()
                         .filter((specialBid -> specialBid.bidMatches(contractBid))).findFirst();
@@ -182,7 +181,7 @@ public class validBids {
                         score += (adjustedValue - bid.getBidValue()) * specialBid.getOvertrickPoints();
                     }
                 } else {
-                    int tricksUnder = bid.getBidValue() + bidThreshold - value;
+                    int tricksUnder = bid.getBidValue() + trickThreshold - value;
                     //The default cause if no increment is provided.
                     if (specialBid.getUndertrickIncrement() == null) {
                         return tricksUnder * specialBid.getUndertrickPoints();
@@ -190,6 +189,13 @@ public class validBids {
                         //Add the initial undertrick points.
                         score += specialBid.getUndertrickIncrement()[tricksUnder - 1];
                     }
+                }
+                //Double if it is redoubling
+                if (contractBid.isRedoubling()) {
+                    if (!contractBid.isRedoubling()) {
+                        throw new IllegalArgumentException("Can't redouble without doubling");
+                    }
+                    score *= 2;
                 }
                 return score;
             } else { //Evaluate as a regular bid;

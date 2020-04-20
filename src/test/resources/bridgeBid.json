@@ -6,7 +6,6 @@
   "penaltyPoints": 0,
   "minBid": 1,
   "maxBid": 7,
-  "bidThreshold" : 6,
   "suitBidRank": [
     "CLUBS",
     "DIAMONDS",
