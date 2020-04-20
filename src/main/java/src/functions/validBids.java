@@ -196,6 +196,7 @@ public class validBids {
                 if (adjustedValue >= bid.getBidValue()) {
                     handScore = bid.getBidValue() * specialBid.getContractPoints();
                     score += handScore;
+                    score += specialBid.getBonusPoints();
                     if (adjustedValue > bid.getBidValue()) {
                         score += (adjustedValue - bid.getBidValue()) * specialBid.getOvertrickPoints();
                     }
@@ -211,7 +212,7 @@ public class validBids {
                 }
                 //Find any score bonuses to apply;
                 int finalHandScore = handScore;
-                score += bonusScoresList.stream().filter(b -> b.matches(bid, finalHandScore, value)).mapToInt(BonusScore::getBonusScore).sum();
+                score += bonusScoresList.stream().filter(b -> b.matches(bid, finalHandScore, adjustedValue)).mapToInt(BonusScore::getBonusScore).sum();
                 //Double if it is redoubling
                 if (contractBid.isRedoubling()) {
                     if (!contractBid.isDoubling()) {

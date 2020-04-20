@@ -10,7 +10,7 @@ public class SlamBonus extends BonusScore {
 
     @Override
     public boolean matches(Bid bid, int handScore, int tricks) {
-        return super.matches(bid, handScore, tricks) && tricks == this.tricks;
+        return super.matches(bid, handScore, tricks) && tricks == this.tricks && bid.getBidValue() == tricks;
     }
 
     public int getTricks() {
