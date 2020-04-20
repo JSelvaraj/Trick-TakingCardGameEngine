@@ -192,7 +192,7 @@ public class validBids {
                 }
                 //Double if it is redoubling
                 if (contractBid.isRedoubling()) {
-                    if (!contractBid.isRedoubling()) {
+                    if (!contractBid.isDoubling()) {
                         throw new IllegalArgumentException("Can't redouble without doubling");
                     }
                     score *= 2;
