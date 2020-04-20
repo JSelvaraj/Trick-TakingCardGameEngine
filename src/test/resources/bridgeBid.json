@@ -142,7 +142,7 @@
     {
       "bidValue": -1,
       "trumpSuit": "CLUBS",
-      "bonusPoints": 0,
+      "bonusPoints": 50,
       "overtrickPoints": 100,
       "undertrickIncrement": [
         100,
@@ -156,8 +156,8 @@
         2300,
         2600,
         2900,
-        3100,
-        3400
+        3200,
+        3500
       ],
       "undertrickAwardedTo": "opponent",
       "blindBid": false,
@@ -168,7 +168,7 @@
     {
       "bidValue": -1,
       "trumpSuit": "DIAMONDS",
-      "bonusPoints": 0,
+      "bonusPoints": 50,
       "overtrickPoints": 100,
       "undertrickPoints": 100,
       "undertrickIncrement": [
@@ -183,8 +183,8 @@
         2300,
         2600,
         2900,
-        3100,
-        3400
+        3200,
+        3500
       ],
       "undertrickAwardedTo": "opponent",
       "blindBid": false,
@@ -195,7 +195,7 @@
     {
       "bidValue": -1,
       "trumpSuit": "SPADES",
-      "bonusPoints": 0,
+      "bonusPoints": 50,
       "overtrickPoints": 100,
       "undertrickIncrement": [
         100,
@@ -209,8 +209,8 @@
         2300,
         2600,
         2900,
-        3100,
-        3400
+        3200,
+        3500
       ],
       "undertrickAwardedTo": "opponent",
       "blindBid": false,
@@ -221,7 +221,7 @@
     {
       "bidValue": -1,
       "trumpSuit": "HEARTS",
-      "bonusPoints": 0,
+      "bonusPoints": 50,
       "overtrickPoints": 100,
       "undertrickIncrement": [
         100,
@@ -235,8 +235,8 @@
         2300,
         2600,
         2900,
-        3100,
-        3400
+        3200,
+        3500
       ],
       "undertrickAwardedTo": "opponent",
       "blindBid": false,
@@ -247,7 +247,7 @@
     {
       "bidValue": -1,
       "trumpSuit": "NO TRUMP",
-      "bonusPoints": 20,
+      "bonusPoints": 70,
       "overtrickPoints": 100,
       "undertrickIncrement": [
         100,
@@ -261,8 +261,8 @@
         2300,
         2600,
         2900,
-        3100,
-        3400
+        3200,
+        3500
       ],
       "undertrickAwardedTo": "opponent",
       "blindBid": false,
@@ -273,7 +273,7 @@
     {
       "bidValue": -1,
       "trumpSuit": "CLUBS",
-      "bonusPoints": 0,
+      "bonusPoints": 50,
       "overtrickPoints": 200,
       "undertrickIncrement": [
         200,
@@ -286,9 +286,9 @@
         2300,
         2600,
         2900,
-        3100,
-        3400,
-        3700
+        3200,
+        3500,
+        3800
       ],
       "undertrickAwardedTo": "opponent",
       "blindBid": false,
@@ -299,7 +299,7 @@
     {
       "bidValue": -1,
       "trumpSuit": "DIAMONDS",
-      "bonusPoints": 0,
+      "bonusPoints": 50,
       "overtrickPoints": 200,
       "undertrickIncrement": [
         200,
@@ -312,9 +312,9 @@
         2300,
         2600,
         2900,
-        3100,
-        3400,
-        3700
+        3200,
+        3500,
+        3800
       ],
       "undertrickAwardedTo": "opponent",
       "blindBid": false,
@@ -325,7 +325,7 @@
     {
       "bidValue": -1,
       "trumpSuit": "SPADES",
-      "bonusPoints": 0,
+      "bonusPoints": 50,
       "overtrickPoints": 200,
       "undertrickIncrement": [
         200,
@@ -338,9 +338,9 @@
         2300,
         2600,
         2900,
-        3100,
-        3400,
-        3700
+        3200,
+        3500,
+        3800
       ],
       "undertrickAwardedTo": "opponent",
       "blindBid": false,
@@ -351,7 +351,7 @@
     {
       "bidValue": -1,
       "trumpSuit": "HEARTS",
-      "bonusPoints": 0,
+      "bonusPoints": 50,
       "overtrickPoints": 200,
       "undertrickIncrement": [
         200,
@@ -364,9 +364,9 @@
         2300,
         2600,
         2900,
-        3100,
-        3400,
-        3700
+        3200,
+        3500,
+        3800
       ],
       "undertrickAwardedTo": "opponent",
       "blindBid": false,
@@ -377,7 +377,7 @@
     {
       "bidValue": -1,
       "trumpSuit": "NO TRUMP",
-      "bonusPoints": 20,
+      "bonusPoints": 70,
       "overtrickPoints": 200,
       "undertrickIncrement": [
         200,
@@ -390,9 +390,9 @@
         2300,
         2600,
         2900,
-        3100,
-        3400,
-        3700
+        3200,
+        3500,
+        3800
       ],
       "undertrickAwardedTo": "opponent",
       "blindBid": false,

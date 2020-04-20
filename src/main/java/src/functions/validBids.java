@@ -191,15 +191,24 @@ public class validBids {
                 }
                 SpecialBid specialBid = matchingBid.get();
                 int score = 0;
-                int handScore = 0;
                 //If they don't meet their bid.
                 if (adjustedValue >= bid.getBidValue()) {
-                    handScore = bid.getBidValue() * specialBid.getContractPoints();
+                    final int handScore = bid.getBidValue() * specialBid.getContractPoints();
                     score += handScore;
                     score += specialBid.getBonusPoints();
                     if (adjustedValue > bid.getBidValue()) {
                         score += (adjustedValue - bid.getBidValue()) * specialBid.getOvertrickPoints();
                     }
+                    //Double if it is redoubling
+                    if (contractBid.isRedoubling()) {
+                        if (!contractBid.isDoubling()) {
+                            throw new IllegalArgumentException("Can't redouble without doubling");
+                        }
+                        score *= 2;
+                    }
+                    //Find any score bonuses to apply. Need to half to account for doubling
+                    final int adjustedHandScore = handScore;//bid.isDoubling() ? handScore / 2 : handScore; //TODO get around this.
+                    score += bonusScoresList.stream().filter(b -> b.matches(bid, adjustedHandScore, bid.getBidValue())).mapToInt(BonusScore::getBonusScore).sum();
                 } else {
                     int tricksUnder = bid.getBidValue() + trickThreshold - value;
                     //The default cause if no increment is provided.
@@ -209,16 +218,13 @@ public class validBids {
                         //Add the initial undertrick points.
                         score += specialBid.getUndertrickIncrement()[tricksUnder - 1];
                     }
-                }
-                //Find any score bonuses to apply;
-                int finalHandScore = handScore;
-                score += bonusScoresList.stream().filter(b -> b.matches(bid, finalHandScore, adjustedValue)).mapToInt(BonusScore::getBonusScore).sum();
-                //Double if it is redoubling
-                if (contractBid.isRedoubling()) {
-                    if (!contractBid.isDoubling()) {
-                        throw new IllegalArgumentException("Can't redouble without doubling");
+                    //Double if it is redoubling
+                    if (contractBid.isRedoubling()) {
+                        if (!contractBid.isDoubling()) {
+                            throw new IllegalArgumentException("Can't redouble without doubling");
+                        }
+                        score *= 2;
                     }
-                    score *= 2;
                 }
                 return score;
             } else { //Evaluate as a regular bid;
