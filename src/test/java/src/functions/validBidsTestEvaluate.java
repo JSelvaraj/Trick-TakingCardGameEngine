@@ -69,7 +69,7 @@ public class validBidsTestEvaluate {
     @Test
     void evaluateBridgeBid() {
         BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
-        ContractBid bid = new ContractBid(false, "CLUBS", 7, false, false, null);
+        ContractBid bid = new ContractBid(false, "CLUBS", 7, false, false, false,null);
         assertEquals(650, (int) bidEvaluator.apply(bid, 0));
         assertEquals(600, (int) bidEvaluator.apply(bid, 1));
         assertEquals(550, (int) bidEvaluator.apply(bid, 2));
@@ -89,7 +89,7 @@ public class validBidsTestEvaluate {
     @Test
     void evaluateBridgeBidDouble() {
         BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
-        ContractBid bid = new ContractBid(true, "CLUBS", 7, false, false, null);
+        ContractBid bid = new ContractBid(true, "CLUBS", 7, false, false, false, null);
         assertEquals(3400, (int) bidEvaluator.apply(bid, 0));
         assertEquals(3100, (int) bidEvaluator.apply(bid, 1));
         assertEquals(2900, (int) bidEvaluator.apply(bid, 2));
@@ -109,7 +109,7 @@ public class validBidsTestEvaluate {
     @Test
     void evaluateBridgeBidDouble2() {
         BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
-        ContractBid bid = new ContractBid(true, "CLUBS", 3, false, false, null);
+        ContractBid bid = new ContractBid(true, "CLUBS", 3, false, false,false, null);
         assertEquals(2300, (int) bidEvaluator.apply(bid, 0));
         assertEquals(2000, (int) bidEvaluator.apply(bid, 1));
         assertEquals(1700, (int) bidEvaluator.apply(bid, 2));
@@ -129,7 +129,7 @@ public class validBidsTestEvaluate {
     @Test
     void evaluateBridgeBidNoTrump() {
         BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
-        ContractBid bid = new ContractBid(false, "NO TRUMP", 5, false, false, null);
+        ContractBid bid = new ContractBid(false, "NO TRUMP", 5, false, false, false, null);
         assertEquals(550, (int) bidEvaluator.apply(bid, 0));
         assertEquals(500, (int) bidEvaluator.apply(bid, 1));
         assertEquals(450, (int) bidEvaluator.apply(bid, 2));
@@ -149,7 +149,7 @@ public class validBidsTestEvaluate {
     @Test
     void evaluateBridgeBidRedouble() {
         BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
-        ContractBid bid = new ContractBid(true, "DIAMONDS", 6, false, true, null);
+        ContractBid bid = new ContractBid(true, "DIAMONDS", 6, false, true, false, null);
         assertEquals(6200, (int) bidEvaluator.apply(bid, 0));
         assertEquals(5800, (int) bidEvaluator.apply(bid, 1));
         assertEquals(5200, (int) bidEvaluator.apply(bid, 2));

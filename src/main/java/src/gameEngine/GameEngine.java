@@ -304,7 +304,7 @@ public class GameEngine {
                         if (trumpSuitBid) {
                             suit = bid.getSuit();
                         }
-                        setAdjustedHighestBid(new ContractBid(false, suit, bid.getBidValue(), false, false, players[currentPlayer]));
+                        setAdjustedHighestBid(new ContractBid(false, suit, bid.getBidValue(), false, false, false, players[currentPlayer])); //TODO set vulnerable if it is
                     }
                     else {
                         if (trumpSuitBid) {
