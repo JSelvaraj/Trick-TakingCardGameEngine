@@ -1,9 +1,9 @@
 package src.bid;
 
-public class GameBonus extends BonusScore {
+public class SlamBonus extends BonusScore {
     int tricks;
 
-    public GameBonus(int bonusScore, boolean vulnerable, int tricks) {
+    public SlamBonus(int bonusScore, boolean vulnerable, int tricks) {
         super(bonusScore, vulnerable);
         this.tricks = tricks;
     }
