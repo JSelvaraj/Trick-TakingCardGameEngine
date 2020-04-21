@@ -52,7 +52,7 @@ public class validBids {
         return ((potentialBid) -> {
             String bidValue = potentialBid.getBidInput();
             String bidSuit = potentialBid.getBidSuit();
-            int bidNo = potentialBid.getBidNo();
+            boolean firstRound = potentialBid.isFirstRound();
             ContractBid adjustedHighestBid = potentialBid.getAdjustedHighestBid();
             if (bidValue.equals("d")) {
                 //Check if doubling is allowed
@@ -87,7 +87,17 @@ public class validBids {
             //Check for input is pass
             if (bidValueInt == -2) {
                 //Check if pass allowed
-                return finalCanPass && bidNo != numOfPlayers - 1;
+                if (finalCanPass) {
+                    if (firstRound) {
+                        return true;
+                    }
+                    else {
+                        return adjustedHighestBid != null;
+                    }
+                }
+                else {
+                    return false;
+                }
             } else if (bidValueInt >= minBid) {
                 //Check if bids contain suits
                 if (finalTrumpSuitBid) {

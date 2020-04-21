@@ -331,10 +331,11 @@ public class GameEngine {
         System.out.println("-----------------------------------");
         int originalCurrentPlayer = currentPlayer;
         int passCounter = 0;
-        int bidNo = 0;
+        boolean firstRound = true;
+        int firstRoundPassCount = 0;
         do {
             //Adds the bids (checks they are valid in other class)
-            Bid bid = players[currentPlayer].makeBid(this.desc.getValidBid(), trumpSuitBid, adjustedHighestBid, bidNo);
+            Bid bid = players[currentPlayer].makeBid(this.desc.getValidBid(), trumpSuitBid, adjustedHighestBid, firstRound);
             if (bid.isDoubling()) {
                 passCounter = 0;
                 if (getAdjustedHighestBid().isDoubling()) {
@@ -349,6 +350,7 @@ public class GameEngine {
             }
             else {
                 if (bid.getBidValue() >= 0) {
+                    firstRound = false;
                     passCounter = 0;
                     if (getAdjustedHighestBid() == null) {
                         String suit = null;
@@ -372,21 +374,28 @@ public class GameEngine {
                     }
                 }
                 else {
-                    passCounter += 1;
+                    if (firstRound) {
+                        firstRoundPassCount++;
+                        if (firstRoundPassCount >= players.length - 1) {
+                            firstRound = false;
+                        }
+                    }
+                    else {
+                        passCounter++;
+                    }
                 }
             }
-            bidNo++;
             players[currentPlayer].setBid(bid);
             broadcastBids(players[currentPlayer].getBid(), currentPlayer, players);
             currentPlayer = this.nextPlayerIndex.apply(currentPlayer);
         }
-        while (getBiddingEnd(players, currentPlayer, originalCurrentPlayer, passCounter, bidNo));
+        while (getBiddingEnd(players, currentPlayer, originalCurrentPlayer, passCounter, firstRound));
     }
 
-    public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter, int bidNo) {
+    public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter, boolean firstRound) {
         //TODO:Adjust this if game desc field gets added
         if (ascendingBid) {
-            return passCounter != players.length - 1 || bidNo == players.length-1;
+            return passCounter != players.length - 1 || firstRound;
         }
         else {
             return currentPlayer != originalPlayer;
