@@ -71,6 +71,7 @@ public class validBids {
                             return false;
                         }
                     }
+                    System.out.println(prevBidTeam.findPlayer(playerWhoBid));
                     //Check if there is an existing bid to double
                     //Check if a doubled bid is in bounds
                     return adjustedHighestBid.getBidValue() * 2 <= maxBid &&  !prevBidTeam.findPlayer(playerWhoBid);

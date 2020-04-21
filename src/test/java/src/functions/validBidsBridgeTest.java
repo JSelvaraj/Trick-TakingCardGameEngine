@@ -6,6 +6,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import src.bid.ContractBid;
 import src.bid.PotentialBid;
+import src.player.LocalPlayer;
+import src.player.Player;
+import src.team.Team;
 
 import java.util.function.Predicate;
 
@@ -14,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class validBidsBridgeTest {
 
     static Predicate<PotentialBid> bidValidator;
+    static Team team1;
+    static Player player1;
 
     @BeforeAll
     static void setup() {
@@ -27,77 +32,83 @@ public class validBidsBridgeTest {
         bidObject.put("canPass", true);
         bidObject.put("canDouble", true);
         bidObject.put("canRedouble", true);
-        bidValidator = validBids.isValidBidValue(bidObject);
+        bidValidator = validBids.isValidBidValue(bidObject, 4);
+        player1 = new LocalPlayer(1);
+        team1 = new Team(new Player[] {player1, new LocalPlayer()}, 0);
     }
 
     @Test
-    void validateBidFirstBidPass() {
-        assertFalse(bidValidator.test(new PotentialBid(null, Integer.toString(-1), null)));
+    void validateBidFirstBidsPass() {
+        assertTrue(bidValidator.test(new PotentialBid(null, Integer.toString(-2), null, new LocalPlayer(), 0)));
+        assertTrue(bidValidator.test(new PotentialBid(null, Integer.toString(-2), null, new LocalPlayer(), 1)));
+        assertTrue(bidValidator.test(new PotentialBid(null, Integer.toString(-2), null, new LocalPlayer(), 2)));
+        assertFalse(bidValidator.test(new PotentialBid(null, Integer.toString(-2), null, new LocalPlayer(), 3)));
     }
 
     @Test
     void doubleFirstBid() {
-        assertFalse(bidValidator.test(new PotentialBid(null, "d", null)));
+        assertFalse(bidValidator.test(new PotentialBid(null, "d", null, new LocalPlayer(), 0)));
     }
 
     @Test
     void doubleABidInBounds() {
-        ContractBid adjustedHighestBid = new ContractBid(false, null, 1, false, false,false, null);
-        assertTrue(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid)));
+        ContractBid adjustedHighestBid = new ContractBid(false, "CLUBS", 1, false,
+                false,false, null, team1);
+        assertTrue(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid, new LocalPlayer(3), 0)));
     }
 
     @Test
     void doubleABidOutBounds() {
-        ContractBid adjustedHighestBid = new ContractBid(false, null, 4, false, false,false, null);
-        assertFalse(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid)));
+        ContractBid adjustedHighestBid = new ContractBid(false, null, 4, false, false,false, null, team1);
+        assertFalse(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid, new LocalPlayer(), 0)));
     }
 
     @Test
     void reDoubleADoubleInBounds() {
-        ContractBid adjustedHighestBid = new ContractBid(true, null, 3, false, false,false, null);
-        assertTrue(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid)));
+        ContractBid adjustedHighestBid = new ContractBid(true, null, 3, false, false,false, null, team1);
+        assertTrue(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid, new LocalPlayer(3), 0)));
     }
 
     @Test
     void reDoubleADoubleOutBounds() {
-        ContractBid adjustedHighestBid = new ContractBid(true, null, 4, false, false,false, null);
-        assertFalse(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid)));
+        ContractBid adjustedHighestBid = new ContractBid(true, null, 4, false, false,false, null, team1);
+        assertFalse(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid, new LocalPlayer(), 0)));
     }
 
     @Test
     void reDoubleAReDouble() {
-        ContractBid adjustedHighestBid = new ContractBid(false, null, 4, false, true, false,null);
-        assertFalse(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid)));
+        ContractBid adjustedHighestBid = new ContractBid(false, null, 4, false, true, false,null, team1);
+        assertFalse(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid, new LocalPlayer(), 0)));
     }
 
     @Test
     void passAfterDouble() {
-        ContractBid adjustedHighestBid = new ContractBid(true, null, 4, false, false, false,null);
-        assertFalse(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid)));
+        ContractBid adjustedHighestBid = new ContractBid(true, null, 4, false, false, false,null, team1);
+        assertFalse(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid, new LocalPlayer(), 0)));
     }
 
     @Test
     void raiseBidIncreaseValue() {
-        ContractBid adjustedHighestBid = new ContractBid(false, "NO TRUMP", 4, false, false, false,null);
-        assertTrue(bidValidator.test(new PotentialBid("NO TRUMP", Integer.toString(5), adjustedHighestBid)));
+        ContractBid adjustedHighestBid = new ContractBid(false, "NO TRUMP", 4, false, false, false,null, team1);
+        assertTrue(bidValidator.test(new PotentialBid("NO TRUMP", Integer.toString(5), adjustedHighestBid, new LocalPlayer(), 0)));
     }
 
     @Test
     void raiseBidIncreaseSuit() {
-        ContractBid adjustedHighestBid = new ContractBid(false, "CLUBS", 4, false, false, false,null);
-        assertTrue(bidValidator.test(new PotentialBid("SPADES", Integer.toString(4), adjustedHighestBid)));
+        ContractBid adjustedHighestBid = new ContractBid(false, "CLUBS", 4, false, false, false,null, team1);
+        assertTrue(bidValidator.test(new PotentialBid("SPADES", Integer.toString(4), adjustedHighestBid, new LocalPlayer(), 0)));
     }
 
     @Test
     void badRaiseBidIncreaseSuit1() {
-        ContractBid adjustedHighestBid = new ContractBid(false, "SPADES", 4, false, false, false,null);
-        assertFalse(bidValidator.test(new PotentialBid("SPADES", Integer.toString(4), adjustedHighestBid)));
+        ContractBid adjustedHighestBid = new ContractBid(false, "SPADES", 4, false, false, false,null, team1);
+        assertFalse(bidValidator.test(new PotentialBid("SPADES", Integer.toString(4), adjustedHighestBid, new LocalPlayer(), 0)));
     }
 
     @Test
     void badRaiseBidIncreaseValue() {
-        ContractBid adjustedHighestBid = new ContractBid(false, "SPADES", 4, false, false, false,null);
-        assertFalse(bidValidator.test(new PotentialBid("SPADES", Integer.toString(3), adjustedHighestBid)));
+        ContractBid adjustedHighestBid = new ContractBid(false, "SPADES", 4, false, false, false,null, team1);
+        assertFalse(bidValidator.test(new PotentialBid("SPADES", Integer.toString(3), adjustedHighestBid, new LocalPlayer(), 0)));
     }
 
 
