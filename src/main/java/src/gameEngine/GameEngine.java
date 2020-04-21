@@ -271,6 +271,7 @@ public class GameEngine {
                         team.setVulnerable(false);
                     }
                     //reset scores
+                    //TODO: Check this is ok
                     team.setScore(0);
                 }
             }
