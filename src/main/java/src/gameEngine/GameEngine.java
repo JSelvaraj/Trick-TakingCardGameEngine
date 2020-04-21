@@ -41,7 +41,7 @@ public class GameEngine {
     private IntFunction<Integer> nextPlayerIndex;
     //If you bid suits
     private boolean trumpSuitBid;
-    private boolean ascendingBidding;
+    private boolean ascendingBid;
     //Redoubling field set to true if the contract was a redoubling, doubling field same,
     // the BidValue is the adjusted value based on any redoubling/doubling, bidSuit is the trumpSuit for the trick
     private ContractBid adjustedHighestBid;
@@ -70,7 +70,7 @@ public class GameEngine {
         this.nextPlayerIndex = PlayerIncrementer.generateNextPlayerFunction(desc.isDEALCARDSCLOCKWISE(), desc.getNUMBEROFPLAYERS());
         this.trickHistory = new LinkedList<>();
         this.trumpSuitBid = desc.isTrumpSuitBid();
-        this.ascendingBidding = desc.isAscendingBidding();
+        this.ascendingBid = desc.isAscendingBid();
     }
 
     public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) {
@@ -304,6 +304,7 @@ public class GameEngine {
                     getAdjustedHighestBid().setDoubling(true);
                 }
                 getAdjustedHighestBid().setBidValue(getAdjustedHighestBid().getBidValue()*2);
+                getAdjustedHighestBid().setTeam(players[currentPlayer].getTeam());
             }
             else {
                 if (bid.getBidValue() >= 0) {
@@ -313,7 +314,8 @@ public class GameEngine {
                         if (trumpSuitBid) {
                             suit = bid.getSuit();
                         }
-                        setAdjustedHighestBid(new ContractBid(false, suit, bid.getBidValue(), false, false, false, players[currentPlayer])); //TODO set vulnerable if it is
+                        setAdjustedHighestBid(new ContractBid(false, suit, bid.getBidValue(), bid.isBlind(),
+                                false, false, players[currentPlayer], players[currentPlayer].getTeam())); //TODO set vulnerable if it is
                     }
                     else {
                         if (trumpSuitBid) {
@@ -325,13 +327,13 @@ public class GameEngine {
                         getAdjustedHighestBid().setRedoubling(false);
                         getAdjustedHighestBid().setDoubling(false);
                         getAdjustedHighestBid().setBidValue(bid.getBidValue());
+                        getAdjustedHighestBid().setTeam(players[currentPlayer].getTeam());
                     }
                 }
                 else {
                     passCounter += 1;
                 }
             }
-            //System.out.println(getAdjustedHighestBid());
             players[currentPlayer].setBid(bid);
             broadcastBids(players[currentPlayer].getBid(), currentPlayer, players);
             currentPlayer = this.nextPlayerIndex.apply(currentPlayer);
@@ -341,7 +343,7 @@ public class GameEngine {
 
     public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter) {
         //TODO:Adjust this if game desc field gets added
-        if (ascendingBidding) {
+        if (ascendingBid) {
             return passCounter != players.length - 1;
         }
         else {

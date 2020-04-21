@@ -3,6 +3,8 @@ package src.functions;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import src.bid.*;
+import src.player.Player;
+import src.team.Team;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -57,9 +59,11 @@ public class validBids {
                     if (adjustedHighestBid == null || adjustedHighestBid.isRedoubling()) {
                         return false;
                     }
+                    Team prevBidTeam = adjustedHighestBid.getTeam();
+                    Player playerWhoBid = potentialBid.getPlayer();
                     //Check for an existing double
                     if (adjustedHighestBid.isDoubling()) {
-                        if (finalCanRedouble) {
+                        if (finalCanRedouble && !prevBidTeam.findPlayer(playerWhoBid)) {
                             return adjustedHighestBid.getBidValue() * 2 <= maxBid;
                         } else {
                             //Redoubling not allowed - invalid bid
@@ -68,7 +72,7 @@ public class validBids {
                     }
                     //Check if there is an existing bid to double
                     //Check if a doubled bid is in bounds
-                    return adjustedHighestBid.getBidValue() * 2 <= maxBid;
+                    return adjustedHighestBid.getBidValue() * 2 <= maxBid &&  !prevBidTeam.findPlayer(playerWhoBid);
                 }
             }
             try {

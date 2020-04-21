@@ -2,16 +2,20 @@ package src.bid;
 
 import src.bid.Bid;
 import src.player.Player;
+import src.team.Team;
 
 public class ContractBid extends Bid {
     boolean redoubling;
     Player declarer;
-    public ContractBid(boolean doubling, String suit, int bidValue, boolean blind, boolean redoubling, boolean vulnerable, Player declarer) {
+    Team team;
+
+    public ContractBid(boolean doubling, String suit, int bidValue, boolean blind, boolean redoubling, boolean vulnerable,
+                       Player declarer, Team team) {
         super(doubling, suit, bidValue, blind, vulnerable); //TODO update to support vulnerable
         this.redoubling = redoubling;
         this.declarer = declarer;
+        this.team = team;
     }
-
 
 
     @Override
@@ -21,14 +25,14 @@ public class ContractBid extends Bid {
                 ", doubling=" + super.isDoubling() +
                 ", suit=" + super.getSuit() +
                 ", value=" + super.getBidValue() +
-                ", declarer=" + declarer +
+                ", declarer=" + declarer.getPlayerNumber() +
+                ", team=" + team.getTeamNumber() +
                 '}';
     }
 
     public boolean isRedoubling() {
         return redoubling;
     }
-
 
     public void setRedoubling(boolean redoubling) {
         this.redoubling = redoubling;
@@ -40,5 +44,13 @@ public class ContractBid extends Bid {
 
     public void setDeclarer(Player declarer) {
         this.declarer = declarer;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
 }

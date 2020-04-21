@@ -177,7 +177,7 @@ public class LocalPlayer extends Player {
                             System.out.println("Enter your trump suit ('NO TRUMP' for no trump)");
                             bidSuit = br.readLine();
                         }
-                    } while (!validBid.test(new PotentialBid(bidSuit, bidInput, adjustedHighestBid)));
+                    } while (!validBid.test(new PotentialBid(bidSuit, bidInput, adjustedHighestBid, this)));
                     break;
                 }
                 catch (IOException e) {

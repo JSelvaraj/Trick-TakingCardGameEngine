@@ -24,6 +24,15 @@ public class Team {
         }
     }
 
+    public boolean findPlayer(Player player) {
+        for (Player playerInTeam: getPlayers()) {
+            if (player.getPlayerNumber() == playerInTeam.getPlayerNumber()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void printTeam() {
         System.out.println("Team: " + teamNumber);
         for (Player player: players) {

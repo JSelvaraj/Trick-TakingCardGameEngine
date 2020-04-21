@@ -168,15 +168,15 @@ public class NetworkPlayer extends Player {
         }
         else {
             suit = bidEvent.optString("suit", null);
-            if (suit != null && suit.equals("NO TRUMP")) {
-                suit = "N";
+            if (suit != null && suit.equals("N")) {
+                suit = "NO TRUMP";
             }
             int valueInt = bidEvent.getInt("value");
             blind = bidEvent.optBoolean("blindBid", false);
             bid = new Bid(false,suit,valueInt,blind, false);
             value = Integer.toString(valueInt);
         }
-        if (!validBid.test(new PotentialBid(suit, value, adjustedHighestBid))) {
+        if (!validBid.test(new PotentialBid(suit, value, adjustedHighestBid, this))) {
             throw new InvalidBidException();
         }
         return bid;
