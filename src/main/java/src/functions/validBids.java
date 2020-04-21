@@ -20,7 +20,7 @@ public class validBids {
      *
      * @return Predicate that will return true if the given bid is in [minBid, maxBid]
      */
-    public static Predicate<PotentialBid> isValidBidValue(JSONObject bidObject) {
+    public static Predicate<PotentialBid> isValidBidValue(JSONObject bidObject, int numOfPlayers) {
         int minBid = bidObject.getInt("minBid");
         int maxBid = bidObject.getInt("maxBid");
         boolean trumpSuitBid;
@@ -85,12 +85,8 @@ public class validBids {
             int bidValueInt = Integer.parseInt(bidValue);
             //Check for input is pass
             if (bidValueInt == -2) {
-                //Check if pass allowed TODO: Change to players num -1 from game desc
-                if (finalCanPass && bidNo != 3) {
-                    return true;
-                } else {
-                    return false;
-                }
+                //Check if pass allowed
+                return finalCanPass && bidNo != numOfPlayers - 1;
             } else if (bidValueInt >= minBid) {
                 //Check if bids contain suits
                 if (finalTrumpSuitBid) {
