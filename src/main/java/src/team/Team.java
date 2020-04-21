@@ -9,6 +9,8 @@ public class Team {
     int score;
     int tricksWon;
     Player[] players;
+    boolean vulnerable;
+    int gamesWon;
 
     public Team(Player[] players, int teamNumber) {
         this.players = players;
@@ -16,6 +18,8 @@ public class Team {
         score = 0;
         tricksWon = 0;
         setPlayers(players);
+        vulnerable = false;
+        gamesWon = 0;
     }
 
     private void setPlayers(Player[] players) {
@@ -64,6 +68,21 @@ public class Team {
         return teamNumber;
     }
 
+    public boolean isVulnerable() {
+        return vulnerable;
+    }
+
+    public void setVulnerable(boolean vulnerable) {
+        this.vulnerable = vulnerable;
+    }
+
+    public int getGamesWon() {
+        return gamesWon;
+    }
+
+    public void setGamesWon(int gamesWon) {
+        this.gamesWon = gamesWon;
+    }
 }
 
 

@@ -106,6 +106,8 @@ public class Parser {
         String trumpSuit = null;
         String leadingCardForEachTrick = null;
         String gameEnd = null;
+        String sessionEnd = "fixed";
+        int sessionEndValue = 1;
         Integer scoreThreshold = null;
         Integer trickThreshold = null;
         String nextLegalCardMode = null;
@@ -128,6 +130,12 @@ public class Parser {
                     break;
                 case "leadingCardForEachTrick":
                     leadingCardForEachTrick = rule.getString("data");
+                    break;
+                case "sessionEnd":
+                    sessionEnd = rule.getString("data");
+                    break;
+                case "sessionEndValue":
+                    sessionEndValue = rule.getInt("data");
                     break;
                 case "gameEnd":
                     gameEnd = rule.getString("data");
@@ -208,7 +216,9 @@ public class Parser {
                 handSize,
                 trumpIterator,
                 trumpSuitBid,
-                ascendingBid);
+                ascendingBid,
+                sessionEnd,
+                sessionEndValue);
 
         if (bidObject != null) {
             bidObject = gameJSON.getJSONObject("bid");

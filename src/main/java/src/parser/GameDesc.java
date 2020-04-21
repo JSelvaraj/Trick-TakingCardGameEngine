@@ -31,6 +31,8 @@ public class GameDesc {
     private String trumpSuit;
     private final String leadingCardForEachTrick;
     private final String gameEnd;
+    private final String sessionEnd;
+    private final Integer sessionEndValue;
     private final Integer scoreThreshold;
     private Integer trickThreshold;
     private final String nextLegalCardMode;
@@ -76,7 +78,9 @@ public class GameDesc {
                     String handSize,
                     Iterator<String> trumpIterator,
                     boolean trumpSuitBid,
-                    boolean ascendingBid) {
+                    boolean ascendingBid,
+                    String sessionEnd,
+                    int sessionEndValue) {
         this.name = name;
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
@@ -101,6 +105,8 @@ public class GameDesc {
         this.trumpIterator = trumpIterator;
         this.trumpSuitBid = trumpSuitBid;
         this.ascendingBid = ascendingBid;
+        this.sessionEnd = sessionEnd;
+        this.sessionEndValue = sessionEndValue;
     }
 
     @Override
@@ -232,5 +238,13 @@ public class GameDesc {
 
     public boolean isAscendingBid() {
         return ascendingBid;
+    }
+
+    public String getSessionEnd() {
+        return sessionEnd;
+    }
+
+    public Integer getSessionEndValue() {
+        return sessionEndValue;
     }
 }
