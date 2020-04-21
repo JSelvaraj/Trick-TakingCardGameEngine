@@ -6,10 +6,10 @@ import org.json.JSONObject;
 import src.card.Card;
 import src.exceptions.InvalidBidException;
 import src.exceptions.InvalidPlayerMoveException;
-import src.gameEngine.Bid;
-import src.gameEngine.ContractBid;
+import src.bid.Bid;
+import src.bid.ContractBid;
 import src.gameEngine.Hand;
-import src.gameEngine.PotentialBid;
+import src.bid.PotentialBid;
 import src.rdmEvents.Swap;
 
 import java.io.BufferedWriter;
@@ -18,7 +18,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 public class NetworkPlayer extends Player {
@@ -164,7 +163,7 @@ public class NetworkPlayer extends Player {
         boolean blind;
         boolean doubling = bidEvent.optBoolean("doubling", false);
         if (doubling) {
-            bid =  new Bid(true, null,0,false);
+            bid =  new Bid(true, null,0,false, false);
             value = "d";
         }
         else {
@@ -174,7 +173,7 @@ public class NetworkPlayer extends Player {
             }
             int valueInt = bidEvent.getInt("value");
             blind = bidEvent.optBoolean("blindBid", false);
-            bid = new Bid(false,suit,valueInt,blind);
+            bid = new Bid(false,suit,valueInt,blind, false);
             value = Integer.toString(valueInt);
         }
         if (!validBid.test(new PotentialBid(suit, value, adjustedHighestBid))) {

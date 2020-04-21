@@ -2,17 +2,14 @@ package src.player;
 
 import src.card.Card;
 import src.functions.validCards;
-import src.gameEngine.Bid;
-import src.gameEngine.ContractBid;
+import src.bid.Bid;
+import src.bid.ContractBid;
 import src.gameEngine.Hand;
-import src.gameEngine.PotentialBid;
-import src.rdmEvents.RdmEvent;
+import src.bid.PotentialBid;
 import src.rdmEvents.Swap;
 import src.team.Team;
+import src.parser.GameDesc;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 /**
@@ -42,16 +39,20 @@ public abstract class Player {
         this.canBePlayed = null;
     }
 
+    public void startHand(StringBuilder trumpSuit) {
+
+    }
+
     public void setPlayerNumber(int playerNumber) {
         this.playerNumber = playerNumber;
     }
 
     /**
-     * Initialises the predicate that checks if a move is valid.
+     * Initialises the player..
      *
      * @param validCard Predicate that checks if a card is valid.
      */
-    public void initCanBePlayed(Predicate<Card> validCard) {
+    public void initPlayer(Predicate<Card> validCard, GameDesc desc, StringBuilder trumpSuit) {
         this.canBePlayed = validCards.getCanBePlayedPredicate(this.hand, validCard);
     }
 

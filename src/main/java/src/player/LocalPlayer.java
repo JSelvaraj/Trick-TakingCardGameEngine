@@ -1,21 +1,16 @@
 package src.player;
 
 import src.card.Card;
-import src.gameEngine.Bid;
-import src.gameEngine.ContractBid;
+import src.bid.Bid;
+import src.bid.ContractBid;
 import src.gameEngine.Hand;
-import src.gameEngine.PotentialBid;
-import src.rdmEvents.RdmEvent;
+import src.bid.PotentialBid;
 import src.rdmEvents.Swap;
-import src.team.Team;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.function.BiFunction;
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 /**
@@ -198,7 +193,7 @@ public class LocalPlayer extends Player {
         else {
             finalBidInput = Integer.parseInt(bidInput);
         }
-        return new Bid(doubling, bidSuit, finalBidInput, bidBlind);
+        return new Bid(doubling, bidSuit, finalBidInput, bidBlind, false);
     }
 
 

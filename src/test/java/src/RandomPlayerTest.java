@@ -5,12 +5,11 @@ import org.junit.jupiter.api.Test;
 import src.card.Card;
 import src.functions.validBids;
 import src.functions.validCards;
-import src.gameEngine.Bid;
+import src.bid.Bid;
 import src.gameEngine.Hand;
-import src.gameEngine.PotentialBid;
+import src.bid.PotentialBid;
 import src.player.RandomPlayer;
 
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;

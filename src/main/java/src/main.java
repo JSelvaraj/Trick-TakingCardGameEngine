@@ -6,10 +6,12 @@ package src;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import src.ai.CardPOMDP;
 import src.exceptions.InvalidGameDescriptionException;
 import src.gameEngine.HostRunner;
 import src.gameEngine.PlayerRunner;
 import src.player.LocalPlayer;
+import src.player.POMDPPlayer;
 import src.player.RandomPlayer;
 
 import java.util.concurrent.TimeUnit;
@@ -80,7 +82,7 @@ public class main {
 
                     for (int i = 0; i < host.aiPlayers; i++) {
                         System.out.println("AI started");
-                        PlayerRunner runner = new PlayerRunner(new RandomPlayer(), "localhost", host.port,
+                        PlayerRunner runner = new PlayerRunner(new POMDPPlayer(), "localhost", host.port,
                                 true, true, host.enableRandomEvents);
                         Thread aiThread = new Thread(runner);
                         aiThread.start();

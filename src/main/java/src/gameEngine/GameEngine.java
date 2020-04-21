@@ -1,5 +1,7 @@
 package src.gameEngine;
 
+import src.bid.Bid;
+import src.bid.ContractBid;
 import src.card.Card;
 import src.card.CardComparator;
 import src.deck.Deck;
@@ -10,6 +12,7 @@ import src.functions.validCards;
 import src.parser.GameDesc;
 import src.player.LocalPlayer;
 import src.player.NetworkPlayer;
+import src.player.POMDPPlayer;
 import src.player.Player;
 import src.rdmEvents.RdmEvent;
 import src.rdmEvents.RdmEventsManager;
@@ -79,7 +82,7 @@ public class GameEngine {
         /* initialize each players hands */
 
         for (Player player : playerArray) {
-            player.initCanBePlayed(game.getValidCard());
+            player.initPlayer(game.getValidCard(), gameDesc, game.trumpSuit);
         }
 
         /* Assign players to teams */
@@ -118,6 +121,10 @@ public class GameEngine {
             }
 
             currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
+            //Signify to players that a new hand has started.
+            for (Player player : playerArray) {
+                player.startHand(game.trumpSuit);
+            }
 
             if (gameDesc.isBidding()) {
                 game.getBids(currentPlayer, playerArray);
@@ -229,7 +236,7 @@ public class GameEngine {
                     for (Player player : team.getPlayers()) {
                         teamBid += player.getBid().getBidValue();
                     }
-                    Bid bid = new Bid(false, null, teamBid, false);
+                    Bid bid = new Bid(false, null, teamBid, false, false);
                     //Increase score of winning team based on bid scoring system (See validBids.java)
                     team.setScore(team.getScore() + gameDesc.getEvaluateBid().apply(bid, team.getTricksWon()));
                     //Reset tricks won for next round.
@@ -306,7 +313,7 @@ public class GameEngine {
                         if (trumpSuitBid) {
                             suit = bid.getSuit();
                         }
-                        setAdjustedHighestBid(new ContractBid(false, suit, bid.getBidValue(), false, false, players[currentPlayer]));
+                        setAdjustedHighestBid(new ContractBid(false, suit, bid.getBidValue(), false, false, false, players[currentPlayer])); //TODO set vulnerable if it is
                     }
                     else {
                         if (trumpSuitBid) {
@@ -357,7 +364,7 @@ public class GameEngine {
         while (deck.getDeckSize() > cardsLeft) {
             //Deal card to player by adding to their hand and removing from the deck
             players[dealerIndex].getHand().getCard(deck.drawCard());
-            
+
             dealerIndex = this.nextPlayerIndex.apply(dealerIndex);
             //Sets the trump suit based on the last card if defined by game desc
             if (desc.getTrumpPickingMode().compareTo("lastDealt") == 0 && deck.getDeckSize() == cardsLeft + 1) {
@@ -379,7 +386,7 @@ public class GameEngine {
      */
     public Card winningCard() {
         //Generate suit ranking
-        HashMap<String, Integer> suitMap = generateSuitOrder();
+        HashMap<String, Integer> suitMap = generateSuitOrder(desc, trumpSuit, currentTrick.get(0));
         //Get comparator for comparing cards based on the suit ranking
         CardComparator comparator = new CardComparator(suitMap);
 
@@ -396,7 +403,7 @@ public class GameEngine {
      * @return suit-value hashmap where the value is its rank based on how the game ranks suits
      * Note: lower map value = higher rank
      */
-    private HashMap<String, Integer> generateSuitOrder() {
+    public static HashMap<String, Integer> generateSuitOrder(GameDesc desc, StringBuilder trumpSuit, Card leadingCard) {
         HashMap<String, Integer> suitMap = new HashMap<>();
         //Set default value for suits
         for (String suit : desc.getSUITS()) {
@@ -407,8 +414,8 @@ public class GameEngine {
             case "lastDealt": //follows through to 'fixed' case
             case "fixed":
                 suitMap.put(trumpSuit.toString(), 1);
-                if (!currentTrick.get(0).getSUIT().equals(trumpSuit.toString()))
-                    suitMap.put(currentTrick.get(0).getSUIT(), 2);
+                if (leadingCard.getSUIT().equals(trumpSuit.toString()))
+                    suitMap.put(leadingCard.getSUIT(), 2);
                 break;
             case "none":
                 break;
@@ -466,7 +473,7 @@ public class GameEngine {
             }
         } else { //Only need to print out network moves to local players
             for (Player player : playerArray) {
-                if (player.getClass() == LocalPlayer.class) {
+                if (player.getClass() == LocalPlayer.class || player.getClass() == POMDPPlayer.class) {
                     player.broadcastPlay(card, playerNumber);
                 }
             }
