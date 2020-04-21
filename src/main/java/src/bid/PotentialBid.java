@@ -1,4 +1,6 @@
-package src.gameEngine;
+package src.bid;
+
+import src.bid.ContractBid;
 
 public class PotentialBid {
     String bidSuit;

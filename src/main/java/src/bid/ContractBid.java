@@ -1,15 +1,18 @@
-package src.gameEngine;
+package src.bid;
 
+import src.bid.Bid;
 import src.player.Player;
 
 public class ContractBid extends Bid {
     boolean redoubling;
     Player declarer;
-    public ContractBid(boolean doubling, String suit, int bidValue, boolean blind, boolean redoubling, Player declarer) {
-        super(doubling, suit, bidValue, blind);
+    public ContractBid(boolean doubling, String suit, int bidValue, boolean blind, boolean redoubling, boolean vulnerable, Player declarer) {
+        super(doubling, suit, bidValue, blind, vulnerable); //TODO update to support vulnerable
         this.redoubling = redoubling;
         this.declarer = declarer;
     }
+
+
 
     @Override
     public String toString() {

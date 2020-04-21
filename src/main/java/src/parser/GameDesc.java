@@ -3,14 +3,13 @@ package src.parser;
 import src.card.Card;
 import src.deck.Deck;
 import src.functions.handFunctions;
-import src.gameEngine.Bid;
-import src.gameEngine.PotentialBid;
+import src.bid.Bid;
+import src.bid.PotentialBid;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.BiFunction;
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 

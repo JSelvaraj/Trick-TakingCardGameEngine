@@ -1,5 +1,7 @@
 package src.gameEngine;
 
+import src.bid.Bid;
+import src.bid.ContractBid;
 import src.card.Card;
 import src.card.CardComparator;
 import src.deck.Deck;
@@ -225,7 +227,7 @@ public class GameEngine {
                     for (Player player : team.getPlayers()) {
                         teamBid += player.getBid().getBidValue();
                     }
-                    Bid bid = new Bid(false, null, teamBid, false);
+                    Bid bid = new Bid(false, null, teamBid, false, false);
                     //Increase score of winning team based on bid scoring system (See validBids.java)
                     team.setScore(team.getScore() + gameDesc.getEvaluateBid().apply(bid, team.getTricksWon()));
                     //Reset tricks won for next round.
@@ -302,7 +304,7 @@ public class GameEngine {
                         if (trumpSuitBid) {
                             suit = bid.getSuit();
                         }
-                        setAdjustedHighestBid(new ContractBid(false, suit, bid.getBidValue(), false, false, players[currentPlayer]));
+                        setAdjustedHighestBid(new ContractBid(false, suit, bid.getBidValue(), false, false, false, players[currentPlayer])); //TODO set vulnerable if it is
                     }
                     else {
                         if (trumpSuitBid) {

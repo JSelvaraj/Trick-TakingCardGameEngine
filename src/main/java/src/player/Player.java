@@ -2,19 +2,14 @@ package src.player;
 
 import src.card.Card;
 import src.functions.validCards;
-import src.gameEngine.Bid;
-import src.gameEngine.ContractBid;
+import src.bid.Bid;
+import src.bid.ContractBid;
 import src.gameEngine.Hand;
-import src.gameEngine.PotentialBid;
-import src.rdmEvents.RdmEvent;
+import src.bid.PotentialBid;
 import src.rdmEvents.Swap;
 import src.team.Team;
 import src.parser.GameDesc;
-import src.parser.GameDesc;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 /**

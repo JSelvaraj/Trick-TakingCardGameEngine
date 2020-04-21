@@ -1,16 +1,13 @@
 package src.player;
 
 import src.card.Card;
-import src.gameEngine.Bid;
-import src.gameEngine.ContractBid;
+import src.bid.Bid;
+import src.bid.ContractBid;
 import src.gameEngine.Hand;
-import src.gameEngine.PotentialBid;
-import src.rdmEvents.RdmEvent;
+import src.bid.PotentialBid;
 import src.rdmEvents.Swap;
 
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 public class RandomPlayer extends Player {
@@ -55,7 +52,7 @@ public class RandomPlayer extends Player {
                 suit = "SPADES";
             }
         } while (!validBid.test(new PotentialBid(null, Integer.toString(bid), adjustedHighestBid)));
-        return new Bid(false, suit, bid, true);
+        return new Bid(false, suit, bid, true, false);
     }
 
     @Override

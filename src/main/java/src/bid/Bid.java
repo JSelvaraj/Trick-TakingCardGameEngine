@@ -1,4 +1,6 @@
-package src.gameEngine;
+package src.bid;
+
+import java.util.Objects;
 
 /**
  * Object to represent a bid
@@ -10,14 +12,16 @@ public class Bid{
     //Negative if pass
     private int bidValue;
     private boolean blind;
+    private boolean vulnerable;
 
     //Spades has a 'blind' type of bid where they don't look at cards before bidding
 
-    public Bid(boolean doubling, String suit, int bidValue, boolean blind) {
+    public Bid(boolean doubling, String suit, int bidValue, boolean blind, boolean vulnerable) {
         this.doubling = doubling;
         this.suit = suit;
         this.bidValue = bidValue;
         this.blind = blind;
+        this.vulnerable = vulnerable;
     }
 
     public int getBidValue() {
@@ -50,5 +54,26 @@ public class Bid{
 
     public void setBlind(boolean blind) {
         this.blind = blind;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Bid bid = (Bid) o;
+        return doubling == bid.doubling &&
+                bidValue == bid.bidValue &&
+                blind == bid.blind &&
+                vulnerable == bid.vulnerable &&
+                Objects.equals(suit, bid.suit);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(doubling, suit, bidValue, blind, vulnerable);
+    }
+
+    public boolean isVulnerable() {
+        return vulnerable;
     }
 }
