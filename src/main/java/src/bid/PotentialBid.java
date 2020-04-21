@@ -8,13 +8,15 @@ public class PotentialBid {
     String bidInput;
     ContractBid adjustedHighestBid;
     Player player;
+    int bidNo;
 
 
-    public PotentialBid(String bidSuit, String bidInput, ContractBid adjustedHighestBid, Player player) {
+    public PotentialBid(String bidSuit, String bidInput, ContractBid adjustedHighestBid, Player player, int bidNo) {
         this.bidSuit = bidSuit;
         this.bidInput = bidInput;
         this.adjustedHighestBid = adjustedHighestBid;
         this.player = player;
+        this.bidNo = bidNo;
     }
 
     public String getBidSuit() {
@@ -31,5 +33,9 @@ public class PotentialBid {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public int getBidNo() {
+        return bidNo;
     }
 }

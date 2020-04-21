@@ -52,6 +52,7 @@ public class validBids {
         return ((potentialBid) -> {
             String bidValue = potentialBid.getBidInput();
             String bidSuit = potentialBid.getBidSuit();
+            int bidNo = potentialBid.getBidNo();
             ContractBid adjustedHighestBid = potentialBid.getAdjustedHighestBid();
             if (bidValue.equals("d")) {
                 //Check if doubling is allowed
@@ -84,9 +85,9 @@ public class validBids {
             int bidValueInt = Integer.parseInt(bidValue);
             //Check for input is pass
             if (bidValueInt == -2) {
-                //Check if pass allowed
-                if (finalCanPass) {
-                    return adjustedHighestBid != null;
+                //Check if pass allowed TODO: Change to players num -1 from game desc
+                if (finalCanPass && bidNo != 3) {
+                    return true;
                 } else {
                     return false;
                 }

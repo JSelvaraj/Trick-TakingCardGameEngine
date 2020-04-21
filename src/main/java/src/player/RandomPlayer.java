@@ -42,7 +42,7 @@ public class RandomPlayer extends Player {
     }
 
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, int bidNo) {
         int handSize = super.getHand().getHandSize();
         int bid;
         String suit = null;
@@ -51,7 +51,7 @@ public class RandomPlayer extends Player {
             if (trumpSuitBid) {
                 suit = "SPADES";
             }
-        } while (!validBid.test(new PotentialBid(null, Integer.toString(bid), adjustedHighestBid, this)));
+        } while (!validBid.test(new PotentialBid(null, Integer.toString(bid), adjustedHighestBid, this, bidNo)));
         return new Bid(false, suit, bid, true, false);
     }
 

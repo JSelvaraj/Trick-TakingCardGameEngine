@@ -291,9 +291,10 @@ public class GameEngine {
         System.out.println("-----------------------------------");
         int originalCurrentPlayer = currentPlayer;
         int passCounter = 0;
+        int bidNo = 0;
         do {
             //Adds the bids (checks they are valid in other class)
-            Bid bid = players[currentPlayer].makeBid(this.desc.getValidBid(), trumpSuitBid, adjustedHighestBid);
+            Bid bid = players[currentPlayer].makeBid(this.desc.getValidBid(), trumpSuitBid, adjustedHighestBid, bidNo);
             if (bid.isDoubling()) {
                 passCounter = 0;
                 if (getAdjustedHighestBid().isDoubling()) {
@@ -334,17 +335,18 @@ public class GameEngine {
                     passCounter += 1;
                 }
             }
+            bidNo++;
             players[currentPlayer].setBid(bid);
             broadcastBids(players[currentPlayer].getBid(), currentPlayer, players);
             currentPlayer = this.nextPlayerIndex.apply(currentPlayer);
         }
-        while (getBiddingEnd(players, currentPlayer, originalCurrentPlayer, passCounter));
+        while (getBiddingEnd(players, currentPlayer, originalCurrentPlayer, passCounter, bidNo));
     }
 
-    public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter) {
+    public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter, int bidNo) {
         //TODO:Adjust this if game desc field gets added
         if (ascendingBid) {
-            return passCounter != players.length - 1;
+            return passCounter != players.length - 1 || bidNo == players.length-1;
         }
         else {
             return currentPlayer != originalPlayer;
