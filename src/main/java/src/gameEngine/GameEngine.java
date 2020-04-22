@@ -203,7 +203,7 @@ public class GameEngine {
                     //Find the team with the winning player and increment their tricks score
 
                     Team winningTeam = playerArray[currentPlayer].getTeam();
-                    winningTeam.setTricksWon(winningTeam.getGameScore() + 1);
+                    winningTeam.setTricksWon(winningTeam.getTricksWon() + 1);
                     if (printMoves) {
                         System.out.println("Player " + (currentPlayer + 1) + " was the winner of the trick with the " + winningCard.toString());
                         System.out.println("Tricks won: " + winningTeam.getTricksWon());
@@ -245,7 +245,11 @@ public class GameEngine {
                                 }
                             }
                         }
+                        for (Team team: game.getTeams()) {
+                            team.setTricksWon(0);
+                        }
                     }
+                    //For spades
                     else {
                         for (Team team : game.getTeams()) {
                             int teamBid = 0;
