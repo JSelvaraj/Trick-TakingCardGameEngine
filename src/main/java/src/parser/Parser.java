@@ -195,6 +195,7 @@ public class Parser {
         boolean canBidBlind = false;
         JSONObject bidObject = gameJSON.optJSONObject("bid");
         if (bidObject != null) {
+            ascedingOrdering = bidObject.optBoolean("ascendingBidding", false);
             trumpSuitBid = bidObject.optBoolean("trumpSuitBid", false);
             ascendingBid = bidObject.optBoolean("ascendingBid", false);
             vulnerabilityThreshold = bidObject.optInt("vulnerabilityThreshold", 0);
