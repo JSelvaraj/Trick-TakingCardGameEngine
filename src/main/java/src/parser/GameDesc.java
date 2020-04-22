@@ -34,7 +34,7 @@ public class GameDesc {
     private final String sessionEnd;
     private final Integer sessionEndValue;
     private final Integer scoreThreshold;
-    private Integer trickThreshold;
+    private int trickThreshold;
     private final String nextLegalCardMode;
     private final String trickWinner;
     private final String trickLeader;
