@@ -268,4 +268,12 @@ public class GameDesc {
     public boolean isCanBidBlind() {
         return canBidBlind;
     }
+
+    public int getMinBid() {
+        return minBid;
+    }
+
+    public int getMaxBid() {
+        return maxBid;
+    }
 }
