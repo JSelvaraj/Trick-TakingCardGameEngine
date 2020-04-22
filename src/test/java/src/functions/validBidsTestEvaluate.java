@@ -36,7 +36,7 @@ public class validBidsTestEvaluate {
         bidObject.put("pointsPerBid", 10);
         bidObject.put("overtrickPoints", 1);
         bidObject.put("penaltyPoints", 5);
-        BiFunction<Bid, Integer, Integer> bidEvaluator = validBids.evaluateBidContract(bidObject, 0);
+        BiFunction<Bid, Integer, Integer> bidEvaluator = validBids.evaluateBid(bidObject, 0);
         Bid bid1 = new Bid(false, null, 6, false, false);
         assertEquals(60, bidEvaluator.apply(bid1, 6).intValue());
         assertEquals(64, bidEvaluator.apply(bid1, 10).intValue());
@@ -65,7 +65,7 @@ public class validBidsTestEvaluate {
         specialBids.put(blindNilBid);
         specialBids.put(nilBid);
         bidObject.put("specialBids", specialBids);
-        BiFunction<Bid, Integer, Integer> bidEvaluator = validBids.evaluateBidContract(bidObject, 0);
+        BiFunction<Bid, Integer, Integer> bidEvaluator = validBids.evaluateBid(bidObject, 0);
         //Bids to check.
         Bid bidNil = new Bid(false, null, 0, false, false);
         Bid bidBlindNil = new Bid(false, null, 0, true, false);
@@ -243,7 +243,7 @@ public class validBidsTestEvaluate {
                 throw new IOException();
             }
             JSONObject bidObject = new JSONObject(new JSONTokener(inputStream));
-            return validBids.evaluateBidContract(bidObject, 6);
+            return validBids.evaluateBid(bidObject, 6);
         } catch (IOException e) {
             return null;
         }
