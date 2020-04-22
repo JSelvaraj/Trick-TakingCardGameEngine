@@ -51,7 +51,7 @@ public class POMDPPlayer extends Player {
         }
         Card card = cardPOMDP.searchCard(observation);
         //Set the trump to broken if it has been broken.
-        if (card.getSUIT().equals(trumpSuit.toString())) {
+        if (card.getSUIT().equals(trumpSuit)) {
             observation.setBreakFlag();
         }
         assert super.getCanBePlayed().test(card);
