@@ -50,6 +50,10 @@ public class POMDPPlayer extends Player {
             observation.setTrickStartedBy(getPlayerNumber());
         }
         Card card = cardPOMDP.searchCard(observation);
+        //Set the trump to broken if it has been broken.
+        if (card.getSUIT().equals(trumpSuit.toString())) {
+            observation.setBreakFlag();
+        }
         assert super.getCanBePlayed().test(card);
         return super.getHand().giveCard(card);
     }
@@ -57,6 +61,10 @@ public class POMDPPlayer extends Player {
     @Override
     public void broadcastPlay(Card card, int playerNumber) {
         observation.updateGameState(playerNumber, card);
+        //Set the trump to be broken if it has been broken.
+        if (card.getSUIT().equals(trumpSuit.toString())) {
+            observation.setBreakFlag();
+        }
     }
 
     @Override

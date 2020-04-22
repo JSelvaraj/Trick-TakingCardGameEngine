@@ -20,7 +20,7 @@ public class GameObservation implements Cloneable {
     private List<PlayerObservation> playerObservations;
     private List<Card> cardSequence;
     private boolean done;
-    private AtomicBoolean breakFlag;
+    private boolean breakFlag;
 
     public GameObservation(List<Card> deck, int playerCount, int initialHandSize) {
         round = 0;
@@ -33,7 +33,7 @@ public class GameObservation implements Cloneable {
             playerObservations.add(new PlayerObservation(i, initialHandSize));
         }
         this.done = false;
-        this.breakFlag = new AtomicBoolean(false);
+        this.breakFlag = false;
     }
 
     public GameObservation(GameObservation gameObservation) {
@@ -127,7 +127,11 @@ public class GameObservation implements Cloneable {
         this.done = done;
     }
 
-    public AtomicBoolean getBreakFlag() {
+    public boolean isBreakFlag() {
         return breakFlag;
+    }
+
+    public void setBreakFlag() {
+        breakFlag = true;
     }
 }
