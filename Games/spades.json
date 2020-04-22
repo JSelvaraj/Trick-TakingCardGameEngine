@@ -26,7 +26,7 @@
             "overtrickPoints" : 1,
             "penaltyPoints" : 0,
             "minBid" : 0,
-            "maxBid" : 4,
+            "maxBid" : 13,
             "specialBids": [{
                 "bidValue" : 0,
                 "pointsGained" : 100,
