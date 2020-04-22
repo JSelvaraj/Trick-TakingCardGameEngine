@@ -64,7 +64,19 @@ public class CardPOMDP {
         playerIncrementor = PlayerIncrementer.generateNextPlayerFunction(gameDesc.isDEALCARDSCLOCKWISE(), playerCount);
     }
 
-    public Card search(GameObservation history) {
+    public Card searchCard(GameObservation history) {
+        POMCPTreeNode bestNode = search(history);
+        //Return the action associated with the observation.
+        return bestNode.getObservation().getCardSequence().get(bestNode.getObservation().getCardSequence().size() - 1);
+    }
+
+    public int searchBid(GameObservation history) {
+        POMCPTreeNode bestNode = search(history);
+        double bestValue = bestNode.getValue();
+        return (int) (Math.ceil(bestValue) - gameDesc.getTrickThreshold());
+    }
+
+    public POMCPTreeNode search(GameObservation history) {
         //Initialise the search tree if it hasn't already.
 //        if (root == null) {
 //            root = new POMCPTreeNode(history);
@@ -82,8 +94,7 @@ public class CardPOMDP {
         //Update the root of the search tree.
 //        root = bestNode;
         root = null;
-        //Return the action associated with the observation.
-        return bestNode.getObservation().getCardSequence().get(bestNode.getObservation().getCardSequence().size() - 1);
+        return bestNode;
     }
 
     private Triple<State, GameObservation, Integer> BlackBoxSimulator(final State state, final GameObservation observation, final Card action) {
