@@ -184,7 +184,7 @@ public class Parser {
         int maxBid = initialHandSize;
         JSONObject bidObject = gameJSON.optJSONObject("bid");
         if (bidObject != null) {
-            ascedingOrdering = bidObject.optBoolean("ascendingBidding", false);
+            ascendingBidding = bidObject.optBoolean("ascendingBidding", false);
             trumpSuitBid = bidObject.optBoolean("trumpSuitBid", false);
             canPass = bidObject.optBoolean("canPass", false);
             minBid = bidObject.optInt("minBid", minBid);
