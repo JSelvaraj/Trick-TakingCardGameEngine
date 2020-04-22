@@ -109,7 +109,7 @@ public class Parser {
         String sessionEnd = "fixed";
         int sessionEndValue = 1;
         Integer scoreThreshold = null;
-        Integer trickThreshold = null;
+        Integer trickThreshold = 0;
         String nextLegalCardMode = null;
         String trickWinner = null;
         String trickLeader = null;
