@@ -107,7 +107,7 @@ public class Parser {
         String leadingCardForEachTrick = null;
         String gameEnd = null;
         Integer scoreThreshold = null;
-        Integer trickThreshold = null;
+        int trickThreshold = 0;
         String nextLegalCardMode = null;
         String trickWinner = null;
         String trickLeader = null;
