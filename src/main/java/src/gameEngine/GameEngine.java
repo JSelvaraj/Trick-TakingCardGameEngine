@@ -277,7 +277,6 @@ public class GameEngine {
                 for (Team team: game.getTeams()) {
                     if (team.getGameScore() >= gameDesc.getScoreThreshold()) {
                         System.out.println("Team " + team.getTeamNumber() + " wins game");
-                        //TODO:Set vulnerability threshold from game desc
                         team.setGamesWon(team.getGamesWon() + 1);
                         team.setCumulativeScore(team.getCumulativeScore() + team.getGameScore());
                         team.setGameScore(0);

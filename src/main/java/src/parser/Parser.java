@@ -187,10 +187,12 @@ public class Parser {
         //Pass any parameters that main engine needs that are bidding specific.
         boolean trumpSuitBid = false;
         boolean ascendingBid = false;
+        int vulnerabilityThreshold = 0;
         JSONObject bidObject = gameJSON.optJSONObject("bid");
         if (bidObject != null) {
             trumpSuitBid = bidObject.optBoolean("trumpSuitBid", false);
             ascendingBid = bidObject.optBoolean("ascendingBid", false);
+            vulnerabilityThreshold = bidObject.optInt("vulnerabilityThreshold", 0);
         }
 
 
@@ -218,7 +220,8 @@ public class Parser {
                 trumpSuitBid,
                 ascendingBid,
                 sessionEnd,
-                sessionEndValue);
+                sessionEndValue,
+                vulnerabilityThreshold);
 
         if (bidObject != null) {
             bidObject = gameJSON.getJSONObject("bid");

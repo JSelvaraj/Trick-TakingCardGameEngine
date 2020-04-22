@@ -48,6 +48,7 @@ public class GameDesc {
     private Iterator<String> trumpIterator;
     private boolean trumpSuitBid;
     private boolean ascendingBid;
+    private int vulnerabilityThreshold;
 
 
     /**
@@ -80,7 +81,8 @@ public class GameDesc {
                     boolean trumpSuitBid,
                     boolean ascendingBid,
                     String sessionEnd,
-                    int sessionEndValue) {
+                    int sessionEndValue,
+                    int vulnerabilityThreshold) {
         this.name = name;
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
@@ -107,6 +109,7 @@ public class GameDesc {
         this.ascendingBid = ascendingBid;
         this.sessionEnd = sessionEnd;
         this.sessionEndValue = sessionEndValue;
+        this.vulnerabilityThreshold = vulnerabilityThreshold;
     }
 
     @Override
@@ -246,5 +249,9 @@ public class GameDesc {
 
     public Integer getSessionEndValue() {
         return sessionEndValue;
+    }
+
+    public int getVulnerabilityThreshold() {
+        return vulnerabilityThreshold;
     }
 }
