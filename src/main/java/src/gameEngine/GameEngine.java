@@ -159,8 +159,7 @@ public class GameEngine {
                     }
 
                     if (dummyPlayer >= 0) { //TODO: Get from game description
-                        System.out.println("Dummy hand: ");
-                        System.out.println(playerArray[dummyPlayer].getHand());
+                        System.out.println("Dummy hand: " + playerArray[dummyPlayer].getHand());
                     }
 
                     //Each player plays a card
@@ -234,6 +233,7 @@ public class GameEngine {
                     //If bridge:
                     if (gameDesc.isAscendingBid()) {
                         Team declaringTeam = game.getAdjustedHighestBid().getTeam();
+                        game.getAdjustedHighestBid().setVulnerable(declaringTeam.isVulnerable());
                         if (declaringTeam.getGameScore() >= game.getAdjustedHighestBid().getBidValue()) {
                             declaringTeam.setGameScore(declaringTeam.getGameScore() + gameDesc.getEvaluateBid().apply(game.getAdjustedHighestBid(), declaringTeam.getTricksWon()));
                         }
@@ -272,6 +272,7 @@ public class GameEngine {
 
                 game.printScore();
             } while (game.gameEnd());
+
             if (gameDesc.getSessionEnd().equals("bestOf")) {
                 for (Team team: game.getTeams()) {
                     if (team.getGameScore() >= gameDesc.getScoreThreshold()) {
@@ -290,6 +291,7 @@ public class GameEngine {
             }
             System.out.println("End of Game");
         } while (game.sessionEnd());
+
         if (gameDesc.getSessionEnd().equals("bestOf")) {
             Team winningTeam = game.getTeams().get(0);
             for (Team team: game.getTeams()) {
@@ -356,6 +358,7 @@ public class GameEngine {
         int passCounter = 0;
         boolean firstRound = true;
         int firstRoundPassCount = 0;
+        adjustedHighestBid = null;
         do {
             //Adds the bids (checks they are valid in other class)
             Bid bid = players[currentPlayer].makeBid(this.desc.getValidBid(), desc.isTrumpSuitBid(), adjustedHighestBid, firstRound);

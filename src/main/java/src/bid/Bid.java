@@ -76,4 +76,8 @@ public class Bid{
     public boolean isVulnerable() {
         return vulnerable;
     }
+
+    public void setVulnerable(boolean vulnerable) {
+        this.vulnerable = vulnerable;
+    }
 }
