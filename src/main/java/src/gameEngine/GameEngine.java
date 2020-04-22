@@ -204,7 +204,7 @@ public class GameEngine {
                     //Find the team with the winning player and increment their tricks score
 
                     Team winningTeam = playerArray[currentPlayer].getTeam();
-                    winningTeam.setTricksWon(winningTeam.getScore() + 1);
+                    winningTeam.setTricksWon(winningTeam.getGameScore() + 1);
                     if (printMoves) {
                         System.out.println("Player " + (currentPlayer + 1) + " was the winner of the trick with the " + winningCard.toString());
                         System.out.println("Tricks won: " + winningTeam.getTricksWon());
@@ -225,7 +225,7 @@ public class GameEngine {
                     for (Team team : game.getTeams()) {
                         int score = team.getTricksWon();
                         if (score > gameDesc.getTrickThreshold()) { // if score greater than trick threshold
-                            team.setScore(team.getScore() + (score - gameDesc.getTrickThreshold())); // add score to team's running total
+                            team.setGameScore(team.getGameScore() + (score - gameDesc.getTrickThreshold())); // add score to team's running total
                         }
                         team.setTricksWon(0);
                     }
@@ -233,8 +233,17 @@ public class GameEngine {
                 if (gameDesc.getCalculateScore().equals("bid")) {
                     //If bridge:
                     if (gameDesc.isAscendingBid()) {
-                        if (gameDesc.getEvaluateBid().apply(game.getAdjustedHighestBid(), game.getAdjustedHighestBid().getTeam().getTricksWon())) {
-
+                        Team declaringTeam = game.getAdjustedHighestBid().getTeam();
+                        if (declaringTeam.getGameScore() >= game.getAdjustedHighestBid().getBidValue()) {
+                            declaringTeam.setGameScore(declaringTeam.getGameScore() + gameDesc.getEvaluateBid().apply(game.getAdjustedHighestBid(), declaringTeam.getTricksWon()));
+                        }
+                        else {
+                            for (Team team: game.getTeams()) {
+                                if (team != declaringTeam) {
+                                    team.setGameScore(team.getGameScore() + gameDesc.getEvaluateBid().apply(game.getAdjustedHighestBid(), team.getTricksWon()));
+                                    break;
+                                }
+                            }
                         }
                     }
                     else {
@@ -246,7 +255,7 @@ public class GameEngine {
                             }
                             Bid bid = new Bid(false, null, teamBid, false, false);
                             //Increase score of winning team based on bid scoring system (See validBids.java)
-                            team.setScore(team.getScore() + gameDesc.getEvaluateBid().apply(bid, team.getTricksWon()));
+                            team.setGameScore(team.getGameScore() + gameDesc.getEvaluateBid().apply(bid, team.getTricksWon()));
                             //Reset tricks won for next round.
                             team.setTricksWon(0);
                         }
@@ -265,22 +274,33 @@ public class GameEngine {
             } while (game.gameEnd());
             if (gameDesc.getSessionEnd().equals("bestOf")) {
                 for (Team team: game.getTeams()) {
-                    if (team.getScore() >= gameDesc.getScoreThreshold()) {
+                    if (team.getGameScore() >= gameDesc.getScoreThreshold()) {
+                        System.out.println("Team " + team.getTeamNumber() + " wins game");
                         //TODO:Set vulnerability threshold from game desc
                         team.setGamesWon(team.getGamesWon() + 1);
+                        team.setCumulativeScore(team.getCumulativeScore() + team.getGameScore());
+                        team.setGameScore(0);
                         team.setVulnerable(true);
                     }
                     else {
                         team.setVulnerable(false);
                     }
-                    //reset scores
-                    //TODO: Check this is ok
-                    team.setScore(0);
+                    team.setGameScore(0);
                 }
             }
             System.out.println("End of Game");
         } while (game.sessionEnd());
-        System.out.println("End of session");
+        if (gameDesc.getSessionEnd().equals("bestOf")) {
+            Team winningTeam = game.getTeams().get(0);
+            for (Team team: game.getTeams()) {
+                if (team.getCumulativeScore() > winningTeam.getCumulativeScore()) {
+                    winningTeam = team;
+                }
+            }
+            System.out.println("Team " + winningTeam.getTeamNumber() + " wins match");
+        }
+        System.out.println("End of match");
+
     }
 
 
@@ -291,8 +311,8 @@ public class GameEngine {
         switch (desc.getGameEnd()) {
             case "scoreThreshold":
                 for (Team team : teams) {
-                    System.out.println(team.getScore());
-                    if (team.getScore() >= desc.getScoreThreshold())
+                    System.out.println(team.getGameScore());
+                    if (team.getGameScore() >= desc.getScoreThreshold())
                         return false;
                 }
                 break;
@@ -497,7 +517,7 @@ public class GameEngine {
             }
             //Print score of team
             System.out.print(")     ");
-            System.out.println(teams.get(i).getScore());
+            System.out.println(teams.get(i).getGameScore());
             if ((i + 1) < teams.size()) {
                 System.out.println("-------------------------------------------------------------------------------------");
             }

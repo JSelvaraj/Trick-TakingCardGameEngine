@@ -6,8 +6,9 @@ public class Team {
 
     int teamNumber;
     int teamName;
-    int score;
+    int gameScore;
     int tricksWon;
+    int cumulativeScore;
     Player[] players;
     boolean vulnerable;
     int gamesWon;
@@ -15,11 +16,12 @@ public class Team {
     public Team(Player[] players, int teamNumber) {
         this.players = players;
         this.teamNumber = teamNumber;
-        score = 0;
+        gameScore = 0;
         tricksWon = 0;
         setPlayers(players);
         vulnerable = false;
         gamesWon = 0;
+        cumulativeScore = 0;
     }
 
     private void setPlayers(Player[] players) {
@@ -52,12 +54,12 @@ public class Team {
         return tricksWon;
     }
 
-    public int getScore() {
-        return score;
+    public int getGameScore() {
+        return gameScore;
     }
 
-    public void setScore(int score) {
-        this.score = score;
+    public void setGameScore(int gameScore) {
+        this.gameScore = gameScore;
     }
 
     public Player[] getPlayers() {
@@ -82,6 +84,14 @@ public class Team {
 
     public void setGamesWon(int gamesWon) {
         this.gamesWon = gamesWon;
+    }
+
+    public int getCumulativeScore() {
+        return cumulativeScore;
+    }
+
+    public void setCumulativeScore(int cumulativeScore) {
+        this.cumulativeScore = cumulativeScore;
     }
 }
 

@@ -3,7 +3,6 @@ package src.rdmEvents;
 import src.card.Card;
 import src.gameEngine.Hand;
 import src.parser.GameDesc;
-import src.player.LocalPlayer;
 import src.player.NetworkPlayer;
 import src.player.Player;
 import src.team.Team;
@@ -52,13 +51,13 @@ public class RdmEventsManager {
         int lowestScore = scoreThreshold + 1;
 
         for (Team team : teams) {
-            if (team.getScore() < lowestScore) {
+            if (team.getGameScore() < lowestScore) {
                 weakestTeam = team;
-                lowestScore = team.getScore();
+                lowestScore = team.getGameScore();
             }
-            if (team.getScore() > lowestScore) {
+            if (team.getGameScore() > lowestScore) {
                 strongestTeam = team;
-                highestScore = team.getScore();
+                highestScore = team.getGameScore();
             }
         }
 
@@ -141,7 +140,7 @@ public class RdmEventsManager {
             System.out.println("Player " + currentPlayer + "played a HEAVEN card: " + scoreChange + " added to their teams score");
         }
         System.out.println("Changing score of team " + affectedTeam.getTeamNumber());
-        affectedTeam.setScore(Math.max((affectedTeam.getScore() + scoreChange), 0));
+        affectedTeam.setGameScore(Math.max((affectedTeam.getGameScore() + scoreChange), 0));
     }
 
     public void runSpecialCardSetup(RdmEvent rdmEventHAND) {
