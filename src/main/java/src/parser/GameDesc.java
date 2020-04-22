@@ -46,6 +46,7 @@ public class GameDesc {
     private Iterator<String> trumpIterator;
     private boolean trumpSuitBid;
     private boolean canPass;
+    private boolean ascendingBidding;
 
 
     /**
@@ -76,7 +77,8 @@ public class GameDesc {
                     String handSize,
                     Iterator<String> trumpIterator,
                     boolean trumpSuitBid,
-                    boolean canPass) {
+                    boolean canPass,
+                    boolean ascendingBidding) {
         this.name = name;
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
@@ -101,6 +103,7 @@ public class GameDesc {
         this.trumpIterator = trumpIterator;
         this.trumpSuitBid = trumpSuitBid;
         this.canPass = canPass;
+        this.ascendingBidding = ascendingBidding;
     }
 
     @Override
@@ -232,5 +235,9 @@ public class GameDesc {
 
     public boolean isCanPass() {
         return canPass;
+    }
+
+    public boolean isAscendingBidding() {
+        return ascendingBidding;
     }
 }
