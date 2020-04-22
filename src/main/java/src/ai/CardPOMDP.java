@@ -26,10 +26,9 @@ public class CardPOMDP {
     //Game Information
     private int playerCount;
     private IntFunction<Integer> playerIncrementor;
-    private BiFunction<List<Card>, Card, Boolean> validCardFunction;
+    private BiFunction<GameObservation, Card, Boolean> validCardFunction;
     StringBuilder trumpSuit;
     private GameDesc gameDesc;
-    AtomicBoolean breakFlag;
     private List<Integer> teamMates;
     //Values for the POMDP procedure.
     private double epsilon = 0.001;
@@ -58,8 +57,7 @@ public class CardPOMDP {
             }
         }
         this.trumpSuit = trumpSuit;
-        breakFlag = new AtomicBoolean(false);
-        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate(gameDesc.getLeadingCardForEachTrick(), trumpSuit, breakFlag);
+        BiFunction<Boolean, Card, Boolean> validLeadingCard = validCards.getValidLeadingCardFunction(gameDesc.getLeadingCardForEachTrick(), trumpSuit);
         validCardFunction = validCards.getValidCardFunction(validLeadingCard);
         playerIncrementor = PlayerIncrementer.generateNextPlayerFunction(gameDesc.isDEALCARDSCLOCKWISE(), playerCount);
     }
@@ -132,7 +130,7 @@ public class CardPOMDP {
         currentPlayer = winningPlayer;
         //update the breakflag if neccessary.
         if(newObservation.getCurrentTrick().stream().anyMatch((c) -> c.getSUIT().equals(trumpSuit.toString()))){
-            newObservation.getBreakFlag().set(true);
+            newObservation.setBreakFlag();
         }
         newObservation.getCurrentTrick().clear();
         newObservation.setTrickStartedBy(currentPlayer);
@@ -245,7 +243,7 @@ public class CardPOMDP {
         //The cards the player has.
         List<Card> playerCards = state.getPlayerHands().get(playerNumber);
         //Filter the cards that the player can play
-        List<Card> validCards = playerCards.stream().filter((card -> validCardFunction.apply(observation.getCurrentTrick(), card))).collect(Collectors.toList());
+        List<Card> validCards = playerCards.stream().filter((card -> validCardFunction.apply(observation, card))).collect(Collectors.toList());
         //If no cards are valid, then anything  can be played
         if (validCards.size() == 0) {
             validCards = playerCards;

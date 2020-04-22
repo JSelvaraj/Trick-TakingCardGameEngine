@@ -1,11 +1,13 @@
 package src.functions;
 
+import src.ai.GameObservation;
 import src.card.Card;
 import src.gameEngine.Hand;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class validCards {
@@ -56,12 +58,28 @@ public class validCards {
     /**
      * Create a function that takes a trick and a function, and tests if that card is valid in the current trick.
      *
-     * @param validLeadingCardPredicate A predicate checking if a card is a valid leading card.
+     * @param validLeadingCardFunction A function checking if a card is a valid leading card.
      *
      * @return BiFunction taking a hand and a card, which tests if that card can be played.
      */
-    public static BiFunction<List<Card>, Card, Boolean> getValidCardFunction(Predicate<Card> validLeadingCardPredicate){
-        return (currentTrick, card) -> currentTrick.size() == 0 ? validLeadingCardPredicate.test(card) : card.getSUIT().equals(currentTrick.get(0).getSUIT());
+    public static BiFunction<GameObservation, Card, Boolean> getValidCardFunction(BiFunction<Boolean, Card, Boolean> validLeadingCardFunction){
+        return (observation, card) -> observation.getCurrentTrick().size() == 0 ? validLeadingCardFunction.apply(observation.isBreakFlag(), card) : card.getSUIT().equals(observation.getCurrentTrick().get(0).getSUIT());
+    }
+
+    public static BiFunction<Boolean, Card, Boolean> getValidLeadingCardFunction(String leadingCardForTrick, StringBuilder trumpSuit){
+        switch (leadingCardForTrick) {
+            case "break":
+                return (b,c) -> b || !c.getSUIT().equals(trumpSuit.toString());
+            case "any":
+                return (b, c) -> true;
+            case "trump":
+                return (b, c) -> c.getSUIT().equals(trumpSuit.toString());
+            case "notTrump":
+                return (b, c) -> !c.getSUIT().equals(trumpSuit.toString());
+//                case "break":
+//                    TODO
+        }
+        throw new IllegalArgumentException("Not a valid leading card picking mode");
     }
 
 
