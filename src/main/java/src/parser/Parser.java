@@ -180,6 +180,8 @@ public class Parser {
         boolean trumpSuitBid = false;
         boolean canPass = false;
         boolean ascendingBidding = false;
+        int minBid = 0;
+        int maxBid = 0;
         JSONObject bidObject = gameJSON.optJSONObject("bid");
         if (bidObject != null) {
             ascedingOrdering = bidObject.optBoolean("ascendingBidding", false);
@@ -211,7 +213,9 @@ public class Parser {
                 trumpIterator,
                 trumpSuitBid,
                 canPass,
-                ascendingBidding);
+                ascendingBidding,
+                minBid,
+                maxBid);
 
         if (bidObject != null) {
             bidObject = gameJSON.getJSONObject("bid");

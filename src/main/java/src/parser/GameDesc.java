@@ -47,6 +47,8 @@ public class GameDesc {
     private boolean trumpSuitBid;
     private boolean canPass;
     private boolean ascendingBidding;
+    private int minBid;
+    private int maxBid;
 
 
     /**
@@ -78,7 +80,9 @@ public class GameDesc {
                     Iterator<String> trumpIterator,
                     boolean trumpSuitBid,
                     boolean canPass,
-                    boolean ascendingBidding) {
+                    boolean ascendingBidding,
+                    int minBid,
+                    int maxBid) {
         this.name = name;
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
@@ -104,6 +108,8 @@ public class GameDesc {
         this.trumpSuitBid = trumpSuitBid;
         this.canPass = canPass;
         this.ascendingBidding = ascendingBidding;
+        this.minBid = minBid;
+        this.maxBid = maxBid;
     }
 
     @Override
