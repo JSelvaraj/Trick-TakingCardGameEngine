@@ -246,4 +246,12 @@ public class GameDesc {
     public boolean isAscendingBidding() {
         return ascendingBidding;
     }
+
+    public int getMinBid() {
+        return minBid;
+    }
+
+    public int getMaxBid() {
+        return maxBid;
+    }
 }
