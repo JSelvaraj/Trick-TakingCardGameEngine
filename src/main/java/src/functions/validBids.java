@@ -20,7 +20,7 @@ public class validBids {
      *
      * @return Predicate that will return true if the given bid is in [minBid, maxBid]
      */
-    public static Predicate<PotentialBid> isValidBidValue(JSONObject bidObject, int numOfPlayers) {
+    public static Predicate<PotentialBid> isValidBidValue(JSONObject bidObject) {
         int minBid = bidObject.getInt("minBid");
         int maxBid = bidObject.getInt("maxBid");
         boolean trumpSuitBid;
