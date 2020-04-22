@@ -130,6 +130,10 @@ public class CardPOMDP {
         //See if this player won the trick.
         int r = (teamMates.contains(winningPlayer)) ? 1 : 0;
         currentPlayer = winningPlayer;
+        //update the breakflag if neccessary.
+        if(newObservation.getCurrentTrick().stream().anyMatch((c) -> c.getSUIT().equals(trumpSuit.toString()))){
+            newObservation.getBreakFlag().set(true);
+        }
         newObservation.getCurrentTrick().clear();
         newObservation.setTrickStartedBy(currentPlayer);
         //TODO change for minimum hand size.
