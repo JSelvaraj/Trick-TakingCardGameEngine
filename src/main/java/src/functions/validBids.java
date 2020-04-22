@@ -74,7 +74,7 @@ public class validBids {
                     System.out.println(prevBidTeam.findPlayer(playerWhoBid));
                     //Check if there is an existing bid to double
                     //Check if a doubled bid is in bounds
-                    return adjustedHighestBid.getBidValue() * 2 <= maxBid &&  !prevBidTeam.findPlayer(playerWhoBid);
+                    return adjustedHighestBid.getBidValue() * 2 <= maxBid && !prevBidTeam.findPlayer(playerWhoBid);
                 }
             }
             try {
@@ -90,12 +90,10 @@ public class validBids {
                 if (finalCanPass) {
                     if (firstRound) {
                         return true;
-                    }
-                    else {
+                    } else {
                         return adjustedHighestBid != null;
                     }
-                }
-                else {
+                } else {
                     return false;
                 }
             } else if (bidValueInt >= minBid) {
@@ -139,7 +137,7 @@ public class validBids {
         });
     }
 
-    public static BiFunction<Bid, Integer, Integer> evaluateBidContract(JSONObject bidObject, int trickThreshold) {
+    public static BiFunction<Bid, Integer, Integer> evaluateBid(JSONObject bidObject, int trickThreshold) {
         //Get the bid specifications.
         int pointsPerBid = bidObject.getInt("pointsPerBid");
         int overTrickPoints = bidObject.getInt("overtrickPoints");
@@ -263,50 +261,4 @@ public class validBids {
         };
     }
 
-    /**
-     * Creates a bifuction that calculates how many points you get for a bid.
-     *
-     * @param bidObject JSON object from the game description that describes the bid/
-     * @return A function taking a Bid object, and the number of tricks won, and returns how many points are gained.
-     */
-    public static BiFunction<Bid, Integer, Integer> evaluateBid(JSONObject bidObject) {
-        //Get the bid specifications.
-        int pointsPerBid = bidObject.getInt("pointsPerBid");
-        int overTrickPoints = bidObject.getInt("overtrickPoints");
-        int penaltyPoints = bidObject.getInt("penaltyPoints");
-        int points_for_matching = bidObject.optInt("pointsForMatch", 0); //TODO add to spec
-        //Create list for special bids rules
-        List<SpecialBid> specialBidList = new LinkedList<>();
-        if (bidObject.has("specialBids") && !bidObject.isNull("specialBids")) {
-            JSONArray specialBids = bidObject.getJSONArray("specialBids");
-            for (int i = 0; i < specialBids.length(); i++) {
-                JSONObject specialBid = specialBids.getJSONObject(i);
-                specialBidList.add(new SpecialBid(specialBid.optInt("bidValue"),
-                        specialBid.optInt("bonusPoints"),
-                        specialBid.optInt("penalty"),
-                        specialBid.optBoolean("blind")));
-            }
-        }
-        return ((bid, value) -> {
-            //First finds if the bid matches a special bid that was defined in the game decription
-            Optional<SpecialBid> matchingSpecialBid = specialBidList.stream()
-                    .filter((specialBid) -> specialBid.isBlind() == bid.isBlind() && specialBid.getBidValue() == bid.getBidValue())
-                    .findFirst();
-            //If there is a matching special bid
-            if (matchingSpecialBid.isPresent()) {
-                //If the
-                if (bid.getBidValue() == value) {
-                    return matchingSpecialBid.get().getBonusPoints();
-                } else {
-                    return -matchingSpecialBid.get().getPenalty();
-                }
-            } else { //Otherwise just evaluate the bid normally.
-                if (value >= bid.getBidValue()) {
-                    return (value == bid.getBidValue() ? points_for_matching : 0) + bid.getBidValue() * pointsPerBid + (value - bid.getBidValue()) * overTrickPoints;
-                } else {
-                    return value * -penaltyPoints;
-                }
-            }
-        });
-    }
 }
