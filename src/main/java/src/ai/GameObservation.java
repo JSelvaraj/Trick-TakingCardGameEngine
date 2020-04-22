@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Class to encapsulate the game state at a particular turn
@@ -19,6 +20,7 @@ public class GameObservation implements Cloneable {
     private List<PlayerObservation> playerObservations;
     private List<Card> cardSequence;
     private boolean done;
+    private AtomicBoolean breakFlag;
 
     public GameObservation(List<Card> deck, int playerCount, int initialHandSize) {
         round = 0;
@@ -31,6 +33,7 @@ public class GameObservation implements Cloneable {
             playerObservations.add(new PlayerObservation(i, initialHandSize));
         }
         this.done = false;
+        this.breakFlag = new AtomicBoolean(false);
     }
 
     public GameObservation(GameObservation gameObservation) {
@@ -45,6 +48,7 @@ public class GameObservation implements Cloneable {
         this.round = gameObservation.round;
         this.trickStartedBy = gameObservation.trickStartedBy;
         this.done = gameObservation.done;
+        this.breakFlag = gameObservation.breakFlag;
     }
 
     public List<Card> getDeck() {
@@ -61,7 +65,7 @@ public class GameObservation implements Cloneable {
 
     public void updateGameState(int playernumber, Card card) {
         //Empty trick if it is full.
-        if(currentTrick.size() == playerObservations.size()){
+        if (currentTrick.size() == playerObservations.size()) {
             currentTrick.clear();
             trickStartedBy = playernumber;
         } else if (currentTrick.size() == 0) {
@@ -71,12 +75,12 @@ public class GameObservation implements Cloneable {
         playerObservations.get(playernumber).addCardPlayed(card);
         cardsRemaining.remove(card);
         cardSequence.add(card);
-        if(currentTrick.size() == playerObservations.size()){
+        if (currentTrick.size() == playerObservations.size()) {
             currentTrick.clear();
         }
     }
 
-    public void addKnownCards(int playerNumber, List<Card> cards){
+    public void addKnownCards(int playerNumber, List<Card> cards) {
         playerObservations.get(playerNumber).getHasCards().addAll(cards);
         cardsRemaining.removeAll(cards);
     }
@@ -121,5 +125,9 @@ public class GameObservation implements Cloneable {
 
     public void setDone(boolean done) {
         this.done = done;
+    }
+
+    public AtomicBoolean getBreakFlag() {
+        return breakFlag;
     }
 }
