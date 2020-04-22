@@ -6,6 +6,7 @@ import src.card.Card;
 import src.deck.Deck;
 import src.bid.Bid;
 import src.bid.ContractBid;
+import src.exceptions.InvalidBidException;
 import src.gameEngine.Hand;
 import src.bid.PotentialBid;
 import src.parser.GameDesc;
@@ -44,11 +45,11 @@ public class POMDPPlayer extends Player {
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) {
         //If the trick is empty
-        if(currentTrick.getHandSize() == 0){
+        if (currentTrick.getHandSize() == 0) {
             //Signify that this player starts the trick
             observation.setTrickStartedBy(getPlayerNumber());
         }
-        Card card = cardPOMDP.search(observation);
+        Card card = cardPOMDP.searchCard(observation);
         assert super.getCanBePlayed().test(card);
         return super.getHand().giveCard(card);
     }
@@ -59,15 +60,37 @@ public class POMDPPlayer extends Player {
     }
 
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, boolean bidNo, boolean canBidBlind) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
+        //Need to initialise for if we started the trick.
+        if (observation.getCurrentTrick().size() == 0) {
+            observation.setTrickStartedBy(getPlayerNumber());
+        }
+        //If it isn't contract bidding
+        if (desc.isAscendingBidding()) {
+            assert trumpSuit != null;
+            int bidValue = cardPOMDP.searchBid(observation);
+            PotentialBid bid = new PotentialBid(null, Integer.toString(bidValue), adjustedHighestBid);
+            if (!validBid.test(bid)) {
+                //See if the calculated bid falls outside of what is allowed.
+                if (bidValue < desc.getMinBid()) {
+                    bidValue = desc.getMinBid();
+                } else if (bidValue > desc.getMaxBid()) {
+                    bidValue = desc.getMaxBid();
+                } else {
+                    throw new InvalidBidException();
+                }
+            }
+            return new Bid(false, null, bidValue, false, false);
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public Swap getSwap(Player strongPlayer) {
         throw new UnsupportedOperationException();
     }
 
-    public Swap getSwap(Player strongPlayer){
-        throw new UnsupportedOperationException();
-    }
-
-    public void broadcastSwap(Swap swap){
+    public void broadcastSwap(Swap swap) {
         throw new UnsupportedOperationException();
     }
 
