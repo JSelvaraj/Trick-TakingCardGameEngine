@@ -35,7 +35,12 @@ public class validBids {
         if (!bidObject.isNull("suitBidRank")) {
             suitBidRank = bidObject.getJSONArray("suitBidRank");
             for (int i = 0; i < suitBidRank.length(); i++) {
-                suitBidRankStr.put((String) suitBidRank.get(i), i);
+                if (suitBidRank.get(i) == null) {
+                    suitBidRankStr.put("NO TRUMP", i);
+                }
+                else {
+                    suitBidRankStr.put((String) suitBidRank.get(i), i);
+                }
             }
         }
         canPass = bidObject.optBoolean("canPass", false);

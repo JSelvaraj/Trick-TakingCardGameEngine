@@ -69,6 +69,17 @@ public class Bid{
     }
 
     @Override
+    public String toString() {
+        return "Bid{" +
+                "doubling=" + doubling +
+                ", suit='" + suit + '\'' +
+                ", bidValue=" + bidValue +
+                ", blind=" + blind +
+                ", vulnerable=" + vulnerable +
+                '}';
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(doubling, suit, bidValue, blind, vulnerable);
     }
