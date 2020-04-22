@@ -97,7 +97,7 @@ public class GameDesc {
         this.leadingCardForEachTrick = leadingCardForEachTrick;
         this.gameEnd = gameEnd;
         this.scoreThreshold = scoreThreshold; // regardless of whether its score or number of hands played, this variable is used for the comparison
-        if (calculateScore.equals("tricksWon")) this.trickThreshold = trickThreshold;
+        this.trickThreshold = trickThreshold;
         this.nextLegalCardMode = nextLegalCardMode;
         this.trickWinner = trickWinner;
         this.trickLeader = trickLeader;

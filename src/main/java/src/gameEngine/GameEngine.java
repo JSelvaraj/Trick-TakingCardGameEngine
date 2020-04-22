@@ -39,9 +39,6 @@ public class GameEngine {
     private Predicate<Card> validCard;
     private Predicate<Card> validLeadingCard;
     private IntFunction<Integer> nextPlayerIndex;
-    //If you bid suits
-    private boolean trumpSuitBid;
-    private boolean ascendingBid;
     //Redoubling field set to true if the contract was a redoubling, doubling field same,
     // the BidValue is the adjusted value based on any redoubling/doubling, bidSuit is the trumpSuit for the trick
     private ContractBid adjustedHighestBid;
@@ -69,8 +66,6 @@ public class GameEngine {
         this.validCard = validCards.getValidCardPredicate("trick", this.trumpSuit, this.currentTrick, this.validLeadingCard);
         this.nextPlayerIndex = PlayerIncrementer.generateNextPlayerFunction(desc.isDEALCARDSCLOCKWISE(), desc.getNUMBEROFPLAYERS());
         this.trickHistory = new LinkedList<>();
-        this.trumpSuitBid = desc.isTrumpSuitBid();
-        this.ascendingBid = desc.isAscendingBid();
     }
 
     public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) {
@@ -133,7 +128,7 @@ public class GameEngine {
 
                 //Set first player to left of declarer if needed //TODO: Get from game desc when added
                 int dummyPlayer = -1;
-                if (game.ascendingBid) {
+                if (gameDesc.isAscendingBid()) {
                     currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
                     currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                     dummyPlayer = game.nextPlayerIndex.apply(game.nextPlayerIndex.apply(currentPlayer));
@@ -235,19 +230,26 @@ public class GameEngine {
                         team.setTricksWon(0);
                     }
                 }
-                //
-                if (gameDesc.getCalculateScore().equals("bid")) { //TODO handle special bids.
-                    for (Team team : game.getTeams()) {
-                        int teamBid = 0;
-                        //Get collective team bids
-                        for (Player player : team.getPlayers()) {
-                            teamBid += player.getBid().getBidValue();
+                if (gameDesc.getCalculateScore().equals("bid")) {
+                    //If bridge:
+                    if (gameDesc.isAscendingBid()) {
+                        if (gameDesc.getEvaluateBid().apply(game.getAdjustedHighestBid(), game.getAdjustedHighestBid().getTeam().getTricksWon())) {
+
                         }
-                        Bid bid = new Bid(false, null, teamBid, false, false);
-                        //Increase score of winning team based on bid scoring system (See validBids.java)
-                        team.setScore(team.getScore() + gameDesc.getEvaluateBid().apply(bid, team.getTricksWon()));
-                        //Reset tricks won for next round.
-                        team.setTricksWon(0);
+                    }
+                    else {
+                        for (Team team : game.getTeams()) {
+                            int teamBid = 0;
+                            //Get collective team bids
+                            for (Player player : team.getPlayers()) {
+                                teamBid += player.getBid().getBidValue();
+                            }
+                            Bid bid = new Bid(false, null, teamBid, false, false);
+                            //Increase score of winning team based on bid scoring system (See validBids.java)
+                            team.setScore(team.getScore() + gameDesc.getEvaluateBid().apply(bid, team.getTricksWon()));
+                            //Reset tricks won for next round.
+                            team.setTricksWon(0);
+                        }
                     }
                 }
                 if (gameDesc.getTrumpPickingMode().equals("predefined")) {
@@ -264,6 +266,7 @@ public class GameEngine {
             if (gameDesc.getSessionEnd().equals("bestOf")) {
                 for (Team team: game.getTeams()) {
                     if (team.getScore() >= gameDesc.getScoreThreshold()) {
+                        //TODO:Set vulnerability threshold from game desc
                         team.setGamesWon(team.getGamesWon() + 1);
                         team.setVulnerable(true);
                     }
@@ -335,7 +338,7 @@ public class GameEngine {
         int firstRoundPassCount = 0;
         do {
             //Adds the bids (checks they are valid in other class)
-            Bid bid = players[currentPlayer].makeBid(this.desc.getValidBid(), trumpSuitBid, adjustedHighestBid, firstRound);
+            Bid bid = players[currentPlayer].makeBid(this.desc.getValidBid(), desc.isTrumpSuitBid(), adjustedHighestBid, firstRound);
             if (bid.isDoubling()) {
                 passCounter = 0;
                 if (getAdjustedHighestBid().isDoubling()) {
@@ -354,16 +357,16 @@ public class GameEngine {
                     passCounter = 0;
                     if (getAdjustedHighestBid() == null) {
                         String suit = null;
-                        if (trumpSuitBid) {
+                        if (desc.isTrumpSuitBid()) {
                             suit = bid.getSuit();
                         }
                         setAdjustedHighestBid(new ContractBid(false, suit, bid.getBidValue(), bid.isBlind(),
                                 false, false, players[currentPlayer], players[currentPlayer].getTeam())); //TODO set vulnerable if it is
                     }
                     else {
-                        if (trumpSuitBid) {
+                        if (desc.isTrumpSuitBid()) {
                             getAdjustedHighestBid().setSuit(bid.getSuit());
-                            if (!(getAdjustedHighestBid().getSuit().equals(bid.getSuit()))) {
+                            if (!(getAdjustedHighestBid().getSuit().equals(bid.getSuit())) || getAdjustedHighestBid().getTeam() != players[currentPlayer].getTeam()) {
                                 getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
                             }
                         }
@@ -394,7 +397,7 @@ public class GameEngine {
 
     public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter, boolean firstRound) {
         //TODO:Adjust this if game desc field gets added
-        if (ascendingBid) {
+        if (desc.isAscendingBid()) {
             return passCounter != players.length - 1 || firstRound;
         }
         else {
@@ -532,7 +535,6 @@ public class GameEngine {
             }
         }
     }
-
 
     private Predicate<Card> getValidCard() {
         return validCard;
