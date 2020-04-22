@@ -66,7 +66,7 @@ public class POMDPPlayer extends Player {
             observation.setTrickStartedBy(getPlayerNumber());
         }
         //If it isn't contract bidding
-        if (desc.isAscendingBidding()) {
+        if (!desc.isAscendingBidding()) {
             assert trumpSuit != null;
             int bidValue = cardPOMDP.searchBid(observation);
             PotentialBid bid = new PotentialBid(null, Integer.toString(bidValue), adjustedHighestBid);
@@ -95,7 +95,7 @@ public class POMDPPlayer extends Player {
     }
 
     @Override
-    public void broadcastBid(Bid bid, int playerNumber, ContractBid adjustedHighestBid) {
-        throw new UnsupportedOperationException();
+    public void broadcastBid(Bid bid, int playerNumber) {
+        //throw new UnsupportedOperationException();
     }
 }

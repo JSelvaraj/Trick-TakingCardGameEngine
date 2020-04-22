@@ -73,7 +73,7 @@ public class CardPOMDP {
     public int searchBid(GameObservation history) {
         POMCPTreeNode bestNode = search(history);
         double bestValue = bestNode.getValue();
-        return (int) (Math.ceil(bestValue) - gameDesc.getTrickThreshold());
+        return (int) Math.round((bestValue - gameDesc.getTrickThreshold())/ teamMates.size());
     }
 
     public POMCPTreeNode search(GameObservation history) {
