@@ -131,7 +131,7 @@ public class GameEngine {
                     game.getBids(currentPlayer, playerArray);
                 }
 
-                //Set first player to left of declarer if needed
+                //Set first player to left of declarer if needed //TODO: Get from game desc when added
                 int dummyPlayer = -1;
                 if (game.ascendingBid) {
                     currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
