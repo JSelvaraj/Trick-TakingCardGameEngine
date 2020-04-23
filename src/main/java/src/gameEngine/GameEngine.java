@@ -97,6 +97,7 @@ public class GameEngine {
         Deck deck; // make standard deck from a linked list of Cards
         Shuffle shuffle = new Shuffle(seed);
 
+
         if (printMoves) {
             game.printScore();
         }
@@ -105,6 +106,7 @@ public class GameEngine {
             //Loop until game winning condition has been met
             do {
                 int currentPlayer = dealer;
+                System.out.println("Dealer " + currentPlayer);
                 deck = new Deck(gameDesc.getDECK());
 
                 shuffle.shuffle(deck.cards); //shuffle deck according to the given seed
@@ -116,7 +118,9 @@ public class GameEngine {
                     rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
                 }
 
+                //Increment for first bidder
                 currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
+
                 //Signify to players that a new hand has started.
                 for (Player player : playerArray) {
                     player.startHand(game.trumpSuit);
@@ -128,7 +132,7 @@ public class GameEngine {
 
                 //Set first player to left of declarer if needed //TODO: Get from game desc when added
                 int dummyPlayer = -1;
-                if (gameDesc.isAscendingBid()) {
+                if (gameDesc.getFirstTrickLeader().equals("contract")) {
                     currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
                     currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                     dummyPlayer = game.nextPlayerIndex.apply(game.nextPlayerIndex.apply(currentPlayer));
@@ -236,16 +240,15 @@ public class GameEngine {
                         game.getAdjustedHighestBid().setVulnerable(declaringTeam.isVulnerable());
                         if (declaringTeam.getGameScore() >= game.getAdjustedHighestBid().getBidValue()) {
                             declaringTeam.setGameScore(declaringTeam.getGameScore() + gameDesc.getEvaluateBid().apply(game.getAdjustedHighestBid(), declaringTeam.getTricksWon()));
-                        }
-                        else {
-                            for (Team team: game.getTeams()) {
+                        } else {
+                            for (Team team : game.getTeams()) {
                                 if (team != declaringTeam) {
                                     team.setGameScore(team.getGameScore() + gameDesc.getEvaluateBid().apply(game.getAdjustedHighestBid(), team.getTricksWon()));
                                     break;
                                 }
                             }
                         }
-                        for (Team team: game.getTeams()) {
+                        for (Team team : game.getTeams()) {
                             team.setTricksWon(0);
                         }
                     }
@@ -274,19 +277,21 @@ public class GameEngine {
                     rdmEventsManager.checkGameCloseness();
                 }
 
+                //Increment dealer
+                dealer = game.nextPlayerIndex.apply(dealer);
+
                 game.printScore();
             } while (game.gameEnd());
 
             if (gameDesc.getSessionEnd().equals("bestOf")) {
-                for (Team team: game.getTeams()) {
+                for (Team team : game.getTeams()) {
                     if (team.getGameScore() >= gameDesc.getScoreThreshold()) {
                         System.out.println("Team " + team.getTeamNumber() + " wins game");
                         team.setGamesWon(team.getGamesWon() + 1);
                         team.setCumulativeScore(team.getCumulativeScore() + team.getGameScore());
                         team.setGameScore(0);
                         team.setVulnerable(true);
-                    }
-                    else {
+                    } else {
                         team.setVulnerable(false);
                     }
                     team.setGameScore(0);
@@ -297,7 +302,7 @@ public class GameEngine {
 
         if (gameDesc.getSessionEnd().equals("bestOf")) {
             Team winningTeam = game.getTeams().get(0);
-            for (Team team: game.getTeams()) {
+            for (Team team : game.getTeams()) {
                 if (team.getCumulativeScore() > winningTeam.getCumulativeScore()) {
                     winningTeam = team;
                 }
@@ -317,17 +322,17 @@ public class GameEngine {
             case "scoreThreshold":
                 for (Team team : teams) {
                     System.out.println(team.getGameScore());
-                    if (team.getGameScore() >= desc.getScoreThreshold())
+                    if (team.getGameScore() >= desc.getScoreThreshold()) {
+                        System.out.println("Team " + team.getTeamNumber() + "wins a game");
                         return false;
+                    }
                 }
-                break;
+                return true;
             case "handsPlayed":
-                if (handsPlayed >= desc.getScoreThreshold()) {
-                    return false;
-                }
-                break;
+                return handsPlayed < desc.getScoreThreshold();
+            default:
+                return true;
         }
-        return true;
     }
 
     /**
@@ -335,14 +340,13 @@ public class GameEngine {
      */
     private boolean sessionEnd() {
         if ("bestOf".equals(desc.getSessionEnd())) {
-            for (Team team: getTeams()) {
+            for (Team team : getTeams()) {
                 if (team.getGamesWon() == (desc.getSessionEndValue() / 2) + 1) {
                     return false;
                 }
             }
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -370,14 +374,12 @@ public class GameEngine {
                 if (getAdjustedHighestBid().isDoubling()) {
                     getAdjustedHighestBid().setDoubling(false);
                     getAdjustedHighestBid().setRedoubling(true);
-                }
-                else {
+                } else {
                     getAdjustedHighestBid().setDoubling(true);
                 }
-                getAdjustedHighestBid().setBidValue(getAdjustedHighestBid().getBidValue()*2);
+                getAdjustedHighestBid().setBidValue(getAdjustedHighestBid().getBidValue() * 2);
                 getAdjustedHighestBid().setTeam(players[currentPlayer].getTeam());
-            }
-            else {
+            } else {
                 if (bid.getBidValue() >= 0) {
                     firstRound = false;
                     passCounter = 0;
@@ -388,8 +390,7 @@ public class GameEngine {
                         }
                         setAdjustedHighestBid(new ContractBid(false, suit, bid.getBidValue(), bid.isBlind(),
                                 false, false, players[currentPlayer], players[currentPlayer].getTeam())); //TODO set vulnerable if it is
-                    }
-                    else {
+                    } else {
                         if (desc.isTrumpSuitBid()) {
                             getAdjustedHighestBid().setSuit(bid.getSuit());
                             if (!(getAdjustedHighestBid().getSuit().equals(bid.getSuit())) || getAdjustedHighestBid().getTeam() != players[currentPlayer].getTeam()) {
@@ -401,15 +402,13 @@ public class GameEngine {
                         getAdjustedHighestBid().setBidValue(bid.getBidValue());
                         getAdjustedHighestBid().setTeam(players[currentPlayer].getTeam());
                     }
-                }
-                else {
+                } else {
                     if (firstRound) {
                         firstRoundPassCount++;
                         if (firstRoundPassCount >= players.length - 1) {
                             firstRound = false;
                         }
-                    }
-                    else {
+                    } else {
                         passCounter++;
                     }
                 }
@@ -425,8 +424,7 @@ public class GameEngine {
         //TODO:Adjust this if game desc field gets added
         if (desc.isAscendingBid()) {
             return passCounter != players.length - 1 || firstRound;
-        }
-        else {
+        } else {
             return currentPlayer != originalPlayer;
         }
     }

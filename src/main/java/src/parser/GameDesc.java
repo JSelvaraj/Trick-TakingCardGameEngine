@@ -38,6 +38,7 @@ public class GameDesc {
     private final String nextLegalCardMode;
     private final String trickWinner;
     private final String trickLeader;
+    private final String firstTrickLeader;
     //Bidding functions
     private boolean bidding;
     private Predicate<PotentialBid> validBid;
@@ -76,6 +77,7 @@ public class GameDesc {
                     String nextLegalCardMode,
                     String trickWinner,
                     String trickLeader,
+                    String firstTrickLeader,
                     String handSize,
                     Iterator<String> trumpIterator,
                     boolean trumpSuitBid,
@@ -110,6 +112,7 @@ public class GameDesc {
         this.sessionEnd = sessionEnd;
         this.sessionEndValue = sessionEndValue;
         this.vulnerabilityThreshold = vulnerabilityThreshold;
+        this.firstTrickLeader = firstTrickLeader;
     }
 
     @Override
@@ -253,5 +256,9 @@ public class GameDesc {
 
     public int getVulnerabilityThreshold() {
         return vulnerabilityThreshold;
+    }
+
+    public String getFirstTrickLeader() {
+        return firstTrickLeader;
     }
 }

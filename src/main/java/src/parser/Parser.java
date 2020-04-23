@@ -113,6 +113,7 @@ public class Parser {
         String nextLegalCardMode = null;
         String trickWinner = null;
         String trickLeader = null;
+        String firstTrickLeader = "default";
         String handSize = "fixed";
         JSONArray rules = gameJSON.getJSONArray("rules"); //TODO check for null
         for (int i = 0; i < rules.length(); i++) {
@@ -154,6 +155,9 @@ public class Parser {
                     break;
                 case "trickLeader":
                     trickLeader = rule.getString("data");
+                    break;
+                case "firstTrickLeader":
+                    firstTrickLeader = rule.getString("data");
                     break;
                 case "handEnd":
                     //TODO change
@@ -215,6 +219,7 @@ public class Parser {
                 nextLegalCardMode,
                 trickWinner,
                 trickLeader,
+                firstTrickLeader,
                 handSize,
                 trumpIterator,
                 trumpSuitBid,
