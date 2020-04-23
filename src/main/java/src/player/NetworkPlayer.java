@@ -144,7 +144,7 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, boolean firstRound) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, boolean firstRound, boolean canBidBlind) {
         JsonElement msg = null;
         try {
             JsonStreamParser reader = new JsonStreamParser(new InputStreamReader(playerSocket.getInputStream()));

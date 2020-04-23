@@ -50,6 +50,7 @@ public class GameDesc {
     private boolean trumpSuitBid;
     private boolean ascendingBid;
     private int vulnerabilityThreshold;
+    private boolean canBidBlind;
 
 
     /**
@@ -84,7 +85,8 @@ public class GameDesc {
                     boolean ascendingBid,
                     String sessionEnd,
                     int sessionEndValue,
-                    int vulnerabilityThreshold) {
+                    int vulnerabilityThreshold,
+                    boolean canBidBlind) {
         this.name = name;
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
@@ -113,6 +115,7 @@ public class GameDesc {
         this.sessionEndValue = sessionEndValue;
         this.vulnerabilityThreshold = vulnerabilityThreshold;
         this.firstTrickLeader = firstTrickLeader;
+        this.canBidBlind = canBidBlind;
     }
 
     @Override
@@ -260,5 +263,9 @@ public class GameDesc {
 
     public String getFirstTrickLeader() {
         return firstTrickLeader;
+    }
+
+    public boolean isCanBidBlind() {
+        return canBidBlind;
     }
 }
