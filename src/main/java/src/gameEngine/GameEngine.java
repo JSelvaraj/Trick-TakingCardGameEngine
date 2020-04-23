@@ -106,7 +106,7 @@ public class GameEngine {
             //Loop until game winning condition has been met
             do {
                 int currentPlayer = dealer;
-                System.out.println("Dealer " + currentPlayer);
+
                 deck = new Deck(gameDesc.getDECK());
 
                 shuffle.shuffle(deck.cards); //shuffle deck according to the given seed
