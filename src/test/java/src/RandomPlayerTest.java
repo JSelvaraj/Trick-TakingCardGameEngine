@@ -82,11 +82,11 @@ class RandomPlayerTest {
         JSONObject bidObject = new JSONObject();
         bidObject.put("minBid", 0);
         bidObject.put("maxBid", 10);
-        Predicate<PotentialBid> validBid = validBids.isValidBidValue(bidObject, 4);
+        Predicate<PotentialBid> validBid = validBids.isValidBidValue(bidObject);
         RandomPlayer randomPlayer = new RandomPlayer(0, null);
         for (int i = 0; i < 10; i++) randomPlayer.getHand().getCard(new Card("", ""));
         for (int i = 0; i < 1000; i++) {
-            Bid randomBid = randomPlayer.makeBid(validBid, false, null, false);
+            Bid randomBid = randomPlayer.makeBid(validBid, false, null, false, false);
             assertTrue(validBid.test(new PotentialBid(randomBid.getSuit(), Integer.toString(randomBid.getBidValue()),
                     null, randomPlayer, false)));
         }
