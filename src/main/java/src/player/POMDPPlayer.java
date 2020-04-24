@@ -59,7 +59,7 @@ public class POMDPPlayer extends Player {
     }
 
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, boolean bidNo, boolean canBidBlind) {
         throw new UnsupportedOperationException();
     }
 
@@ -72,7 +72,7 @@ public class POMDPPlayer extends Player {
     }
 
     @Override
-    public void broadcastBid(Bid bid, int playerNumber) {
+    public void broadcastBid(Bid bid, int playerNumber, ContractBid adjustedHighestBid) {
         throw new UnsupportedOperationException();
     }
 }

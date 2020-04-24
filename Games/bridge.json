@@ -11,6 +11,7 @@
             {"name" : "nextLegalCardMode", "data" : "trick"},
             {"name" : "trumpPickingMode", "data" : "bid"},
             {"name" : "calculateScore", "data" : "bid"},
+            {"name" : "trickThreshold", "data" : 6},
             {"name" : "trickWinner", "data" : "standard"},
             {"name" : "trickLeader", "data" : "prevWinner"},
             {"name" : "sessionEnd", "data" : "bestOf"},
@@ -26,7 +27,7 @@
             "pointsPerBid" : 0,
             "overtrickPoints" : 0,
             "penaltyPoints" : 0,
-            "minBid" : 1,
+            "minBid" : 0,
             "maxBid" : 7,
             "suitBidRank": ["CLUBS", "DIAMONDS", "HEARTS", "SPADES", "NO TRUMP"],
             "preset": false,
@@ -35,7 +36,7 @@
             "canDouble": true,
             "canRedouble": true,
             "specialBids": [{
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "CLUBS",
                 "bonusPoints": 0,
                 "overtrickPoints": 20,
@@ -47,7 +48,7 @@
                 "contractPoints": 20
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "DIAMONDS",
                 "bonusPoints": 0,
                 "overtrickPoints": 20,
@@ -59,7 +60,7 @@
                 "contractPoints": 20
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "SPADES",
                 "bonusPoints": 0,
                 "overtrickPoints": 30,
@@ -71,7 +72,7 @@
                 "contractPoints": 30
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "HEARTS",
                 "bonusPoints": 0,
                 "overtrickPoints": 30,
@@ -83,7 +84,7 @@
                 "contractPoints": 30
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "NO TRUMP",
                 "bonusPoints": 10,
                 "overtrickPoints": 30,
@@ -95,7 +96,7 @@
                 "contractPoints": 30
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "CLUBS",
                 "bonusPoints": 0,
                 "overtrickPoints": 20,
@@ -107,7 +108,7 @@
                 "contractPoints": 20
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "DIAMONDS",
                 "bonusPoints": 0,
                 "overtrickPoints": 20,
@@ -119,7 +120,7 @@
                 "contractPoints": 20
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "SPADES",
                 "bonusPoints": 0,
                 "overtrickPoints": 30,
@@ -131,7 +132,7 @@
                 "contractPoints": 30
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "HEARTS",
                 "bonusPoints": 0,
                 "overtrickPoints": 30,
@@ -143,7 +144,7 @@
                 "contractPoints": 30
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "NO TRUMP",
                 "bonusPoints": 10,
                 "overtrickPoints": 30,
@@ -155,7 +156,7 @@
                 "contractPoints": 30
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "CLUBS",
                 "bonusPoints": 0,
                 "overtrickPoints": 100,
@@ -168,7 +169,7 @@
                 "contractPoints": 40
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "DIAMONDS",
                 "bonusPoints": 0,
                 "overtrickPoints": 100,
@@ -181,7 +182,7 @@
                 "contractPoints": 40
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "SPADES",
                 "bonusPoints": 0,
                 "overtrickPoints": 100,
@@ -194,7 +195,7 @@
                 "contractPoints": 60
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "HEARTS",
                 "bonusPoints": 0,
                 "overtrickPoints": 100,
@@ -207,7 +208,7 @@
                 "contractPoints": 60
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "NO TRUMP",
                 "bonusPoints": 20,
                 "overtrickPoints": 100,
@@ -220,7 +221,7 @@
                 "contractPoints": 60
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "CLUBS",
                 "bonusPoints": 0,
                 "overtrickPoints": 200,
@@ -233,7 +234,7 @@
                 "contractPoints": 40
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "DIAMONDS",
                 "bonusPoints": 0,
                 "overtrickPoints": 200,
@@ -246,7 +247,7 @@
                 "contractPoints": 40
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "SPADES",
                 "bonusPoints": 0,
                 "overtrickPoints": 200,
@@ -259,7 +260,7 @@
                 "contractPoints": 60
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "HEARTS",
                 "bonusPoints": 0,
                 "overtrickPoints": 200,
@@ -272,7 +273,7 @@
                 "contractPoints": 60
             },
             {
-                "bidValue" : 0,
+                "bidValue" : -1,
                 "trumpSuit": "NO TRUMP",
                 "bonusPoints": 20,
                 "overtrickPoints": 200,

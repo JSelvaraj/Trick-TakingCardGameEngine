@@ -106,11 +106,14 @@ public class Parser {
         String trumpSuit = null;
         String leadingCardForEachTrick = null;
         String gameEnd = null;
+        String sessionEnd = "fixed";
+        int sessionEndValue = 1;
         Integer scoreThreshold = null;
-        Integer trickThreshold = null;
+        Integer trickThreshold = 0;
         String nextLegalCardMode = null;
         String trickWinner = null;
         String trickLeader = null;
+        String firstTrickLeader = "default";
         String handSize = "fixed";
         JSONArray rules = gameJSON.getJSONArray("rules"); //TODO check for null
         for (int i = 0; i < rules.length(); i++) {
@@ -129,6 +132,12 @@ public class Parser {
                 case "leadingCardForEachTrick":
                     leadingCardForEachTrick = rule.getString("data");
                     break;
+                case "sessionEnd":
+                    sessionEnd = rule.getString("data");
+                    break;
+                case "sessionEndValue":
+                    sessionEndValue = rule.getInt("data");
+                    break;
                 case "gameEnd":
                     gameEnd = rule.getString("data");
                     break;
@@ -146,6 +155,9 @@ public class Parser {
                     break;
                 case "trickLeader":
                     trickLeader = rule.getString("data");
+                    break;
+                case "firstTrickLeader":
+                    firstTrickLeader = rule.getString("data");
                     break;
                 case "handEnd":
                     //TODO change
@@ -178,11 +190,15 @@ public class Parser {
 
         //Pass any parameters that main engine needs that are bidding specific.
         boolean trumpSuitBid = false;
-        boolean canPass = false;
+        boolean ascendingBid = false;
+        int vulnerabilityThreshold = 0;
+        boolean canBidBlind = false;
         JSONObject bidObject = gameJSON.optJSONObject("bid");
         if (bidObject != null) {
             trumpSuitBid = bidObject.optBoolean("trumpSuitBid", false);
-            canPass = bidObject.optBoolean("canPass", false);
+            ascendingBid = bidObject.optBoolean("ascendingBid", false);
+            vulnerabilityThreshold = bidObject.optInt("vulnerabilityThreshold", 0);
+            canBidBlind = bidObject.optBoolean("canBidBlind");
         }
 
 
@@ -205,10 +221,15 @@ public class Parser {
                 nextLegalCardMode,
                 trickWinner,
                 trickLeader,
+                firstTrickLeader,
                 handSize,
                 trumpIterator,
                 trumpSuitBid,
-                canPass);
+                ascendingBid,
+                sessionEnd,
+                sessionEndValue,
+                vulnerabilityThreshold,
+                canBidBlind);
 
         if (bidObject != null) {
             bidObject = gameJSON.getJSONObject("bid");
@@ -247,7 +268,7 @@ public class Parser {
 
     private void initBidding(JSONObject bidObject, GameDesc gameDesc) {
         gameDesc.setValidBid(validBids.isValidBidValue(bidObject));
-        gameDesc.setEvaluateBid(validBids.evaluateBid(bidObject));
+        gameDesc.setEvaluateBid(validBids.evaluateBid(bidObject, gameDesc.getTrickThreshold()));
         gameDesc.setBidding(true);
     }
 

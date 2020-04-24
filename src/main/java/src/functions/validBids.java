@@ -3,6 +3,8 @@ package src.functions;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import src.bid.*;
+import src.player.Player;
+import src.team.Team;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -33,7 +35,12 @@ public class validBids {
         if (!bidObject.isNull("suitBidRank")) {
             suitBidRank = bidObject.getJSONArray("suitBidRank");
             for (int i = 0; i < suitBidRank.length(); i++) {
-                suitBidRankStr.put((String) suitBidRank.get(i), i);
+                if (suitBidRank.get(i) == null) {
+                    suitBidRankStr.put("NO TRUMP", i);
+                }
+                else {
+                    suitBidRankStr.put((String) suitBidRank.get(i), i);
+                }
             }
         }
         canPass = bidObject.optBoolean("canPass", false);
@@ -50,6 +57,7 @@ public class validBids {
         return ((potentialBid) -> {
             String bidValue = potentialBid.getBidInput();
             String bidSuit = potentialBid.getBidSuit();
+            boolean firstRound = potentialBid.isFirstRound();
             ContractBid adjustedHighestBid = potentialBid.getAdjustedHighestBid();
             if (bidValue.equals("d")) {
                 //Check if doubling is allowed
@@ -57,18 +65,16 @@ public class validBids {
                     if (adjustedHighestBid == null || adjustedHighestBid.isRedoubling()) {
                         return false;
                     }
+                    Team prevBidTeam = adjustedHighestBid.getTeam();
+                    Player playerWhoBid = potentialBid.getPlayer();
                     //Check for an existing double
                     if (adjustedHighestBid.isDoubling()) {
-                        if (finalCanRedouble) {
-                            return adjustedHighestBid.getBidValue() * 2 <= maxBid;
-                        } else {
-                            //Redoubling not allowed - invalid bid
-                            return false;
-                        }
+                        //Redoubling not allowed - invalid bid
+                        return finalCanRedouble && !prevBidTeam.findPlayer(playerWhoBid);
                     }
                     //Check if there is an existing bid to double
                     //Check if a doubled bid is in bounds
-                    return adjustedHighestBid.getBidValue() * 2 <= maxBid;
+                    return !prevBidTeam.findPlayer(playerWhoBid);
                 }
             }
             try {
@@ -82,7 +88,11 @@ public class validBids {
             if (bidValueInt == -2) {
                 //Check if pass allowed
                 if (finalCanPass) {
-                    return adjustedHighestBid != null;
+                    if (firstRound) {
+                        return true;
+                    } else {
+                        return adjustedHighestBid != null;
+                    }
                 } else {
                     return false;
                 }
@@ -127,7 +137,7 @@ public class validBids {
         });
     }
 
-    public static BiFunction<Bid, Integer, Integer> evaluateBidContract(JSONObject bidObject, int trickThreshold) {
+    public static BiFunction<Bid, Integer, Integer> evaluateBid(JSONObject bidObject, int trickThreshold) {
         //Get the bid specifications.
         int pointsPerBid = bidObject.getInt("pointsPerBid");
         int overTrickPoints = bidObject.getInt("overtrickPoints");
@@ -251,50 +261,4 @@ public class validBids {
         };
     }
 
-    /**
-     * Creates a bifuction that calculates how many points you get for a bid.
-     *
-     * @param bidObject JSON object from the game description that describes the bid/
-     * @return A function taking a Bid object, and the number of tricks won, and returns how many points are gained.
-     */
-    public static BiFunction<Bid, Integer, Integer> evaluateBid(JSONObject bidObject) {
-        //Get the bid specifications.
-        int pointsPerBid = bidObject.getInt("pointsPerBid");
-        int overTrickPoints = bidObject.getInt("overtrickPoints");
-        int penaltyPoints = bidObject.getInt("penaltyPoints");
-        int points_for_matching = bidObject.optInt("pointsForMatch", 0); //TODO add to spec
-        //Create list for special bids rules
-        List<SpecialBid> specialBidList = new LinkedList<>();
-        if (bidObject.has("specialBids") && !bidObject.isNull("specialBids")) {
-            JSONArray specialBids = bidObject.getJSONArray("specialBids");
-            for (int i = 0; i < specialBids.length(); i++) {
-                JSONObject specialBid = specialBids.getJSONObject(i);
-                specialBidList.add(new SpecialBid(specialBid.optInt("bidValue"),
-                        specialBid.optInt("bonusPoints"),
-                        specialBid.optInt("penalty"),
-                        specialBid.optBoolean("blind")));
-            }
-        }
-        return ((bid, value) -> {
-            //First finds if the bid matches a special bid that was defined in the game decription
-            Optional<SpecialBid> matchingSpecialBid = specialBidList.stream()
-                    .filter((specialBid) -> specialBid.isBlind() == bid.isBlind() && specialBid.getBidValue() == bid.getBidValue())
-                    .findFirst();
-            //If there is a matching special bid
-            if (matchingSpecialBid.isPresent()) {
-                //If the
-                if (bid.getBidValue() == value) {
-                    return matchingSpecialBid.get().getBonusPoints();
-                } else {
-                    return -matchingSpecialBid.get().getPenalty();
-                }
-            } else { //Otherwise just evaluate the bid normally.
-                if (value >= bid.getBidValue()) {
-                    return (value == bid.getBidValue() ? points_for_matching : 0) + bid.getBidValue() * pointsPerBid + (value - bid.getBidValue()) * overTrickPoints;
-                } else {
-                    return value * -penaltyPoints;
-                }
-            }
-        });
-    }
 }

@@ -10,6 +10,7 @@ import src.rdmEvents.Swap;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.SQLOutput;
 import java.util.Scanner;
 import java.util.function.Predicate;
 
@@ -127,9 +128,21 @@ public class LocalPlayer extends Player {
     }
 
     @Override
-    public void broadcastBid(Bid bid, int playerNumber) {
-        //TODO: Update so it communicates doubles, redoubles, and suits
-        System.out.println("Player " + (playerNumber + 1) + " bid " + bid.getBidValue() + (bid.isBlind() ? " blind" : ""));
+    public void broadcastBid(Bid bid, int playerNumber, ContractBid adjustedHighestBid) {
+        StringBuilder output = new StringBuilder();
+        output.append("Player ").append(playerNumber + 1);
+        if (bid.isDoubling()) {
+            if (adjustedHighestBid.isRedoubling()) {
+                output.append(" redoubled");
+            }
+            else {
+                output.append(" doubled");
+            }
+        }
+        else{
+            output.append(" bid ").append(bid.getBidValue()).append(bid.getSuit() != null ? (" " + bid.getSuit()) : "").append(bid.isBlind() ? " blind" : "");
+        }
+        System.out.println(output);
     }
 
     /**
@@ -137,7 +150,7 @@ public class LocalPlayer extends Player {
      * @return new bid
      */
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, boolean firstRound, boolean canBidBlind) {
         System.out.print(this.colour);
         System.out.println("-------------------------------------");
         System.out.println("-------------------------------------");
@@ -150,41 +163,44 @@ public class LocalPlayer extends Player {
         String bidInput = null;
         String bidSuit = null;
         boolean doubling = false;
+        boolean bidBlind = false;
 
-        boolean bidBlind = true;
-
-        InputStreamReader r =new InputStreamReader(System.in);
+        InputStreamReader r = new InputStreamReader(System.in);
         BufferedReader br = new BufferedReader(r);
-        System.out.println("Select Option:");
-        System.out.println("    1. Bid with seeing cards");
-        System.out.println("    2. Bid blind");
-        while (option > 2 || option < 1) {
-            Scanner scan = new Scanner(System.in);
-            option =  scan.nextInt();
+        if (canBidBlind) {
+            System.out.println("Select Option:");
+            System.out.println("    1. Bid with seeing cards");
+            System.out.println("    2. Bid blind");
+            while (option > 2 || option < 1) {
+                Scanner scan = new Scanner(System.in);
+                option =  scan.nextInt();
+            }
+            if (option == 2) {
+                bidBlind = true;
+            }
         }
-        switch (option) {
-            case 1:
-                System.out.println("Current Hand: " + super.getHand().toString());
-                bidBlind = false;
-            case 2:
-                try {
-                    do {
-                        System.out.println("Enter your bid: (enter '-2' to pass, 'd' to double/redouble - if these are valid options)");
-                        bidSuit = null;
-                        bidInput = br.readLine();
 
-                        if (trumpSuitBid && bidInput.matches("\\d+")) {
-                            System.out.println("Enter your trump suit ('NO TRUMP' for no trump)");
-                            bidSuit = br.readLine();
-                        }
-                    } while (!validBid.test(new PotentialBid(bidSuit, bidInput, adjustedHighestBid)));
-                    break;
-                }
-                catch (IOException e) {
-                    System.out.println(e.getStackTrace());
-                    System.exit(0);
-                }
+        if (!bidBlind) {
+            System.out.println("Current Hand: " + super.getHand().toString());
         }
+
+        try {
+            do {
+                System.out.println("Enter your bid: (enter '-2' to pass, 'd' to double/redouble - if these are valid options)");
+                bidSuit = null;
+                bidInput = br.readLine();
+
+                if (trumpSuitBid && bidInput.matches("\\d+")) {
+                    System.out.println("Enter your trump suit ('NO TRUMP' for no trump)");
+                    bidSuit = br.readLine();
+                }
+            } while (!validBid.test(new PotentialBid(bidSuit, bidInput, adjustedHighestBid, this, firstRound)));
+        }
+        catch (IOException e) {
+            System.out.println(e.getStackTrace());
+            System.exit(0);
+        }
+
         System.out.println(ANSI_RESET);
         int finalBidInput = 0;
         if (bidInput.equals("d")) {

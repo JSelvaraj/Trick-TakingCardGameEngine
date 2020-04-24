@@ -68,7 +68,8 @@ public abstract class Player {
 
     public abstract void broadcastPlay(Card card, int playerNumber);
 
-    public abstract Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid);
+    public abstract Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid,
+                                boolean firstRound, boolean canBidBlind);
 
     public Predicate<Card> getCanBePlayed() {
         return canBePlayed;
@@ -78,7 +79,7 @@ public abstract class Player {
         this.canBePlayed = canBePlayed;
     }
 
-    public abstract void broadcastBid(Bid bid, int playerNumber);
+    public abstract void broadcastBid(Bid bid, int playerNumber, ContractBid adjustedHighestBid);
 
     public abstract Swap getSwap(Player strongPlayer);
 

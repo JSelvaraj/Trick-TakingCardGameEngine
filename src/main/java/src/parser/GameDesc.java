@@ -31,11 +31,14 @@ public class GameDesc {
     private String trumpSuit;
     private final String leadingCardForEachTrick;
     private final String gameEnd;
+    private final String sessionEnd;
+    private final Integer sessionEndValue;
     private final Integer scoreThreshold;
     private Integer trickThreshold;
     private final String nextLegalCardMode;
     private final String trickWinner;
     private final String trickLeader;
+    private final String firstTrickLeader;
     //Bidding functions
     private boolean bidding;
     private Predicate<PotentialBid> validBid;
@@ -45,7 +48,9 @@ public class GameDesc {
     private int initialHandSize;
     private Iterator<String> trumpIterator;
     private boolean trumpSuitBid;
-    private boolean canPass;
+    private boolean ascendingBid;
+    private int vulnerabilityThreshold;
+    private boolean canBidBlind;
 
 
     /**
@@ -73,10 +78,15 @@ public class GameDesc {
                     String nextLegalCardMode,
                     String trickWinner,
                     String trickLeader,
+                    String firstTrickLeader,
                     String handSize,
                     Iterator<String> trumpIterator,
                     boolean trumpSuitBid,
-                    boolean canPass) {
+                    boolean ascendingBid,
+                    String sessionEnd,
+                    int sessionEndValue,
+                    int vulnerabilityThreshold,
+                    boolean canBidBlind) {
         this.name = name;
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
@@ -93,14 +103,19 @@ public class GameDesc {
         this.leadingCardForEachTrick = leadingCardForEachTrick;
         this.gameEnd = gameEnd;
         this.scoreThreshold = scoreThreshold; // regardless of whether its score or number of hands played, this variable is used for the comparison
-        if (calculateScore.equals("tricksWon")) this.trickThreshold = trickThreshold;
+        this.trickThreshold = trickThreshold;
         this.nextLegalCardMode = nextLegalCardMode;
         this.trickWinner = trickWinner;
         this.trickLeader = trickLeader;
         this.getHandSize = handFunctions.getHandSize(initialHandSize, minHandSize, handSize);
         this.trumpIterator = trumpIterator;
         this.trumpSuitBid = trumpSuitBid;
-        this.canPass = canPass;
+        this.ascendingBid = ascendingBid;
+        this.sessionEnd = sessionEnd;
+        this.sessionEndValue = sessionEndValue;
+        this.vulnerabilityThreshold = vulnerabilityThreshold;
+        this.firstTrickLeader = firstTrickLeader;
+        this.canBidBlind = canBidBlind;
     }
 
     @Override
@@ -230,7 +245,27 @@ public class GameDesc {
         return trumpSuitBid;
     }
 
-    public boolean isCanPass() {
-        return canPass;
+    public boolean isAscendingBid() {
+        return ascendingBid;
+    }
+
+    public String getSessionEnd() {
+        return sessionEnd;
+    }
+
+    public Integer getSessionEndValue() {
+        return sessionEndValue;
+    }
+
+    public int getVulnerabilityThreshold() {
+        return vulnerabilityThreshold;
+    }
+
+    public String getFirstTrickLeader() {
+        return firstTrickLeader;
+    }
+
+    public boolean isCanBidBlind() {
+        return canBidBlind;
     }
 }

@@ -120,16 +120,17 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public void broadcastBid(Bid bid, int playerNumber) {
+    public void broadcastBid(Bid bid, int playerNumber, ContractBid adjustedHighestBid) {
         JSONObject json = new JSONObject();
         json.put("type", "bid");
         json.put("doubling", bid.isDoubling());
         if (bid.getSuit() != null) {
-            String suit = bid.getSuit();
-            if (suit.equals("NO TRUMP")) {
-                suit = "N";
+            if (bid.getSuit().equals("NO TRUMP")) {
+                json.put("suit", JSONObject.NULL);
             }
-            json.put("suit", suit);
+            else {
+                json.put("suit", bid.getSuit());
+            }
         }
         json.put("value", bid.getBidValue());
         json.put("blindBid", bid.isBlind());
@@ -143,7 +144,7 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, boolean firstRound, boolean canBidBlind) {
         JsonElement msg = null;
         try {
             JsonStreamParser reader = new JsonStreamParser(new InputStreamReader(playerSocket.getInputStream()));
@@ -167,16 +168,21 @@ public class NetworkPlayer extends Player {
             value = "d";
         }
         else {
-            suit = bidEvent.optString("suit", null);
-            if (suit != null && suit.equals("NO TRUMP")) {
-                suit = "N";
+            if (bidEvent.has("suit")) {
+                suit = bidEvent.optString("suit", null);
+                if (suit == null) {
+                    suit = "NO TRUMP";
+                }
+                else {
+                    suit = bidEvent.getString("suit");
+                }
             }
             int valueInt = bidEvent.getInt("value");
             blind = bidEvent.optBoolean("blindBid", false);
             bid = new Bid(false,suit,valueInt,blind, false);
             value = Integer.toString(valueInt);
         }
-        if (!validBid.test(new PotentialBid(suit, value, adjustedHighestBid))) {
+        if (!validBid.test(new PotentialBid(suit, value, adjustedHighestBid, this, firstRound))) {
             throw new InvalidBidException();
         }
         return bid;

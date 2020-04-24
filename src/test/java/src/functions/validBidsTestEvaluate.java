@@ -1,6 +1,6 @@
 package src.functions;
 
-import jdk.nashorn.internal.parser.JSONParser;
+
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -8,15 +8,26 @@ import org.json.JSONObject;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.json.JSONTokener;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import src.bid.Bid;
 import src.bid.ContractBid;
+import src.player.LocalPlayer;
+import src.player.Player;
+import src.team.Team;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.BiFunction;
 
 public class validBidsTestEvaluate {
+
+    static Team team1;
+
+    @BeforeAll
+    static void setup() {
+        team1 = new Team(new Player[] {new LocalPlayer(), new LocalPlayer(), new LocalPlayer(), new LocalPlayer()}, 0);
+    }
 
 
     @Test
@@ -25,7 +36,7 @@ public class validBidsTestEvaluate {
         bidObject.put("pointsPerBid", 10);
         bidObject.put("overtrickPoints", 1);
         bidObject.put("penaltyPoints", 5);
-        BiFunction<Bid, Integer, Integer> bidEvaluator = validBids.evaluateBidContract(bidObject, 0);
+        BiFunction<Bid, Integer, Integer> bidEvaluator = validBids.evaluateBid(bidObject, 0);
         Bid bid1 = new Bid(false, null, 6, false, false);
         assertEquals(60, bidEvaluator.apply(bid1, 6).intValue());
         assertEquals(64, bidEvaluator.apply(bid1, 10).intValue());
@@ -54,7 +65,7 @@ public class validBidsTestEvaluate {
         specialBids.put(blindNilBid);
         specialBids.put(nilBid);
         bidObject.put("specialBids", specialBids);
-        BiFunction<Bid, Integer, Integer> bidEvaluator = validBids.evaluateBidContract(bidObject, 0);
+        BiFunction<Bid, Integer, Integer> bidEvaluator = validBids.evaluateBid(bidObject, 0);
         //Bids to check.
         Bid bidNil = new Bid(false, null, 0, false, false);
         Bid bidBlindNil = new Bid(false, null, 0, true, false);
@@ -69,7 +80,7 @@ public class validBidsTestEvaluate {
     @Test
     void evaluateBridgeBid() {
         BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
-        ContractBid bid = new ContractBid(false, "CLUBS", 7, false, false, false,null);
+        ContractBid bid = new ContractBid(false, "CLUBS", 7, false, false, false,null, team1);
         assertEquals(650, (int) bidEvaluator.apply(bid, 0));
         assertEquals(600, (int) bidEvaluator.apply(bid, 1));
         assertEquals(550, (int) bidEvaluator.apply(bid, 2));
@@ -89,7 +100,7 @@ public class validBidsTestEvaluate {
     @Test
     void evaluateBridgeBidDouble() {
         BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
-        ContractBid bid = new ContractBid(true, "CLUBS", 7, false, false, false, null);
+        ContractBid bid = new ContractBid(true, "CLUBS", 7, false, false, false, null, team1);
         assertEquals(3500, (int) bidEvaluator.apply(bid, 0));
         assertEquals(3200, (int) bidEvaluator.apply(bid, 1));
         assertEquals(2900, (int) bidEvaluator.apply(bid, 2));
@@ -109,7 +120,7 @@ public class validBidsTestEvaluate {
     @Test
     void evaluateBridgeBidDouble2() {
         BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
-        ContractBid bid = new ContractBid(true, "CLUBS", 3, false, false,false, null);
+        ContractBid bid = new ContractBid(true, "CLUBS", 3, false, false,false, null, team1);
         assertEquals(2300, (int) bidEvaluator.apply(bid, 0));
         assertEquals(2000, (int) bidEvaluator.apply(bid, 1));
         assertEquals(1700, (int) bidEvaluator.apply(bid, 2));
@@ -129,7 +140,7 @@ public class validBidsTestEvaluate {
     @Test
     void evaluateBridgeBidNoTrump() {
         BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
-        ContractBid bid = new ContractBid(false, "NO TRUMP", 5, false, false, false, null);
+        ContractBid bid = new ContractBid(false, "NO TRUMP", 5, false, false, false, null, team1);
         assertEquals(550, (int) bidEvaluator.apply(bid, 0));
         assertEquals(500, (int) bidEvaluator.apply(bid, 1));
         assertEquals(450, (int) bidEvaluator.apply(bid, 2));
@@ -149,7 +160,7 @@ public class validBidsTestEvaluate {
     @Test
     void evaluateBridgeBidRedouble() {
         BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
-        ContractBid bid = new ContractBid(true, "DIAMONDS", 6, false, true, false, null);
+        ContractBid bid = new ContractBid(true, "DIAMONDS", 6, false, true, false, null, team1);
         assertEquals(6400, (int) bidEvaluator.apply(bid, 0));
         assertEquals(5800, (int) bidEvaluator.apply(bid, 1));
         assertEquals(5200, (int) bidEvaluator.apply(bid, 2));
@@ -169,7 +180,7 @@ public class validBidsTestEvaluate {
     @Test
     void evaluateBridgeBidRedoubleVulnerable() {
         BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
-        ContractBid bid = new ContractBid(true, "DIAMONDS", 4, false, true, true, null);
+        ContractBid bid = new ContractBid(true, "DIAMONDS", 4, false, true, true, null, team1);
         assertEquals(5800, (int) bidEvaluator.apply(bid, 0));
         assertEquals(5200, (int) bidEvaluator.apply(bid, 1));
         assertEquals(4600, (int) bidEvaluator.apply(bid, 2));
@@ -189,7 +200,7 @@ public class validBidsTestEvaluate {
     @Test
     void evaluateBridgeBidVulnerable() {
         BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
-        ContractBid bid = new ContractBid(false, "SPADES", 4, false, false, true, null);
+        ContractBid bid = new ContractBid(false, "SPADES", 4, false, false, true, null, team1);
         assertEquals(1000, (int) bidEvaluator.apply(bid, 0));
         assertEquals(900, (int) bidEvaluator.apply(bid, 1));
         assertEquals(800, (int) bidEvaluator.apply(bid, 2));
@@ -209,7 +220,7 @@ public class validBidsTestEvaluate {
     @Test
     void evaluateBridgeBidDoubleVulnerable() {
         BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
-        ContractBid bid = new ContractBid(true, "DIAMONDS", 6, false, false, true, null);
+        ContractBid bid = new ContractBid(true, "DIAMONDS", 6, false, false, true, null, team1);
         assertEquals(3500, (int) bidEvaluator.apply(bid, 0));
         assertEquals(3200, (int) bidEvaluator.apply(bid, 1));
         assertEquals(2900, (int) bidEvaluator.apply(bid, 2));
@@ -232,7 +243,7 @@ public class validBidsTestEvaluate {
                 throw new IOException();
             }
             JSONObject bidObject = new JSONObject(new JSONTokener(inputStream));
-            return validBids.evaluateBidContract(bidObject, 6);
+            return validBids.evaluateBid(bidObject, 6);
         } catch (IOException e) {
             return null;
         }
