@@ -2,6 +2,7 @@ package src.player;
 
 import src.ai.CardPOMDP;
 import src.ai.GameObservation;
+import src.ai.POMCPTreeNode;
 import src.card.Card;
 import src.deck.Deck;
 import src.bid.Bid;
@@ -19,6 +20,7 @@ public class POMDPPlayer extends Player {
     private GameObservation observation;
     private CardPOMDP cardPOMDP;
     private static final long timeout = 5000;
+    private static final long shortTimout = 1000;
     private static final int openBidThresh = 12;
     private StringBuilder trumpSuit;
     private GameDesc desc;
@@ -92,22 +94,50 @@ public class POMDPPlayer extends Player {
             }
             return new Bid(false, null, bidValue, false, false);
         } else {
-            int hcp = highCardPoints();
-            if (adjustedHighestBid == null) {
-                if (hcp > openBidThresh) {
-                    return openingBid(validBid, trumpSuitBid);
-                } else {
-                    PotentialBid bid = new PotentialBid(null, "-2", adjustedHighestBid);
-                    if (!validBid.test(bid)) { //TODO handle if you can't bid.
-                        throw new IllegalArgumentException();
-                    }
-                    return new Bid(false, null, -2, false, false);
-                }
+            if (desc.isCanPass()) {
+                return canPassBid(validBid, trumpSuitBid, adjustedHighestBid);
             } else {
-                throw new UnsupportedOperationException();
+                return nonPassingBid(validBid, trumpSuitBid, adjustedHighestBid);
             }
         }
     }
+
+    private Bid canPassBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
+        int hcp = highCardPoints();
+        StringBuilder tempTrumpSuit = new StringBuilder();
+        CardPOMDP tempPOMDP = new CardPOMDP(desc, shortTimout, getPlayerNumber(), tempTrumpSuit);
+        if (adjustedHighestBid == null) {
+            if (hcp > openBidThresh) {
+                return openingBid(validBid, trumpSuitBid);
+            } else {
+                PotentialBid bid = new PotentialBid(null, "-2", adjustedHighestBid);
+                if (!validBid.test(bid)) { //TODO handle if you can't bid.
+                    throw new IllegalArgumentException();
+                }
+                return new Bid(false, null, -2, false, false);
+            }
+        } else if (adjustedHighestBid.getDeclarer().getTeam().containsPlayer(this)) { //Our teammate has the highest contract so far.
+            if (adjustedHighestBid.isDoubling()) {
+                tempTrumpSuit.setLength(0);
+                tempTrumpSuit.append(adjustedHighestBid.getSuit());
+                //Get an estimate of how many tricks will be won by this partnership.
+                int estimatedTricksWon = (int) tempPOMDP.search(this.observation).getValue();
+                //If it thinks that we can win this many tricks, then reodouble the bid. Otherwise pass it.
+                if (estimatedTricksWon - desc.getTrickThreshold() >= adjustedHighestBid.getBidValue()) {
+                    //TODO return redoubled bid.
+                } else {
+                    return new Bid(false, null, -2, false, false);
+                }
+            }
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    private Bid nonPassingBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
+
+    }
+
 
     private Bid openingBid(Predicate<PotentialBid> validbid, boolean trumpSuitBid) {
         return null;

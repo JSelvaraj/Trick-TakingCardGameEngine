@@ -68,7 +68,7 @@ public class main {
                 if (host.broadcast) {
                     //TODO implement starting to broadcast.
                 } else {
-                    Thread thread = new Thread(new HostRunner(new LocalPlayer(), host.port, host.game, host.enableRandomEvents));
+                    Thread thread = new Thread(new HostRunner(new POMDPPlayer(), host.port, host.game, host.enableRandomEvents));
                     thread.start();
                     System.out.println("Host Player1 started");
 
