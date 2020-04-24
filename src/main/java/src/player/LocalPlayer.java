@@ -129,18 +129,20 @@ public class LocalPlayer extends Player {
 
     @Override
     public void broadcastBid(Bid bid, int playerNumber, ContractBid adjustedHighestBid) {
-        System.out.print("Player " + (playerNumber + 1));
+        StringBuilder output = new StringBuilder();
+        output.append("Player ").append(playerNumber + 1);
         if (bid.isDoubling()) {
-            if (adjustedHighestBid.isDoubling()) {
-                System.out.println(" redoubled");
+            if (adjustedHighestBid.isRedoubling()) {
+                output.append(" redoubled");
             }
             else {
-                System.out.println(" doubled");
+                output.append(" doubled");
             }
         }
         else{
-            System.out.println("bid " + bid.getBidValue() + (bid.getSuit() != null ? " suit:" + bid.getSuit(): "") + (bid.isBlind() ? " blind" : ""));
+            output.append(" bid ").append(bid.getBidValue()).append(bid.getSuit() != null ? (" " + bid.getSuit()) : "").append(bid.isBlind() ? " blind" : "");
         }
+        System.out.println(output);
     }
 
     /**
