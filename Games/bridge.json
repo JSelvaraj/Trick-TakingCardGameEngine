@@ -1,328 +1,531 @@
 {
-        "name" : "bridge",
-        "description" : "...",
-        "players" : 4,
-        "teams" : [[0, 2], [1, 3]],
-        "ascending_ordering": true,
-        "initialHandSize": 13,
-        "can_view_previous_trick" : true,
-        "rules" : [
-            {"name" : "leadingCardForEachTrick", "data" : "any"},
-            {"name" : "nextLegalCardMode", "data" : "trick"},
-            {"name" : "trumpPickingMode", "data" : "bid"},
-            {"name" : "calculateScore", "data" : "bid"},
-            {"name" : "trickThreshold", "data" : 6},
-            {"name" : "trickWinner", "data" : "standard"},
-            {"name" : "trickLeader", "data" : "prevWinner"},
-            {"name" : "sessionEnd", "data" : "bestOf"},
-            {"name" : "sessionEndValue", "data" : 3},
-            {"name" : "gameEnd", "data" : "scoreThreshold"},
-            {"name" : "gameEndValue", "data" : 1000},
-            {"name" : "handEnd", "data": "outOfCards"},
-            {"name" : "tieBreaker", "data" : "anotherHand"}
+  "name": "bridge",
+  "description": "...",
+  "players": 4,
+  "teams": [
+    [
+      0,
+      2
+    ],
+    [
+      1,
+      3
+    ]
+  ],
+  "ascending_ordering": true,
+  "initialHandSize": 13,
+  "minimumHandSize": 0,
+  "can_view_previous_trick": true,
+  "can_view_dummy_hand": true,
+  "dummy_hand": true,
+  "rules": [
+    {
+      "name": "leadingCardForEachTrick",
+      "data": "any"
+    },
+    {
+      "name": "nextLegalCardMode",
+      "data": "trick"
+    },
+    {
+      "name": "trumpPickingMode",
+      "data": "bid"
+    },
+    {
+      "name": "calculateScore",
+      "data": "bid"
+    },
+    {
+      "name": "trickThreshold",
+      "data": 6
+    },
+    {
+      "name": "trickWinner",
+      "data": "standard"
+    },
+    {
+      "name": "trickLeader",
+      "data": "prevWinner"
+    },
+    {
+      "name": "firstTrickLeader",
+      "data": "contract"
+    },
+    {
+      "name": "validLeadingCardFirstTrick",
+      "data": "any"
+    },
+    {
+      "name": "sessionEnd",
+      "data": "bestOf"
+    },
+    {
+      "name": "sessionEndValue",
+      "data": 3
+    },
+    {
+      "name": "gameEnd",
+      "data": "scoreThreshold"
+    },
+    {
+      "name": "gameEndValue",
+      "data": 1000
+    },
+    {
+      "name": "handEnd",
+      "data": "outOfCards"
+    },
+    {
+      "name": "tieBreaker",
+      "data": "anotherHand"
+    },
+    {
+      "name": "declarer",
+      "data": "firstMention"
+    }
+  ],
+  "bid": {
+    "trumpSuitBid": true,
+    "ascendingBid": true,
+    "pointsPerBid": 0,
+    "overtrickPoints": 0,
+    "penaltyPoints": 0,
+    "minBid": 1,
+    "maxBid": 7,
+    "suitBidRank": [
+      "CLUBS",
+      "DIAMONDS",
+      "HEARTS",
+      "SPADES",
+      null
+    ],
+    "preset": null,
+    "canBidBlind": false,
+    "canPass": true,
+    "vulnerabilityThreshold": 1,
+    "canDouble": true,
+    "canRedouble": true,
+    "specialBids": [
+      {
+        "bidValue": -1,
+        "trumpSuit": "CLUBS",
+        "bonusPoints": 0,
+        "overtrickPoints": 20,
+        "undertrickPoints": 50,
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": false,
+        "doubled": false,
+        "contractPoints": 20
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": "DIAMONDS",
+        "bonusPoints": 0,
+        "overtrickPoints": 20,
+        "undertrickPoints": 50,
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": false,
+        "doubled": false,
+        "contractPoints": 20
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": "SPADES",
+        "bonusPoints": 0,
+        "overtrickPoints": 30,
+        "undertrickPoints": 50,
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": false,
+        "doubled": false,
+        "contractPoints": 30
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": "HEARTS",
+        "bonusPoints": 0,
+        "overtrickPoints": 30,
+        "undertrickPoints": 50,
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": false,
+        "doubled": false,
+        "contractPoints": 30
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": null,
+        "bonusPoints": 10,
+        "overtrickPoints": 30,
+        "undertrickPoints": 50,
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": false,
+        "doubled": false,
+        "contractPoints": 30
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": "CLUBS",
+        "bonusPoints": 0,
+        "overtrickPoints": 20,
+        "undertrickPoints": 100,
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": true,
+        "doubled": false,
+        "contractPoints": 20
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": "DIAMONDS",
+        "bonusPoints": 0,
+        "overtrickPoints": 20,
+        "undertrickPoints": 100,
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": true,
+        "doubled": false,
+        "contractPoints": 20
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": "SPADES",
+        "bonusPoints": 0,
+        "overtrickPoints": 30,
+        "undertrickPoints": 100,
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": true,
+        "doubled": false,
+        "contractPoints": 30
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": "HEARTS",
+        "bonusPoints": 0,
+        "overtrickPoints": 30,
+        "undertrickPoints": 100,
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": true,
+        "doubled": false,
+        "contractPoints": 30
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": null,
+        "bonusPoints": 10,
+        "overtrickPoints": 30,
+        "undertrickPoints": 100,
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": true,
+        "doubled": false,
+        "contractPoints": 30
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": "CLUBS",
+        "bonusPoints": 50,
+        "overtrickPoints": 100,
+        "undertrickIncrement": [
+          100,
+          300,
+          500,
+          800,
+          1100,
+          1400,
+          1700,
+          2000,
+          2300,
+          2600,
+          2900,
+          3200,
+          3500
         ],
-        "bid":{
-            "trumpSuitBid": true,
-            "ascendingBid" : true,
-            "pointsPerBid" : 0,
-            "overtrickPoints" : 0,
-            "penaltyPoints" : 0,
-            "minBid" : 0,
-            "maxBid" : 7,
-            "suitBidRank": ["CLUBS", "DIAMONDS", "HEARTS", "SPADES", "NO TRUMP"],
-            "preset": false,
-            "canPass": true,
-            "vulnerabilityThreshold": 1,
-            "canDouble": true,
-            "canRedouble": true,
-            "specialBids": [{
-                "bidValue" : -1,
-                "trumpSuit": "CLUBS",
-                "bonusPoints": 0,
-                "overtrickPoints": 20,
-                "undertrickPoints": 50,
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": false,
-                "doubled": false,
-                "contractPoints": 20
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "DIAMONDS",
-                "bonusPoints": 0,
-                "overtrickPoints": 20,
-                "undertrickPoints": 50,
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": false,
-                "doubled": false,
-                "contractPoints": 20
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "SPADES",
-                "bonusPoints": 0,
-                "overtrickPoints": 30,
-                "undertrickPoints": 50,
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": false,
-                "doubled": false,
-                "contractPoints": 30
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "HEARTS",
-                "bonusPoints": 0,
-                "overtrickPoints": 30,
-                "undertrickPoints": 50,
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": false,
-                "doubled": false,
-                "contractPoints": 30
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "NO TRUMP",
-                "bonusPoints": 10,
-                "overtrickPoints": 30,
-                "undertrickPoints": 50,
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": false,
-                "doubled": false,
-                "contractPoints": 30
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "CLUBS",
-                "bonusPoints": 0,
-                "overtrickPoints": 20,
-                "undertrickPoints": 100,
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": true,
-                "doubled": false,
-                "contractPoints": 20
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "DIAMONDS",
-                "bonusPoints": 0,
-                "overtrickPoints": 20,
-                "undertrickPoints": 100,
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": true,
-                "doubled": false,
-                "contractPoints": 20
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "SPADES",
-                "bonusPoints": 0,
-                "overtrickPoints": 30,
-                "undertrickPoints": 100,
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": true,
-                "doubled": false,
-                "contractPoints": 30
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "HEARTS",
-                "bonusPoints": 0,
-                "overtrickPoints": 30,
-                "undertrickPoints": 100,
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": true,
-                "doubled": false,
-                "contractPoints": 30
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "NO TRUMP",
-                "bonusPoints": 10,
-                "overtrickPoints": 30,
-                "undertrickPoints": 100,
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": true,
-                "doubled": false,
-                "contractPoints": 30
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "CLUBS",
-                "bonusPoints": 0,
-                "overtrickPoints": 100,
-                "undertrickPoints": 100,
-                "undertrickIncrement": [200, 200, 300, 300, 300],
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": false,
-                "doubled": true,
-                "contractPoints": 40
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "DIAMONDS",
-                "bonusPoints": 0,
-                "overtrickPoints": 100,
-                "undertrickPoints": 100,
-                "undertrickIncrement": [200, 200, 300, 300, 300],
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": false,
-                "doubled": true,
-                "contractPoints": 40
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "SPADES",
-                "bonusPoints": 0,
-                "overtrickPoints": 100,
-                "undertrickPoints": 100,
-                "undertrickIncrement": [200, 200, 300, 300, 300],
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": false,
-                "doubled": true,
-                "contractPoints": 60
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "HEARTS",
-                "bonusPoints": 0,
-                "overtrickPoints": 100,
-                "undertrickPoints": 100,
-                "undertrickIncrement": [200, 200, 300, 300, 300],
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": false,
-                "doubled": true,
-                "contractPoints": 60
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "NO TRUMP",
-                "bonusPoints": 20,
-                "overtrickPoints": 100,
-                "undertrickPoints": 100,
-                "undertrickIncrement": [200, 200, 300, 300, 300],
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": false,
-                "doubled": true,
-                "contractPoints": 60
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "CLUBS",
-                "bonusPoints": 0,
-                "overtrickPoints": 200,
-                "undertrickPoints": 200,
-                "undertrickIncrement": [300],
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": true,
-                "doubled": true,
-                "contractPoints": 40
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "DIAMONDS",
-                "bonusPoints": 0,
-                "overtrickPoints": 200,
-                "undertrickPoints": 200,
-                "undertrickIncrement": [300],
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": true,
-                "doubled": true,
-                "contractPoints": 40
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "SPADES",
-                "bonusPoints": 0,
-                "overtrickPoints": 200,
-                "undertrickPoints": 200,
-                "undertrickIncrement": [300],
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": true,
-                "doubled": true,
-                "contractPoints": 60
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "HEARTS",
-                "bonusPoints": 0,
-                "overtrickPoints": 200,
-                "undertrickPoints": 200,
-                "undertrickIncrement": [300],
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": true,
-                "doubled": true,
-                "contractPoints": 60
-            },
-            {
-                "bidValue" : -1,
-                "trumpSuit": "NO TRUMP",
-                "bonusPoints": 20,
-                "overtrickPoints": 200,
-                "undertrickPoints": 200,
-                "undertrickIncrement": [300],
-                "undertrickAwardedTo": "opponent", 
-                "blindBid" : false,
-                "vulnerable": true,
-                "doubled": true,
-                "contractPoints": 60
-            }
-            ],
-            "bonusScores": [{
-                "handScoreMin": 0,
-                "handScoreMax": 99,
-                "bonusPoints": 50
-            },
-            {
-                "handScoreMin": 100,
-                "handScoreMax": 9999,
-                "vulnerable": true,
-                "bonusPoints": 500
-            },
-            {
-                "handScoreMin": 100,
-                "handScoreMax": 9999,
-                "vulnerable": false,
-                "bonusPoints": 300
-            },
-            {
-                "trickTotal": 6,
-                "vulnerable": true,
-                "bonusPoints": 750
-            },
-            {
-                "trickTotal": 6,
-                "vulnerable": false,
-                "bonusPoints": 500
-            },
-            { 
-                "trickTotal": 7,
-                "vulnerable": true,
-                "bonusPoints": 1500
-            },
-            {
-                "trickTotal": 7,
-                "vulnerable": false,
-                "bonusPoints": 1000
-            }
-            ]
-        }
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": false,
+        "doubled": true,
+        "contractPoints": 40
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": "DIAMONDS",
+        "bonusPoints": 50,
+        "overtrickPoints": 100,
+        "undertrickPoints": 100,
+        "undertrickIncrement": [
+          100,
+          300,
+          500,
+          800,
+          1100,
+          1400,
+          1700,
+          2000,
+          2300,
+          2600,
+          2900,
+          3200,
+          3500
+        ],
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": false,
+        "doubled": true,
+        "contractPoints": 40
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": "SPADES",
+        "bonusPoints": 50,
+        "overtrickPoints": 100,
+        "undertrickIncrement": [
+          100,
+          300,
+          500,
+          800,
+          1100,
+          1400,
+          1700,
+          2000,
+          2300,
+          2600,
+          2900,
+          3200,
+          3500
+        ],
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": false,
+        "doubled": true,
+        "contractPoints": 60
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": "HEARTS",
+        "bonusPoints": 50,
+        "overtrickPoints": 100,
+        "undertrickIncrement": [
+          100,
+          300,
+          500,
+          800,
+          1100,
+          1400,
+          1700,
+          2000,
+          2300,
+          2600,
+          2900,
+          3200,
+          3500
+        ],
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": false,
+        "doubled": true,
+        "contractPoints": 60
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": null,
+        "bonusPoints": 70,
+        "overtrickPoints": 100,
+        "undertrickIncrement": [
+          100,
+          300,
+          500,
+          800,
+          1100,
+          1400,
+          1700,
+          2000,
+          2300,
+          2600,
+          2900,
+          3200,
+          3500
+        ],
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": false,
+        "doubled": true,
+        "contractPoints": 60
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": "CLUBS",
+        "bonusPoints": 50,
+        "overtrickPoints": 200,
+        "undertrickIncrement": [
+          200,
+          500,
+          800,
+          1100,
+          1400,
+          1700,
+          2000,
+          2300,
+          2600,
+          2900,
+          3200,
+          3500,
+          3800
+        ],
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": true,
+        "doubled": true,
+        "contractPoints": 40
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": "DIAMONDS",
+        "bonusPoints": 50,
+        "overtrickPoints": 200,
+        "undertrickIncrement": [
+          200,
+          500,
+          800,
+          1100,
+          1400,
+          1700,
+          2000,
+          2300,
+          2600,
+          2900,
+          3200,
+          3500,
+          3800
+        ],
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": true,
+        "doubled": true,
+        "contractPoints": 40
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": "SPADES",
+        "bonusPoints": 50,
+        "overtrickPoints": 200,
+        "undertrickIncrement": [
+          200,
+          500,
+          800,
+          1100,
+          1400,
+          1700,
+          2000,
+          2300,
+          2600,
+          2900,
+          3200,
+          3500,
+          3800
+        ],
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": true,
+        "doubled": true,
+        "contractPoints": 60
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": "HEARTS",
+        "bonusPoints": 50,
+        "overtrickPoints": 200,
+        "undertrickIncrement": [
+          200,
+          500,
+          800,
+          1100,
+          1400,
+          1700,
+          2000,
+          2300,
+          2600,
+          2900,
+          3200,
+          3500,
+          3800
+        ],
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": true,
+        "doubled": true,
+        "contractPoints": 60
+      },
+      {
+        "bidValue": -1,
+        "trumpSuit": null,
+        "bonusPoints": 70,
+        "overtrickPoints": 200,
+        "undertrickIncrement": [
+          200,
+          500,
+          800,
+          1100,
+          1400,
+          1700,
+          2000,
+          2300,
+          2600,
+          2900,
+          3200,
+          3500,
+          3800
+        ],
+        "undertrickAwardedTo": "opponent",
+        "blindBid": false,
+        "vulnerable": true,
+        "doubled": true,
+        "contractPoints": 60
+      }
+    ],
+    "bonusScores": [
+      {
+        "handScoreMin": 0,
+        "handScoreMax": 99,
+        "bonusPoints": 50
+      },
+      {
+        "handScoreMin": 100,
+        "handScoreMax": 9999,
+        "vulnerable": true,
+        "bonusPoints": 500
+      },
+      {
+        "handScoreMin": 100,
+        "handScoreMax": 9999,
+        "vulnerable": false,
+        "bonusPoints": 300
+      },
+      {
+        "trickTotal": 6,
+        "vulnerable": true,
+        "bonusPoints": 750
+      },
+      {
+        "trickTotal": 6,
+        "vulnerable": false,
+        "bonusPoints": 500
+      },
+      {
+        "trickTotal": 7,
+        "vulnerable": true,
+        "bonusPoints": 1500
+      },
+      {
+        "trickTotal": 7,
+        "vulnerable": false,
+        "bonusPoints": 1000
+      }
+    ]
+  }
 }
