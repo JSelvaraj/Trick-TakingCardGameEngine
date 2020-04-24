@@ -51,6 +51,8 @@ public class GameDesc {
     private boolean ascendingBid;
     private int vulnerabilityThreshold;
     private boolean canBidBlind;
+    private int minBid;
+    private int maxBid;
 
 
     /**
@@ -86,7 +88,9 @@ public class GameDesc {
                     String sessionEnd,
                     int sessionEndValue,
                     int vulnerabilityThreshold,
-                    boolean canBidBlind) {
+                    boolean canBidBlind,
+                    int minBid,
+                    int maxBid) {
         this.name = name;
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
@@ -116,6 +120,8 @@ public class GameDesc {
         this.vulnerabilityThreshold = vulnerabilityThreshold;
         this.firstTrickLeader = firstTrickLeader;
         this.canBidBlind = canBidBlind;
+        this.minBid = minBid;
+        this.maxBid = maxBid;
     }
 
     @Override
