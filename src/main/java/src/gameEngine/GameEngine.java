@@ -377,7 +377,6 @@ public class GameEngine {
                 } else {
                     getAdjustedHighestBid().setDoubling(true);
                 }
-                getAdjustedHighestBid().setBidValue(getAdjustedHighestBid().getBidValue() * 2);
                 getAdjustedHighestBid().setTeam(players[currentPlayer].getTeam());
             } else {
                 if (bid.getBidValue() >= 0) {
