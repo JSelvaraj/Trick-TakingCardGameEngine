@@ -35,7 +35,7 @@ public class validBids {
         if (!bidObject.isNull("suitBidRank")) {
             suitBidRank = bidObject.getJSONArray("suitBidRank");
             for (int i = 0; i < suitBidRank.length(); i++) {
-                if (suitBidRank.get(i) == null) {
+                if (suitBidRank.get(i) == JSONObject.NULL) {
                     suitBidRankStr.put("NO TRUMP", i);
                 }
                 else {
@@ -150,7 +150,14 @@ public class validBids {
             for (int i = 0; i < specialBids.length(); i++) {
                 JSONObject specialBid = specialBids.getJSONObject(i);
                 int bidValue = specialBid.optInt("bidValue");
-                String trumpSuit = specialBid.optString("trumpSuit");
+                String trumpSuit = null;
+                if(specialBid.has("trumpSuit")){
+                    if(specialBid.isNull("trumpSuit")){
+                        trumpSuit = "NO TRUMP";
+                    } else {
+                        trumpSuit = specialBid.optString("trumpSuit");
+                    }
+                }
                 int overtrickPoints = specialBid.optInt("overtrickPoints");
                 int pointsGained = specialBid.optInt("bonusPoints");
                 int penalty = specialBid.optInt("penalty");
