@@ -69,17 +69,12 @@ public class validBids {
                     Player playerWhoBid = potentialBid.getPlayer();
                     //Check for an existing double
                     if (adjustedHighestBid.isDoubling()) {
-                        if (finalCanRedouble && !prevBidTeam.findPlayer(playerWhoBid)) {
-                            return adjustedHighestBid.getBidValue() * 2 <= maxBid;
-                        } else {
-                            //Redoubling not allowed - invalid bid
-                            return false;
-                        }
+                        //Redoubling not allowed - invalid bid
+                        return finalCanRedouble && !prevBidTeam.findPlayer(playerWhoBid);
                     }
-                    System.out.println(prevBidTeam.findPlayer(playerWhoBid));
                     //Check if there is an existing bid to double
                     //Check if a doubled bid is in bounds
-                    return adjustedHighestBid.getBidValue() * 2 <= maxBid && !prevBidTeam.findPlayer(playerWhoBid);
+                    return !prevBidTeam.findPlayer(playerWhoBid);
                 }
             }
             try {
