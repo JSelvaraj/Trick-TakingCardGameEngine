@@ -79,7 +79,7 @@ public abstract class Player {
         this.canBePlayed = canBePlayed;
     }
 
-    public abstract void broadcastBid(Bid bid, int playerNumber);
+    public abstract void broadcastBid(Bid bid, int playerNumber, ContractBid adjustedHighestBid);
 
     public abstract Swap getSwap(Player strongPlayer);
 

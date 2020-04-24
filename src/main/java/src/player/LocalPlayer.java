@@ -10,6 +10,7 @@ import src.rdmEvents.Swap;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.SQLOutput;
 import java.util.Scanner;
 import java.util.function.Predicate;
 
@@ -127,9 +128,19 @@ public class LocalPlayer extends Player {
     }
 
     @Override
-    public void broadcastBid(Bid bid, int playerNumber) {
-        //TODO: Update so it communicates doubles, redoubles, and suits
-        System.out.println("Player " + (playerNumber + 1) + " bid " + bid.getBidValue() + (bid.isBlind() ? " blind" : ""));
+    public void broadcastBid(Bid bid, int playerNumber, ContractBid adjustedHighestBid) {
+        System.out.print("Player " + (playerNumber + 1));
+        if (bid.isDoubling()) {
+            if (adjustedHighestBid.isDoubling()) {
+                System.out.println(" redoubled");
+            }
+            else {
+                System.out.println(" doubled");
+            }
+        }
+        else{
+            System.out.println("bid " + bid.getBidValue() + (bid.getSuit() != null ? " suit:" + bid.getSuit(): "") + (bid.isBlind() ? " blind" : ""));
+        }
     }
 
     /**

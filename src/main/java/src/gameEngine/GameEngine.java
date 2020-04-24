@@ -533,12 +533,12 @@ public class GameEngine {
         //Only need to broadcast moves from local players to network players
         if (!(playerArray[playerNumber] instanceof NetworkPlayer)) {
             for (Player player : playerArray) {
-                player.broadcastBid(bid, playerNumber);
+                player.broadcastBid(bid, playerNumber, getAdjustedHighestBid());
             }
         } else { //Only need to print out network moves to local players
             for (Player player : playerArray) {
                 if (player.getClass() == LocalPlayer.class) {
-                    player.broadcastBid(bid, playerNumber);
+                    player.broadcastBid(bid, playerNumber, getAdjustedHighestBid());
                 }
             }
         }

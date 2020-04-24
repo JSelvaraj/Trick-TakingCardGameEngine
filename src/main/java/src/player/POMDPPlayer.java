@@ -72,7 +72,7 @@ public class POMDPPlayer extends Player {
     }
 
     @Override
-    public void broadcastBid(Bid bid, int playerNumber) {
+    public void broadcastBid(Bid bid, int playerNumber, ContractBid adjustedHighestBid) {
         throw new UnsupportedOperationException();
     }
 }

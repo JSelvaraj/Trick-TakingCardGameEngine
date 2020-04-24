@@ -120,7 +120,7 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public void broadcastBid(Bid bid, int playerNumber) {
+    public void broadcastBid(Bid bid, int playerNumber, ContractBid adjustedHighestBid) {
         JSONObject json = new JSONObject();
         json.put("type", "bid");
         json.put("doubling", bid.isDoubling());
