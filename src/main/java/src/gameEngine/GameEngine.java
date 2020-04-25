@@ -298,7 +298,7 @@ public class GameEngine {
         System.out.println("End of match");
     }
 
-
+    //Auxiliary method for calculating the score of a hand
     private void calculateScore() {
         if (desc.getCalculateScore().equals("tricksWon")) {
             //Check if any team has exceeded the threshold, if they have increment their score accordingly
@@ -361,10 +361,9 @@ public class GameEngine {
     private boolean gameEnd() {
         switch (desc.getGameEnd()) {
             case "scoreThreshold":
+                //Check for a team that has exceeded the score threshold
                 for (Team team : teams) {
-                    System.out.println(team.getGameScore());
                     if (team.getGameScore() >= desc.getScoreThreshold()) {
-                        System.out.println("Team " + team.getTeamNumber() + "wins a game");
                         return false;
                     }
                 }
@@ -377,10 +376,11 @@ public class GameEngine {
     }
 
     /**
-     * @return flag to signal game should end based on game description
+     * @return flag to signal match/session should end based on game description
      */
     private boolean sessionEnd() {
         if ("bestOf".equals(desc.getSessionEnd())) {
+            //Check if a team has the required number of games to win a match
             for (Team team : getTeams()) {
                 if (team.getGamesWon() == (desc.getSessionEndValue() / 2) + 1) {
                     return false;
@@ -395,76 +395,113 @@ public class GameEngine {
     /**
      * Gets the bids from the players
      *
-     * @param currentPlayer
-     * @param players
+     * @param currentPlayer Player bidding starts at
+     * @param players Array of players
      */
     public void getBids(int currentPlayer, Player[] players) {
         System.out.println("-----------------------------------");
         System.out.println("--------------BIDDING--------------");
         System.out.println("-----------------------------------");
+        //Copy of initial player used to check when every player has bid once
         int originalCurrentPlayer = currentPlayer;
+        //Tracks number of consecutive passes to signal a contract bid has been accepted
         int passCounter = 0;
+        //Flag that the first round of bidding is in operation - to check for special cases
         boolean firstRound = true;
+        //Tracks the number of first round passes - to make sure a player makes a non-pass on the 4th bid in the first round
         int firstRoundPassCount = 0;
+        //Resets the previous highest bid for new bidding round
         adjustedHighestBid = null;
+        //Loop until bidding end condition met
         do {
-            //Adds the bids (checks they are valid in other class)
+            //Gets a bid from a player - validation done through validBids.java
             Bid bid = players[currentPlayer].makeBid(this.desc.getValidBid(), desc.isTrumpSuitBid(), adjustedHighestBid, firstRound, desc.isCanBidBlind());
+            //If the bid signals a double
             if (bid.isDoubling()) {
+                //Reset pass counter, consecutive passes has been broken
                 passCounter = 0;
+                //If the current highest bid is a double, then the new bid indicates a redouble
                 if (getAdjustedHighestBid().isDoubling()) {
+                    //Set the current highest bid to a redouble
                     getAdjustedHighestBid().setDoubling(false);
                     getAdjustedHighestBid().setRedoubling(true);
-                } else {
-                    getAdjustedHighestBid().setDoubling(true);
                 }
+                //Otherwise it's a standard double
+                else {
+                    getAdjustedHighestBid().setDoubling(true);
+                    getAdjustedHighestBid().setRedoubling(false);
+                }
+                //Update the new highest bid team
                 getAdjustedHighestBid().setTeam(players[currentPlayer].getTeam());
-            } else {
+            }
+            //If it's not a double, it's either a pass or a standard bid
+            else {
+                //Bid value indicates whether it's a pass or no
                 if (bid.getBidValue() >= 0) {
+                    //First round is broken
                     firstRound = false;
+                    //Pass counter reset
                     passCounter = 0;
+                    //Check if it's the first non-pass bid
                     if (getAdjustedHighestBid() == null) {
                         String suit = null;
                         if (desc.isTrumpSuitBid()) {
                             suit = bid.getSuit();
                         }
+                        //Create the starting non-pass bid
                         setAdjustedHighestBid(new ContractBid(false, suit, bid.getBidValue(), bid.isBlind(),
-                                false, false, players[currentPlayer], players[currentPlayer].getTeam())); //TODO set vulnerable if it is
-                    } else {
+                                false, false, players[currentPlayer], players[currentPlayer].getTeam()));
+                    }
+                    //Standard raising bid
+                    else {
                         if (desc.isTrumpSuitBid()) {
                             getAdjustedHighestBid().setSuit(bid.getSuit());
+                            //If the suit has been raised, or a different team will now have the highest bid, update the declarer.
                             if (!(getAdjustedHighestBid().getSuit().equals(bid.getSuit())) || getAdjustedHighestBid().getTeam() != players[currentPlayer].getTeam()) {
                                 getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
                             }
                         }
+                        //Update current highest bid
                         getAdjustedHighestBid().setRedoubling(false);
                         getAdjustedHighestBid().setDoubling(false);
                         getAdjustedHighestBid().setBidValue(bid.getBidValue());
                         getAdjustedHighestBid().setTeam(players[currentPlayer].getTeam());
                     }
-                } else {
+                }
+                //It's a pass
+                else {
+                    //If it's a first round pass, check if the bidding has reached all but one player passing
+                    // - to force bidding on final player of first round
                     if (firstRound) {
                         firstRoundPassCount++;
                         if (firstRoundPassCount >= players.length - 1) {
                             firstRound = false;
                         }
-                    } else {
+                    }
+                    //Standard pass
+                    else {
                         passCounter++;
                     }
                 }
             }
+            //Update the player's current bid
             players[currentPlayer].setBid(bid);
+            //Broadcast the new bit to other players
             broadcastBids(players[currentPlayer].getBid(), currentPlayer, players);
+            //Rotate to the next player
             currentPlayer = this.nextPlayerIndex.apply(currentPlayer);
         }
-        while (getBiddingEnd(players, currentPlayer, originalCurrentPlayer, passCounter, firstRound));
+        while (getBiddingEnd(players, currentPlayer, originalCurrentPlayer, passCounter, firstRound)); //Check if bidding end condition met
     }
 
+    //Method for checking if bidding should end
     public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter, boolean firstRound) {
-        //TODO:Adjust this if game desc field gets added
+        //If contract style bidding, bidding ends when all players have passed in a row except for one, except for when it's the first round.
         if (desc.isAscendingBid()) {
             return passCounter != players.length - 1 || firstRound;
-        } else {
+        }
+        //Otherwise, bidding ends when all players have bid
+        else {
             return currentPlayer != originalPlayer;
         }
     }
@@ -473,18 +510,18 @@ public class GameEngine {
     /**
      * Distributes cards from the deck starting from the dealer +/- 1
      *
-     * @param players
-     * @param deck
-     * @param dealerIndex
+     * @param players Players to deal cards to
+     * @param deck Deck to deal cards from
+     * @param dealerIndex Current dealer index
      */
     public void dealCards(Player[] players, Deck deck, int dealerIndex) {
+        //Start dealing to the next player from the dealer
         dealerIndex = this.nextPlayerIndex.apply(dealerIndex);
         int cardsLeft = deck.getDeckSize() - (players.length * this.desc.getHandSize());
         //Deal until the deck is empty
         while (deck.getDeckSize() > cardsLeft) {
             //Deal card to player by adding to their hand and removing from the deck
             players[dealerIndex].getHand().getCard(deck.drawCard());
-
             dealerIndex = this.nextPlayerIndex.apply(dealerIndex);
             //Sets the trump suit based on the last card if defined by game desc
             if (desc.getTrumpPickingMode().compareTo("lastDealt") == 0 && deck.getDeckSize() == cardsLeft + 1) {
@@ -509,7 +546,6 @@ public class GameEngine {
         HashMap<String, Integer> suitMap = generateSuitOrder(desc, trumpSuit, currentTrick.get(0));
         //Get comparator for comparing cards based on the suit ranking
         CardComparator comparator = new CardComparator(suitMap);
-
         //Find the card with the highest ranking/value
         Card currentWinner = currentTrick.get(0);
         for (Card card : currentTrick.getHand()) {
@@ -599,6 +635,8 @@ public class GameEngine {
             }
         }
     }
+
+    //Standard getters
 
     private Predicate<Card> getValidCard() {
         return validCard;
