@@ -95,7 +95,17 @@ Request from GUI:
 }
 ```
 
-----
+#### Player Number
+When joining a game, this message tells the front-end what the local player's player index is:
+```
+{
+    type:playernumber,
+    index: int,
+}
+```
+
+
+
 ##GamePlay Messaging
 These are the messages that will occur once a game is started.
 

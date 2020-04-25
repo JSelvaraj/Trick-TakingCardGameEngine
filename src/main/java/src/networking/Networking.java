@@ -446,6 +446,11 @@ public class Networking {
                 if (player.getString("ip").equals(addressString) &&
                         player.getInt("port") == serverSocket.getLocalPort()) {
                     playerNumber = i;
+
+                    //Sends localplayer number to GUI
+                    JSONObject playerNumberJSON = new JSONObject();
+                    playerNumberJSON.put("type", "playernumber");
+                    playerNumberJSON.put("index", playerNumber);
                 }
 
             }
