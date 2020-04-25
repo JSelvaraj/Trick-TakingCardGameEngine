@@ -6,7 +6,6 @@ import src.card.Card;
 import src.card.CardComparator;
 import src.deck.Deck;
 import src.deck.Shuffle;
-import src.deck.Trick;
 import src.functions.PlayerIncrementer;
 import src.functions.validCards;
 import src.parser.GameDesc;
@@ -24,29 +23,28 @@ import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
 /**
- * Main class that runs the game based of on a provided game description.
+ * Main class that runs the game based on a provided game description.
  */
 public class GameEngine {
-
+    //The game description that defines the game to be played
     private GameDesc desc;
     private StringBuilder trumpSuit;
-    private Hand currentTrick = new Hand(); //functionally the trick is just a hand visible to the entire table
-    private AtomicBoolean breakFlag; // if the trump/hearts are broken
-    //Stores the scores/metrics of the game
-    private int handsPlayed = 0;
-    private List<Trick> trickHistory;
-    //Predicate functions used in determining if card moves are valid
-    private Predicate<Card> validCard;
-    private Predicate<Card> validLeadingCard;
-    private IntFunction<Integer> nextPlayerIndex;
-    //Redoubling field set to true if the contract was a redoubling, doubling field same,
-    // the BidValue is the adjusted value based on any redoubling/doubling, bidSuit is the trumpSuit for the trick
+    private ArrayList<Team> teams;
+    //The current trick deck is stored in a hand made visible to the entire table (all players)
+    private Hand currentTrick;
+    //Flag to signal when/if the trump is broken
+    private AtomicBoolean breakFlag;
+    private int handsPlayed;
+    //Object that stores the highest valid bid played at any point for contract games - includes doubling/redoubling.
     private ContractBid adjustedHighestBid;
 
-    private ArrayList<Team> teams = new ArrayList<>();
+    //Predicate function used in determining if card moves are valid
+    private Predicate<Card> validCard;
+    //Predicate function used to increment/rotate play from the current player
+    private IntFunction<Integer> nextPlayerIndex;
 
     /**
-     * Set up game engine
+     * Sets up game engine, sets attributes based on provided game description
      *
      * @param desc game description
      */
@@ -57,30 +55,42 @@ public class GameEngine {
         if (desc.getTrumpPickingMode().equals("fixed")) {
             this.trumpSuit.append(desc.getTrumpSuit());
         }
+        //Sets trump suit to predefined order if specified
         if (desc.getTrumpPickingMode().equals("predefined")) {
             this.trumpSuit.append(desc.getTrumpIterator().next());
         }
-        //Flags if the trump suit has been broken in the hand
+        //Initialises main attributes
         this.breakFlag = new AtomicBoolean(false);
-        this.validLeadingCard = validCards.getValidLeadingCardPredicate(desc.getLeadingCardForEachTrick(), this.trumpSuit, breakFlag);
-        this.validCard = validCards.getValidCardPredicate("trick", this.trumpSuit, this.currentTrick, this.validLeadingCard);
+        this.teams = new ArrayList<>();
+        this.handsPlayed = 0;
+        this.currentTrick = new Hand();
+        //Initialises predicate to determine if a card chosen to lead a trick is valid, based on the game specification.
+        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate(desc.getLeadingCardForEachTrick(), this.trumpSuit, breakFlag);
+        //Initialises other predicates based on the game specification.
+        this.validCard = validCards.getValidCardPredicate("trick", this.trumpSuit, this.currentTrick, validLeadingCard);
         this.nextPlayerIndex = PlayerIncrementer.generateNextPlayerFunction(desc.isDEALCARDSCLOCKWISE(), desc.getNUMBEROFPLAYERS());
-        this.trickHistory = new LinkedList<>();
     }
 
+    /**
+     * Main driver method to start game logic for an instance
+     * @param gameDesc The description of the game to run
+     * @param dealer The index of player set to deal first
+     * @param playerArray The array specifying the players in the game
+     * @param seed The seed used to initialise random actions
+     * @param printMoves Flag if moves should be printed for debugging
+     * @param enableRandomEvents Flag if random events are enabled in the game
+     */
     public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) {
+        //Start engine and set attributes based on game description
         GameEngine game = new GameEngine(gameDesc);
         Random rand = new Random(seed);
 
-        assert playerArray.length == gameDesc.getNUMBEROFPLAYERS(); //TODO remove
-
-        /* initialize each players hands */
-
+        //Initialise each players hands
         for (Player player : playerArray) {
             player.initPlayer(game.getValidCard(), gameDesc, game.trumpSuit);
         }
 
-        /* Assign players to teams */
+        //Assign players to teams as specified in the game description
         int teamCounter = 0;
         for (int[] team : gameDesc.getTeams()) {
             Player[] players = new Player[team.length];
@@ -91,41 +101,43 @@ public class GameEngine {
             teamCounter++;
         }
 
-        /* Initialise random events */
+        //Initialise random events
         RdmEventsManager rdmEventsManager = new RdmEventsManager(gameDesc, game.getTeams(), rand, playerArray, enableRandomEvents);
 
-        Deck deck; // make standard deck from a linked list of Cards
+        Deck deck;
         Shuffle shuffle = new Shuffle(seed);
-
 
         if (printMoves) {
             game.printScore();
         }
-        //Loop until session ends
+        //Loop until session/match ends
         do {
             //Loop until game winning condition has been met
             do {
+                //Set the current player to the dealer
                 int currentPlayer = dealer;
-
+                //Create the deck
                 deck = new Deck(gameDesc.getDECK());
-
-                shuffle.shuffle(deck.cards); //shuffle deck according to the given seed
+                //Shuffle deck according to the given seed and deal the cards
+                shuffle.shuffle(deck.cards);
                 game.dealCards(playerArray, deck, currentPlayer);
 
-                //Check for a random event at start of hand - run logic if successful
+                //Check for a random card to be inserted - run logic if successful
                 RdmEvent rdmEventHAND = rdmEventsManager.eventChooser("SPECIAL-CARD");
                 if (rdmEventHAND != null) {
                     rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
                 }
 
-                //Increment for first bidder
+                //Increment the current player to set the first bidder
                 currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
 
-                //Signify to players that a new hand has started.
+                //Signal to players that a new hand has started.
                 for (Player player : playerArray) {
+                    //This doesn't do anything - assume middleware/frontend will handle
                     player.startHand(game.trumpSuit);
                 }
 
+                //Get bids from players if necessary
                 if (gameDesc.isBidding()) {
                     game.getBids(currentPlayer, playerArray);
                 }
@@ -133,8 +145,10 @@ public class GameEngine {
                 //Set first player to left of declarer if needed //TODO: Get from game desc when added
                 int dummyPlayer = -1;
                 if (gameDesc.getFirstTrickLeader().equals("contract")) {
+                    //Get the declarer of the final bid, set the player to lead the trick as to the 'left'
                     currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
                     currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
+                    //Set dummy player to the declarer's partner
                     dummyPlayer = game.nextPlayerIndex.apply(game.nextPlayerIndex.apply(currentPlayer));
                 }
 
@@ -143,8 +157,10 @@ public class GameEngine {
                     System.out.println("----------------PLAY---------------");
                     System.out.println("-----------------------------------");
                 }
+
                 //Loop until trick has completed (all cards have been played)
                 do {
+                    //If the trump is based on bidding, set the trump suit based on the final bid
                     if (gameDesc.getTrumpPickingMode().equals("bid")) {
                         game.trumpSuit.replace(0, game.trumpSuit.length(), game.getAdjustedHighestBid().getSuit());
                     }
@@ -162,13 +178,16 @@ public class GameEngine {
                         }
                     }
 
-                    if (dummyPlayer >= 0) { //TODO: Get from game description
+                    //If a dummy player is in operation, show the hand to all players
+                    if (dummyPlayer >= 0) {
                         System.out.println("Dummy hand: " + playerArray[dummyPlayer].getHand());
                     }
 
-                    //Each player plays a card
+                    //Loop for all players to play a card
                     for (int i = 0; i < playerArray.length; i++) {
+                        //Add the card played by the player to the current trick
                         game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
+                        //Broadcast the card played to all players
                         game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                         //If a special card has been placed in deck, check if it has just been played - adjust points if it has.
                         if (rdmEventHAND != null) {
@@ -177,10 +196,14 @@ public class GameEngine {
                                 rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer, game.getTeams());
                             }
                         }
+                        //Rotate the play
                         currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                     }
+
                     //Determine winning card
                     Card winningCard = game.winningCard();
+
+                    //TODO: Explain this
                     //Works out who played the winning card
                     /* go back to the previous player.
                      Loop 1 less than the number of players, so you actually move one back.
@@ -201,11 +224,8 @@ public class GameEngine {
                             }
                         }
                     }
-                    //Adds the trick to the trick history.
-                    Trick trick = new Trick(winningCard, game.trumpSuit.toString(), currentPlayer, new LinkedList<>(game.currentTrick.getHand()));
-                    game.trickHistory.add(trick);
-                    //Find the team with the winning player and increment their tricks score
 
+                    //Find the team with the winning player and increment their tricks score
                     Team winningTeam = playerArray[currentPlayer].getTeam();
                     winningTeam.setTricksWon(winningTeam.getTricksWon() + 1);
                     if (printMoves) {
@@ -213,94 +233,60 @@ public class GameEngine {
                         System.out.println("Tricks won: " + winningTeam.getTricksWon());
                     }
 
-                    //Signal that trump suit was broken -> can now be played
+                    //Signal that trump suit was broken -> cards with the trump can now be played
                     if (game.currentTrick.getHand().stream().anyMatch(card -> card.getSUIT().equals(game.trumpSuit.toString()))) {
                         game.breakFlag.set(true);
                     }
 
-                    //Reset trick hand
+                    //Reset trick hand by discarding the cards
                     game.currentTrick.dropHand();
-                } while (playerArray[0].getHand().getHandSize() > gameDesc.getMinHandSize());
+                } while (playerArray[0].getHand().getHandSize() > gameDesc.getMinHandSize()); //Continue play until all cards have been played
 
                 game.handsPlayed++;
                 //Calculate the score of the hand
-                if (gameDesc.getCalculateScore().equals("tricksWon")) {
-                    for (Team team : game.getTeams()) {
-                        int score = team.getTricksWon();
-                        if (score > gameDesc.getTrickThreshold()) { // if score greater than trick threshold
-                            team.setGameScore(team.getGameScore() + (score - gameDesc.getTrickThreshold())); // add score to team's running total
-                        }
-                        team.setTricksWon(0);
-                    }
-                }
-                if (gameDesc.getCalculateScore().equals("bid")) {
-                    //If bridge:
-                    if (gameDesc.isAscendingBid()) {
-                        Team declaringTeam = game.getAdjustedHighestBid().getTeam();
-                        game.getAdjustedHighestBid().setVulnerable(declaringTeam.isVulnerable());
-                        if (declaringTeam.getGameScore() >= game.getAdjustedHighestBid().getBidValue()) {
-                            declaringTeam.setGameScore(declaringTeam.getGameScore() + gameDesc.getEvaluateBid().apply(game.getAdjustedHighestBid(), declaringTeam.getTricksWon()));
-                        } else {
-                            for (Team team : game.getTeams()) {
-                                if (team != declaringTeam) {
-                                    team.setGameScore(team.getGameScore() + gameDesc.getEvaluateBid().apply(game.getAdjustedHighestBid(), team.getTricksWon()));
-                                    break;
-                                }
-                            }
-                        }
-                        for (Team team : game.getTeams()) {
-                            team.setTricksWon(0);
-                        }
-                    }
-                    //For spades
-                    else {
-                        for (Team team : game.getTeams()) {
-                            int teamBid = 0;
-                            //Get collective team bids
-                            for (Player player : team.getPlayers()) {
-                                teamBid += player.getBid().getBidValue();
-                            }
-                            Bid bid = new Bid(false, null, teamBid, false, false);
-                            //Increase score of winning team based on bid scoring system (See validBids.java)
-                            team.setGameScore(team.getGameScore() + gameDesc.getEvaluateBid().apply(bid, team.getTricksWon()));
-                            //Reset tricks won for next round.
-                            team.setTricksWon(0);
-                        }
-                    }
-                }
+                game.calculateScore();
+
+                //Increment the trump suit if specified
                 if (gameDesc.getTrumpPickingMode().equals("predefined")) {
                     game.trumpSuit.replace(0, game.trumpSuit.length(), gameDesc.getTrumpIterator().next());
                 }
 
-                //Check if game needs balancing
+                //If random events is enabled - check if game needs balancing
                 if (enableRandomEvents) {
                     rdmEventsManager.checkGameCloseness();
                 }
 
-                //Increment dealer
+                //Increment dealer for next hand
                 dealer = game.nextPlayerIndex.apply(dealer);
 
                 game.printScore();
-            } while (game.gameEnd());
+            } while (game.gameEnd()); //Check if game ending condition has been met
 
+            //If match scoring is bestOf
             if (gameDesc.getSessionEnd().equals("bestOf")) {
                 for (Team team : game.getTeams()) {
+                    //If the team won the game by surpassing the threshold, increment their match score, and set vulnerability
                     if (team.getGameScore() >= gameDesc.getScoreThreshold()) {
                         System.out.println("Team " + team.getTeamNumber() + " wins game");
                         team.setGamesWon(team.getGamesWon() + 1);
                         team.setCumulativeScore(team.getCumulativeScore() + team.getGameScore());
-                        team.setGameScore(0);
                         team.setVulnerable(true);
                     } else {
+                        //Team that lost the game can't be vulnerable
                         team.setVulnerable(false);
+                        //Add score from the game to cumulative score
+                        team.setCumulativeScore(team.getCumulativeScore() + team.getGameScore());
                     }
+                    //Reset all teams game score for new game
                     team.setGameScore(0);
                 }
             }
             System.out.println("End of Game");
-        } while (game.sessionEnd());
+        } while (game.sessionEnd()); //Check for match/session winning condition to be met
 
+        //If game is specified to be best of set of games, find overall match winner
         if (gameDesc.getSessionEnd().equals("bestOf")) {
+            //Find the winning team by finding the highest match score
             Team winningTeam = game.getTeams().get(0);
             for (Team team : game.getTeams()) {
                 if (team.getCumulativeScore() > winningTeam.getCumulativeScore()) {
@@ -310,7 +296,62 @@ public class GameEngine {
             System.out.println("Team " + winningTeam.getTeamNumber() + " wins match");
         }
         System.out.println("End of match");
+    }
 
+
+    private void calculateScore() {
+        if (desc.getCalculateScore().equals("tricksWon")) {
+            //Check if any team has exceeded the threshold, if they have increment their score accordingly
+            for (Team team : getTeams()) {
+                int score = team.getTricksWon();
+                if (score > desc.getTrickThreshold()) {
+                    team.setGameScore(team.getGameScore() + (score - desc.getTrickThreshold()));
+                }
+                //Reset trick score
+                team.setTricksWon(0);
+            }
+        }
+        if (desc.getCalculateScore().equals("bid")) {
+            //If game is bridge style scoring
+            if (desc.isAscendingBid()) {
+                //Find the team that declared/won the contract
+                Team declaringTeam = getAdjustedHighestBid().getTeam();
+                //Set the contract's vulnerability based on the declaring Team's state
+                getAdjustedHighestBid().setVulnerable(declaringTeam.isVulnerable());
+                //If the declaring team matched their contract, increment their game score accordingly (See validBids.java)
+                if (declaringTeam.getTricksWon() >= getAdjustedHighestBid().getBidValue()) {
+                    declaringTeam.setGameScore(declaringTeam.getGameScore() + desc.getEvaluateBid().apply(getAdjustedHighestBid(), declaringTeam.getTricksWon()));
+                }
+                //Otherwise, find the opposition team, and increment their game score accordingly
+                else {
+                    for (Team team : getTeams()) {
+                        if (team != declaringTeam) {
+                            team.setGameScore(team.getGameScore() + desc.getEvaluateBid().apply(getAdjustedHighestBid(), declaringTeam.getTricksWon()));
+                            break;
+                        }
+                    }
+                }
+                //Reset the tricks won for all teams
+                for (Team team : getTeams()) {
+                    team.setTricksWon(0);
+                }
+            }
+            //For spades style bid scoring
+            else {
+                for (Team team : getTeams()) {
+                    int teamBid = 0;
+                    //Get collective team bids
+                    for (Player player : team.getPlayers()) {
+                        teamBid += player.getBid().getBidValue();
+                    }
+                    Bid bid = new Bid(false, null, teamBid, false, false);
+                    //Increase score of winning team based on bid scoring system (See validBids.java)
+                    team.setGameScore(team.getGameScore() + desc.getEvaluateBid().apply(bid, team.getTricksWon()));
+                    //Reset tricks won for next round.
+                    team.setTricksWon(0);
+                }
+            }
+        }
     }
 
 

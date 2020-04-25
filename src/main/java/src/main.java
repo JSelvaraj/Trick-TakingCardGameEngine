@@ -82,7 +82,7 @@ public class main {
 
                     for (int i = 0; i < host.aiPlayers; i++) {
                         System.out.println("AI started");
-                        PlayerRunner runner = new PlayerRunner(new POMDPPlayer(), "localhost", host.port,
+                        PlayerRunner runner = new PlayerRunner(new RandomPlayer(), "localhost", host.port,
                                 true, true, host.enableRandomEvents);
                         Thread aiThread = new Thread(runner);
                         aiThread.start();
