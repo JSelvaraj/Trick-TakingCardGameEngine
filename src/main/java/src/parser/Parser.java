@@ -6,14 +6,17 @@ import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import src.bid.Bid;
 import src.exceptions.InvalidGameDescriptionException;
 import src.functions.validBids;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -195,15 +198,20 @@ public class Parser {
         boolean canBidBlind = false;
         int minBid = 0;
         int maxBid = initialHandSize;
+        List<String> bidSuits = new ArrayList<>();
         JSONObject bidObject = gameJSON.optJSONObject("bid");
         if (bidObject != null) {
-            ascendingBid = bidObject.optBoolean("ascendingBidding", false);
             trumpSuitBid = bidObject.optBoolean("trumpSuitBid", false);
             ascendingBid = bidObject.optBoolean("ascendingBid", false);
             vulnerabilityThreshold = bidObject.optInt("vulnerabilityThreshold", 0);
             canBidBlind = bidObject.optBoolean("canBidBlind");
             minBid = bidObject.optInt("minBid", minBid);
             maxBid = bidObject.optInt("maxBid", maxBid);
+            JSONArray bidSuitsJSON = bidObject.optJSONArray("suitBidRank");
+            if(bidSuitsJSON != null){
+                bidSuitsJSON.forEach((obj) ->bidSuits.add(obj.toString().equals("null") ? Bid.NOTRUMP : obj.toString()));
+            }
+
         }
 
 
@@ -236,7 +244,8 @@ public class Parser {
                 vulnerabilityThreshold,
                 canBidBlind,
                 minBid,
-                maxBid);
+                maxBid,
+                bidSuits);
 
         if (bidObject != null) {
             bidObject = gameJSON.getJSONObject("bid");

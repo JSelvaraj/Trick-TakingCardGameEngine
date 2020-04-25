@@ -9,6 +9,7 @@ import src.bid.PotentialBid;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -53,6 +54,7 @@ public class GameDesc {
     private boolean canBidBlind;
     private int minBid;
     private int maxBid;
+    private List<String> bidSuits;
 
 
     /**
@@ -90,7 +92,8 @@ public class GameDesc {
                     int vulnerabilityThreshold,
                     boolean canBidBlind,
                     int minBid,
-                    int maxBid) {
+                    int maxBid,
+                    List<String> bidSuits) {
         this.name = name;
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
@@ -122,6 +125,7 @@ public class GameDesc {
         this.canBidBlind = canBidBlind;
         this.minBid = minBid;
         this.maxBid = maxBid;
+        this.bidSuits = bidSuits;
     }
 
     @Override
