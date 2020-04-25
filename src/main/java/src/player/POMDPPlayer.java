@@ -72,16 +72,16 @@ public class POMDPPlayer extends Player {
     }
 
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, boolean firstRound, boolean canBidBlind) {
         //Need to initialise for if we started the trick.
         if (observation.getCurrentTrick().size() == 0) {
             observation.setTrickStartedBy(getPlayerNumber());
         }
         //If it isn't contract bidding
-        if (!desc.isAscendingBidding()) {
+        if (!desc.isAscendingBid()) {
             assert trumpSuit != null;
             int bidValue = cardPOMDP.searchBid(observation);
-            PotentialBid bid = new PotentialBid(null, Integer.toString(bidValue), adjustedHighestBid);
+            PotentialBid bid = new PotentialBid(null, Integer.toString(bidValue), adjustedHighestBid, this, firstRound);
             if (!validBid.test(bid)) {
                 //See if the calculated bid falls outside of what is allowed.
                 if (bidValue < desc.getMinBid()) {
@@ -94,26 +94,24 @@ public class POMDPPlayer extends Player {
             }
             return new Bid(false, null, bidValue, false, false);
         } else {
-            if (desc.isCanPass()) {
-                return canPassBid(validBid, trumpSuitBid, adjustedHighestBid);
+            //See is passing is a valid bid here.
+            if (validBid.test(new PotentialBid(null, "-2", adjustedHighestBid, this, firstRound))) {
+                return canPassBid(validBid, trumpSuitBid, adjustedHighestBid, firstRound);
             } else {
                 return nonPassingBid(validBid, trumpSuitBid, adjustedHighestBid);
             }
         }
     }
 
-    private Bid canPassBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
+    private Bid canPassBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, boolean firstRound) {
         int hcp = highCardPoints();
         StringBuilder tempTrumpSuit = new StringBuilder();
         CardPOMDP tempPOMDP = new CardPOMDP(desc, shortTimout, getPlayerNumber(), tempTrumpSuit);
         if (adjustedHighestBid == null) {
             if (hcp > openBidThresh) {
-                return openingBid(validBid, trumpSuitBid);
+                return openingBid(validBid, trumpSuitBid, tempTrumpSuit, tempPOMDP);
             } else {
-                PotentialBid bid = new PotentialBid(null, "-2", adjustedHighestBid);
-                if (!validBid.test(bid)) { //TODO handle if you can't bid.
-                    throw new IllegalArgumentException();
-                }
+                //Pass the round
                 return new Bid(false, null, -2, false, false);
             }
         } else if (adjustedHighestBid.getDeclarer().getTeam().containsPlayer(this)) { //Our teammate has the highest contract so far.
@@ -124,23 +122,45 @@ public class POMDPPlayer extends Player {
                 int estimatedTricksWon = (int) tempPOMDP.search(this.observation).getValue();
                 //If it thinks that we can win this many tricks, then reodouble the bid. Otherwise pass it.
                 if (estimatedTricksWon - desc.getTrickThreshold() >= adjustedHighestBid.getBidValue()) {
-                    //TODO return redoubled bid.
+                    return new Bid(true, null, 0, false, false);
                 } else {
+                    //TODO Bid a higher suit if possible
                     return new Bid(false, null, -2, false, false);
                 }
             }
         } else {
             throw new UnsupportedOperationException();
         }
+        return null;
     }
 
     private Bid nonPassingBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
-
+        //If this is the opening bid.
+        if (adjustedHighestBid == null) {
+            return openingBid(validBid, trumpSuitBid, null, null);
+        } else {
+            throw new UnsupportedOperationException();
+        }
     }
 
 
-    private Bid openingBid(Predicate<PotentialBid> validbid, boolean trumpSuitBid) {
-        return null;
+    private Bid openingBid(Predicate<PotentialBid> validbid, boolean trumpSuitBid, StringBuilder tempTrumpSuit, CardPOMDP tempCardPOMDP) {
+        String bestSuit = null;
+        int bestResult = -1;
+        //See which suit gives the best result.
+        for (String bidSuit : desc.getBidSuits()) {
+            tempTrumpSuit.setLength(0);
+            tempTrumpSuit.append(bidSuit);
+            int bidValue = tempCardPOMDP.searchBid(this.observation);
+            if (bidValue > bestResult) {
+                bestResult = bidValue;
+                bestSuit = bidSuit;
+            }
+        }
+        if (!validbid.test(new PotentialBid(bestSuit, "" + bestResult, null, this, true))) {
+            throw new IllegalArgumentException();
+        }
+        return new Bid(false, bestSuit, bestResult, false, false);
     }
 
     private int highCardPoints() {
@@ -163,7 +183,7 @@ public class POMDPPlayer extends Player {
     }
 
     @Override
-    public void broadcastBid(Bid bid, int playerNumber) {
+    public void broadcastBid(Bid bid, int playerNumber, ContractBid adjustedHighestBid) {
         //throw new UnsupportedOperationException();
     }
 }

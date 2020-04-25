@@ -286,4 +286,8 @@ public class GameDesc {
     public int getMaxBid() {
         return maxBid;
     }
+
+    public List<String> getBidSuits() {
+        return bidSuits;
+    }
 }
