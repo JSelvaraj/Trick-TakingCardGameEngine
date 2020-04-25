@@ -408,6 +408,12 @@
       "bonusPoints": 50
     },
     {
+      "handScoreMin": 0,
+      "handScoreMax": 99,
+      "bonusPoints": 50,
+      "vulnerable" : true
+    },
+    {
       "handScoreMin": 100,
       "handScoreMax": 9999,
       "vulnerable": true,

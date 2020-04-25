@@ -237,6 +237,16 @@ public class validBidsTestEvaluate {
        // assertEquals(1740, (int) bidEvaluator.apply(bid, 13));
     }
 
+    @Test
+    void evaluateBridgeBidDoubleE() {
+        BiFunction<Bid, Integer, Integer> bidEvaluator = importBidFunction();
+        ContractBid bid = new ContractBid(true, "NO TRUMP", 1, false, false, true, null, team1);
+        assertEquals(380, (int) bidEvaluator.apply(bid, 8));
+        // assertEquals(1740, (int) bidEvaluator.apply(bid, 13));
+    }
+
+
+
     BiFunction<Bid, Integer, Integer> importBidFunction() {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("bridgeBid.json")) {
             if (inputStream == null) {
