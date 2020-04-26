@@ -93,11 +93,13 @@ public class LocalPlayer extends Player {
         System.out.println("Player " + (playerNumber + 1) + " played " + card.toString());
     }
 
+    //Indicate the swap that was performed
     @Override
     public void broadcastSwap(Swap swap) {
-
+        System.out.println("Player " + (swap.getOriginalPlayerIndex() + 1) + " swapped a card with Player " + (swap.getOtherPlayerCardNumber() + 1)) ;
     }
 
+    //Asks if a player would like to swap a card with a random opponent
     @Override
     public Swap getSwap(Player rdmStrongPlayer) {
         int currentPlayerIndex = this.getPlayerNumber();
@@ -122,8 +124,11 @@ public class LocalPlayer extends Player {
                 rdmStrongPlayerCardNumber = scanner.nextInt();
             } while (rdmStrongPlayerCardNumber < 0 || rdmStrongPlayerCardNumber >= rdmStrongPlayer.getHand().getHandSize());
             System.out.println("Card chosen: " + rdmStrongPlayer.getHand().get(rdmStrongPlayerCardNumber));
+            //Return a live swap
             return new Swap(currentPlayerIndex, currentPlayerCardNumber, rdmStrongPlayerIndex, rdmStrongPlayerCardNumber, "live");
-        } else {
+        }
+        //Signal swap offer was rejected
+        else {
             return new Swap(0,0,0,0, "dead");
         }
     }

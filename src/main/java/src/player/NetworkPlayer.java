@@ -80,17 +80,19 @@ public class NetworkPlayer extends Player {
         }
     }
 
+    //Send a card swap event to other players over network
     @Override
     public void broadcastSwap(Swap swap) {
         //Creates the json object to be sent.
         JSONObject json = new JSONObject();
+        //Indicates it's a swap event
         json.put("type", "swap");
+        //Puts the relevant info
         json.put("currentPlayer", swap.getOriginalPlayerIndex());
         json.put("currentPlayerCardNumber", swap.getOriginalPlayerCardNumber());
-        json.put("rdmPlayerIndex", swap.getRdmPlayerIndex());
-        json.put("rdmPlayerCardNumber", swap.getRdmPlayerCardNumber());
+        json.put("rdmPlayerIndex", swap.getOtherPlayerIndex());
+        json.put("rdmPlayerCardNumber", swap.getOtherPlayerCardNumber());
         json.put("status", swap.getStatus());
-        System.out.println("Broadcasting swap to Player " + getPlayerNumber());
         //Sends the json object over the socket.
         try {
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8));
@@ -101,16 +103,18 @@ public class NetworkPlayer extends Player {
         }
     }
 
+    //Reads in a swap from the network
     @Override
     public Swap getSwap(Player strongPlayer) {
         JsonElement msg = null;
         msg = reader.next();
-        JSONObject swapEvent = new JSONObject(msg.getAsJsonObject().toString()); //TODO catch exceptions
+        JSONObject swapEvent = new JSONObject(msg.getAsJsonObject().toString());
         String type = swapEvent.getString("type");
+        //Checks it's a swap event
         if (!type.equals("swap")) {
             throw new InvalidPlayerMoveException();
         }
-        System.out.println("Player " + getPlayerNumber() + " received swap event");
+        //Returns swap for logic to be performed
         return new Swap(swapEvent.getInt("currentPlayer"), swapEvent.getInt("currentPlayerCardNumber"),
                 swapEvent.getInt("rdmPlayerIndex"), swapEvent.getInt("rdmPlayerCardNumber"), swapEvent.getString("status"));
     }
