@@ -81,6 +81,10 @@ public class RdmEventsManager {
                 rdmEventProb = 1;
             }
         }
+        //Otherwise make sure the random probability is reset
+        else {
+            rdmEventProb = rdmEventProbDEFAULT;
+        }
     }
 
     //Method that decides if a random event should be run, and chooses one if necessary
@@ -90,12 +94,9 @@ public class RdmEventsManager {
             //Choose an appropriate event based on the point in the game
             switch (eventPlayTime) {
                 case "TRICK":
-                    //Reset the chance of a random event
-                    rdmEventProb = rdmEventProbDEFAULT;
                     //Choose the event to be run and return it to the game engine
                     return TRICKEvents[rand.nextInt(TRICKEvents.length)];
                 case "SPECIAL-CARD":
-                    rdmEventProb = rdmEventProbDEFAULT;
                     return specialCardEvents[rand.nextInt(specialCardEvents.length)];
                 default:
                     return null;
