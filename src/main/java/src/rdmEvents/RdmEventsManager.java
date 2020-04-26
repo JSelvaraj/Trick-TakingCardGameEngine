@@ -121,13 +121,13 @@ public class RdmEventsManager {
             //Get the original (swapper) player's card
             Card originalPlayerCard = playerArray[swap.getOriginalPlayerIndex()].getHand().giveCard(swap.getOriginalPlayerCardNumber());
             //Get the card to be swapped with
-            Card otherPlayerCard = playerArray[swap.getRdmPlayerIndex()].getHand().giveCard(swap.getRdmPlayerCardNumber());
+            Card otherPlayerCard = playerArray[swap.getOtherPlayerIndex()].getHand().giveCard(swap.getOtherPlayerCardNumber());
             //Add the other card to the swapper's hand
             playerArray[swap.getOriginalPlayerIndex()].getHand().getCard(otherPlayerCard);
             //Add the swapper's card to the other players hand
-            playerArray[swap.getRdmPlayerIndex()].getHand().getCard(originalPlayerCard);
+            playerArray[swap.getOtherPlayerIndex()].getHand().getCard(originalPlayerCard);
             System.out.println("Swapping " + originalPlayerCard + " from Player " + (swap.getOriginalPlayerIndex() + 1) + " with " +
-                    otherPlayerCard + " from Player " + (swap.getRdmPlayerIndex() + 1));
+                    otherPlayerCard + " from Player " + (swap.getOtherPlayerIndex() + 1));
         }
         //If the swap was made by the local player, notify the network players
         if (!(weakPlayer instanceof NetworkPlayer)) {

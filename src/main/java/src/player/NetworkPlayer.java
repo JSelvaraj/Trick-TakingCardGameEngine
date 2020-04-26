@@ -87,8 +87,8 @@ public class NetworkPlayer extends Player {
         json.put("type", "swap");
         json.put("currentPlayer", swap.getOriginalPlayerIndex());
         json.put("currentPlayerCardNumber", swap.getOriginalPlayerCardNumber());
-        json.put("rdmPlayerIndex", swap.getRdmPlayerIndex());
-        json.put("rdmPlayerCardNumber", swap.getRdmPlayerCardNumber());
+        json.put("rdmPlayerIndex", swap.getOtherPlayerIndex());
+        json.put("rdmPlayerCardNumber", swap.getOtherPlayerCardNumber());
         json.put("status", swap.getStatus());
         System.out.println("Broadcasting swap to Player " + getPlayerNumber());
         //Sends the json object over the socket.
@@ -105,7 +105,7 @@ public class NetworkPlayer extends Player {
     public Swap getSwap(Player strongPlayer) {
         JsonElement msg = null;
         msg = reader.next();
-        JSONObject swapEvent = new JSONObject(msg.getAsJsonObject().toString()); //TODO catch exceptions
+        JSONObject swapEvent = new JSONObject(msg.getAsJsonObject().toString());
         String type = swapEvent.getString("type");
         if (!type.equals("swap")) {
             throw new InvalidPlayerMoveException();
