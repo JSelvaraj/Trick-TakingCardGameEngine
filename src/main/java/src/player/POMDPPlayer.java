@@ -1,6 +1,7 @@
 package src.player;
 
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import src.ai.CardPOMDP;
 import src.ai.GameObservation;
 import src.ai.POMCPTreeNode;
@@ -252,7 +253,7 @@ public class POMDPPlayer extends Player {
                 bestSuit = bidSuit;
             }
         }
-        return new Pair<>(bestSuit, bestResult);
+        return new ImmutablePair<>(bestSuit, bestResult);
     }
 
 
