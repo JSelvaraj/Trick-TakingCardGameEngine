@@ -82,12 +82,10 @@ public class Parser {
         String[] suits;
         String[] ranks;
         String[] rank_order;
-        Deck deck;
         if (gameJSON.isNull("deck")) {
             suits = DEFAULT_SUITS;
             ranks = DEFAULT_RANKS;
             rank_order = DEFAULT_RANK_ORDER;
-            deck = new Deck(Deck.makeDeck(suits, ranks));
         } else {
             JSONObject deckJSON = gameJSON.getJSONObject("deck");
             JSONArray cards = deckJSON.getJSONArray("cards");
@@ -255,8 +253,7 @@ public class Parser {
                 canBidBlind,
                 minBid,
                 maxBid,
-                bidSuits,
-                deck);
+                bidSuits);
 
         if (bidObject != null) {
             bidObject = gameJSON.getJSONObject("bid");
