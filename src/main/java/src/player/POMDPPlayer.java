@@ -108,9 +108,9 @@ public class POMDPPlayer extends Player {
     }
 
     private Bid canPassBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, boolean firstRound, StringBuilder tempTrumpSuit, CardPOMDP tempPOMDP) {
-        int hcp = highCardPoints();
 
         if (adjustedHighestBid == null) {
+            int hcp = highCardPoints();
             //If you don't meet the threshold and can pass, then pass.
             if (hcp < openBidThresh && validBid.test(new PotentialBid(null, "-2", adjustedHighestBid, this, firstRound))) {
                 return passingBid();
@@ -283,11 +283,11 @@ public class POMDPPlayer extends Player {
     }
 
     private int highCardPoints() {
-        String[] highCards = Arrays.copyOfRange(desc.getRANKS(), desc.getRANKS().length - 5, desc.getRANKS().length - 1);
+        String[] highCards = Arrays.copyOfRange(desc.getRANKS(), 0, 4);
         int hcp = 0;
         for (int i = 0; i < highCards.length; i++) {
             int finalI = i;
-            int matching = (int) super.getHand().getHand().stream().filter((c) -> c.getSUIT().equals(highCards[finalI])).count();
+            int matching = (int) super.getHand().getHand().stream().filter((c) -> c.getRANK().equals(highCards[finalI])).count();
             hcp += matching * (i + 1);
         }
         return hcp;
