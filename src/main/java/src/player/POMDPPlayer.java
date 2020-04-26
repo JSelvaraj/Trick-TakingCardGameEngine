@@ -118,7 +118,7 @@ public class POMDPPlayer extends Player {
             } else {
                 return openingBid(validBid, trumpSuitBid, tempTrumpSuit, tempPOMDP);
             }
-        } else if (adjustedHighestBid.getDeclarer().getTeam().containsPlayer(this)) { //Our teammate has the highest contract so far.
+        } else if (adjustedHighestBid.getDeclarer().getTeam().containsPlayer(this) && adjustedHighestBid.getDeclarer() != this) { //Our teammate has the highest contract so far.
             if (adjustedHighestBid.isDoubling()) {
                 tempTrumpSuit.setLength(0);
                 tempTrumpSuit.append(adjustedHighestBid.getSuit());
