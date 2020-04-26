@@ -201,6 +201,7 @@ public class Parser {
         List<String> bidSuits = new ArrayList<>();
         JSONObject bidObject = gameJSON.optJSONObject("bid");
         if (bidObject != null) {
+            ascendingBidding = bidObject.optBoolean("ascendingBidding", false);
             trumpSuitBid = bidObject.optBoolean("trumpSuitBid", false);
             ascendingBid = bidObject.optBoolean("ascendingBid", false);
             vulnerabilityThreshold = bidObject.optInt("vulnerabilityThreshold", 0);
