@@ -556,7 +556,7 @@ public class GameEngine {
         //Generate suit ranking
         HashMap<String, Integer> suitMap = generateSuitOrder(desc, trumpSuit, currentTrick.get(0));
         //Get comparator for comparing cards based on the suit ranking
-        CardComparator comparator = new CardComparator(suitMap);
+        CardComparator comparator = new CardComparator(suitMap, desc.getRANKORDER());
         //Find the card with the highest ranking/value
         Card currentWinner = currentTrick.get(0);
         for (Card card : currentTrick.getHand()) {

@@ -31,6 +31,11 @@ public class CardComparator implements Comparator<Card> {
         this.suitMap = suitMap;
     }
 
+    public CardComparator(Map<String, Integer> suitMap, String[] ranks) {
+        this.rankOrder = Arrays.asList(ranks);
+        this.suitMap = suitMap;
+    }
+
     /**
      * Constructor that sets rankings
      *
