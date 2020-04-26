@@ -13,7 +13,7 @@ class StateTest {
 
     @Test
     void copyConstructor() {
-        List<Card> deck = new Deck(Deck.makeDeck(cards)).cards;
+        List<Card> deck = new Deck().cards;
         final int handSize = 13;
         final int playerCount = 4;
         GameObservation observation = new GameObservation(deck, playerCount, handSize);
@@ -26,7 +26,7 @@ class StateTest {
 
     @Test
     void generateBeliefStateEmptyObservation1() {
-        List<Card> deck = new Deck(Deck.makeDeck(cards)).cards;
+        List<Card> deck = new Deck().cards;
         final int handSize = 13;
         final int playerCount = 4;
         final int initialDeckSize = deck.size();
@@ -44,7 +44,7 @@ class StateTest {
 
     @Test
     void generateBeliefStateEmptyObservation2() {
-        List<Card> deck = new Deck(Deck.makeDeck(cards)).cards;
+        List<Card> deck = new Deck().cards;
         final int handSize = 6;
         final int playerCount = 2;
         final int initialDeckSize = deck.size();
@@ -62,7 +62,7 @@ class StateTest {
 
     @Test
     void generateBeliefStateNonEmpty() {
-        List<Card> deck = new Deck(Deck.makeDeck(cards)).cards;
+        List<Card> deck = new Deck().cards;
         final int initialDeckSize = deck.size();
         final int handSize = 13;
         final int playerCount = 4;

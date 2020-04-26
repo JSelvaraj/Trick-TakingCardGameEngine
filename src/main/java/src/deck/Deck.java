@@ -13,7 +13,7 @@ import java.util.List;
 public class Deck {
     public LinkedList<Card> cards;
 
-    public Deck(List<Card> cards) {
+    public Deck() {
         initStandardDeck();
     }
 

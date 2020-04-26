@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import src.bid.Bid;
+import src.card.Card;
 import src.deck.Deck;
 import src.exceptions.InvalidGameDescriptionException;
 import src.functions.validBids;
@@ -14,10 +15,7 @@ import src.functions.validBids;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 
 /**
@@ -96,7 +94,7 @@ public class Parser {
             //TODO remove suit and ranks.
             suits = DEFAULT_SUITS;
             ranks = DEFAULT_RANKS;
-            deck = new Deck(Deck.makeDeck(cards));
+            deck = new Deck((LinkedList<Card>) Deck.makeDeck(cards));
             JSONArray rank_orderJSON = deckJSON.getJSONArray("rankOrder");
             rank_order = new String[rank_orderJSON.length()];
             for (int i = 0; i < rank_order.length; i++) {

@@ -116,7 +116,7 @@ public class GameEngine {
                 //Set the current player to the dealer
                 int currentPlayer = dealer;
                 //Create the deck
-                deck = new Deck(gameDesc.getDECK());
+                deck = new Deck();
                 //Shuffle deck according to the given seed and deal the cards
                 shuffle.shuffle(deck.cards);
                 game.dealCards(playerArray, deck, currentPlayer);
