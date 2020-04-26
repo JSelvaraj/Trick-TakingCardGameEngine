@@ -27,6 +27,7 @@ public class POMDPPlayer extends Player {
     private static final int openBidThresh = 12;
     private StringBuilder trumpSuit;
     private GameDesc desc;
+    private boolean addedDummyHand;
 
     public POMDPPlayer() {
 //        super(playerNumber);
@@ -37,6 +38,7 @@ public class POMDPPlayer extends Player {
         super.initPlayer(validCard, desc, trumpSuit);
         this.desc = desc;
         this.trumpSuit = trumpSuit;
+        addedDummyHand = false;
     }
 
     @Override
@@ -131,7 +133,7 @@ public class POMDPPlayer extends Player {
                 //Else will fall through to raise or pass.
             }
             return raiseOrPass(validBid, trumpSuitBid, adjustedHighestBid, tempTrumpSuit, tempPOMDP, firstRound);
-        } else if(adjustedHighestBid.getDeclarer() != this){
+        } else if (adjustedHighestBid.getDeclarer() != this) {
             //If you think you should double the opponent.
             if (checkDouble(validBid, trumpSuitBid, adjustedHighestBid, tempTrumpSuit, cardPOMDP, firstRound)) {
                 return new Bid(true, null, 0, false, false);
@@ -307,5 +309,13 @@ public class POMDPPlayer extends Player {
     @Override
     public void broadcastBid(Bid bid, int playerNumber, ContractBid adjustedHighestBid) {
         System.out.println(bid);
+    }
+
+    @Override
+    public void broadcastDummyHand(int playerNumber, List<Card> dummyHand) {
+        if (playerNumber != getPlayerNumber() && !addedDummyHand) {
+            this.observation.addKnownCards(playerNumber, dummyHand);
+        }
+        addedDummyHand = true;
     }
 }

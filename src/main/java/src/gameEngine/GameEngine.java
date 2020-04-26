@@ -180,7 +180,9 @@ public class GameEngine {
 
                     //If a dummy player is in operation, show the hand to all players
                     if (dummyPlayer >= 0) {
-                        System.out.println("Dummy hand: " + playerArray[dummyPlayer].getHand());
+                        for (Player player : playerArray) {
+                            player.broadcastDummyHand(dummyPlayer, playerArray[dummyPlayer].getHand().getHand());
+                        }
                     }
 
                     //Loop for all players to play a card

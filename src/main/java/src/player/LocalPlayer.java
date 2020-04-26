@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.SQLOutput;
+import java.util.List;
 import java.util.Scanner;
 import java.util.function.Predicate;
 
@@ -212,6 +213,8 @@ public class LocalPlayer extends Player {
         return new Bid(doubling, bidSuit, finalBidInput, bidBlind, false);
     }
 
-
-
+    @Override
+    public void broadcastDummyHand(int playerNumber, List<Card> dummyHand) {
+        System.out.println("Dummy hand of Player " + (playerNumber + 1) + ": " + dummyHand);
+    }
 }
