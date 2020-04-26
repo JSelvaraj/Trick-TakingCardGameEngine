@@ -8,10 +8,17 @@ public class Card {
     private final String SUIT;
     private final String RANK;
     private String specialType;
+    private int pointValue;
 
     public Card(String suit, String rank) {
         SUIT = suit;
         RANK = rank;
+    }
+
+    public Card(String SUIT, String RANK, int pointValue) {
+        this.SUIT = SUIT;
+        this.RANK = RANK;
+        this.pointValue = pointValue;
     }
 
     /**
@@ -30,6 +37,10 @@ public class Card {
         return SUIT;
     }
 
+    public int getPointValue() {
+        return pointValue;
+    }
+
     /**
      * @param card - Card to compare
      * @return Checks if the card has the same rank and suit as another card.
@@ -44,7 +55,8 @@ public class Card {
         if (o == null || getClass() != o.getClass()) return false;
         Card card = (Card) o;
         return SUIT.equals(card.SUIT) &&
-                RANK.equals(card.RANK);
+                RANK.equals(card.RANK) &&
+                pointValue == card.pointValue;
     }
 
     @Override
