@@ -7,7 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import src.bid.Bid;
-import src.deck.Deck;
 import src.exceptions.InvalidGameDescriptionException;
 import src.functions.validBids;
 
@@ -84,24 +83,13 @@ public class Parser {
         String[] suits;
         String[] ranks;
         String[] rank_order;
-        Deck deck;
         if (gameJSON.isNull("deck")) {
             suits = DEFAULT_SUITS;
             ranks = DEFAULT_RANKS;
             rank_order = DEFAULT_RANK_ORDER;
-            deck = new Deck(Deck.makeDeck(suits, ranks));
         } else {
-            JSONObject deckJSON = gameJSON.getJSONObject("deck");
-            JSONArray cards = deckJSON.getJSONArray("cards");
-            //TODO remove suit and ranks.
-            suits = DEFAULT_SUITS;
-            ranks = DEFAULT_RANKS;
-            deck = new Deck(Deck.makeDeck(cards));
-            JSONArray rank_orderJSON = deckJSON.getJSONArray("rankOrder");
-            rank_order = new String[rank_orderJSON.length()];
-            for (int i = 0; i < rank_order.length; i++) {
-                rank_order[i] = rank_orderJSON.getString(i);
-            }
+            //TODO implement this. Currently only supports default deck.
+            throw new UnsupportedOperationException();
         }
         //Gets the teams to use.
         int[][] teams;
@@ -257,8 +245,7 @@ public class Parser {
                 canBidBlind,
                 minBid,
                 maxBid,
-                bidSuits,
-                deck);
+                bidSuits);
 
         if (bidObject != null) {
             bidObject = gameJSON.getJSONObject("bid");
