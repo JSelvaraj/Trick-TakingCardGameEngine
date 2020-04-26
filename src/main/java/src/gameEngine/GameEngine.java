@@ -316,7 +316,7 @@ public class GameEngine {
         }
         if(desc.getCalculateScore().equals("trumpPointValue")){
             for (Team team : getTeams()) {
-                int score = team.getCardsWon().stream().mapToInt(Card::getPointValue).sum();
+                int score = team.getCardsWon().stream().filter((card -> card.getSUIT().equals(trumpSuit.toString()))).mapToInt(Card::getPointValue).sum();
                 team.setGameScore(team.getGameScore() + score);
                 team.setTricksWon(0);
                 team.getCardsWon().clear();
