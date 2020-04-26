@@ -13,6 +13,7 @@ public class Bid{
     private int bidValue;
     private boolean blind;
     private boolean vulnerable;
+    public static final String NOTRUMP = "NO TRUMP";
 
     //Spades has a 'blind' type of bid where they don't look at cards before bidding
 

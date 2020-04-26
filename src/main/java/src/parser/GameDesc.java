@@ -9,6 +9,7 @@ import src.bid.PotentialBid;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -34,7 +35,7 @@ public class GameDesc {
     private final String sessionEnd;
     private final Integer sessionEndValue;
     private final Integer scoreThreshold;
-    private Integer trickThreshold;
+    private int trickThreshold;
     private final String nextLegalCardMode;
     private final String trickWinner;
     private final String trickLeader;
@@ -51,6 +52,9 @@ public class GameDesc {
     private boolean ascendingBid;
     private int vulnerabilityThreshold;
     private boolean canBidBlind;
+    private int minBid;
+    private int maxBid;
+    private List<String> bidSuits;
 
 
     /**
@@ -86,7 +90,10 @@ public class GameDesc {
                     String sessionEnd,
                     int sessionEndValue,
                     int vulnerabilityThreshold,
-                    boolean canBidBlind) {
+                    boolean canBidBlind,
+                    int minBid,
+                    int maxBid,
+                    List<String> bidSuits) {
         this.name = name;
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
@@ -116,6 +123,9 @@ public class GameDesc {
         this.vulnerabilityThreshold = vulnerabilityThreshold;
         this.firstTrickLeader = firstTrickLeader;
         this.canBidBlind = canBidBlind;
+        this.minBid = minBid;
+        this.maxBid = maxBid;
+        this.bidSuits = bidSuits;
     }
 
     @Override
@@ -267,5 +277,17 @@ public class GameDesc {
 
     public boolean isCanBidBlind() {
         return canBidBlind;
+    }
+
+    public int getMinBid() {
+        return minBid;
+    }
+
+    public int getMaxBid() {
+        return maxBid;
+    }
+
+    public List<String> getBidSuits() {
+        return bidSuits;
     }
 }

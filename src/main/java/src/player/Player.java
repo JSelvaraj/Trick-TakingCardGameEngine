@@ -10,6 +10,7 @@ import src.rdmEvents.Swap;
 import src.team.Team;
 import src.parser.GameDesc;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -103,5 +104,9 @@ public abstract class Player {
 
     public void setTeam(Team team) {
         this.team = team;
+    }
+
+    public void broadcastDummyHand(int playerNumber, List<Card> dummyHand){
+
     }
 }

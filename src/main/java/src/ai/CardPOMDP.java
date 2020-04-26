@@ -26,10 +26,9 @@ public class CardPOMDP {
     //Game Information
     private int playerCount;
     private IntFunction<Integer> playerIncrementor;
-    private BiFunction<List<Card>, Card, Boolean> validCardFunction;
+    private BiFunction<GameObservation, Card, Boolean> validCardFunction;
     StringBuilder trumpSuit;
     private GameDesc gameDesc;
-    AtomicBoolean breakFlag;
     private List<Integer> teamMates;
     //Values for the POMDP procedure.
     private double epsilon = 0.001;
@@ -58,13 +57,26 @@ public class CardPOMDP {
             }
         }
         this.trumpSuit = trumpSuit;
-        breakFlag = new AtomicBoolean(false);
-        Predicate<Card> validLeadingCard = validCards.getValidLeadingCardPredicate(gameDesc.getLeadingCardForEachTrick(), trumpSuit, breakFlag);
+        BiFunction<Boolean, Card, Boolean> validLeadingCard = validCards.getValidLeadingCardFunction(gameDesc.getLeadingCardForEachTrick(), trumpSuit);
         validCardFunction = validCards.getValidCardFunction(validLeadingCard);
         playerIncrementor = PlayerIncrementer.generateNextPlayerFunction(gameDesc.isDEALCARDSCLOCKWISE(), playerCount);
     }
 
-    public Card search(GameObservation history) {
+    public Card searchCard(GameObservation history) {
+        POMCPTreeNode bestNode = search(history);
+        //Return the action associated with the observation.
+        return bestNode.getObservation().getCardSequence().get(bestNode.getObservation().getCardSequence().size() - 1);
+    }
+
+    public int searchBid(GameObservation history) {
+        POMCPTreeNode bestNode = search(history);
+        double bestValue = bestNode.getValue();
+        //What to divide our bid by. In non ascending bid where each makes a contract, divide by team size. Otherwise don't divide it.
+        int bidDivisor = gameDesc.isAscendingBid() ? 1 : teamMates.size();
+        return (int) Math.round((bestValue - gameDesc.getTrickThreshold())/ bidDivisor);
+    }
+
+    public POMCPTreeNode search(GameObservation history) {
         //Initialise the search tree if it hasn't already.
 //        if (root == null) {
 //            root = new POMCPTreeNode(history);
@@ -82,8 +94,7 @@ public class CardPOMDP {
         //Update the root of the search tree.
 //        root = bestNode;
         root = null;
-        //Return the action associated with the observation.
-        return bestNode.getObservation().getCardSequence().get(bestNode.getObservation().getCardSequence().size() - 1);
+        return bestNode;
     }
 
     private Triple<State, GameObservation, Integer> BlackBoxSimulator(final State state, final GameObservation observation, final Card action) {
@@ -119,6 +130,10 @@ public class CardPOMDP {
         //See if this player won the trick.
         int r = (teamMates.contains(winningPlayer)) ? 1 : 0;
         currentPlayer = winningPlayer;
+        //update the breakflag if neccessary.
+        if(newObservation.getCurrentTrick().stream().anyMatch((c) -> c.getSUIT().equals(trumpSuit.toString()))){
+            newObservation.setBreakFlag();
+        }
         newObservation.getCurrentTrick().clear();
         newObservation.setTrickStartedBy(currentPlayer);
         //TODO change for minimum hand size.
@@ -230,7 +245,7 @@ public class CardPOMDP {
         //The cards the player has.
         List<Card> playerCards = state.getPlayerHands().get(playerNumber);
         //Filter the cards that the player can play
-        List<Card> validCards = playerCards.stream().filter((card -> validCardFunction.apply(observation.getCurrentTrick(), card))).collect(Collectors.toList());
+        List<Card> validCards = playerCards.stream().filter((card -> validCardFunction.apply(observation, card))).collect(Collectors.toList());
         //If no cards are valid, then anything  can be played
         if (validCards.size() == 0) {
             validCards = playerCards;
