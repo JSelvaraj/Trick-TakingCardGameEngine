@@ -13,7 +13,6 @@ import src.player.LocalPlayer;
 import src.player.NetworkPlayer;
 import src.player.POMDPPlayer;
 import src.player.Player;
-import src.rdmEvents.RdmEvent;
 import src.rdmEvents.RdmEventsManager;
 import src.team.Team;
 
@@ -123,7 +122,7 @@ public class GameEngine {
                 game.dealCards(playerArray, deck, currentPlayer);
 
                 //Check for a random card to be inserted - run logic if successful
-                RdmEvent rdmEventHAND = rdmEventsManager.eventChooser("SPECIAL-CARD");
+                String rdmEventHAND = rdmEventsManager.eventChooser("SPECIAL-CARD");
                 if (rdmEventHAND != null) {
                     rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
                 }
@@ -169,9 +168,9 @@ public class GameEngine {
                     }
 
                     //Check for a random event at start of trick - run logic if successful
-                    RdmEvent rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
+                    String rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
                     if (rdmEventTRICK != null) {
-                        if (rdmEventTRICK.getName().equals("SwapHands")) {
+                        if (rdmEventTRICK.equals("SwapHands")) {
                             rdmEventsManager.runSwapHands();
                         } else {
                             rdmEventsManager.runSwapCards();

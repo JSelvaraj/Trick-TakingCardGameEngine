@@ -84,7 +84,7 @@ public class RdmEventsManager {
     }
 
     //Method that decides if a random event should be run, and chooses one if necessary
-    public RdmEvent eventChooser(String eventPlayTime) {
+    public String eventChooser(String eventPlayTime) {
         //If random events are enabled, randomly decide if an event should be run
         if (enabled && rand.nextDouble() < rdmEventProb) {
             //Choose an appropriate event based on the point in the game
@@ -93,10 +93,10 @@ public class RdmEventsManager {
                     //Reset the chance of a random event
                     rdmEventProb = rdmEventProbDEFAULT;
                     //Choose the event to be run and return it to the game engine
-                    return new RdmEvent(TRICKEvents[rand.nextInt(TRICKEvents.length)]);
+                    return TRICKEvents[rand.nextInt(TRICKEvents.length)];
                 case "SPECIAL-CARD":
                     rdmEventProb = rdmEventProbDEFAULT;
-                    return new RdmEvent(specialCardEvents[rand.nextInt(specialCardEvents.length)]);
+                    return specialCardEvents[rand.nextInt(specialCardEvents.length)];
                 default:
                     return null;
             }
@@ -156,9 +156,13 @@ public class RdmEventsManager {
         strongPlayer.setCanBePlayed(tempPredicate);
     }
 
+    //Method for running logic of score changes from playing a special card
     public void runSpecialCardOps(String cardType, int currentPlayer) {
+        //Get the team that played the card
         Team affectedTeam = getPlayers()[currentPlayer].getTeam();
-        int scoreChange = 10;
+        //Change the score my an appropriate amount
+        int scoreChange = scoreThreshold / 4;
+        //Indicate which card has been played
         if (cardType.equals("BOMB")) {
             System.out.println("Player " + currentPlayer + " played a BOMB card: " + scoreChange + " deducted from their teams score");
             scoreChange *= (-1);
@@ -166,17 +170,20 @@ public class RdmEventsManager {
             System.out.println("Player " + currentPlayer + "played a HEAVEN card: " + scoreChange + " added to their teams score");
         }
         System.out.println("Changing score of team " + affectedTeam.getTeamNumber());
-        affectedTeam.setGameScore(Math.max((affectedTeam.getGameScore() + scoreChange), 0));
+        //Change score of team
+        affectedTeam.setGameScore(affectedTeam.getGameScore() + scoreChange);
     }
 
-    public void runSpecialCardSetup(RdmEvent rdmEventHAND) {
+    //Method for inserting a special card into the deck
+    public void runSpecialCardSetup(String cardType) {
         Player[] playerArray = getPlayers();
+        //Select a random card from a player and set it to the given special type
         int rdmPlayerIndex = getRand().nextInt(playerArray.length);
         int rdmCardIndex = getRand().nextInt(desc.getHandSize());
-        playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex).setSpecialType(rdmEventHAND.getName());
-        System.out.println(playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex) + " is a " + rdmEventHAND.getName() + " special card.");
+        playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex).setSpecialType(cardType);
     }
 
+    //Standard getters and setters
     public Team getWeakestTeam() {
         return weakestTeam;
     }
