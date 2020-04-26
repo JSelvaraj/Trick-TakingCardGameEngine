@@ -35,6 +35,10 @@ public class Team {
         this.cardsWon.addAll(cards);
     }
 
+    public List<Card> getCardsWon() {
+        return cardsWon;
+    }
+
     private void setPlayers(Player[] players) {
         for (Player player : players) {
             player.setTeam(this);
