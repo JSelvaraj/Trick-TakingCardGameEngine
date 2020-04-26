@@ -1,74 +1,44 @@
 {
-  "name": "whist",
+  "name": "diminishing contract whist",
   "description": "...",
   "players": 4,
   "initialHandSize" : 13,
   "minimumHandSize" : 0,
   "deck": null,
+  "teams": [[0, 2],[1, 3]],
+  "ascending_ordering": true,
+  "can_view_previous_trick": true,
+  "rules": [
+    {"name": "leadingCardForEachTrick", "data": "any"},
+    {"name": "nextLegalCardMode", "data": "trick"},
+    {"name": "trumpPickingMode", "data": "predefined"},
+    {"name" : "trumpOrder", "data" : ["SPADES", "HEARTS", "CLUBS", "DIAMONDS", "SPADES", "HEARTS", "CLUBS", "DIAMONDS", "SPADES", "HEARTS"]},
+    {"name": "calculateScore", "data": "bid"},
+    {"name": "trickThreshold", "data": 0},
+    {"name": "trickWinner", "data": "standard"},
+    {"name": "tieBreaker", "data": "anotherHand"},
+    {"name": "trickLeader", "data": "prevWinner"},
+    {"name": "firstTrickLeader", "data": "default"},
+    {"name": "validLeadingCardFirstTrick", "data": "any"},
+    {"name": "sessionEnd", "data": "gamesPlayed"},
+    {"name": "sessionEndValue", "data": 1},
+    {"name": "gameEnd", "data": "handsPlayed"},
+    {"name": "gameEndValue", "data": 10},
+    {"name": "handEnd", "data": "outOfCards"},
+    {"name" : "handSize", "data" : "decreasing"}
+  ],
   "bid" : {
+    "trumpSuitBid" : false,
     "ascendingBid" : false,
     "pointsPerBid" : 1,
     "overtrickPoints" : 1,
     "penaltyPoints" : 0,
     "pointsForMatch" : 10,
     "minBid" : 0,
-    "maxBid" : 13,
+    "canBidBlind" : false,
+    "canPass" : false,
+    "canDouble" : false,
+    "canRedouble" : false,
     "specialBids": null
-  },
-  "teams": [
-    [
-      0, 2
-    ],
-    [
-      1, 3
-    ]
-  ],
-  "ascending_ordering": true,
-  "can_view_previous_trick": true,
-  "rules": [
-    {
-      "name": "leadingCardForEachTrick",
-      "data": "any"
-    },
-    {
-      "name": "nextLegalCardMode",
-      "data": "trick"
-    },
-    {
-      "name": "trumpPickingMode",
-      "data": "predefined"
-    },
-    {
-      "name" : "trumpOrder",
-      "data" : ["SPADES", "HEARTS", "CLUBS", "DIAMONDS", "SPADES", "HEARTS", "CLUBS", "DIAMONDS", "SPADES", "HEARTS"]
-    },
-    {
-      "name": "calculateScore",
-      "data": "bid"
-    },
-    {
-      "name": "trickThreshold",
-      "data": 0
-    },
-    {
-      "name": "trickWinner",
-      "data": "standard"
-    },
-    {
-      "name": "trickLeader",
-      "data": "prevWinner"
-    },
-    {
-      "name": "gameEnd",
-      "data": "handsPlayed"
-    },
-    {
-      "name": "gameEndValue",
-      "data": 10
-    },
-    {
-      "name" : "handSize",
-      "data" : "decreasing"
-    }
-  ]
+  }
 }

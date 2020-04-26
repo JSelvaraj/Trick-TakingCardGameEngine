@@ -1,0 +1,75 @@
+/*https://www.theguardian.com/lifeandstyle/2008/nov/22/rules-card-games-napoleon
+https://en.wikipedia.org/wiki/Napoleon_(card_game)
+*/
+{
+  "name" : "Napoleon",
+  "description" : "...",
+  "players" : 4,
+  "teams" : [[0], [1], [2], [3]],
+  "initialHandSize" : 5,
+  "minimumHandSize" : 0,
+  "ascending_ordering": true,
+  "can_view_previous_trick" : true,
+  "rules" : [
+    {"name" : "leadingCardForEachTrick", "data" : "any"},
+    {"name" : "nextLegalCardMode", "data" : "trick"},
+    {"name" : "trumpPickingMode", "data" : "firstPlayed"},
+    {"name" : "calculateScore", "data" : "bid"},
+    {"name" : "trickThreshold", "data" : 0},
+    {"name" : "trickWinner", "data" : "standard"},
+    {"name" : "tieBreaker", "data" : "anotherHand"},
+    {"name" : "trickLeader", "data" : "prevWinner"},
+    {"name" : "firstTrickLeader", "data" : "bidWinner"},
+    {"name" : "validLeadingCardFirstTrick", "data" : "any"},
+    {"name" : "sessionEnd", "data" : "gamesPlayed"},
+    {"name" : "sessionEndValue", "data" : 1},
+    {"name" : "gameEnd", "data" : "handsPlayed"},
+    {"name" : "gameEndValue", "data" : 5},
+    {"name" : "handEnd", "data": "outOfCards"},
+    {"name" : "handSize", "data" : "fixed"}
+  ],
+"bid":{
+    "trumpSuitBid" : false,
+    "ascendingBid" : true,
+    "pointsPerBid" : 0,
+    "overtrickPoints" : 0,
+    "pointsForMatching" : 0,
+    "penaltyPoints" : 0,
+    "minBid" : 0,
+    "maxBid" : 5,
+    "canBlindBid" : false,
+    "canPass" : true,
+    "canDouble" : false,
+    "canRedouble" : false,
+    "specialBids" : [
+      {
+        "bidValue" : 2,  
+        "bidName" : "Two",
+        "pointsGained" : 2,
+        "penalty" : 2,
+        "contractPoints" : 0
+      },
+      {
+        "bidValue" : 3,  
+        "bidName" : "Three",
+        "pointsGained" : 3,
+        "penalty" : 3,
+        "contractPoints" : 0
+      },
+      {
+        "bidValue" : 4,  
+        "bidName" : "Four",
+        "pointsGained" : 4,
+        "penalty" : 4,
+        "contractPoints" : 0
+      },
+      {
+        "bidValue" : 5,  
+        "bidName" : "Nap",
+        "pointsGained" : 5,
+        "penalty" : 5,
+        "contractPoints" : 0
+      }
+    ]
+}
+}

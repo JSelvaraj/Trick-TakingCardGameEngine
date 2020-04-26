@@ -1,8 +1,8 @@
 {
-  "name" : "spades",
-  "description" : "...",
+  "name" : "Reverse-Spades",
+  "description" : "A variant of spades where one has to make the worst bids to win.",
   "players" : 4,
-  "teams" : [[0],[1],[2],[3]],
+  "teams" : [[0, 2], [1, 3]],
   "ascending_ordering": true,
   "initialHandSize": 13,
   "minimumHandSize": 0,
@@ -21,35 +21,35 @@
     {"name" : "validLeadingCardFirstTrick", "data" : "notTrump"},
     {"name" : "sessionEnd", "data" : "gamesPlayed"},
     {"name" : "sessionEndValue", "data" : 1},
-    {"name" : "gameEnd", "data" : "scoreThreshold"},
-    {"name" : "gameEndValue", "data" : 100},
+    {"name" : "gameEnd", "data" : "handsPlayed"},
+    {"name" : "gameEndValue", "data" : 3},
     {"name" : "handEnd", "data": "outOfCards"},
-    {"name" : "handSize", "data" : "fixed"}
+    {"name" : "handSize", "data": "fixed"}
   ],
   "bid":{
     "trumpSuitBid" : false,
     "ascendingBid" : false,
-    "pointsPerBid" : 10,
-    "overtrickPoints" : 1,
+    "pointsPerBid" : -10,
+    "overtrickPoints" : -1,
     "pointsForMatching" : 0,
     "penaltyPoints" : 0,
     "minBid" : 0,
     "maxBid" : 13,
-    "canBidBlind" : true,
     "canPass" : false,
     "canDouble" : false,
     "canRedouble" : false,
+    "canBidBlind" : true,
     "specialBids": [{
       "bidValue" : 0,
-      "bonusPoints" : 100,
-      "penalty" : 100,
+      "bonusPoints" : -100,
+      "penalty" : -100,
       "blind" : false,
       "contractPoints" : 0
     },
       {
         "bidValue" : 0,
-        "bonusPoints" : 100,
-        "penalty" : 100,
+        "bonusPoints" : -100,
+        "penalty" : -100,
         "blind" : true,
         "contractPoints" : 0
       }]
