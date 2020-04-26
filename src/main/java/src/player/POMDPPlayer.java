@@ -3,6 +3,7 @@ package src.player;
 import javafx.util.Pair;
 import src.ai.CardPOMDP;
 import src.ai.GameObservation;
+import src.ai.POMCPTreeNode;
 import src.card.Card;
 import src.deck.Deck;
 import src.bid.Bid;
@@ -128,9 +129,37 @@ public class POMDPPlayer extends Player {
                 //Else will fall through to raise or pass.
             }
             return raiseOrPass(validBid, trumpSuitBid, adjustedHighestBid, tempTrumpSuit, tempPOMDP, firstRound);
-        } else {//TODO check double opponent.
+        } else {
+            //If you think you should double the opponent.
+            if(checkDouble(validBid, trumpSuitBid, adjustedHighestBid, tempTrumpSuit, cardPOMDP, firstRound)){
+                return new Bid(true, null, 0, false, false);
+            }
             return raiseOrPass(validBid, trumpSuitBid, adjustedHighestBid, tempTrumpSuit, tempPOMDP, firstRound);
         }
+    }
+
+    /**
+     * Perform a check to see if you think they won't meet their contract, and so double it.
+     *
+     * @param validBid
+     * @param trumpSuitBid
+     * @param adjustedHighestBid
+     * @param tempTrumpSuit
+     * @param tempCardPOMDP
+     * @param firstRound
+     * @return True if the agent should double the contract, false otherwise.
+     */
+    private boolean checkDouble(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, StringBuilder tempTrumpSuit, CardPOMDP tempCardPOMDP, boolean firstRound){
+        tempTrumpSuit.setLength(0);
+        tempTrumpSuit.append(adjustedHighestBid.getSuit());
+        POMCPTreeNode bestNode = tempCardPOMDP.search(this.observation);
+        int ourTrickswon = (int) Math.floor(bestNode.getValue());
+        int theirTricksWon = desc.getInitialHandSize() - ourTrickswon;
+        //Return a double if you don't think they'll meet their tricks won and you can bid a double.
+        if(adjustedHighestBid.getBidValue() > theirTricksWon - desc.getTrickThreshold() && validBid.test(new PotentialBid(null, "d", adjustedHighestBid, this, firstRound))){
+            return true;
+        }
+        return false;
     }
 
     private Bid raiseOrPass(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, StringBuilder tempTrumpSuit, CardPOMDP tempCardPOMDP, boolean firstRound) {
