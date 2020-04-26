@@ -1,6 +1,6 @@
 {
-  "name" : "spades",
-  "description" : "...",
+  "name" : "Clubs",
+  "description" : "Merge of Hearts and Spades",
   "players" : 4,
   "teams" : [[0],[1],[2],[3]],
   "ascending_ordering": true,
@@ -9,21 +9,21 @@
   "can_view_previous_trick" : true,
   "rules" : [
     {"name" : "leadingCardForEachTrick", "data" : "break"},
+    {"name" : "validLeadingCardFirstTrick", "data" : "notTrump"},
     {"name" : "nextLegalCardMode", "data" : "trick"},
     {"name" : "trumpPickingMode", "data" : "fixed"},
-    {"name" : "trumpSuit", "data": "SPADES"},
+    {"name" : "trumpSuit", "data" : "CLUBS"},
     {"name" : "calculateScore", "data" : "bid"},
     {"name" : "trickThreshold", "data" : 0},
     {"name" : "trickWinner", "data" : "standard"},
     {"name" : "tieBreaker", "data" : "anotherHand"},
     {"name" : "trickLeader", "data" : "prevWinner"},
     {"name" : "firstTrickLeader", "data" : "default"},
-    {"name" : "validLeadingCardFirstTrick", "data" : "notTrump"},
     {"name" : "sessionEnd", "data" : "gamesPlayed"},
     {"name" : "sessionEndValue", "data" : 1},
     {"name" : "gameEnd", "data" : "scoreThreshold"},
     {"name" : "gameEndValue", "data" : 100},
-    {"name" : "handEnd", "data": "outOfCards"},
+    {"name" : "handEnd", "data" : "outOfCards"},
     {"name" : "handSize", "data" : "fixed"}
   ],
   "bid":{
@@ -41,14 +41,14 @@
     "canRedouble" : false,
     "specialBids": [{
       "bidValue" : 0,
-      "bonusPoints" : 100,
+      "pointsGained" : 100,
       "penalty" : 100,
       "blind" : false,
       "contractPoints" : 0
     },
       {
         "bidValue" : 0,
-        "bonusPoints" : 100,
+        "pointsGained" : 100,
         "penalty" : 100,
         "blind" : true,
         "contractPoints" : 0
