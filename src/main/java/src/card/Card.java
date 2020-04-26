@@ -55,8 +55,7 @@ public class Card {
         if (o == null || getClass() != o.getClass()) return false;
         Card card = (Card) o;
         return SUIT.equals(card.SUIT) &&
-                RANK.equals(card.RANK) &&
-                pointValue == card.pointValue;
+                RANK.equals(card.RANK);
     }
 
     @Override
