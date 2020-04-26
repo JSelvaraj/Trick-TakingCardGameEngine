@@ -120,7 +120,7 @@ public class POMDPPlayer extends Player {
             } else {
                 return openingBid(validBid, trumpSuitBid, tempTrumpSuit, tempPOMDP);
             }
-        } else if (adjustedHighestBid.getDeclarer().getTeam().containsPlayer(this) && adjustedHighestBid.getDeclarer() != this) { //Our teammate has the highest contract so far.
+        } else if (adjustedHighestBid.getDeclarer().getTeam().findPlayer(this) && adjustedHighestBid.getDeclarer() != this) { //Our teammate has the highest contract so far.
             if (adjustedHighestBid.isDoubling()) {
                 tempTrumpSuit.setLength(0);
                 tempTrumpSuit.append(adjustedHighestBid.getSuit());
@@ -173,7 +173,7 @@ public class POMDPPlayer extends Player {
             throw new UnsupportedOperationException();
         }
         //If it is your teammate
-        if (adjustedHighestBid.getDeclarer().getTeam().containsPlayer(this)) {
+        if (adjustedHighestBid.getDeclarer().getTeam().findPlayer(this)) {
             tempTrumpSuit.setLength(0);
             tempTrumpSuit.append(tempCardPOMDP);
             int bidValue = tempCardPOMDP.searchBid(this.observation);

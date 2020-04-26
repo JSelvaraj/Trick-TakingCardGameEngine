@@ -70,15 +70,6 @@ public class Team {
         return teamNumber;
     }
 
-    public boolean containsPlayer(Player player){
-        for (Player value : players) {
-            if (value.getPlayerNumber() == player.getPlayerNumber()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public boolean isVulnerable() {
         return vulnerable;
     }
