@@ -193,7 +193,7 @@ public class GameEngine {
                         if (rdmEventHAND != null) {
                             String playedCardType = game.currentTrick.getHand().get(game.currentTrick.getHandSize() - 1).getSpecialType();
                             if (playedCardType != null) {
-                                rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer, game.getTeams());
+                                rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer);
                             }
                         }
                         //Rotate the play

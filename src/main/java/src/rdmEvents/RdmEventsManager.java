@@ -116,14 +116,20 @@ public class RdmEventsManager {
         Player rdmStrongPlayer = strongestTeam.getPlayers()[rdmStrongPlayerTeamIndex];
         //Ask the weak player if the want to swap a card with the random player
         Swap swap = weakPlayer.getSwap(rdmStrongPlayer);
+        //If the player selected a swap, run the swap logic
         if (swap.getStatus().equals("live")) {
+            //Get the original (swapper) player's card
             Card originalPlayerCard = playerArray[swap.getOriginalPlayerIndex()].getHand().giveCard(swap.getOriginalPlayerCardNumber());
+            //Get the card to be swapped with
             Card otherPlayerCard = playerArray[swap.getRdmPlayerIndex()].getHand().giveCard(swap.getRdmPlayerCardNumber());
+            //Add the other card to the swapper's hand
             playerArray[swap.getOriginalPlayerIndex()].getHand().getCard(otherPlayerCard);
+            //Add the swapper's card to the other players hand
             playerArray[swap.getRdmPlayerIndex()].getHand().getCard(originalPlayerCard);
             System.out.println("Swapping " + originalPlayerCard + " from Player " + (swap.getOriginalPlayerIndex() + 1) + " with " +
                     otherPlayerCard + " from Player " + (swap.getRdmPlayerIndex() + 1));
         }
+        //If the swap was made by the local player, notify the network players
         if (!(weakPlayer instanceof NetworkPlayer)) {
             for (Player player : playerArray) {
                 player.broadcastSwap(swap);
@@ -131,25 +137,26 @@ public class RdmEventsManager {
         }
     }
 
+    //Method to run swap hands event logic
     public void runSwapHands() {
-        Team weakestTeam = getWeakestTeam();
-        Team strongestTeam = getStrongestTeam();
-
-        Player weakPlayer = weakestTeam.getPlayers()[0];
-        Player strongPlayer = strongestTeam.getPlayers()[0];
+        //Randomly select a player from the weakest team
+        int rdmPlayerIndexFromWeakTeam = getRand().nextInt(getWeakestTeam().getPlayers().length);
+        Player weakPlayer = getWeakestTeam().getPlayers()[rdmPlayerIndexFromWeakTeam];
+        //Randomly select a player from the strongest team
+        int rdmStrongPlayerTeamIndex = getRand().nextInt(getStrongestTeam().getPlayers().length);
+        Player strongPlayer = strongestTeam.getPlayers()[rdmStrongPlayerTeamIndex];
 
         System.out.println("Swapping hands between Player " + weakPlayer.getPlayerNumber() + " and Player " + strongPlayer.getPlayerNumber());
-
+        //Swap hands and predicates
         Hand tempHand = weakPlayer.getHand();
         Predicate<Card> tempPredicate = weakPlayer.getCanBePlayed();
-
         weakPlayer.setHand(strongPlayer.getHand());
         weakPlayer.setCanBePlayed(strongPlayer.getCanBePlayed());
         strongPlayer.setHand(tempHand);
         strongPlayer.setCanBePlayed(tempPredicate);
     }
 
-    public void runSpecialCardOps(String cardType, int currentPlayer, ArrayList<Team> teams) {
+    public void runSpecialCardOps(String cardType, int currentPlayer) {
         Team affectedTeam = getPlayers()[currentPlayer].getTeam();
         int scoreChange = 10;
         if (cardType.equals("BOMB")) {
