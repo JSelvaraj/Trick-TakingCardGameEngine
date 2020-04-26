@@ -71,6 +71,8 @@ public class CardPOMDP {
     public int searchBid(GameObservation history) {
         POMCPTreeNode bestNode = search(history);
         double bestValue = bestNode.getValue();
+        //What to divide our bid by. In non ascending bid where each makes a contract, divide by team size. Otherwise don't divide it.
+        int bidDivisor = gameDesc.isAscendingBid() ? 1 : teamMates.size();
         return (int) Math.round((bestValue - gameDesc.getTrickThreshold())/ teamMates.size());
     }
 
