@@ -16,6 +16,7 @@ import src.parser.GameDesc;
 import src.rdmEvents.Swap;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -44,7 +45,7 @@ public class POMDPPlayer extends Player {
     @Override
     public void startHand(StringBuilder trumpSuit) {
         this.trumpSuit = trumpSuit;
-        Deck deck = new Deck(); //TODO work for more than standard deck.
+        Deck deck = new Deck((LinkedList<Card>) desc.getDECK()); //TODO work for more than standard deck.
         observation = new GameObservation(deck.cards, desc.getNUMBEROFPLAYERS(), desc.getInitialHandSize());
         //Add the cards that this player has.
         observation.addKnownCards(getPlayerNumber(), getHand().getHand());

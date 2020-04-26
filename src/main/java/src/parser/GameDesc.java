@@ -159,7 +159,7 @@ public class GameDesc {
     }
 
     public List<Card> getDECK() {
-        return this.deck.cards;
+        return new LinkedList<>(deck.cards);
     }
 
     public boolean isDEALCARDSCLOCKWISE() {
