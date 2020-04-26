@@ -131,12 +131,14 @@ public class POMDPPlayer extends Player {
                 //Else will fall through to raise or pass.
             }
             return raiseOrPass(validBid, trumpSuitBid, adjustedHighestBid, tempTrumpSuit, tempPOMDP, firstRound);
-        } else {
+        } else if(adjustedHighestBid.getDeclarer() != this){
             //If you think you should double the opponent.
             if (checkDouble(validBid, trumpSuitBid, adjustedHighestBid, tempTrumpSuit, cardPOMDP, firstRound)) {
                 return new Bid(true, null, 0, false, false);
             }
             return raiseOrPass(validBid, trumpSuitBid, adjustedHighestBid, tempTrumpSuit, tempPOMDP, firstRound);
+        } else {
+            return passingBid();
         }
     }
 
