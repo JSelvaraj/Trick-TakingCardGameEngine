@@ -158,7 +158,7 @@ public class GameDesc {
         return NUMBEROFPLAYERS;
     }
 
-    public LinkedList<Card> getDECK() {
+    public List<Card> getDECK() {
         return this.deck.cards;
     }
 
