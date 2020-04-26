@@ -1,5 +1,6 @@
 package src.parser;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
@@ -100,6 +101,8 @@ public class Parser {
             for (int i = 0; i < rank_order.length; i++) {
                 rank_order[i] = rank_orderJSON.getString(i);
             }
+            //Needed as spec is wrong
+            ArrayUtils.reverse(rank_order);
         }
         //Gets the teams to use.
         int[][] teams;
