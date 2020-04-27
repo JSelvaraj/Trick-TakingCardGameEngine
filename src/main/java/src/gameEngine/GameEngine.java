@@ -126,8 +126,16 @@ public class GameEngine {
 
                 //Check for a random card to be inserted - run logic if successful
                 String rdmEventHAND = rdmEventsManager.eventChooser("HAND");
-                if (rdmEventHAND != null && (rdmEventHAND.equals("BOMB") || rdmEventHAND.equals("HEAVEN"))) {
-                    rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
+                if (rdmEventHAND != null) {
+                    if (rdmEventHAND.equals("AI-TAKEOVER")) {
+                        Player aiPLayer = rdmEventsManager.getRdmWeakestPlayer();
+                        if (aiPLayer instanceof LocalPlayer) {
+                            //Toggle player ai moves to 'ON' if AI active for weakest player
+                        }
+                    }
+                    else {
+                        rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
+                    }
                 }
 
                 //Increment the current player to set the first bidder
@@ -189,20 +197,13 @@ public class GameEngine {
 
                     //Loop for all players to play a card
                     for (int i = 0; i < playerArray.length; i++) {
-                        //Check if an AI takeover is active - execute logic if necessary
-                        if (rdmEventHAND != null && rdmEventHAND.equals("AI-TAKEOVER") &&
-                                rdmEventsManager.getWeakestTeam().getPlayers()[0].getPlayerNumber() == currentPlayer &&
-                                playerArray[currentPlayer] instanceof LocalPlayer) {
-                            game.currentTrick.getCard(((LocalPlayer) playerArray[currentPlayer]).aiMove(game.currentTrick));
-                        }
-                        //Otherwise add the card played by the player to the current trick
-                        else {
-                            game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
-                        }
+                        //Otherwise add the card played by the player to the current trick - will be an ai made move if activated
+                        game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
+
                         //Broadcast the card played to all players
                         game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                         //If a special card has been placed in deck, check if it has just been played - adjust points if it has.
-                        if (rdmEventHAND != null) {
+                        if (rdmEventHAND != null && (rdmEventHAND.equals("BOMB") || rdmEventHAND.equals("HEAVEN"))) {
                             String playedCardType = game.currentTrick.getHand().get(game.currentTrick.getHandSize() - 1).getSpecialType();
                             if (playedCardType != null) {
                                 rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer);
