@@ -1,6 +1,11 @@
 package src.team;
 
+import src.card.Card;
 import src.player.Player;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Team {
 
@@ -12,6 +17,7 @@ public class Team {
     Player[] players;
     boolean vulnerable;
     int gamesWon;
+    private List<Card> cardsWon;
 
     public Team(Player[] players, int teamNumber) {
         this.players = players;
@@ -22,16 +28,25 @@ public class Team {
         vulnerable = false;
         gamesWon = 0;
         cumulativeScore = 0;
+        cardsWon = new LinkedList<>();
+    }
+
+    public void addCardsWon(Collection<Card> cards) {
+        this.cardsWon.addAll(cards);
+    }
+
+    public List<Card> getCardsWon() {
+        return cardsWon;
     }
 
     private void setPlayers(Player[] players) {
-        for (Player player: players) {
+        for (Player player : players) {
             player.setTeam(this);
         }
     }
 
     public boolean findPlayer(Player player) {
-        for (Player playerInTeam: getPlayers()) {
+        for (Player playerInTeam : getPlayers()) {
             if (player.getPlayerNumber() == playerInTeam.getPlayerNumber()) {
                 return true;
             }
@@ -41,8 +56,8 @@ public class Team {
 
     public void printTeam() {
         System.out.println("Team: " + teamNumber);
-        for (Player player: players) {
-            System.out.println("Player no. : " + player.getPlayerNumber() );
+        for (Player player : players) {
+            System.out.println("Player no. : " + player.getPlayerNumber());
         }
     }
 

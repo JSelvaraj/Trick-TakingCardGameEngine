@@ -1,5 +1,6 @@
 package src.parser;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
@@ -7,16 +8,15 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import src.bid.Bid;
+import src.card.Card;
+import src.deck.Deck;
 import src.exceptions.InvalidGameDescriptionException;
 import src.functions.validBids;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 
 /**
@@ -83,13 +83,26 @@ public class Parser {
         String[] suits;
         String[] ranks;
         String[] rank_order;
+        Deck deck;
         if (gameJSON.isNull("deck")) {
             suits = DEFAULT_SUITS;
             ranks = DEFAULT_RANKS;
             rank_order = DEFAULT_RANK_ORDER;
+            deck = new Deck();
         } else {
-            //TODO implement this. Currently only supports default deck.
-            throw new UnsupportedOperationException();
+            JSONObject deckJSON = gameJSON.getJSONObject("deck");
+            JSONArray cards = deckJSON.getJSONArray("cards");
+            //TODO remove suit and ranks.
+            suits = DEFAULT_SUITS;
+            ranks = DEFAULT_RANKS;
+            deck = new Deck((LinkedList<Card>) Deck.makeDeck(cards));
+            JSONArray rank_orderJSON = deckJSON.getJSONArray("rankOrder");
+            rank_order = new String[rank_orderJSON.length()];
+            for (int i = 0; i < rank_order.length; i++) {
+                rank_order[i] = rank_orderJSON.getString(i);
+            }
+            //Needed as spec is wrong
+            ArrayUtils.reverse(rank_order);
         }
         //Gets the teams to use.
         int[][] teams;
@@ -245,7 +258,8 @@ public class Parser {
                 canBidBlind,
                 minBid,
                 maxBid,
-                bidSuits);
+                bidSuits,
+                deck);
 
         if (bidObject != null) {
             bidObject = gameJSON.getJSONObject("bid");
@@ -283,7 +297,7 @@ public class Parser {
     }
 
     private void initBidding(JSONObject bidObject, GameDesc gameDesc) {
-        gameDesc.setValidBid(validBids.isValidBidValue(bidObject));
+        gameDesc.setValidBid(validBids.isValidBidValue(bidObject, gameDesc.getInitialHandSize()));
         gameDesc.setEvaluateBid(validBids.evaluateBid(bidObject, gameDesc.getTrickThreshold()));
         gameDesc.setBidding(true);
     }

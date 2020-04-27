@@ -42,8 +42,8 @@
         {"rank" : "KING", "suit": "SPADES", "pointValue":  3 },
         {"rank" : "ACE", "suit": "SPADES", "pointValue":  4 }
       ],
-      "rankOrder" : ["SIX", "SEVEN", "EIGHT", "NINE", "TEN", "QUEEN", "KING", "ACE", "JACK"],
-      "stock" : 1
+    "rankOrder" : ["ACE", "KING", "QUEEN", "JACK", "TEN", "NINE", "EIGHT", "SEVEN", "SIX"],
+    "stock" : 1
   },
   "ascending_ordering": true,
   "initialHandSize" : 9,

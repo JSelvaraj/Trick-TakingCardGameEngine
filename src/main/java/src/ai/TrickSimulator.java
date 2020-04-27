@@ -28,7 +28,7 @@ public class TrickSimulator { //TODO test this
     
     public int evaluateWinner(GameDesc desc) {
         Map<String, Integer> suitOrder = GameEngine.generateSuitOrder(desc, trumpSuit, trick.get(0).getLeft());
-        CardComparator cardComparator = new CardComparator(suitOrder);
+        CardComparator cardComparator = new CardComparator(suitOrder, desc.getRANKORDER());
         Pair<Card, Integer> currentWinner = trick.get(0);
         Pair<Card, Integer> card;
         for (int i = 1; i < trick.size(); i++) {
