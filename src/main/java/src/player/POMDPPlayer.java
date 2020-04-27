@@ -43,10 +43,10 @@ public class POMDPPlayer extends Player {
     }
 
     @Override
-    public void startHand(StringBuilder trumpSuit) {
+    public void startHand(StringBuilder trumpSuit, int handSize) {
         this.trumpSuit = trumpSuit;
-        Deck deck = new Deck((LinkedList<Card>) desc.getDECK()); //TODO work for more than standard deck.
-        observation = new GameObservation(deck.cards, desc.getNUMBEROFPLAYERS(), desc.getInitialHandSize());
+        Deck deck = new Deck((LinkedList<Card>) desc.getDECK());
+        observation = new GameObservation(deck.cards, desc.getNUMBEROFPLAYERS(), handSize);
         //Add the cards that this player has.
         observation.addKnownCards(getPlayerNumber(), getHand().getHand());
         cardPOMDP = new CardPOMDP(desc, timeout, getPlayerNumber(), trumpSuit);

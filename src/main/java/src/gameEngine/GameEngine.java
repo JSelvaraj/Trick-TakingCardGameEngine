@@ -41,6 +41,7 @@ public class GameEngine {
     private Predicate<Card> validCard;
     //Predicate function used to increment/rotate play from the current player
     private IntFunction<Integer> nextPlayerIndex;
+    private int handSize;
 
     /**
      * Sets up game engine, sets attributes based on provided game description
@@ -120,6 +121,7 @@ public class GameEngine {
                 deck = new Deck((LinkedList<Card>) gameDesc.getDECK());
                 //Shuffle deck according to the given seed and deal the cards
                 shuffle.shuffle(deck.cards);
+                game.handSize =  gameDesc.getHandSize();
                 game.dealCards(playerArray, deck, currentPlayer);
 
                 //Check for a random card to be inserted - run logic if successful
@@ -134,7 +136,7 @@ public class GameEngine {
                 //Signal to players that a new hand has started.
                 for (Player player : playerArray) {
                     //This doesn't do anything - assume middleware/frontend will handle
-                    player.startHand(game.trumpSuit);
+                    player.startHand(game.trumpSuit, game.handSize);
                 }
 
                 //Get bids from players if necessary
@@ -528,7 +530,7 @@ public class GameEngine {
     public void dealCards(Player[] players, Deck deck, int dealerIndex) {
         //Start dealing to the next player from the dealer
         dealerIndex = this.nextPlayerIndex.apply(dealerIndex);
-        int cardsLeft = deck.getDeckSize() - (players.length * this.desc.getHandSize());
+        int cardsLeft = deck.getDeckSize() - (players.length * handSize);
         //Deal until the deck is empty
         while (deck.getDeckSize() > cardsLeft) {
             //Deal card to player by adding to their hand and removing from the deck
