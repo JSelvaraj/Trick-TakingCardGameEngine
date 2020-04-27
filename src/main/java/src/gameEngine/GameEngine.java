@@ -580,7 +580,8 @@ public class GameEngine {
         }
         //Refine ranking based on how the game chooses the trump
         switch (desc.getTrumpPickingMode()) {
-            case "lastDealt": //follows through to 'fixed' case
+            case "lastDealt"://follows through to 'fixed' case
+            case "predefined":
             case "fixed":
                 suitMap.put(trumpSuit.toString(), 1);
                 if (leadingCard.getSUIT().equals(trumpSuit.toString()))
