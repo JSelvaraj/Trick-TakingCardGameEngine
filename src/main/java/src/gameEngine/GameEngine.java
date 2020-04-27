@@ -252,7 +252,7 @@ public class GameEngine {
                 game.calculateScore();
 
                 //Increment the trump suit if specified
-                if (gameDesc.getTrumpPickingMode().equals("predefined") && !game.gameEnd()) {
+                if (gameDesc.getTrumpPickingMode().equals("predefined") && game.gameEnd()) {
                     game.trumpSuit.replace(0, game.trumpSuit.length(), gameDesc.getTrumpIterator().next());
                 }
 
