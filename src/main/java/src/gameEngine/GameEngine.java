@@ -41,6 +41,7 @@ public class GameEngine {
     private Predicate<Card> validCard;
     //Predicate function used to increment/rotate play from the current player
     private IntFunction<Integer> nextPlayerIndex;
+    private int handSize;
 
     /**
      * Sets up game engine, sets attributes based on provided game description
@@ -72,11 +73,12 @@ public class GameEngine {
 
     /**
      * Main driver method to start game logic for an instance
-     * @param gameDesc The description of the game to run
-     * @param dealer The index of player set to deal first
-     * @param playerArray The array specifying the players in the game
-     * @param seed The seed used to initialise random actions
-     * @param printMoves Flag if moves should be printed for debugging
+     *
+     * @param gameDesc           The description of the game to run
+     * @param dealer             The index of player set to deal first
+     * @param playerArray        The array specifying the players in the game
+     * @param seed               The seed used to initialise random actions
+     * @param printMoves         Flag if moves should be printed for debugging
      * @param enableRandomEvents Flag if random events are enabled in the game
      */
     public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) {
@@ -116,9 +118,10 @@ public class GameEngine {
                 //Set the current player to the dealer
                 int currentPlayer = dealer;
                 //Create the deck
-                deck = new Deck(gameDesc.getDECK());
+                deck = new Deck((LinkedList<Card>) gameDesc.getDECK());
                 //Shuffle deck according to the given seed and deal the cards
                 shuffle.shuffle(deck.cards);
+                game.handSize =  gameDesc.getHandSize();
                 game.dealCards(playerArray, deck, currentPlayer);
 
                 //Check for a random card to be inserted - run logic if successful
@@ -133,7 +136,7 @@ public class GameEngine {
                 //Signal to players that a new hand has started.
                 for (Player player : playerArray) {
                     //This doesn't do anything - assume middleware/frontend will handle
-                    player.startHand(game.trumpSuit);
+                    player.startHand(game.trumpSuit, game.handSize);
                 }
 
                 //Get bids from players if necessary
@@ -229,6 +232,7 @@ public class GameEngine {
                     //Find the team with the winning player and increment their tricks score
                     Team winningTeam = playerArray[currentPlayer].getTeam();
                     winningTeam.setTricksWon(winningTeam.getTricksWon() + 1);
+                    winningTeam.addCardsWon(game.currentTrick.getHand());
                     if (printMoves) {
                         System.out.println("Player " + (currentPlayer + 1) + " was the winner of the trick with the " + winningCard.toString());
                         System.out.println("Tricks won: " + winningTeam.getTricksWon());
@@ -248,7 +252,7 @@ public class GameEngine {
                 game.calculateScore();
 
                 //Increment the trump suit if specified
-                if (gameDesc.getTrumpPickingMode().equals("predefined")) {
+                if (gameDesc.getTrumpPickingMode().equals("predefined") && game.gameEnd()) {
                     game.trumpSuit.replace(0, game.trumpSuit.length(), gameDesc.getTrumpIterator().next());
                 }
 
@@ -310,6 +314,14 @@ public class GameEngine {
                 }
                 //Reset trick score
                 team.setTricksWon(0);
+            }
+        }
+        if(desc.getCalculateScore().equals("trumpPointValue")){
+            for (Team team : getTeams()) {
+                int score = team.getCardsWon().stream().filter((card -> card.getSUIT().equals(trumpSuit.toString()))).mapToInt(Card::getPointValue).sum();
+                team.setGameScore(team.getGameScore() + score);
+                team.setTricksWon(0);
+                team.getCardsWon().clear();
             }
         }
         if (desc.getCalculateScore().equals("bid")) {
@@ -397,7 +409,7 @@ public class GameEngine {
      * Gets the bids from the players
      *
      * @param currentPlayer Player bidding starts at
-     * @param players Array of players
+     * @param players       Array of players
      */
     public void getBids(int currentPlayer, Player[] players) {
         System.out.println("-----------------------------------");
@@ -511,14 +523,14 @@ public class GameEngine {
     /**
      * Distributes cards from the deck starting from the dealer +/- 1
      *
-     * @param players Players to deal cards to
-     * @param deck Deck to deal cards from
+     * @param players     Players to deal cards to
+     * @param deck        Deck to deal cards from
      * @param dealerIndex Current dealer index
      */
     public void dealCards(Player[] players, Deck deck, int dealerIndex) {
         //Start dealing to the next player from the dealer
         dealerIndex = this.nextPlayerIndex.apply(dealerIndex);
-        int cardsLeft = deck.getDeckSize() - (players.length * this.desc.getHandSize());
+        int cardsLeft = deck.getDeckSize() - (players.length * handSize);
         //Deal until the deck is empty
         while (deck.getDeckSize() > cardsLeft) {
             //Deal card to player by adding to their hand and removing from the deck
@@ -546,7 +558,7 @@ public class GameEngine {
         //Generate suit ranking
         HashMap<String, Integer> suitMap = generateSuitOrder(desc, trumpSuit, currentTrick.get(0));
         //Get comparator for comparing cards based on the suit ranking
-        CardComparator comparator = new CardComparator(suitMap);
+        CardComparator comparator = new CardComparator(suitMap, desc.getRANKORDER());
         //Find the card with the highest ranking/value
         Card currentWinner = currentTrick.get(0);
         for (Card card : currentTrick.getHand()) {
@@ -568,7 +580,8 @@ public class GameEngine {
         }
         //Refine ranking based on how the game chooses the trump
         switch (desc.getTrumpPickingMode()) {
-            case "lastDealt": //follows through to 'fixed' case
+            case "lastDealt"://follows through to 'fixed' case
+            case "predefined":
             case "fixed":
                 suitMap.put(trumpSuit.toString(), 1);
                 if (leadingCard.getSUIT().equals(trumpSuit.toString()))

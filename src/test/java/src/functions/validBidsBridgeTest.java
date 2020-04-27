@@ -32,7 +32,7 @@ public class validBidsBridgeTest {
         bidObject.put("canPass", true);
         bidObject.put("canDouble", true);
         bidObject.put("canRedouble", true);
-        bidValidator = validBids.isValidBidValue(bidObject);
+        bidValidator = validBids.isValidBidValue(bidObject, 13);
         player1 = new LocalPlayer(1);
         team1 = new Team(new Player[] {player1, new LocalPlayer()}, 1);
     }

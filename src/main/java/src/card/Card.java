@@ -8,10 +8,17 @@ public class Card {
     private final String SUIT;
     private final String RANK;
     private String specialType;
+    private int pointValue;
 
     public Card(String suit, String rank) {
         SUIT = suit;
         RANK = rank;
+    }
+
+    public Card(String SUIT, String RANK, int pointValue) {
+        this.SUIT = SUIT;
+        this.RANK = RANK;
+        this.pointValue = pointValue;
     }
 
     /**
@@ -28,6 +35,10 @@ public class Card {
 
     public String getSUIT() {
         return SUIT;
+    }
+
+    public int getPointValue() {
+        return pointValue;
     }
 
     /**

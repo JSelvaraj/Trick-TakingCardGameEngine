@@ -55,6 +55,7 @@ public class GameDesc {
     private int minBid;
     private int maxBid;
     private List<String> bidSuits;
+    private Deck deck;
 
 
     /**
@@ -93,7 +94,8 @@ public class GameDesc {
                     boolean canBidBlind,
                     int minBid,
                     int maxBid,
-                    List<String> bidSuits) {
+                    List<String> bidSuits,
+                    Deck deck) {
         this.name = name;
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
@@ -126,6 +128,7 @@ public class GameDesc {
         this.minBid = minBid;
         this.maxBid = maxBid;
         this.bidSuits = bidSuits;
+        this.deck = deck;
     }
 
     @Override
@@ -155,8 +158,8 @@ public class GameDesc {
         return NUMBEROFPLAYERS;
     }
 
-    public LinkedList<Card> getDECK() {
-        return Deck.makeDeck(this.SUITS, this.RANKS);
+    public List<Card> getDECK() {
+        return new LinkedList<>(deck.cards);
     }
 
     public boolean isDEALCARDSCLOCKWISE() {

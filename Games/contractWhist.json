@@ -35,6 +35,7 @@
     "penaltyPoints" : 0,
     "pointsForMatch" : 10,
     "minBid" : 0,
+    "maxBid" : 13,
     "canBidBlind" : false,
     "canPass" : false,
     "canDouble" : false,
