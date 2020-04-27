@@ -3,6 +3,7 @@ package src.rdmEvents;
 import src.card.Card;
 import src.gameEngine.Hand;
 import src.parser.GameDesc;
+import src.player.LocalPlayer;
 import src.player.NetworkPlayer;
 import src.player.Player;
 import src.team.Team;
@@ -96,8 +97,13 @@ public class RdmEventsManager {
                 case "TRICK":
                     //Choose the event to be run and return it to the game engine
                     return TRICKEvents[rand.nextInt(TRICKEvents.length)];
-                case "SPECIAL-CARD":
-                    return specialCardEvents[rand.nextInt(specialCardEvents.length)];
+                case "HAND":
+                    if (rand.nextInt(1) == 1) {
+                        return "AI-TAKEOVER";
+                    }
+                    else {
+                        return specialCardEvents[rand.nextInt(specialCardEvents.length)];
+                    }
                 default:
                     return null;
             }
