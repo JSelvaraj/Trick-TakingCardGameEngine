@@ -297,7 +297,7 @@ public class Parser {
     }
 
     private void initBidding(JSONObject bidObject, GameDesc gameDesc) {
-        gameDesc.setValidBid(validBids.isValidBidValue(bidObject));
+        gameDesc.setValidBid(validBids.isValidBidValue(bidObject, gameDesc.getInitialHandSize()));
         gameDesc.setEvaluateBid(validBids.evaluateBid(bidObject, gameDesc.getTrickThreshold()));
         gameDesc.setBidding(true);
     }
