@@ -136,13 +136,12 @@ public class CardPOMDP {
         }
         newObservation.getCurrentTrick().clear();
         newObservation.setTrickStartedBy(currentPlayer);
-        //TODO change for minimum hand size.
         //Check if all cards have been played
         int handsize = newState.getHandSize(0);
         for (int i = 0; i < newState.getNumberOfPlayers(); i++) {
             assert newState.getHandSize(i) == handsize;
         }
-        if (newObservation.getCardsRemaining().size() == 0) {
+        if (handsize == gameDesc.getMinHandSize()) {
             newObservation.setDone(true);
         } else {
             //Fill the observation until it is the AI players turn.
