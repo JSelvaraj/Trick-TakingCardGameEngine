@@ -5,7 +5,9 @@ import src.bid.Bid;
 import src.bid.ContractBid;
 import src.gameEngine.Hand;
 import src.bid.PotentialBid;
+import src.parser.GameDesc;
 import src.rdmEvents.Swap;
+import src.team.Team;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,6 +47,9 @@ public class LocalPlayer extends Player {
 
     private String colour;
 
+    private POMDPPlayer aiPlayer = new POMDPPlayer();
+    private boolean aiTakeover = false;
+
     public LocalPlayer(int playerNumber, Predicate<Card> validCard) {
         super(playerNumber, validCard);
         this.colour = text_colours[playerNumber];
@@ -57,8 +62,32 @@ public class LocalPlayer extends Player {
 
     public LocalPlayer() {
         this.colour = text_colours[0];
+        aiPlayer.setHand(super.getHand());
     }
 
+    @Override
+    public void setTeam(Team team) {
+        super.setTeam(team);
+        aiPlayer.setTeam(team);
+    }
+
+    @Override
+    public void startHand(StringBuilder trumpSuit, int handSize) {
+        super.startHand(trumpSuit, handSize);
+        aiPlayer.startHand(trumpSuit, handSize);
+    }
+
+    @Override
+    public void setPlayerNumber(int playerNumber) {
+        super.setPlayerNumber(playerNumber);
+        aiPlayer.setPlayerNumber(playerNumber);
+    }
+
+    @Override
+    public void initPlayer(Predicate<Card> validCard, GameDesc desc, StringBuilder trumpSuit) {
+        super.initPlayer(validCard, desc, trumpSuit);
+        aiPlayer.initPlayer(validCard, desc, trumpSuit);
+    }
 
     /**
      * @param trumpSuit    current trump suit
@@ -69,6 +98,10 @@ public class LocalPlayer extends Player {
      */
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) {
+        if(aiTakeover){
+            System.out.println("AI takeover");
+            return aiPlayer.playCard(trumpSuit, currentTrick);
+        }
         System.out.println("Current Trick: " + currentTrick.toString());
         System.out.print(this.colour);
         System.out.println("-------------------------------------");
@@ -90,6 +123,7 @@ public class LocalPlayer extends Player {
 
     @Override
     public void broadcastPlay(Card card, int playerNumber) {
+        aiPlayer.broadcastPlay(card, playerNumber);
         System.out.println("Player " + (playerNumber + 1) + " played " + card.toString());
     }
 
@@ -163,7 +197,10 @@ public class LocalPlayer extends Player {
         System.out.println("Player " + (super.getPlayerNumber() + 1));
         System.out.println("-------------------------------------");
         System.out.println("-------------------------------------");
-
+        if(aiTakeover){
+            System.out.println("AI takeover");
+            return aiPlayer.makeBid(validBid, trumpSuitBid, adjustedHighestBid, firstRound, canBidBlind);
+        }
         int option = -1;
 
         String bidInput = null;
@@ -220,6 +257,15 @@ public class LocalPlayer extends Player {
 
     @Override
     public void broadcastDummyHand(int playerNumber, List<Card> dummyHand) {
+        aiPlayer.broadcastDummyHand(playerNumber, dummyHand);
         System.out.println("Dummy hand of Player " + (playerNumber + 1) + ": " + dummyHand);
+    }
+
+    public boolean isAiTakeover() {
+        return aiTakeover;
+    }
+
+    public void setAiTakeover(boolean aiTakeover) {
+        this.aiTakeover = aiTakeover;
     }
 }
