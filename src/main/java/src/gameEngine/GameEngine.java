@@ -438,7 +438,7 @@ public class GameEngine {
                 //If the current highest bid is a double, then the new bid indicates a redouble
                 if (getAdjustedHighestBid().isDoubling()) {
                     //Set the current highest bid to a redouble
-                    getAdjustedHighestBid().setDoubling(false);
+                    getAdjustedHighestBid().setDoubling(true);
                     getAdjustedHighestBid().setRedoubling(true);
                 }
                 //Otherwise it's a standard double
