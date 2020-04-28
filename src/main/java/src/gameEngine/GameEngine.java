@@ -76,13 +76,13 @@ public class GameEngine {
      * Main driver method to start game logic for an instance
      *
      * @param gameDesc           The description of the game to run
-     * @param dealer             The index of player set to deal first
+     * @param startingDealer             The index of player set to deal first
      * @param playerArray        The array specifying the players in the game
      * @param seed               The seed used to initialise random actions
      * @param printMoves         Flag if moves should be printed for debugging
      * @param enableRandomEvents Flag if random events are enabled in the game
      */
-    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) {
+    public static void main(GameDesc gameDesc, int startingDealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) {
         //Start engine and set attributes based on game description
         GameEngine game = new GameEngine(gameDesc);
         Random rand = new Random(seed);
@@ -114,6 +114,7 @@ public class GameEngine {
         }
         //Loop until session/match ends
         do {
+            int dealer = startingDealer;
             //Loop until game winning condition has been met
             do {
                 //Set the current player to the dealer
