@@ -23,7 +23,9 @@ public class WebSocketTunnel extends WebSocketClient {
 
     @Override
     public void onMessage(String message) {
-
+        handler.getConnections().forEach(socket -> {
+            if(socket != this.getConnection()) socket.send(message);
+        });
     }
 
     @Override

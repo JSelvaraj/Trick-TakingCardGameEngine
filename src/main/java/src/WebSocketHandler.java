@@ -27,7 +27,7 @@ import java.util.Objects;
 import java.util.TreeSet;
 
 public class WebSocketHandler extends WebSocketServer {
-    private static final int PORT = 9091;
+    private static final int PORT = 49092;
 
     public WebSocketHandler(InetSocketAddress address) {
         super(address);
@@ -52,6 +52,7 @@ public class WebSocketHandler extends WebSocketServer {
         System.out.println("Received: " + message);
         JsonObject request = new Gson().fromJson(message, JsonObject.class);
         String type = request.get("type").getAsString();
+        WebSocketTunnel tunnel = null;
         switch (type) {
             case "DiscoverGame":
                 TreeSet<String> beacons;
@@ -85,7 +86,7 @@ public class WebSocketHandler extends WebSocketServer {
             case "HostGame":
                 String path = request.get("gamepath").getAsString();
                 boolean enableRdmEvents = request.get("enableRdmEvents").getAsBoolean();
-                Thread thread = new Thread(new HostRunner(new GUIPlayer(), 0, path,enableRdmEvents, conn)); //local port as 0 means its assigned at runtime by system.
+                Thread thread = new Thread(new HostRunner(new GUIPlayer(), 55555, path,enableRdmEvents, conn)); //local port as 0 means its assigned at runtime by system.
                 thread.start();
                 for (int i = 0; i < request.get("aiplayers").getAsInt(); i++) {
                     System.out.println("AI started");
@@ -98,7 +99,7 @@ public class WebSocketHandler extends WebSocketServer {
                     aiThread.start();
                 }
                 try {
-                    WebSocketTunnel tunnel = new WebSocketTunnel(new URI("ws://localhost:60001"), this);
+                    tunnel = new WebSocketTunnel(new URI("ws://localhost:60001"), this);
                     System.out.println("connecting to game");
                     tunnel.connectBlocking();
                 } catch (URISyntaxException | InterruptedException e) {
@@ -110,8 +111,11 @@ public class WebSocketHandler extends WebSocketServer {
                 );
                 thread2.start();
                 break;
-
-
+            case "playcard":
+            case "makebid":
+            case "getswap":
+                tunnel.send(message); //can ignore due to protocol, tunnel will never be null here
+                break;
             default:
                 throw new InvalidJSONMessageException("Message format not recognised");
 

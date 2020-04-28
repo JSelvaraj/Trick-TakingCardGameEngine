@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -70,7 +71,7 @@ public class GameEngine extends WebSocketServer {
      * @param desc game description
      */
     public GameEngine(GameDesc desc) {
-        this(desc, new InetSocketAddress("localhost", 0),null);
+        this(desc, new InetSocketAddress("localhost", 60001),null);
     }
 
     public GameEngine(GameDesc desc, InetSocketAddress address, Player[] playerArray) {
@@ -270,12 +271,13 @@ public class GameEngine extends WebSocketServer {
     public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents, WebSocket oldWebSocket) throws InterruptedException {
         GameEngine game = new GameEngine(gameDesc);
         Random rand = new Random(seed);
+        Gson gson = new Gson();
 
         game.start();
-        JsonObject gameSetup = new JsonObject();
-        gameSetup.add("type", new JsonPrimitive("gameSetup"));
-        gameSetup.add("port", new JsonPrimitive(game.getPort()));
-        oldWebSocket.send(new Gson().toJson(gameSetup));
+//        JsonObject gameSetup = new JsonObject();
+//        gameSetup.add("type", new JsonPrimitive("gameSetup"));
+//        gameSetup.add("port", new JsonPrimitive(game.getPort()));
+//        oldWebSocket.send(new Gson().toJson(gameSetup));
 
         assert playerArray.length == gameDesc.getNUMBEROFPLAYERS(); //TODO remove
 
@@ -288,11 +290,14 @@ public class GameEngine extends WebSocketServer {
         //wait for GUI to connect to back-end
         synchronized (GUIConnectLock) {
             while (game.webSocket == null) {
+                System.out.println("WAITING FOR TUNNEL");
                 GUIConnectLock.wait();
+                System.out.println("TUNNEL RECEIVED");
             }
         }
         for (Player player : playerArray) {
             if (player instanceof GUIPlayer) {
+                System.out.println("SETTING PLAYER WEBSOCKET");
                 ((GUIPlayer) player).setWebSocket(game.webSocket);
             }
         }
@@ -334,6 +339,7 @@ public class GameEngine extends WebSocketServer {
             }
 
             //Sends every player's hand to the GUI
+            System.out.println("SENDING CARDS TO GUI");
             JsonObject jsonMessage = new JsonObject();
             jsonMessage.add("type", new JsonPrimitive("playerhands"));
             JsonObject jsonPlayers = new JsonObject();
@@ -343,14 +349,15 @@ public class GameEngine extends WebSocketServer {
                 JsonObject jsonPlayer = new JsonObject();
                 JsonArray jsonCards = new JsonArray();
                 for (Card card : hand) {
-                    jsonCards.add(new Gson().fromJson(card.getJSON(), JsonObject.class)); //converts hand to JSON array of JSON objects
+                    jsonCards.add(gson.fromJson(card.getJSON(), JsonObject.class)); //converts hand to JSON array of JSON objects
                 }
                 jsonPlayer.add("playerindex", new JsonPrimitive(i));
                 jsonPlayer.add("hand", jsonCards);
                 jsonPlayersArray.add(jsonPlayer);
             }
             jsonPlayers.add("players", jsonPlayersArray);
-            game.webSocket.send(jsonPlayers.getAsString());
+            jsonPlayers.add("target", new JsonPrimitive("GUI"));
+            game.webSocket.send(gson.toJson(jsonPlayers));
 
             currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
 
@@ -403,7 +410,9 @@ public class GameEngine extends WebSocketServer {
                 for (int i = 0; i < playerArray.length; i++) {
                     synchronized (getCardLock) {
                         game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
+                        System.out.println("CURRENT TRICK: "+ game.currentTrick.toString());
                         while (game.currentTrick.getHand().getLast() == null) {//last card should only be null if GUIplayer
+                            System.out.println("WAITING FOR CARD");
                             getCardLock.wait();
                         }
                     }
@@ -411,11 +420,12 @@ public class GameEngine extends WebSocketServer {
 
                     //Send card played to GUI
                     JsonObject cardPlayed = new JsonObject();
+                    cardPlayed.add("target", new JsonPrimitive("GUI"));
                     cardPlayed.add("type", new JsonPrimitive("cardplayed"));
                     cardPlayed.add("playerindex", new JsonPrimitive(currentPlayer));
-                    cardPlayed.add("card", new Gson().fromJson(game.currentTrick.get(i).getJSON(), JsonObject.class));
+                    cardPlayed.add("card", gson.fromJson(game.currentTrick.get(i).getJSON(), JsonObject.class));
                     System.out.println("cardplayed: " + cardPlayed);
-                    game.webSocket.send(cardPlayed.getAsString());
+                    game.webSocket.send(gson.toJson(cardPlayed));
 
 
                     //If a special card has been placed in deck, check if it has just been played - adjust points if it has.
@@ -465,7 +475,7 @@ public class GameEngine extends WebSocketServer {
                 //send WinningCard, player and trick to front-end
                 JsonObject winningCardJson = new JsonObject();
                 winningCardJson.add("type", new JsonPrimitive("winningcard"));
-                winningCardJson.add("card", new Gson().fromJson(winningCard.getJSON(), JsonObject.class));
+                winningCardJson.add("card", gson.fromJson(winningCard.getJSON(), JsonObject.class));
                 winningCardJson.add("playerindex", new JsonPrimitive(currentPlayer));
 //                JsonArray array = new JsonArray();
 //                for (Card card : game.currentTrick.getHand()) {
@@ -798,8 +808,10 @@ public class GameEngine extends WebSocketServer {
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
+//        System.out.println("WAITING FOR LOCK");
         synchronized (GUIConnectLock) {
-            if (getConnections().size() == 0) {
+//            System.out.println("LOCK RECEIVED");
+            if (getConnections().size() == 1) {
                 System.out.println("Opened connection");
                 this.webSocket = conn;
                 GUIConnectLock.notifyAll();
@@ -824,6 +836,7 @@ public class GameEngine extends WebSocketServer {
     @Override
     public void onMessage(WebSocket conn, String message) {
         JsonObject request = new Gson().fromJson(message, JsonObject.class);
+        System.out.println("MESSAGE RECEIVED: " + message);
         switch (request.get("type").getAsString()) {
             case "playcard":
                 synchronized (getCardLock) {

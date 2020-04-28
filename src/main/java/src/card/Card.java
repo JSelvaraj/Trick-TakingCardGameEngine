@@ -46,7 +46,7 @@ public class Card {
         JsonObject card = new JsonObject();
         card.add("rank", new JsonPrimitive(RANK));
         card.add("suit", new JsonPrimitive(SUIT));
-        return card.getAsString();
+        return new Gson().toJson(card);
     }
 
     @Override

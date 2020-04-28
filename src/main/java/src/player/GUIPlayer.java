@@ -32,7 +32,8 @@ public class GUIPlayer extends LocalPlayer {
         };
         this.getHand().getHand().stream().filter(super.getCanBePlayed()).forEach(cardConsumer);
         request.add("validcards", validCardsJson);
-        webSocket.send(request.getAsString());
+        System.out.println("PLAYCARD REQUEST: " + new Gson().toJson(request));
+        webSocket.send(new Gson().toJson(request));
         return null;
     }
 

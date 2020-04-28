@@ -36,7 +36,8 @@ public class Hand {
         int i = 0;
         while (iterator.hasNext()) {
             Card card = iterator.next();
-            handString += card.toString() + " [" + i + "]";
+            if (card == null) handString += "null";
+            else handString += card.toString() + " [" + i + "]";
             if (iterator.hasNext()) handString += ", ";
             i++;
         }
