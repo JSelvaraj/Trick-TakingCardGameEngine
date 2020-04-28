@@ -124,16 +124,24 @@ public class GameEngine {
                 game.handSize =  gameDesc.getHandSize();
                 game.dealCards(playerArray, deck, currentPlayer);
 
-                //Check for a random card to be inserted - run logic if successful
+                //Reset players to non-ai
+                for (Player player : playerArray) {
+                    if (player instanceof LocalPlayer) {
+                        ((LocalPlayer) player).setAiTakeover(false);
+                    }
+                }
+                //Check for a random event for duration of hand
                 String rdmEventHAND = rdmEventsManager.eventChooser("HAND");
                 if (rdmEventHAND != null) {
                     if (rdmEventHAND.equals("AI-TAKEOVER")) {
+                        //Set weakest player to be taken over by AI
                         Player aiPLayer = rdmEventsManager.getRdmWeakestPlayer();
                         if (aiPLayer instanceof LocalPlayer) {
-                            //Toggle player ai moves to 'ON' if AI active for weakest player
+                            ((LocalPlayer) aiPLayer).setAiTakeover(true);
                         }
                     }
                     else {
+                        //Add special card to deck
                         rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
                     }
                 }
@@ -197,9 +205,8 @@ public class GameEngine {
 
                     //Loop for all players to play a card
                     for (int i = 0; i < playerArray.length; i++) {
-                        //Otherwise add the card played by the player to the current trick - will be an ai made move if activated
+                        //Add the card played by the player to the current trick
                         game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
-
                         //Broadcast the card played to all players
                         game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                         //If a special card has been placed in deck, check if it has just been played - adjust points if it has.

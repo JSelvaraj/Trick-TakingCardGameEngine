@@ -55,7 +55,7 @@ public class RdmEventsManager {
         //Set max score separation based on the game desc
         maxAcceptableScoreSeparation = scoreThreshold / 3;
         //Starting probability a random event is run
-        rdmEventProbDEFAULT = 0.2;
+        rdmEventProbDEFAULT = 1;
         rdmEventProb = rdmEventProbDEFAULT;
         probIncrement = 0.3;
     }

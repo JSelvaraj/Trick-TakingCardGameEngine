@@ -98,8 +98,7 @@ public class LocalPlayer extends Player {
      */
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) {
-        if(aiTakeover){
-            System.out.println("AI takeover");
+        if (aiTakeover){
             return aiPlayer.playCard(trumpSuit, currentTrick);
         }
         System.out.println("Current Trick: " + currentTrick.toString());
