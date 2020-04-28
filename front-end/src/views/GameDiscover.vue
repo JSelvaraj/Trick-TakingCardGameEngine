@@ -1,17 +1,17 @@
 <template>
   <v-content>
-    <div>
+    <h1>
       GAME DISCOVER
-    </div>
-    <v-data-table
+    </h1>
+    
+    <!--<v-data-table
     :headers="headers"
     :items="games"
     :single-expand="singleExpand"
     :expanded.sync="expanded"
     item-key="name"
-    show-expand
     class="elevation-1"
-  >
+  > -->
     <!-- <template v-slot:top>
       <v-toolbar flat>
         <v-toolbar-title>Expandable Table</v-toolbar-title>
@@ -19,11 +19,60 @@
         <v-switch v-model="singleExpand" label="Single expand" class="mt-2"></v-switch>
       </v-toolbar>
     </template> -->
+    
+    <!--
     <template v-slot:expanded-item="{ headers, item }">
-      <td :colspan="headers.length">More info about {{ item.name }}</td>
+     
     </template>
   </v-data-table>
-  <v-btn @click="stopDiscover">Stop Discover</v-btn>
+ -->
+<!-- 
+<v-container class="bv-example-row">
+
+ <v-row no-gutters>
+      <template v-for="n in 8">
+        <v-col :key="n">
+          <v-card
+            class="pa-2"
+            outlined
+            tile
+          >
+            <v-btn>
+            JOIN
+            </v-btn>
+            
+          </v-card>
+        </v-col>
+        <v-responsive
+          v-if="n === 4"
+          :key="`width-${n}`"
+          width="100%"
+        ></v-responsive>
+      </template>
+    </v-row>
+
+</v-container> -->
+
+<v-data-table :headers="headers" :items="games">
+      <template v-slot:item="row">
+          <tr>
+            <td>{{row.item.name}}</td>
+            <td>{{row.item.curPlayers}}</td>
+            <td>{{row.item.ip}}</td>
+            <td>{{row.item.port}}</td>
+            <td>
+                <v-btn class="mx-2" dark small color="red" @click="onButtonClick(row.item)">
+                    JOIN
+                </v-btn>
+            </td>
+          </tr>
+      </template>
+    </v-data-table>
+
+
+<v-btn class="backBTNGD" @click="toHome">Back</v-btn>
+
+  <v-btn @click="stopDiscover">Refresh</v-btn>
   </v-content>
 </template>
 
@@ -44,19 +93,55 @@ export default {
       id: "",
     },
     isDisable: false,
-    headers:[{text:"name",value:"name"},
-    {text:"ip address",value:"ip"},
-    {text:"port",value:"port"}],
-    games:[{name:"haha",ip:"1.1.1.1",port:"9999"}]
+    headers:[
+      {text:"name",value:"name"},
+      {text:"current players",value:"curPlayers"},
+      // {text:"room size",value:"roomsize"},
+      //{name:"haha",ip:"1.1.1.1",port:"9999"}
+      {text:"ip address",value:"ip"},
+      {text:"port",value:"port"}
+    ],
+    games:[]
   }),
 
-  async created() {
+  created() {
+    this.$options.sockets.onmessage = (data) => {
+
+      console.log(data)
+
+      const temp = JSON.parse(data.data)
+      console.log(temp.beacons)
+      var beacon;
+      var numOfPlayers = '';
+      for(beacon of temp.beacons) {
+        var beaconsAP = []
+        beaconsAP = beacon.split(":")
+        console.log(beaconsAP)
+        numOfPlayers = beaconsAP[1] + '/' + beaconsAP[2]
+        console.log(numOfPlayers)
+        this.games.push(
+          {name:beaconsAP[0], curPlayers:numOfPlayers, ip:beaconsAP[3], port:beaconsAP[4]}
+        )
+      }
+
+      // console.log(beacon)
+    
+    } 
+
   },
   methods: {
-    stopDiscover(){
+    stopDiscover() {
       // PostService.insertPosts("StopDiscoverGame");
-    this.$socket.sendObj({type:"StopDiscoverGame"});
-    }
+      this.$socket.sendObj({type:"GameDiscover"});
+    },
+
+    onButtonClick(item) {
+      this.$socket.sendObj({type:"JoinGame",address:item.ip,port:item.port,localport:"9091"})
+    },
+
+    toHome() {
+      this.$router.push("/");
+    },
   }
 };
 </script>
@@ -77,4 +162,11 @@ p {
 .submit {
   width: 100%;
 }
+
+
+
+.backBTNGD{
+  margin: 5%;
+}
+
 </style>

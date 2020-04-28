@@ -1,79 +1,137 @@
 <template>
   <v-content>
-    <div>
+
+    <div class="title">
+    <h1>
       Host a game
+    </h1>
     </div>
     <div>
-     <v-col class="d-flex" cols="12" sm="6">
+
+     <p class="gameTypeTitle">Game Type:</p>
+        
+        
         <v-select
+        class="gameType"
           :items="gameTypes"
           v-model="selectGameTypes"
           label="Select a game type"
-          @click= getNumOfPlayer()
+          @change = test(selectGameTypes)
           solo
         ></v-select>
-        <p>Number of players:</p>
+       
+       
+        <p class="numAIplayerTitle">Number of AI players:</p>
         <v-select
-          :items="numOfPlayers"
-          label="Select number of players"
+          class="numAIplayer"
+          :items="numOfAIPlayers_AP"
+          v-model="selectNumOfAIPlayer"
+          label="Select number of AI players"
+          @change = test2()
           solo
         ></v-select>
-        </v-col>
+
         </div>
         <div>
-          <v-btn @click="toHome">Back</v-btn>
-          <v-btn @click="toGameRoom">Host</v-btn>
+          <v-btn class="backBTN" @click="toHome">Back</v-btn>
+          <v-btn class="hostBTN" @click="toGameRoom">Host</v-btn>
         </div>
   </v-content>
 </template>
 
 <script>
-import PostService from "../PostService";
-import Axios from "axios";
-import qs from "qs";
+import PostService from '../PostService'
+import Axios from 'axios'
+import qs from 'qs'
 export default {
-  
+
   props: {
     source: String
   },
   data: () => ({
     posts: [],
-    error: "",
+    error: '',
     answer: {
-      id: "",
-      gameTypes:[],
-      numOfPlayers:[],
-      selectGameTypes: null
+      id: '',
+      gameTypes: [],
+      numOfAIPlayers: [],
+      selectGameTypes: '',
+      selectNumOfAIPlayer: null
     },
     isDisable: false
   }),
 
-  async created() {
-    this.gameTypes = ["Whist","Contract Whist","Spades","One Trick Pony"],
-    this.numOfPlayers = [1,2,3,4];
+  created () {
+    this.gameTypes = ['Whist', 'Contract Whist', 'Spades', 'One Trick Pony'],
+    // this.numOfAIPlayers = [0, 1, 2, 3]
+     this.selectGameTypes = '',
+     this.selectNumOfAIPlayer = null
   },
+
+  computed: {
+    numOfAIPlayers_AP: function () {
+      console.log(this.$store.state.selectGameTypes_vx)
+      if (this.$store.state.selectGameTypes_vx === 'Whist' || this.$store.state.selectGameTypes_vx === 'Contract Whist' || this.$store.state.selectGameTypes_vx === 'Spades') {
+        return [0, 1, 2, 3]
+      } else if (this.$store.state.selectGameTypes_vx === 'One Trick Pony') {
+        return [0, 1, 2]
+      } else {
+        return [0]
+      }
+    }
+  },
+
   methods: {
-    getNumOfPlayer() {
-      // console.log(this.selectGameTypes)
-      // if(this.selectGameTypes==="Whist"||this.selectGameTypes ==="Contract Whist"||this.selectGameTypes==="Spades"){
-      //   this.numOfPlayers = [1,2,3,4]
-      // }else if(this.selectGameTypes==="One Trick Pony"){
-      //   this.numOfPlayers = [1,2]
-      // }
+    // getNumOfPlayer(item) {
+    //   console.log(this.selectGameTypes)
+    //   if(item==="Whist"||item ==="Contract Whist"||item==="Spades"){
+    //     this.numOfAIPlayers = [0,1,2,3]
+    //   }else if(item==="One Trick Pony"){
+    //     this.numOfAIPlayers = [0,1,2]
+    //   }
+    // },
+
+    // test (item) {
+    //   // this.numOfAIPlayers = [0,1,2]
+    //   console.log(item)
+    //   if (item === 'Whist' || item === 'Contract Whist' || item === 'Spades') {
+    //     this.numOfAIPlayers = [0, 1, 2, 3]
+    //   } else if (item === 'One Trick Pony') {
+    //     this.numOfAIPlayers = [0,1,2]
+    //     console.log(this.numOfAIPlayers)
+    //   //  this.$set(this.numOfAIPlayers,[0,1,2])
+    //   }
+    // },
+
+    toGameRoom () {
+      this.$router.push('/gameRoom')
+      // PostService.insertPosts("HostGame");
+      this.$socket.sendObj({
+        type: "HostGame",
+        aiplayers: "3",
+        gamepath: "Games/whist.json",
+        enableRdmEvents: "false"
+      })
     },
-    toGameRoom() {
-      this.$router.push("/gameRoom");
-      //PostService.insertPosts("HostGame");
-      this.$socket.sendObj({type:"HostGame"});
+    toHome () {
+      this.$router.push('/')
     },
-    toHome() {
-      this.$router.push("/");
+
+    test(item){
+      // console.log("TEST1"+this.selectGameTypes)
+      // this.selectGameTypes = item
+      // console.log("TEST2"+this.selectGameTypes)
+      // computed.numOfAIPlayers_AP()
+
+      console.log(item)
+      this.$store.commit('changeSelectGameTypes_vx',item)
     },
-  },
-  mounted(){
-    this.getNumOfPlayer();
+
+    test2(){
+      console.log(this.selectNumOfAIPlayer)
+    }
   }
-};
+}
 
 </script>
 
@@ -84,13 +142,51 @@ svg {
 p {
   text-align: left;
 }
-.subq {
-  text-align: left;
+
+.title{
+  position: absolute;
+  top: 20%;
+	left: 44%;
+  /* width: 17%; */
 }
-.vslider {
-  width: 100%;
+
+.gameTypeTitle{
+  position: absolute;
+  top: 27%;
+	left: 40%;
+  width: 17%;
 }
-.submit {
-  width: 100%;
+
+.gameType{
+  position: absolute;
+  	top: 30%;
+	left: 40%;
+  width: 17%;
 }
+
+.numAIplayerTitle{
+  position: absolute;
+  top: 37%;
+	left: 40%;
+}
+
+.numAIplayer{
+  position: absolute;
+  width: 17%;
+  top: 40%;
+	left: 40%;
+}
+
+.backBTN{
+  position: absolute;
+  top: 50%;
+	left: 40%;
+}
+
+.hostBTN{
+  position: absolute;
+  top: 50%;
+	left: 55%;
+}
+
 </style>

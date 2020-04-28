@@ -35,6 +35,7 @@ export default {
   methods:{
       toHostGame() {
       this.$router.push("/hostGame");
+      this.$socket.send("{\"type\":\"GetGameList\"}");
     },
     toGameDiscover() {
       this.$router.push("/gameDiscover");
