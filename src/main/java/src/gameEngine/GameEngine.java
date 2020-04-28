@@ -154,6 +154,9 @@ public class GameEngine {
                     //Set dummy player to the declarer's partner
                     dummyPlayer = game.nextPlayerIndex.apply(game.nextPlayerIndex.apply(currentPlayer));
                 }
+                if(gameDesc.getFirstTrickLeader().equals("bidWinner")){
+                    currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
+                }
 
                 if (printMoves) {
                     System.out.println("-----------------------------------");
@@ -201,7 +204,7 @@ public class GameEngine {
                                 rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer);
                             }
                         }
-                        if (game.handsPlayed == 0 && gameDesc.getTrumpPickingMode().equals("firstPlayed") && game.currentTrick.getHandSize() == 1) {
+                        if (game.trumpSuit.length() == 0 && gameDesc.getTrumpPickingMode().equals("firstPlayed") && game.currentTrick.getHandSize() == 1) {
                             game.trumpSuit.append(game.currentTrick.get(0).getSUIT());
                         }
                         //Rotate the play
