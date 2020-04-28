@@ -336,13 +336,13 @@ public class GameEngine {
                 getAdjustedHighestBid().setVulnerable(declaringTeam.isVulnerable());
                 //If the declaring team matched their contract, increment their game score accordingly (See validBids.java)
                 if (declaringTeam.getTricksWon() >= getAdjustedHighestBid().getBidValue()) {
-                    declaringTeam.setGameScore(declaringTeam.getGameScore() + desc.getEvaluateBid().apply(getAdjustedHighestBid(), declaringTeam.getTricksWon()));
+                    declaringTeam.setGameScore(declaringTeam.getGameScore() + desc.getEvaluateBid().apply(getAdjustedHighestBid(), declaringTeam.getTricksWon()).getLeft());
                 }
                 //Otherwise, find the opposition team, and increment their game score accordingly
                 else {
                     for (Team team : getTeams()) {
                         if (team != declaringTeam) {
-                            team.setGameScore(team.getGameScore() + desc.getEvaluateBid().apply(getAdjustedHighestBid(), declaringTeam.getTricksWon()));
+                            team.setGameScore(team.getGameScore() + desc.getEvaluateBid().apply(getAdjustedHighestBid(), declaringTeam.getTricksWon()).getRight());
                             break;
                         }
                     }
@@ -362,7 +362,7 @@ public class GameEngine {
                     }
                     Bid bid = new Bid(false, null, teamBid, false, false);
                     //Increase score of winning team based on bid scoring system (See validBids.java)
-                    team.setGameScore(team.getGameScore() + desc.getEvaluateBid().apply(bid, team.getTricksWon()));
+                    team.setGameScore(team.getGameScore() + desc.getEvaluateBid().apply(bid, team.getTricksWon()).getLeft());
                     //Reset tricks won for next round.
                     team.setTricksWon(0);
                 }
