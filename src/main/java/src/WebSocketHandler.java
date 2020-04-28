@@ -10,6 +10,7 @@ import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import src.WebSocketTunnel.WebSocketTunnel;
 import src.exceptions.InvalidJSONMessageException;
 import src.gameEngine.HostRunner;
 import src.gameEngine.PlayerRunner;
@@ -20,6 +21,8 @@ import src.player.RandomPlayer;
 
 import java.io.File;
 import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.TreeSet;
 
@@ -94,6 +97,13 @@ public class WebSocketHandler extends WebSocketServer {
                     Thread aiThread = new Thread(runner);
                     aiThread.start();
                 }
+                try {
+                    WebSocketTunnel tunnel = new WebSocketTunnel(new URI("ws://localhost:60001"), this);
+                    System.out.println("connecting to game");
+                    tunnel.connectBlocking();
+                } catch (URISyntaxException | InterruptedException e) {
+                    e.printStackTrace();
+                }
                 break;
             case "JoinGame":
                 Thread thread2 = new Thread(new PlayerRunner( new GUIPlayer(), request.get("address").getAsString(), request.get("port").getAsInt(), request.get("localport").getAsInt(), true, false, conn, false)
@@ -101,12 +111,9 @@ public class WebSocketHandler extends WebSocketServer {
                 thread2.start();
                 break;
 
+
             default:
                 throw new InvalidJSONMessageException("Message format not recognised");
-
-
-
-
 
         }
 

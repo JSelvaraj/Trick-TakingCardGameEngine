@@ -275,7 +275,7 @@ public class GameEngine extends WebSocketServer {
         JsonObject gameSetup = new JsonObject();
         gameSetup.add("type", new JsonPrimitive("gameSetup"));
         gameSetup.add("port", new JsonPrimitive(game.getPort()));
-        oldWebSocket.send(gameSetup.getAsString());
+        oldWebSocket.send(new Gson().toJson(gameSetup));
 
         assert playerArray.length == gameDesc.getNUMBEROFPLAYERS(); //TODO remove
 
