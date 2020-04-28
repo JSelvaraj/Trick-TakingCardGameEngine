@@ -1,5 +1,6 @@
 package src.gameEngine;
 
+import org.apache.commons.lang3.tuple.Pair;
 import src.bid.Bid;
 import src.bid.ContractBid;
 import src.card.Card;
@@ -121,7 +122,7 @@ public class GameEngine {
                 deck = new Deck((LinkedList<Card>) gameDesc.getDECK());
                 //Shuffle deck according to the given seed and deal the cards
                 shuffle.shuffle(deck.cards);
-                game.handSize =  gameDesc.getHandSize();
+                game.handSize = gameDesc.getHandSize();
                 game.dealCards(playerArray, deck, currentPlayer);
 
                 //Check for a random card to be inserted - run logic if successful
@@ -200,7 +201,7 @@ public class GameEngine {
                                 rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer);
                             }
                         }
-                        if(game.handsPlayed == 0 && gameDesc.getTrumpPickingMode().equals("firstPlayed") && game.currentTrick.getHandSize() == 1){
+                        if (game.handsPlayed == 0 && gameDesc.getTrumpPickingMode().equals("firstPlayed") && game.currentTrick.getHandSize() == 1) {
                             game.trumpSuit.append(game.currentTrick.get(0).getSUIT());
                         }
                         //Rotate the play
@@ -319,7 +320,7 @@ public class GameEngine {
                 team.setTricksWon(0);
             }
         }
-        if(desc.getCalculateScore().equals("trumpPointValue")){
+        if (desc.getCalculateScore().equals("trumpPointValue")) {
             for (Team team : getTeams()) {
                 int score = team.getCardsWon().stream().filter((card -> card.getSUIT().equals(trumpSuit.toString()))).mapToInt(Card::getPointValue).sum();
                 team.setGameScore(team.getGameScore() + score);
@@ -335,37 +336,34 @@ public class GameEngine {
                 //Set the contract's vulnerability based on the declaring Team's state
                 getAdjustedHighestBid().setVulnerable(declaringTeam.isVulnerable());
                 //If the declaring team matched their contract, increment their game score accordingly (See validBids.java)
-                if (declaringTeam.getTricksWon() >= getAdjustedHighestBid().getBidValue()) {
-                    declaringTeam.setGameScore(declaringTeam.getGameScore() + desc.getEvaluateBid().apply(getAdjustedHighestBid(), declaringTeam.getTricksWon()).getLeft());
-                }
-                //Otherwise, find the opposition team, and increment their game score accordingly
-                else {
-                    for (Team team : getTeams()) {
-                        if (team != declaringTeam) {
-                            team.setGameScore(team.getGameScore() + desc.getEvaluateBid().apply(getAdjustedHighestBid(), declaringTeam.getTricksWon()).getRight());
-                            break;
-                        }
-                    }
-                }
-                //Reset the tricks won for all teams
+                Pair<Integer, Integer> scores = desc.getEvaluateBid().apply(getAdjustedHighestBid(), declaringTeam.getTricksWon());
+                declaringTeam.setGameScore(declaringTeam.getGameScore() + scores.getLeft());
+                //find the opposition team, and increment their game score accordingly
                 for (Team team : getTeams()) {
-                    team.setTricksWon(0);
+                    if (team != declaringTeam) {
+                        team.setGameScore(team.getGameScore() + scores.getRight());
+                        break;
+                    }
                 }
             }
-            //For spades style bid scoring
-            else {
-                for (Team team : getTeams()) {
-                    int teamBid = 0;
-                    //Get collective team bids
-                    for (Player player : team.getPlayers()) {
-                        teamBid += player.getBid().getBidValue();
-                    }
-                    Bid bid = new Bid(false, null, teamBid, false, false);
-                    //Increase score of winning team based on bid scoring system (See validBids.java)
-                    team.setGameScore(team.getGameScore() + desc.getEvaluateBid().apply(bid, team.getTricksWon()).getLeft());
-                    //Reset tricks won for next round.
-                    team.setTricksWon(0);
+            //Reset the tricks won for all teams
+            for (Team team : getTeams()) {
+                team.setTricksWon(0);
+            }
+        }
+        //For spades style bid scoring
+        else {
+            for (Team team : getTeams()) {
+                int teamBid = 0;
+                //Get collective team bids
+                for (Player player : team.getPlayers()) {
+                    teamBid += player.getBid().getBidValue();
                 }
+                Bid bid = new Bid(false, null, teamBid, false, false);
+                //Increase score of winning team based on bid scoring system (See validBids.java)
+                team.setGameScore(team.getGameScore() + desc.getEvaluateBid().apply(bid, team.getTricksWon()).getLeft());
+                //Reset tricks won for next round.
+                team.setTricksWon(0);
             }
         }
     }
