@@ -124,10 +124,26 @@ public class GameEngine {
                 game.handSize =  gameDesc.getHandSize();
                 game.dealCards(playerArray, deck, currentPlayer);
 
-                //Check for a random card to be inserted - run logic if successful
-                String rdmEventHAND = rdmEventsManager.eventChooser("SPECIAL-CARD");
+                //Reset players to non-ai
+                for (Player player : playerArray) {
+                    if (player instanceof LocalPlayer) {
+                        ((LocalPlayer) player).setAiTakeover(false);
+                    }
+                }
+                //Check for a random event for duration of hand
+                String rdmEventHAND = rdmEventsManager.eventChooser("HAND");
                 if (rdmEventHAND != null) {
-                    rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
+                    if (rdmEventHAND.equals("AI-TAKEOVER")) {
+                        //Set weakest player to be taken over by AI
+                        Player aiPLayer = rdmEventsManager.getRdmWeakestPlayer();
+                        if (aiPLayer instanceof LocalPlayer) {
+                            ((LocalPlayer) aiPLayer).setAiTakeover(true);
+                        }
+                    }
+                    else {
+                        //Add special card to deck
+                        rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
+                    }
                 }
 
                 //Increment the current player to set the first bidder
@@ -160,7 +176,7 @@ public class GameEngine {
                     System.out.println("-----------------------------------");
                 }
 
-                //Loop until trick has completed (all cards have been played)
+                //Loop until hand has completed (all cards have been played)
                 do {
                     //If the trump is based on bidding, set the trump suit based on the final bid
                     if (gameDesc.getTrumpPickingMode().equals("bid")) {
@@ -170,9 +186,9 @@ public class GameEngine {
                         System.out.println("Trump is " + game.trumpSuit.toString());
                     }
 
-                    //Check for a random event at start of trick - run logic if successful
+                    //Check for a random event at start of trick if a HAND event isn't active - run logic if successful
                     String rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
-                    if (rdmEventTRICK != null) {
+                    if (rdmEventTRICK != null && rdmEventHAND == null) {
                         if (rdmEventTRICK.equals("SwapHands")) {
                             rdmEventsManager.runSwapHands();
                         } else {
@@ -194,7 +210,7 @@ public class GameEngine {
                         //Broadcast the card played to all players
                         game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                         //If a special card has been placed in deck, check if it has just been played - adjust points if it has.
-                        if (rdmEventHAND != null) {
+                        if (rdmEventHAND != null && (rdmEventHAND.equals("BOMB") || rdmEventHAND.equals("HEAVEN"))) {
                             String playedCardType = game.currentTrick.getHand().get(game.currentTrick.getHandSize() - 1).getSpecialType();
                             if (playedCardType != null) {
                                 rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer);

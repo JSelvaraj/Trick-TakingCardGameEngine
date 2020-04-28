@@ -3,6 +3,7 @@ package src.rdmEvents;
 import src.card.Card;
 import src.gameEngine.Hand;
 import src.parser.GameDesc;
+import src.player.LocalPlayer;
 import src.player.NetworkPlayer;
 import src.player.Player;
 import src.team.Team;
@@ -29,6 +30,7 @@ public class RdmEventsManager {
     //Stores the weakest (lowest-scoring) and strongest team (highest-scoring)
     Team weakestTeam;
     Team strongestTeam;
+    Player rdmWeakestPlayer;
     //Array to choose which special card to insert
     String[] specialCardEvents = {"BOMB", "HEAVEN"};
     //Array to choose which trick event to run
@@ -48,6 +50,7 @@ public class RdmEventsManager {
         //Set initial weak/strong teams
         setWeakestTeam(teams.get(0));
         setStrongestTeam(teams.get(1));
+        rdmWeakestPlayer = weakestTeam.getPlayers()[0];
         scoreThreshold = desc.getScoreThreshold();
         //Set max score separation based on the game desc
         maxAcceptableScoreSeparation = scoreThreshold / 3;
@@ -81,22 +84,32 @@ public class RdmEventsManager {
                 rdmEventProb = 1;
             }
         }
+        //Otherwise make sure the random probability is reset
+        else {
+            rdmEventProb = rdmEventProbDEFAULT;
+        }
     }
 
     //Method that decides if a random event should be run, and chooses one if necessary
     public String eventChooser(String eventPlayTime) {
         //If random events are enabled, randomly decide if an event should be run
-        if (enabled && rand.nextDouble() < rdmEventProb) {
+        if (enabled && rand.nextDouble() <= rdmEventProb) {
             //Choose an appropriate event based on the point in the game
             switch (eventPlayTime) {
                 case "TRICK":
-                    //Reset the chance of a random event
-                    rdmEventProb = rdmEventProbDEFAULT;
                     //Choose the event to be run and return it to the game engine
                     return TRICKEvents[rand.nextInt(TRICKEvents.length)];
-                case "SPECIAL-CARD":
-                    rdmEventProb = rdmEventProbDEFAULT;
-                    return specialCardEvents[rand.nextInt(specialCardEvents.length)];
+                case "HAND":
+                    if (rand.nextInt(1) == 1) {
+                        //Randomly choose a weak player
+                        rdmWeakestPlayer = weakestTeam.getPlayers()[rand.nextInt(weakestTeam.getPlayers().length)];
+                        System.out.println("AI playing for Player " + (rdmWeakestPlayer.getPlayerNumber() + 1) + " for this hand");
+                        return "AI-TAKEOVER";
+                    }
+                    else {
+                        //Randomly choose a special card to be added
+                        return specialCardEvents[rand.nextInt(specialCardEvents.length)];
+                    }
                 default:
                     return null;
             }
@@ -212,4 +225,7 @@ public class RdmEventsManager {
         this.players = players;
     }
 
+    public Player getRdmWeakestPlayer() {
+        return rdmWeakestPlayer;
+    }
 }
