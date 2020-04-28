@@ -100,7 +100,12 @@ public class POMDPPlayer extends Player {
             }
             return new Bid(false, null, bidValue, false, false);
         } else {
-            StringBuilder tempTrumpSuit = new StringBuilder("");
+            StringBuilder tempTrumpSuit;
+            if(trumpSuitBid){
+                tempTrumpSuit = new StringBuilder("");
+            } else {
+                tempTrumpSuit = trumpSuit;
+            }
             CardPOMDP tempPOMDP = new CardPOMDP(desc, shortTimout, getPlayerNumber(), tempTrumpSuit);
             //See is passing is a valid bid here.
             if (validBid.test(new PotentialBid(null, "-2", adjustedHighestBid, this, firstRound))) {
@@ -116,7 +121,7 @@ public class POMDPPlayer extends Player {
         if (adjustedHighestBid == null) {
             int hcp = highCardPoints();
             //If you don't meet the threshold and can pass, then pass.
-            if (hcp < openBidThresh && validBid.test(new PotentialBid(null, "-2", adjustedHighestBid, this, firstRound))) {
+            if (hcp < (getHand().getHandSize() - 1) && validBid.test(new PotentialBid(null, "-2", adjustedHighestBid, this, firstRound))) {
                 return passingBid();
             } else {
                 return openingBid(validBid, trumpSuitBid, tempTrumpSuit, tempPOMDP);
@@ -213,6 +218,9 @@ public class POMDPPlayer extends Player {
     }
 
     private Bid raise(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, StringBuilder tempTrumpSuit, CardPOMDP tempCardPOMDP, boolean firstRound) {
+        if(!trumpSuitBid){
+            throw new UnsupportedOperationException();
+        }
         List<String> potentialSuits = desc.getBidSuits().subList(desc.getBidSuits().indexOf(adjustedHighestBid.getSuit()), desc.getBidSuits().size());
         Pair<String, Integer> bestResult = getBestSuitBid(potentialSuits, tempTrumpSuit, tempCardPOMDP);
         String suit = bestResult.getKey();
@@ -283,7 +291,16 @@ public class POMDPPlayer extends Player {
      * @return
      */
     private Bid openingBid(Predicate<PotentialBid> validbid, boolean trumpSuitBid, StringBuilder tempTrumpSuit, CardPOMDP tempCardPOMDP) {
-        assert trumpSuitBid;
+        if(!trumpSuitBid) {
+            int bidValue = tempCardPOMDP.searchBid(observation);
+            //Check for out of bounds.
+            if(bidValue < desc.getMinBid()){
+                bidValue = desc.getMinBid();
+            } else if(bidValue > desc.getMaxBid()){
+                bidValue = desc.getMaxBid();
+            }
+            return new Bid(false, null, bidValue, false, false);
+        }
         List<String> potentialSuits = desc.getBidSuits();
         Pair<String, Integer> bestSuitResult = getBestSuitBid(potentialSuits, tempTrumpSuit, tempCardPOMDP);
         String bestSuit = bestSuitResult.getKey();
