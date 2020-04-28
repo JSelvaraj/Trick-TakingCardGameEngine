@@ -57,6 +57,7 @@ Example response message:
     "aiplayers": 1,
     "gamepath": "Games/whist.json",
     "enableRdmEvents":false
+    "port":number
 }
 ```
 Then the game starts gathering players. As each player connects, their information is sent to the front end:
