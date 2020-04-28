@@ -107,6 +107,7 @@ public class RdmEventsManager {
                         return "AI-TAKEOVER";
                     }
                     else {
+                        //Randomly choose a special card to be added
                         return specialCardEvents[rand.nextInt(specialCardEvents.length)];
                     }
                 default:
