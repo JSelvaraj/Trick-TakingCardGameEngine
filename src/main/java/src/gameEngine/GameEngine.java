@@ -267,8 +267,9 @@ public class GameEngine {
 
                 //Increment dealer for next hand
                 dealer = game.nextPlayerIndex.apply(dealer);
-
-                game.printScore();
+                if(printMoves){
+                    game.printScore();
+                }
             } while (game.gameEnd()); //Check if game ending condition has been met
 
             //If match scoring is bestOf
