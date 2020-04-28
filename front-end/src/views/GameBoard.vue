@@ -31,7 +31,7 @@
 
 
          <modal>
-            
+
 
          </modal>
     </v-container>
@@ -57,8 +57,29 @@ export default {
     card_1_path: ''
   }),
 
-  created () {
-    this.card_1_path = '../assets/img/0C.svg'
+created() {
+    this.$options.sockets.onmessage = (data) => {
+
+      console.log(data)
+
+      const temp = JSON.parse(data.data)
+      // console.log(temp.beacons)
+      var beacon;
+      var numOfPlayers = '';
+      // for(beacon of temp.beacons) {
+      //   var beaconsAP = []
+      //   beaconsAP = beacon.split(":")
+      //   console.log(beaconsAP)
+      //   numOfPlayers = beaconsAP[1] + '/' + beaconsAP[2]
+      //   console.log(numOfPlayers)
+      //   this.games.push(
+      //     {name:beaconsAP[0], curPlayers:numOfPlayers, ip:beaconsAP[3], port:beaconsAP[4]}
+      //   )
+      // }
+
+      // console.log(beacon)
+    
+    } 
   },
   methods: {
   }

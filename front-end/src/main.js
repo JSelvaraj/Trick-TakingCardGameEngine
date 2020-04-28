@@ -6,7 +6,8 @@ import store from './store'
 import vuetify from './plugins/vuetify'
 import VueNativeSock from 'vue-native-websocket'
 
-Vue.use(VueNativeSock, 'ws://localhost:9091', { format: 'json' })
+Vue.use(VueNativeSock, 'ws://localhost:49092', { format: 'json' })
+
 Vue.use(Vuex)
 
 Vue.config.productionTip = false

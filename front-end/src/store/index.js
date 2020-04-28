@@ -5,14 +5,23 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    selectGameTypes_vx:''
+    selectGameTypes_vx:'',
+    data: undefined
   },
   mutations: {
     changeSelectGameTypes_vx(state,item){
       state.selectGameTypes_vx = item;
+    },
+
+    dataUpdate(state, payload){
+      state.data = payload;
     }
+
   },
   actions: {
+    dataUpdate (context, payload){
+        context.commit('dataUpdate', payload)
+    }
   },
   modules: {
   }

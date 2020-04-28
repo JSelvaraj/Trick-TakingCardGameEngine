@@ -78,7 +78,23 @@ export default {
       } else {
         return [0]
       }
+    },
+
+    gamePath_AP: function () {
+      console.log("TEST GP"+this.$store.state.selectGameTypes_vx)
+      if (this.$store.state.selectGameTypes_vx === 'Whist') {
+        return "Games/whist.json"
+      } else if (this.$store.state.selectGameTypes_vx === 'Contract Whist') {
+        return "Games/contractWhist.json"
+      } else if (this.$store.state.selectGameTypes_vx === 'Spades'){
+        return "Games/spades.json"
+      } else if (this.$store.state.selectGameTypes_vx === 'One Trick Pony') {
+        return "Games/OneTrickPony.json"
+      } else {
+        return null
+      }
     }
+
   },
 
   methods: {
@@ -93,7 +109,7 @@ export default {
 
     // test (item) {
     //   // this.numOfAIPlayers = [0,1,2]
-    //   console.log(item)
+    //   console.log(item)"Games/whist.json"
     //   if (item === 'Whist' || item === 'Contract Whist' || item === 'Spades') {
     //     this.numOfAIPlayers = [0, 1, 2, 3]
     //   } else if (item === 'One Trick Pony') {
@@ -102,15 +118,17 @@ export default {
     //   //  this.$set(this.numOfAIPlayers,[0,1,2])
     //   }
     // },
+    // NEW PORT NUM FOR GAME: 60001
 
     toGameRoom () {
       this.$router.push('/gameRoom')
       // PostService.insertPosts("HostGame");
       this.$socket.sendObj({
         type: "HostGame",
-        aiplayers: "3",
-        gamepath: "Games/whist.json",
-        enableRdmEvents: "false"
+        aiplayers: this.selectNumOfAIPlayer,
+        gamepath: this.gamePath_AP,
+        enableRdmEvents: "false",
+        port: "55555"
       })
     },
     toHome () {
