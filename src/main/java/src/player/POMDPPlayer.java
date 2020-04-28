@@ -171,7 +171,18 @@ public class POMDPPlayer extends Player {
 
     private Bid raiseOrPass(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, StringBuilder tempTrumpSuit, CardPOMDP tempCardPOMDP, boolean firstRound) {
         if (!trumpSuitBid) {
-            throw new UnsupportedOperationException();
+            int bidValue = tempCardPOMDP.searchBid(observation);
+            //Check for out of bounds.
+            if(bidValue < desc.getMinBid()){
+                bidValue = desc.getMinBid();
+            } else if(bidValue > desc.getMaxBid()){
+                bidValue = desc.getMaxBid();
+            }
+            if(bidValue <= adjustedHighestBid.getBidValue()){
+                return passingBid();
+            } else {
+                return new Bid(false, null, bidValue, false, false);
+            }
         }
         //If it is your teammate
         if (adjustedHighestBid.getDeclarer().getTeam().findPlayer(this)) {
