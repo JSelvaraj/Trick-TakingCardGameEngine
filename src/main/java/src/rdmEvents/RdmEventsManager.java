@@ -55,7 +55,7 @@ public class RdmEventsManager {
         //Set max score separation based on the game desc
         maxAcceptableScoreSeparation = scoreThreshold / 3;
         //Starting probability a random event is run
-        rdmEventProbDEFAULT = 1;
+        rdmEventProbDEFAULT = 0.2;
         rdmEventProb = rdmEventProbDEFAULT;
         probIncrement = 0.3;
     }
@@ -100,7 +100,7 @@ public class RdmEventsManager {
                     //Choose the event to be run and return it to the game engine
                     return TRICKEvents[rand.nextInt(TRICKEvents.length)];
                 case "HAND":
-                    if (true || rand.nextInt(1) == 1) {
+                    if (rand.nextInt(1) == 1) {
                         //Randomly choose a weak player
                         rdmWeakestPlayer = weakestTeam.getPlayers()[rand.nextInt(weakestTeam.getPlayers().length)];
                         System.out.println("AI playing for Player " + (rdmWeakestPlayer.getPlayerNumber() + 1) + " for this hand");
