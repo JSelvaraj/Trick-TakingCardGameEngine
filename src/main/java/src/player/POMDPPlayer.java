@@ -104,7 +104,7 @@ public class POMDPPlayer extends Player {
             if(trumpSuitBid){
                 tempTrumpSuit = new StringBuilder("");
             } else {
-                tempTrumpSuit = trumpSuit;
+                tempTrumpSuit = new StringBuilder(trumpSuit.toString());
             }
             CardPOMDP tempPOMDP = new CardPOMDP(desc, shortTimout, getPlayerNumber(), tempTrumpSuit);
             //See is passing is a valid bid here.

@@ -163,7 +163,7 @@ public class GameEngine {
                 //Loop until trick has completed (all cards have been played)
                 do {
                     //If the trump is based on bidding, set the trump suit based on the final bid
-                    if (gameDesc.getTrumpPickingMode().equals("bid")) {
+                    if (gameDesc.getTrumpPickingMode().equals("bid") && gameDesc.isTrumpSuitBid()) {
                         game.trumpSuit.replace(0, game.trumpSuit.length(), game.getAdjustedHighestBid().getSuit());
                     }
                     if (printMoves) {
