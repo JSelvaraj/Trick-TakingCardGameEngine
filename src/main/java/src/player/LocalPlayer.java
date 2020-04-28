@@ -1,21 +1,18 @@
 package src.player;
 
-import src.ai.CardPOMDP;
-import src.ai.GameObservation;
 import src.card.Card;
 import src.bid.Bid;
 import src.bid.ContractBid;
-import src.deck.Deck;
 import src.gameEngine.Hand;
 import src.bid.PotentialBid;
 import src.parser.GameDesc;
 import src.rdmEvents.Swap;
+import src.team.Team;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.SQLOutput;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.function.Predicate;
@@ -24,13 +21,6 @@ import java.util.function.Predicate;
  * Object to represent a player playing on the same machine as the one the game engine is being run on.
  */
 public class LocalPlayer extends Player {
-    //Stuff for AI takeover
-    private GameObservation observation;
-    private CardPOMDP cardPOMDP;
-    private static final long timeout = 5000;
-    private GameDesc desc;
-    private boolean addedDummyHand;
-    private StringBuilder trumpSuit;
     //Text colours.
     static final String ANSI_RESET = "\u001B[0m";
     private static final String ANSI_BLACK = "\u001B[30m";
@@ -57,6 +47,9 @@ public class LocalPlayer extends Player {
 
     private String colour;
 
+    private POMDPPlayer aiPlayer = new POMDPPlayer();
+    private boolean aiTakeover = false;
+
     public LocalPlayer(int playerNumber, Predicate<Card> validCard) {
         super(playerNumber, validCard);
         this.colour = text_colours[playerNumber];
@@ -69,23 +62,31 @@ public class LocalPlayer extends Player {
 
     public LocalPlayer() {
         this.colour = text_colours[0];
+        aiPlayer.setHand(super.getHand());
+    }
+
+    @Override
+    public void setTeam(Team team) {
+        super.setTeam(team);
+        aiPlayer.setTeam(team);
+    }
+
+    @Override
+    public void startHand(StringBuilder trumpSuit, int handSize) {
+        super.startHand(trumpSuit, handSize);
+        aiPlayer.startHand(trumpSuit, handSize);
+    }
+
+    @Override
+    public void setPlayerNumber(int playerNumber) {
+        super.setPlayerNumber(playerNumber);
+        aiPlayer.setPlayerNumber(playerNumber);
     }
 
     @Override
     public void initPlayer(Predicate<Card> validCard, GameDesc desc, StringBuilder trumpSuit) {
         super.initPlayer(validCard, desc, trumpSuit);
-        this.desc = desc;
-        addedDummyHand = false;
-    }
-
-    @Override
-    public void startHand(StringBuilder trumpSuit, int handSize) {
-        Deck deck = new Deck((LinkedList<Card>) desc.getDECK());
-        observation = new GameObservation(deck.cards, desc.getNUMBEROFPLAYERS(), handSize);
-        //Add the cards that this player has.
-        this.trumpSuit = trumpSuit;
-        observation.addKnownCards(getPlayerNumber(), getHand().getHand());
-        cardPOMDP = new CardPOMDP(desc, timeout, getPlayerNumber(), trumpSuit);
+        aiPlayer.initPlayer(validCard, desc, trumpSuit);
     }
 
     /**
@@ -97,10 +98,9 @@ public class LocalPlayer extends Player {
      */
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) {
-        //If the trick is empty
-        if (currentTrick.getHandSize() == 0) {
-            //Signify that this player starts the trick
-            observation.setTrickStartedBy(getPlayerNumber());
+        if(aiTakeover){
+            System.out.println("AI takeover");
+            return aiPlayer.playCard(trumpSuit, currentTrick);
         }
         System.out.println("Current Trick: " + currentTrick.toString());
         System.out.print(this.colour);
@@ -123,11 +123,7 @@ public class LocalPlayer extends Player {
 
     @Override
     public void broadcastPlay(Card card, int playerNumber) {
-        observation.updateGameState(playerNumber, card);
-        //Set the trump to be broken if it has been broken.
-        if (card.getSUIT().equals(trumpSuit.toString())) {
-            observation.setBreakFlag();
-        }
+        aiPlayer.broadcastPlay(card, playerNumber);
         System.out.println("Player " + (playerNumber + 1) + " played " + card.toString());
     }
 
@@ -201,7 +197,10 @@ public class LocalPlayer extends Player {
         System.out.println("Player " + (super.getPlayerNumber() + 1));
         System.out.println("-------------------------------------");
         System.out.println("-------------------------------------");
-
+        if(aiTakeover){
+            System.out.println("AI takeover");
+            return aiPlayer.makeBid(validBid, trumpSuitBid, adjustedHighestBid, firstRound, canBidBlind);
+        }
         int option = -1;
 
         String bidInput = null;
@@ -258,32 +257,15 @@ public class LocalPlayer extends Player {
 
     @Override
     public void broadcastDummyHand(int playerNumber, List<Card> dummyHand) {
-        if (playerNumber != getPlayerNumber() && !addedDummyHand) {
-            this.observation.addKnownCards(playerNumber, dummyHand);
-        }
-        addedDummyHand = true;
+        aiPlayer.broadcastDummyHand(playerNumber, dummyHand);
         System.out.println("Dummy hand of Player " + (playerNumber + 1) + ": " + dummyHand);
     }
 
-    /**
-     * Make an AI move
-     *
-     * @param currentTrick The current trick of the game.
-     *
-     * @return A card to play.
-     */
-    public Card aiMove(Hand currentTrick){
-        //If the trick is empty
-        if (currentTrick.getHandSize() == 0) {
-            //Signify that this player starts the trick
-            observation.setTrickStartedBy(getPlayerNumber());
-        }
-        Card card = cardPOMDP.searchCard(observation);
-        //Set the trump to broken if it has been broken.
-        if (card.getSUIT().equals(trumpSuit.toString())) {
-            observation.setBreakFlag();
-        }
-        assert super.getCanBePlayed().test(card);
-        return super.getHand().giveCard(card);
+    public boolean isAiTakeover() {
+        return aiTakeover;
+    }
+
+    public void setAiTakeover(boolean aiTakeover) {
+        this.aiTakeover = aiTakeover;
     }
 }
