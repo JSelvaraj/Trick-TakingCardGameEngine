@@ -12,7 +12,7 @@ public class PlayerRunner implements Runnable {
     private int localPort;
     boolean localConnection = false;
     private boolean printMoves = true;
-    WebSocket webSocket;
+    private WebSocket webSocket = null;
     boolean enableRandomEvents;
 
     public PlayerRunner(Player player, String hostAddress, int hostPort, int localPort, boolean localConnection, boolean printMoves, WebSocket webSocket, boolean enableRandomEvents) {
@@ -26,12 +26,12 @@ public class PlayerRunner implements Runnable {
         this.enableRandomEvents = enableRandomEvents;
     }
 
-    public PlayerRunner(Player player, String hostAddress, int hostPort, boolean localConnection, boolean printMoves, boolean enableRdmEvents, WebSocket webSocket) {
-        this(player, hostAddress, hostPort, 0, localConnection, printMoves, webSocket, enableRdmEvents);
+    public PlayerRunner(Player player, String hostAddress, int hostPort, boolean localConnection, boolean printMoves, boolean enableRdmEvents) {
+        this(player, hostAddress, hostPort, 0, localConnection, printMoves, null,  enableRdmEvents);
     }
 
-    public PlayerRunner(Player player, String hostAddress, int hostPort, boolean localConnection, boolean printMoves, WebSocket webSocket ) {
-        this(player, hostAddress, hostPort, 0, localConnection, printMoves, webSocket, false);
+    public PlayerRunner(Player player, String hostAddress, int hostPort, boolean localConnection, boolean printMoves) {
+        this(player, hostAddress, hostPort, 0, localConnection, printMoves, null, false);
     }
 
 
