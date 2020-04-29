@@ -24,7 +24,7 @@ public class GUIPlayer extends LocalPlayer {
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) {
         JsonObject request = new JsonObject();
-        request.add("type", new JsonPrimitive("playcard"));
+        request.add("type", new JsonPrimitive("getCard"));
         JsonArray validCardsJson = new JsonArray();
         Consumer<Card> cardConsumer;
         cardConsumer = card -> {
