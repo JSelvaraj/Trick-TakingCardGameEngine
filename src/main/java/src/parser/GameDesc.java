@@ -1,5 +1,6 @@
 package src.parser;
 
+import org.apache.commons.lang3.tuple.Pair;
 import src.card.Card;
 import src.deck.Deck;
 import src.functions.handFunctions;
@@ -43,7 +44,7 @@ public class GameDesc {
     //Bidding functions
     private boolean bidding;
     private Predicate<PotentialBid> validBid;
-    private BiFunction<Bid, Integer, Integer> evaluateBid;
+    private BiFunction<Bid, Integer, Pair<Integer, Integer>> evaluateBid;
     private Supplier<Integer> getHandSize;
     private int minHandSize;
     private int initialHandSize;
@@ -218,11 +219,11 @@ public class GameDesc {
         this.validBid = validBid;
     }
 
-    public BiFunction<Bid, Integer, Integer> getEvaluateBid() {
+    public BiFunction<Bid, Integer, Pair<Integer, Integer>> getEvaluateBid() {
         return evaluateBid;
     }
 
-    public void setEvaluateBid(BiFunction<Bid, Integer, Integer> evaluateBid) {
+    public void setEvaluateBid(BiFunction<Bid, Integer, Pair<Integer, Integer>> evaluateBid) {
         this.evaluateBid = evaluateBid;
     }
 

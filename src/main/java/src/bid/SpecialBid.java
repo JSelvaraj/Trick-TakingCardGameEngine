@@ -11,7 +11,8 @@ public class SpecialBid extends Bid {
     private int contractPoints;
     private int overtrickPoints;
     private int undertrickPoints;
-    private int[] undertrickIncrement; //TODO work to give undertrick to opponenent.
+    private int[] undertrickIncrement;
+    private boolean undertrickAwardedToOpponent;
 
 
     public SpecialBid(int bidValue, int bonusPoints, int penalty, boolean blind) {
@@ -28,7 +29,7 @@ public class SpecialBid extends Bid {
         this.contractPoints = contractPoints;
     }
 
-    public SpecialBid(boolean doubling, String suit, int bidValue, boolean blind, boolean vulnerable, int bonusPoints, int penalty, String trumpSuit, int contractPoints, int overtrickPoints, int undertrickPoints, int[] undertrickIncrement) {
+    public SpecialBid(boolean doubling, String suit, int bidValue, boolean blind, boolean vulnerable, int bonusPoints, int penalty, String trumpSuit, int contractPoints, int overtrickPoints, int undertrickPoints, int[] undertrickIncrement, boolean undertrickAwardedToOpponent) {
         super(doubling, suit, bidValue, blind, vulnerable);
         this.bonusPoints = bonusPoints;
         this.penalty = penalty;
@@ -37,6 +38,7 @@ public class SpecialBid extends Bid {
         this.overtrickPoints = overtrickPoints;
         this.undertrickPoints = undertrickPoints;
         this.undertrickIncrement = undertrickIncrement;
+        this.undertrickAwardedToOpponent = undertrickAwardedToOpponent;
     }
 
     public int getBidValue() {
@@ -66,7 +68,7 @@ public class SpecialBid extends Bid {
                 bid.isBlind() == super.isBlind() &&
                 bid.isDoubling() == super.isDoubling() &&
                 bid.isVulnerable() == super.isVulnerable() &&
-                ((super.getSuit() == null && bid.getSuit() == null) ||super.getSuit().equals(bid.getSuit()));
+                ((super.getSuit() == null && bid.getSuit() == null) || super.getSuit().equals(bid.getSuit()));
     }
 
     public String getTrumpSuit() {
@@ -87,5 +89,9 @@ public class SpecialBid extends Bid {
 
     public int[] getUndertrickIncrement() {
         return undertrickIncrement;
+    }
+
+    public boolean isUndertrickAwardedToOpponent() {
+        return undertrickAwardedToOpponent;
     }
 }

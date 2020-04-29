@@ -1,5 +1,7 @@
 package src.functions;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import src.bid.*;
@@ -137,12 +139,12 @@ public class validBids {
         });
     }
 
-    public static BiFunction<Bid, Integer, Integer> evaluateBid(JSONObject bidObject, int trickThreshold) {
+    public static BiFunction<Bid, Integer, Pair<Integer, Integer>> evaluateBid(JSONObject bidObject, int trickThreshold) {
         //Get the bid specifications.
         int pointsPerBid = bidObject.getInt("pointsPerBid");
         int overTrickPoints = bidObject.getInt("overtrickPoints");
         int penaltyPoints = bidObject.getInt("penaltyPoints");
-        int points_for_matching = bidObject.optInt("pointsForMatch", 0); //TODO add to spec
+        int points_for_matching = bidObject.optInt("pointsForMatch", 0);
         //Create list for special bids rules
         List<SpecialBid> specialBidList = new LinkedList<>();
         if (bidObject.has("specialBids") && !bidObject.isNull("specialBids")) {
@@ -174,7 +176,11 @@ public class validBids {
                 boolean doubled = specialBid.optBoolean("doubled");
                 boolean vulnerable = specialBid.optBoolean("vulnerable");
                 int contractPoints = specialBid.optInt("contractPoints");
-                specialBidList.add(new SpecialBid(doubled, trumpSuit, bidValue, blind, vulnerable, pointsGained, penalty, trumpSuit, contractPoints, overtrickPoints, undertrickPoints, undertrickIncrement));
+                boolean undertrickAwardedToOpponent = false;
+                if(specialBid.has("undertrickAwardedTo") && specialBid.getString("undertrickAwardedTo").equals("opponent")){
+                    undertrickAwardedToOpponent = true;
+                }
+                specialBidList.add(new SpecialBid(doubled, trumpSuit, bidValue, blind, vulnerable, pointsGained, penalty, trumpSuit, contractPoints, overtrickPoints, undertrickPoints, undertrickIncrement, undertrickAwardedToOpponent));
             }
 
         }
@@ -198,6 +204,8 @@ public class validBids {
             }
         }
         return (bid, value) -> {
+            int score = 0;
+            int opponentScore = 0;
             if (bid instanceof ContractBid) {
                 int adjustedValue = value - trickThreshold;
                 ContractBid contractBid = (ContractBid) bid;
@@ -207,7 +215,6 @@ public class validBids {
                     throw new IllegalArgumentException();
                 }
                 SpecialBid specialBid = matchingBid.get();
-                int score = 0;
                 //If they don't meet their bid.
                 if (adjustedValue >= bid.getBidValue()) {
                     final int handScore = bid.getBidValue() * specialBid.getContractPoints();
@@ -224,26 +231,31 @@ public class validBids {
                         score *= 2;
                     }
                     //Find any score bonuses to apply. Need to half to account for doubling
-                    final int adjustedHandScore = handScore;//bid.isDoubling() ? handScore / 2 : handScore; //TODO get around this.
-                    score += bonusScoresList.stream().filter(b -> b.matches(bid, adjustedHandScore, bid.getBidValue())).mapToInt(BonusScore::getBonusScore).sum();
+                    score += bonusScoresList.stream().filter(b -> b.matches(bid, handScore, bid.getBidValue())).mapToInt(BonusScore::getBonusScore).sum();
                 } else {
                     int tricksUnder = bid.getBidValue() + trickThreshold - value;
                     //The default cause if no increment is provided.
+                    int undertrick;
                     if (specialBid.getUndertrickIncrement() == null) {
-                        return tricksUnder * specialBid.getUndertrickPoints();
+                        undertrick = tricksUnder * specialBid.getUndertrickPoints();
                     } else {
                         //Add the initial undertrick points.
-                        score += specialBid.getUndertrickIncrement()[tricksUnder - 1];
+                        undertrick = specialBid.getUndertrickIncrement()[tricksUnder - 1];
                     }
+                    score -= specialBid.getPenalty();
                     //Double if it is redoubling
                     if (contractBid.isRedoubling()) {
                         if (!contractBid.isDoubling()) {
                             throw new IllegalArgumentException("Can't redouble without doubling");
                         }
-                        score *= 2;
+                        undertrick *= 2;
+                    }
+                    if(specialBid.isUndertrickAwardedToOpponent()){
+                        opponentScore += undertrick;
+                    } else {
+                        score += undertrick;
                     }
                 }
-                return score;
             } else { //Evaluate as a regular bid;
                 //First finds if the bid matches a special bid that was defined in the game decription
                 Optional<SpecialBid> matchingSpecialBid = specialBidList.stream()
@@ -253,18 +265,19 @@ public class validBids {
                 if (matchingSpecialBid.isPresent()) {
                     //If the
                     if (bid.getBidValue() == value) {
-                        return matchingSpecialBid.get().getBonusPoints();
+                        score = matchingSpecialBid.get().getBonusPoints();
                     } else {
-                        return -matchingSpecialBid.get().getPenalty();
+                        score = -matchingSpecialBid.get().getPenalty();
                     }
                 } else { //Otherwise just evaluate the bid normally.
                     if (value >= bid.getBidValue()) {
-                        return (value == bid.getBidValue() ? points_for_matching : 0) + bid.getBidValue() * pointsPerBid + (value - bid.getBidValue()) * overTrickPoints;
+                        score =  (value == bid.getBidValue() ? points_for_matching : 0) + bid.getBidValue() * pointsPerBid + (value - bid.getBidValue()) * overTrickPoints;
                     } else {
-                        return value * -penaltyPoints;
+                        score = value * -penaltyPoints;
                     }
                 }
             }
+            return new ImmutablePair<>(score, opponentScore);
         };
     }
 

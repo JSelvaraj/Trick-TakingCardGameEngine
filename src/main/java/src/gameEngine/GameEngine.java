@@ -1,5 +1,6 @@
 package src.gameEngine;
 
+import org.apache.commons.lang3.tuple.Pair;
 import src.bid.Bid;
 import src.bid.ContractBid;
 import src.card.Card;
@@ -75,13 +76,13 @@ public class GameEngine {
      * Main driver method to start game logic for an instance
      *
      * @param gameDesc           The description of the game to run
-     * @param dealer             The index of player set to deal first
+     * @param startingDealer             The index of player set to deal first
      * @param playerArray        The array specifying the players in the game
      * @param seed               The seed used to initialise random actions
      * @param printMoves         Flag if moves should be printed for debugging
      * @param enableRandomEvents Flag if random events are enabled in the game
      */
-    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) {
+    public static void main(GameDesc gameDesc, int startingDealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) {
         //Start engine and set attributes based on game description
         GameEngine game = new GameEngine(gameDesc);
         Random rand = new Random(seed);
@@ -113,6 +114,7 @@ public class GameEngine {
         }
         //Loop until session/match ends
         do {
+            int dealer = startingDealer;
             //Loop until game winning condition has been met
             do {
                 //Set the current player to the dealer
@@ -121,7 +123,7 @@ public class GameEngine {
                 deck = new Deck((LinkedList<Card>) gameDesc.getDECK());
                 //Shuffle deck according to the given seed and deal the cards
                 shuffle.shuffle(deck.cards);
-                game.handSize =  gameDesc.getHandSize();
+                game.handSize = gameDesc.getHandSize();
                 game.dealCards(playerArray, deck, currentPlayer);
 
                 //Reset players to non-ai
@@ -160,7 +162,7 @@ public class GameEngine {
                     game.getBids(currentPlayer, playerArray);
                 }
 
-                //Set first player to left of declarer if needed //TODO: Get from game desc when added
+                //Set first player to left of declarer if needed //
                 int dummyPlayer = -1;
                 if (gameDesc.getFirstTrickLeader().equals("contract")) {
                     //Get the declarer of the final bid, set the player to lead the trick as to the 'left'
@@ -168,6 +170,9 @@ public class GameEngine {
                     currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                     //Set dummy player to the declarer's partner
                     dummyPlayer = game.nextPlayerIndex.apply(game.nextPlayerIndex.apply(currentPlayer));
+                }
+                if(gameDesc.getFirstTrickLeader().equals("bidWinner")){
+                    currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
                 }
 
                 if (printMoves) {
@@ -179,7 +184,7 @@ public class GameEngine {
                 //Loop until hand has completed (all cards have been played)
                 do {
                     //If the trump is based on bidding, set the trump suit based on the final bid
-                    if (gameDesc.getTrumpPickingMode().equals("bid")) {
+                    if (gameDesc.getTrumpPickingMode().equals("bid") && gameDesc.isTrumpSuitBid()) {
                         game.trumpSuit.replace(0, game.trumpSuit.length(), game.getAdjustedHighestBid().getSuit());
                     }
                     if (printMoves) {
@@ -215,6 +220,9 @@ public class GameEngine {
                             if (playedCardType != null) {
                                 rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer);
                             }
+                        }
+                        if (game.trumpSuit.length() == 0 && gameDesc.getTrumpPickingMode().equals("firstPlayed") && game.currentTrick.getHandSize() == 1) {
+                            game.trumpSuit.append(game.currentTrick.get(0).getSUIT());
                         }
                         //Rotate the play
                         currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
@@ -279,8 +287,9 @@ public class GameEngine {
 
                 //Increment dealer for next hand
                 dealer = game.nextPlayerIndex.apply(dealer);
-
-                game.printScore();
+                if(printMoves){
+                    game.printScore();
+                }
             } while (game.gameEnd()); //Check if game ending condition has been met
 
             //If match scoring is bestOf
@@ -332,7 +341,7 @@ public class GameEngine {
                 team.setTricksWon(0);
             }
         }
-        if(desc.getCalculateScore().equals("trumpPointValue")){
+        if (desc.getCalculateScore().equals("trumpPointValue")) {
             for (Team team : getTeams()) {
                 int score = team.getCardsWon().stream().filter((card -> card.getSUIT().equals(trumpSuit.toString()))).mapToInt(Card::getPointValue).sum();
                 team.setGameScore(team.getGameScore() + score);
@@ -348,37 +357,34 @@ public class GameEngine {
                 //Set the contract's vulnerability based on the declaring Team's state
                 getAdjustedHighestBid().setVulnerable(declaringTeam.isVulnerable());
                 //If the declaring team matched their contract, increment their game score accordingly (See validBids.java)
-                if (declaringTeam.getTricksWon() >= getAdjustedHighestBid().getBidValue()) {
-                    declaringTeam.setGameScore(declaringTeam.getGameScore() + desc.getEvaluateBid().apply(getAdjustedHighestBid(), declaringTeam.getTricksWon()));
-                }
-                //Otherwise, find the opposition team, and increment their game score accordingly
-                else {
-                    for (Team team : getTeams()) {
-                        if (team != declaringTeam) {
-                            team.setGameScore(team.getGameScore() + desc.getEvaluateBid().apply(getAdjustedHighestBid(), declaringTeam.getTricksWon()));
-                            break;
-                        }
-                    }
-                }
-                //Reset the tricks won for all teams
+                Pair<Integer, Integer> scores = desc.getEvaluateBid().apply(getAdjustedHighestBid(), declaringTeam.getTricksWon());
+                declaringTeam.setGameScore(declaringTeam.getGameScore() + scores.getLeft());
+                //find the opposition team, and increment their game score accordingly
                 for (Team team : getTeams()) {
-                    team.setTricksWon(0);
+                    if (team != declaringTeam) {
+                        team.setGameScore(team.getGameScore() + scores.getRight());
+                        break;
+                    }
                 }
             }
-            //For spades style bid scoring
-            else {
-                for (Team team : getTeams()) {
-                    int teamBid = 0;
-                    //Get collective team bids
-                    for (Player player : team.getPlayers()) {
-                        teamBid += player.getBid().getBidValue();
-                    }
-                    Bid bid = new Bid(false, null, teamBid, false, false);
-                    //Increase score of winning team based on bid scoring system (See validBids.java)
-                    team.setGameScore(team.getGameScore() + desc.getEvaluateBid().apply(bid, team.getTricksWon()));
-                    //Reset tricks won for next round.
-                    team.setTricksWon(0);
+            //Reset the tricks won for all teams
+            for (Team team : getTeams()) {
+                team.setTricksWon(0);
+            }
+        }
+        //For spades style bid scoring
+        else {
+            for (Team team : getTeams()) {
+                int teamBid = 0;
+                //Get collective team bids
+                for (Player player : team.getPlayers()) {
+                    teamBid += player.getBid().getBidValue();
                 }
+                Bid bid = new Bid(false, null, teamBid, false, false);
+                //Increase score of winning team based on bid scoring system (See validBids.java)
+                team.setGameScore(team.getGameScore() + desc.getEvaluateBid().apply(bid, team.getTricksWon()).getLeft());
+                //Reset tricks won for next round.
+                team.setTricksWon(0);
             }
         }
     }
@@ -452,7 +458,7 @@ public class GameEngine {
                 //If the current highest bid is a double, then the new bid indicates a redouble
                 if (getAdjustedHighestBid().isDoubling()) {
                     //Set the current highest bid to a redouble
-                    getAdjustedHighestBid().setDoubling(false);
+                    getAdjustedHighestBid().setDoubling(true);
                     getAdjustedHighestBid().setRedoubling(true);
                 }
                 //Otherwise it's a standard double
@@ -483,12 +489,18 @@ public class GameEngine {
                     }
                     //Standard raising bid
                     else {
-                        if (desc.isTrumpSuitBid()) {
-                            getAdjustedHighestBid().setSuit(bid.getSuit());
-                            //If the suit has been raised, or a different team will now have the highest bid, update the declarer.
-                            if (!(getAdjustedHighestBid().getSuit().equals(bid.getSuit())) || getAdjustedHighestBid().getTeam() != players[currentPlayer].getTeam()) {
-                                getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
+                        if (desc.isAscendingBid()) {
+                            if(desc.isTrumpSuitBid()){
+                                getAdjustedHighestBid().setSuit(bid.getSuit());
+                                if (!(getAdjustedHighestBid().getSuit().equals(bid.getSuit())) || getAdjustedHighestBid().getTeam() != players[currentPlayer].getTeam()) {
+                                    getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
+                                }
+                            } else {
+                                if (getAdjustedHighestBid().getTeam() != players[currentPlayer].getTeam()) {
+                                    getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
+                                }
                             }
+                            //If the suit has been raised, or a different team will now have the highest bid, update the declarer.
                         }
                         //Update current highest bid
                         getAdjustedHighestBid().setRedoubling(false);

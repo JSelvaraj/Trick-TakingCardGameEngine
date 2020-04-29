@@ -11,7 +11,7 @@ public class ContractBid extends Bid {
 
     public ContractBid(boolean doubling, String suit, int bidValue, boolean blind, boolean redoubling, boolean vulnerable,
                        Player declarer, Team team) {
-        super(doubling, suit, bidValue, blind, vulnerable); //TODO update to support vulnerable
+        super(doubling, suit, bidValue, blind, vulnerable);
         this.redoubling = redoubling;
         this.declarer = declarer;
         this.team = team;
