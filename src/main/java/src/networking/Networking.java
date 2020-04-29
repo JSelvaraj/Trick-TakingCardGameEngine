@@ -12,6 +12,7 @@ import src.parser.Parser;
 import src.player.NetworkPlayer;
 import src.player.Player;
 
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -388,8 +389,10 @@ public class Networking {
         if (localConnection) {
             try {
                 //Wait to aquire and them immediately release, as it is only need
+                System.out.println("LOCK ACQUIRED " + ip);
                 hostStarted.acquire();
                 hostStarted.release();
+                System.out.println("LOCK RELEASED");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
