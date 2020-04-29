@@ -18,15 +18,20 @@ public class CardComparator implements Comparator<Card> {
      * suitMap is a map of the suits and their ranking in the game defined by the game description,
      * a lower value in the map indicates a more valuable suit.
      */
-    private HashMap<String, Integer> suitMap;
+    private Map<String, Integer> suitMap;
 
     /**
      * Constructor that sets default rankorder
      *
      * @param suitMap Ranking of suits
      */
-    public CardComparator(HashMap<String, Integer> suitMap) {
+    public CardComparator(Map<String, Integer> suitMap) {
         String[] ranks = {"TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING", "ACE"};
+        this.rankOrder = Arrays.asList(ranks);
+        this.suitMap = suitMap;
+    }
+
+    public CardComparator(Map<String, Integer> suitMap, String[] ranks) {
         this.rankOrder = Arrays.asList(ranks);
         this.suitMap = suitMap;
     }

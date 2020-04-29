@@ -1,57 +1,44 @@
 package src.rdmEvents;
 
+//Class to store a card swap event to be sent over network
 public class Swap {
+    //Player and the selected card who initiated the swap
     int originalPlayerIndex;
     int originalPlayerCardNumber;
-    int rdmPlayerIndex;
-    int rdmPlayerCardNumber;
+    //Player and the selected card who the swap is performed on
+    int otherPlayerIndex;
+    int otherPlayerCardNumber;
+    //Status indicates whether the player chose to swap
     String status;
 
+    //Standard constructor
     public Swap(int currentPlayer, int currentPlayerCardNumber, int rdmPlayerIndex, int rdmPlayerCardNumber, String status) {
         this.originalPlayerIndex = currentPlayer;
         this.originalPlayerCardNumber = currentPlayerCardNumber;
-        this.rdmPlayerIndex = rdmPlayerIndex;
-        this.rdmPlayerCardNumber = rdmPlayerCardNumber;
+        this.otherPlayerIndex = rdmPlayerIndex;
+        this.otherPlayerCardNumber = rdmPlayerCardNumber;
         this.status = status;
     }
 
+    //Standard getters
+
     public int getOriginalPlayerIndex() {
         return originalPlayerIndex;
-    }
-
-    public void setOriginalPlayerIndex(int originalPlayerIndex) {
-        this.originalPlayerIndex = originalPlayerIndex;
     }
 
     public int getOriginalPlayerCardNumber() {
         return originalPlayerCardNumber;
     }
 
-    public void setOriginalPlayerCardNumber(int originalPlayerCardNumber) {
-        this.originalPlayerCardNumber = originalPlayerCardNumber;
+    public int getOtherPlayerIndex() {
+        return otherPlayerIndex;
     }
 
-    public int getRdmPlayerIndex() {
-        return rdmPlayerIndex;
-    }
-
-    public void setRdmPlayerIndex(int rdmPlayerIndex) {
-        this.rdmPlayerIndex = rdmPlayerIndex;
-    }
-
-    public int getRdmPlayerCardNumber() {
-        return rdmPlayerCardNumber;
-    }
-
-    public void setRdmPlayerCardNumber(int rdmPlayerCardNumber) {
-        this.rdmPlayerCardNumber = rdmPlayerCardNumber;
+    public int getOtherPlayerCardNumber() {
+        return otherPlayerCardNumber;
     }
 
     public String getStatus() {
         return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 }

@@ -1,21 +1,20 @@
 package src.player;
 
 import src.card.Card;
-import src.gameEngine.Bid;
-import src.gameEngine.ContractBid;
+import src.bid.Bid;
+import src.bid.ContractBid;
 import src.gameEngine.Hand;
-import src.gameEngine.PotentialBid;
-import src.rdmEvents.RdmEvent;
+import src.bid.PotentialBid;
+import src.parser.GameDesc;
 import src.rdmEvents.Swap;
 import src.team.Team;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.sql.SQLOutput;
+import java.util.List;
 import java.util.Scanner;
-import java.util.function.BiFunction;
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 /**
@@ -48,6 +47,9 @@ public class LocalPlayer extends Player {
 
     protected String colour;
 
+    private POMDPPlayer aiPlayer = new POMDPPlayer();
+    private boolean aiTakeover = false;
+
     public LocalPlayer(int playerNumber, Predicate<Card> validCard) {
         super(playerNumber, validCard);
         this.colour = text_colours[playerNumber];
@@ -60,8 +62,32 @@ public class LocalPlayer extends Player {
 
     public LocalPlayer() {
         this.colour = text_colours[0];
+        aiPlayer.setHand(super.getHand());
     }
 
+    @Override
+    public void setTeam(Team team) {
+        super.setTeam(team);
+        aiPlayer.setTeam(team);
+    }
+
+    @Override
+    public void startHand(StringBuilder trumpSuit, int handSize) {
+        super.startHand(trumpSuit, handSize);
+        aiPlayer.startHand(trumpSuit, handSize);
+    }
+
+    @Override
+    public void setPlayerNumber(int playerNumber) {
+        super.setPlayerNumber(playerNumber);
+        aiPlayer.setPlayerNumber(playerNumber);
+    }
+
+    @Override
+    public void initPlayer(Predicate<Card> validCard, GameDesc desc, StringBuilder trumpSuit) {
+        super.initPlayer(validCard, desc, trumpSuit);
+        aiPlayer.initPlayer(validCard, desc, trumpSuit);
+    }
 
     /**
      * @param trumpSuit    current trump suit
@@ -72,6 +98,9 @@ public class LocalPlayer extends Player {
      */
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) {
+        if (aiTakeover){
+            return aiPlayer.playCard(trumpSuit, currentTrick);
+        }
         System.out.println("Current Trick: " + currentTrick.toString());
         System.out.print(this.colour);
         System.out.println("-------------------------------------");
@@ -93,14 +122,17 @@ public class LocalPlayer extends Player {
 
     @Override
     public void broadcastPlay(Card card, int playerNumber) {
+        aiPlayer.broadcastPlay(card, playerNumber);
         System.out.println("Player " + (playerNumber + 1) + " played " + card.toString());
     }
 
+    //Indicate the swap that was performed
     @Override
     public void broadcastSwap(Swap swap) {
-
+        System.out.println("Player " + (swap.getOriginalPlayerIndex() + 1) + " swapped a card with Player " + (swap.getOtherPlayerCardNumber() + 1)) ;
     }
 
+    //Asks if a player would like to swap a card with a random opponent
     @Override
     public Swap getSwap(Player rdmStrongPlayer) {
         int currentPlayerIndex = this.getPlayerNumber();
@@ -125,16 +157,31 @@ public class LocalPlayer extends Player {
                 rdmStrongPlayerCardNumber = scanner.nextInt();
             } while (rdmStrongPlayerCardNumber < 0 || rdmStrongPlayerCardNumber >= rdmStrongPlayer.getHand().getHandSize());
             System.out.println("Card chosen: " + rdmStrongPlayer.getHand().get(rdmStrongPlayerCardNumber));
+            //Return a live swap
             return new Swap(currentPlayerIndex, currentPlayerCardNumber, rdmStrongPlayerIndex, rdmStrongPlayerCardNumber, "live");
-        } else {
+        }
+        //Signal swap offer was rejected
+        else {
             return new Swap(0,0,0,0, "dead");
         }
     }
 
     @Override
-    public void broadcastBid(Bid bid, int playerNumber) {
-        //TODO: Update so it communicates doubles, redoubles, and suits
-        System.out.println("Player " + (playerNumber + 1) + " bid " + bid.getBidValue() + (bid.isBlind() ? " blind" : ""));
+    public void broadcastBid(Bid bid, int playerNumber, ContractBid adjustedHighestBid) {
+        StringBuilder output = new StringBuilder();
+        output.append("Player ").append(playerNumber + 1);
+        if (bid.isDoubling()) {
+            if (adjustedHighestBid.isRedoubling()) {
+                output.append(" redoubled");
+            }
+            else {
+                output.append(" doubled");
+            }
+        }
+        else{
+            output.append(" bid ").append(bid.getBidValue()).append(bid.getSuit() != null ? (" " + bid.getSuit()) : "").append(bid.isBlind() ? " blind" : "");
+        }
+        System.out.println(output);
     }
 
     /**
@@ -142,54 +189,60 @@ public class LocalPlayer extends Player {
      * @return new bid
      */
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, boolean firstRound, boolean canBidBlind) {
         System.out.print(this.colour);
         System.out.println("-------------------------------------");
         System.out.println("-------------------------------------");
         System.out.println("Player " + (super.getPlayerNumber() + 1));
         System.out.println("-------------------------------------");
         System.out.println("-------------------------------------");
-
+        if(aiTakeover){
+            System.out.println("AI takeover");
+            return aiPlayer.makeBid(validBid, trumpSuitBid, adjustedHighestBid, firstRound, canBidBlind);
+        }
         int option = -1;
 
         String bidInput = null;
         String bidSuit = null;
         boolean doubling = false;
+        boolean bidBlind = false;
 
-        boolean bidBlind = true;
-
-        InputStreamReader r =new InputStreamReader(System.in);
+        InputStreamReader r = new InputStreamReader(System.in);
         BufferedReader br = new BufferedReader(r);
-        System.out.println("Select Option:");
-        System.out.println("    1. Bid with seeing cards");
-        System.out.println("    2. Bid blind");
-        while (option > 2 || option < 1) {
-            Scanner scan = new Scanner(System.in);
-            option =  scan.nextInt();
+        if (canBidBlind) {
+            System.out.println("Select Option:");
+            System.out.println("    1. Bid with seeing cards");
+            System.out.println("    2. Bid blind");
+            while (option > 2 || option < 1) {
+                Scanner scan = new Scanner(System.in);
+                option =  scan.nextInt();
+            }
+            if (option == 2) {
+                bidBlind = true;
+            }
         }
-        switch (option) {
-            case 1:
-                System.out.println("Current Hand: " + super.getHand().toString());
-                bidBlind = false;
-            case 2:
-                try {
-                    do {
-                        System.out.println("Enter your bid: (enter '-2' to pass, 'd' to double/redouble - if these are valid options)");
-                        bidSuit = null;
-                        bidInput = br.readLine();
 
-                        if (trumpSuitBid && bidInput.matches("\\d+")) {
-                            System.out.println("Enter your trump suit ('NO TRUMP' for no trump)");
-                            bidSuit = br.readLine();
-                        }
-                    } while (!validBid.test(new PotentialBid(bidSuit, bidInput, adjustedHighestBid)));
-                    break;
-                }
-                catch (IOException e) {
-                    System.out.println(e.getStackTrace());
-                    System.exit(0);
-                }
+        if (!bidBlind) {
+            System.out.println("Current Hand: " + super.getHand().toString());
         }
+
+        try {
+            do {
+                System.out.println("Enter your bid: (enter '-2' to pass, 'd' to double/redouble - if these are valid options)");
+                bidSuit = null;
+                bidInput = br.readLine();
+
+                if (trumpSuitBid && bidInput.matches("\\d+")) {
+                    System.out.println("Enter your trump suit ('NO TRUMP' for no trump)");
+                    bidSuit = br.readLine();
+                }
+            } while (!validBid.test(new PotentialBid(bidSuit, bidInput, adjustedHighestBid, this, firstRound)));
+        }
+        catch (IOException e) {
+            System.out.println(e.getStackTrace());
+            System.exit(0);
+        }
+
         System.out.println(ANSI_RESET);
         int finalBidInput = 0;
         if (bidInput.equals("d")) {
@@ -198,9 +251,20 @@ public class LocalPlayer extends Player {
         else {
             finalBidInput = Integer.parseInt(bidInput);
         }
-        return new Bid(doubling, bidSuit, finalBidInput, bidBlind);
+        return new Bid(doubling, bidSuit, finalBidInput, bidBlind, false);
     }
 
+    @Override
+    public void broadcastDummyHand(int playerNumber, List<Card> dummyHand) {
+        aiPlayer.broadcastDummyHand(playerNumber, dummyHand);
+        System.out.println("Dummy hand of Player " + (playerNumber + 1) + ": " + dummyHand);
+    }
 
+    public boolean isAiTakeover() {
+        return aiTakeover;
+    }
 
+    public void setAiTakeover(boolean aiTakeover) {
+        this.aiTakeover = aiTakeover;
+    }
 }

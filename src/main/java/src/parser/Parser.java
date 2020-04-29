@@ -1,19 +1,22 @@
 package src.parser;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import src.bid.Bid;
+import src.card.Card;
+import src.deck.Deck;
 import src.exceptions.InvalidGameDescriptionException;
 import src.functions.validBids;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.*;
 
 
 /**
@@ -80,13 +83,26 @@ public class Parser {
         String[] suits;
         String[] ranks;
         String[] rank_order;
+        Deck deck;
         if (gameJSON.isNull("deck")) {
             suits = DEFAULT_SUITS;
             ranks = DEFAULT_RANKS;
             rank_order = DEFAULT_RANK_ORDER;
+            deck = new Deck();
         } else {
-            //TODO implement this. Currently only supports default deck.
-            throw new UnsupportedOperationException();
+            JSONObject deckJSON = gameJSON.getJSONObject("deck");
+            JSONArray cards = deckJSON.getJSONArray("cards");
+            //TODO remove suit and ranks.
+            suits = DEFAULT_SUITS;
+            ranks = DEFAULT_RANKS;
+            deck = new Deck((LinkedList<Card>) Deck.makeDeck(cards));
+            JSONArray rank_orderJSON = deckJSON.getJSONArray("rankOrder");
+            rank_order = new String[rank_orderJSON.length()];
+            for (int i = 0; i < rank_order.length; i++) {
+                rank_order[i] = rank_orderJSON.getString(i);
+            }
+            //Needed as spec is wrong
+            ArrayUtils.reverse(rank_order);
         }
         //Gets the teams to use.
         int[][] teams;
@@ -106,11 +122,14 @@ public class Parser {
         String trumpSuit = null;
         String leadingCardForEachTrick = null;
         String gameEnd = null;
+        String sessionEnd = "fixed";
+        int sessionEndValue = 1;
         Integer scoreThreshold = null;
-        Integer trickThreshold = null;
+        Integer trickThreshold = 0;
         String nextLegalCardMode = null;
         String trickWinner = null;
         String trickLeader = null;
+        String firstTrickLeader = "default";
         String handSize = "fixed";
         JSONArray rules = gameJSON.getJSONArray("rules"); //TODO check for null
         for (int i = 0; i < rules.length(); i++) {
@@ -129,6 +148,12 @@ public class Parser {
                 case "leadingCardForEachTrick":
                     leadingCardForEachTrick = rule.getString("data");
                     break;
+                case "sessionEnd":
+                    sessionEnd = rule.getString("data");
+                    break;
+                case "sessionEndValue":
+                    sessionEndValue = rule.getInt("data");
+                    break;
                 case "gameEnd":
                     gameEnd = rule.getString("data");
                     break;
@@ -146,6 +171,9 @@ public class Parser {
                     break;
                 case "trickLeader":
                     trickLeader = rule.getString("data");
+                    break;
+                case "firstTrickLeader":
+                    firstTrickLeader = rule.getString("data");
                     break;
                 case "handEnd":
                     //TODO change
@@ -178,11 +206,25 @@ public class Parser {
 
         //Pass any parameters that main engine needs that are bidding specific.
         boolean trumpSuitBid = false;
-        boolean canPass = false;
+        boolean ascendingBid = false;
+        int vulnerabilityThreshold = 0;
+        boolean canBidBlind = false;
+        int minBid = 0;
+        int maxBid = initialHandSize;
+        List<String> bidSuits = new ArrayList<>();
         JSONObject bidObject = gameJSON.optJSONObject("bid");
         if (bidObject != null) {
             trumpSuitBid = bidObject.optBoolean("trumpSuitBid", false);
-            canPass = bidObject.optBoolean("canPass", false);
+            ascendingBid = bidObject.optBoolean("ascendingBid", false);
+            vulnerabilityThreshold = bidObject.optInt("vulnerabilityThreshold", 0);
+            canBidBlind = bidObject.optBoolean("canBidBlind");
+            minBid = bidObject.optInt("minBid", minBid);
+            maxBid = bidObject.optInt("maxBid", maxBid);
+            JSONArray bidSuitsJSON = bidObject.optJSONArray("suitBidRank");
+            if(bidSuitsJSON != null){
+                bidSuitsJSON.forEach((obj) ->bidSuits.add(obj.toString().equals("null") ? Bid.NOTRUMP : obj.toString()));
+            }
+
         }
 
 
@@ -205,10 +247,19 @@ public class Parser {
                 nextLegalCardMode,
                 trickWinner,
                 trickLeader,
+                firstTrickLeader,
                 handSize,
                 trumpIterator,
                 trumpSuitBid,
-                canPass);
+                ascendingBid,
+                sessionEnd,
+                sessionEndValue,
+                vulnerabilityThreshold,
+                canBidBlind,
+                minBid,
+                maxBid,
+                bidSuits,
+                deck);
 
         if (bidObject != null) {
             bidObject = gameJSON.getJSONObject("bid");
@@ -246,8 +297,8 @@ public class Parser {
     }
 
     private void initBidding(JSONObject bidObject, GameDesc gameDesc) {
-        gameDesc.setValidBid(validBids.isValidBidValue(bidObject));
-        gameDesc.setEvaluateBid(validBids.evaluateBid(bidObject));
+        gameDesc.setValidBid(validBids.isValidBidValue(bidObject, gameDesc.getInitialHandSize()));
+        gameDesc.setEvaluateBid(validBids.evaluateBid(bidObject, gameDesc.getTrickThreshold()));
         gameDesc.setBidding(true);
     }
 

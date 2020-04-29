@@ -5,12 +5,14 @@ import org.junit.jupiter.api.Test;
 import src.card.Card;
 import src.functions.validBids;
 import src.functions.validCards;
-import src.gameEngine.Bid;
+import src.bid.Bid;
 import src.gameEngine.Hand;
-import src.gameEngine.PotentialBid;
+import src.bid.PotentialBid;
+import src.player.LocalPlayer;
+import src.player.Player;
 import src.player.RandomPlayer;
+import src.team.Team;
 
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -80,12 +82,13 @@ class RandomPlayerTest {
         JSONObject bidObject = new JSONObject();
         bidObject.put("minBid", 0);
         bidObject.put("maxBid", 10);
-        Predicate<PotentialBid> validBid = validBids.isValidBidValue(bidObject);
+        Predicate<PotentialBid> validBid = validBids.isValidBidValue(bidObject, 13);
         RandomPlayer randomPlayer = new RandomPlayer(0, null);
         for (int i = 0; i < 10; i++) randomPlayer.getHand().getCard(new Card("", ""));
         for (int i = 0; i < 1000; i++) {
-            Bid randomBid = randomPlayer.makeBid(validBid, false, null);
-            assertTrue(validBid.test(new PotentialBid(randomBid.getSuit(), Integer.toString(randomBid.getBidValue()), null)));
+            Bid randomBid = randomPlayer.makeBid(validBid, false, null, false, false);
+            assertTrue(validBid.test(new PotentialBid(randomBid.getSuit(), Integer.toString(randomBid.getBidValue()),
+                    null, randomPlayer, false)));
         }
     }
 }

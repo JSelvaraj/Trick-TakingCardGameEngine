@@ -2,17 +2,15 @@ package src.player;
 
 import src.card.Card;
 import src.functions.validCards;
-import src.gameEngine.Bid;
-import src.gameEngine.ContractBid;
+import src.bid.Bid;
+import src.bid.ContractBid;
 import src.gameEngine.Hand;
-import src.gameEngine.PotentialBid;
-import src.rdmEvents.RdmEvent;
+import src.bid.PotentialBid;
 import src.rdmEvents.Swap;
 import src.team.Team;
+import src.parser.GameDesc;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.function.IntPredicate;
+import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -42,16 +40,20 @@ public abstract class Player {
         this.canBePlayed = null;
     }
 
+    public void startHand(StringBuilder trumpSuit, int handSize) {
+
+    }
+
     public void setPlayerNumber(int playerNumber) {
         this.playerNumber = playerNumber;
     }
 
     /**
-     * Initialises the predicate that checks if a move is valid.
+     * Initialises the player..
      *
      * @param validCard Predicate that checks if a card is valid.
      */
-    public void initCanBePlayed(Predicate<Card> validCard) {
+    public void initPlayer(Predicate<Card> validCard, GameDesc desc, StringBuilder trumpSuit) {
         this.canBePlayed = validCards.getCanBePlayedPredicate(this.hand, validCard);
     }
 
@@ -67,7 +69,8 @@ public abstract class Player {
 
     public abstract void broadcastPlay(Card card, int playerNumber);
 
-    public abstract Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid);
+    public abstract Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid,
+                                boolean firstRound, boolean canBidBlind);
 
     public Predicate<Card> getCanBePlayed() {
         return canBePlayed;
@@ -77,7 +80,7 @@ public abstract class Player {
         this.canBePlayed = canBePlayed;
     }
 
-    public abstract void broadcastBid(Bid bid, int playerNumber);
+    public abstract void broadcastBid(Bid bid, int playerNumber, ContractBid adjustedHighestBid);
 
     public abstract Swap getSwap(Player strongPlayer);
 
@@ -101,5 +104,9 @@ public abstract class Player {
 
     public void setTeam(Team team) {
         this.team = team;
+    }
+
+    public void broadcastDummyHand(int playerNumber, List<Card> dummyHand){
+
     }
 }

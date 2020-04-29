@@ -1,0 +1,29 @@
+{
+  "name": "One Trick Pony",
+  "description": "...",
+  "players": 2,
+  "initialHandSize" : 1,
+  "minimumHandSize" : 0,
+  "teams": [[0],[1]],
+  "ascending_ordering": true,
+  "can_view_previous_trick": true,
+  "rules": [
+    {"name": "leadingCardForEachTrick", "data": "any"},
+    {"name": "nextLegalCardMode", "data": "trick"},
+    {"name": "trumpPickingMode", "data": "lastDealt"},
+    {"name": "calculateScore", "data": "tricksWon"},
+    {"name": "trickThreshold", "data": 0},
+    {"name": "trickWinner", "data": "standard"},
+    {"name": "tieBreaker", "data": "anotherHand"},
+    {"name": "trickLeader", "data": "prevWinner"},
+    {"name": "firstTrickLeader", "data": "default"},
+    {"name": "validLeadingCardFirstTrick", "data": "any"},
+    {"name" : "sessionEnd", "data" : "gamesPlayed"},
+    {"name" : "sessionEndValue", "data" : 1},
+    {"name" : "gameEnd", "data" : "scoreThreshold"},
+    {"name" : "gameEndValue", "data" : 1},
+    {"name": "handEnd", "data": "outOfCards"},
+    {"name": "handSize", "data": "fixed"}
+
+  ]
+}

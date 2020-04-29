@@ -1,8 +1,11 @@
 package src.deck;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import src.card.Card;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Object that stores a deck (LinkedList) of Cards
@@ -33,6 +36,18 @@ public class Deck {
         }
         return deck;
 
+    }
+
+    public static List<Card> makeDeck(JSONArray cards){
+        List<Card> deck = new LinkedList<>();
+        cards.forEach((cardsJSON) -> {
+            JSONObject cardJSON = (JSONObject) cardsJSON;
+            String suit = cardJSON.getString("suit");
+            String rank = cardJSON.getString("rank");
+            int value = cardJSON.optInt("pointValue");
+            deck.add(new Card(suit, rank, value));
+        });
+        return deck;
     }
 
     //Creates standard deck if no suits and ranks provided.

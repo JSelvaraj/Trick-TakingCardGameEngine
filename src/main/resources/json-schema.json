@@ -67,21 +67,21 @@
         },
         "Ranks": {
             "enum": [
-                0,
-                1,
-                10,
-                11,
-                12,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9
+                "ACE",
+                "KING",
+                "QUEEN",
+                "JACK",
+                "TEN",
+                "NINE",
+                "EIGHT",
+                "SEVEN",
+                "SIX",
+                "FIVE",
+                "FOUR",
+                "THREE",
+                "TWO"
             ],
-            "type": "number"
+            "type": "string"
         },
         "Rule": {
             "description": "Rules for the game\n\nA list of rules implemented can be found...",
@@ -98,12 +98,12 @@
         },
         "Suits": {
             "enum": [
-                0,
-                1,
-                2,
-                3
+                "CLUBS",
+                "DIAMONDS",
+                "HEARTS",
+                "SPADES"
             ],
-            "type": "number"
+            "type": "string"
         }
     },
     "description": "Reference implementation of the communication language",

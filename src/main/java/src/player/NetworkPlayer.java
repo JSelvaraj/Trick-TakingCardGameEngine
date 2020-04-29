@@ -6,10 +6,10 @@ import org.json.JSONObject;
 import src.card.Card;
 import src.exceptions.InvalidBidException;
 import src.exceptions.InvalidPlayerMoveException;
-import src.gameEngine.Bid;
-import src.gameEngine.ContractBid;
+import src.bid.Bid;
+import src.bid.ContractBid;
 import src.gameEngine.Hand;
-import src.gameEngine.PotentialBid;
+import src.bid.PotentialBid;
 import src.rdmEvents.Swap;
 
 import java.io.BufferedWriter;
@@ -18,7 +18,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 public class NetworkPlayer extends Player {
@@ -81,17 +80,19 @@ public class NetworkPlayer extends Player {
         }
     }
 
+    //Send a card swap event to other players over network
     @Override
     public void broadcastSwap(Swap swap) {
         //Creates the json object to be sent.
         JSONObject json = new JSONObject();
+        //Indicates it's a swap event
         json.put("type", "swap");
+        //Puts the relevant info
         json.put("currentPlayer", swap.getOriginalPlayerIndex());
         json.put("currentPlayerCardNumber", swap.getOriginalPlayerCardNumber());
-        json.put("rdmPlayerIndex", swap.getRdmPlayerIndex());
-        json.put("rdmPlayerCardNumber", swap.getRdmPlayerCardNumber());
+        json.put("rdmPlayerIndex", swap.getOtherPlayerIndex());
+        json.put("rdmPlayerCardNumber", swap.getOtherPlayerCardNumber());
         json.put("status", swap.getStatus());
-        System.out.println("Broadcasting swap to Player " + getPlayerNumber());
         //Sends the json object over the socket.
         try {
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(playerSocket.getOutputStream(), StandardCharsets.UTF_8));
@@ -102,16 +103,18 @@ public class NetworkPlayer extends Player {
         }
     }
 
+    //Reads in a swap from the network
     @Override
     public Swap getSwap(Player strongPlayer) {
         JsonElement msg = null;
         msg = reader.next();
-        JSONObject swapEvent = new JSONObject(msg.getAsJsonObject().toString()); //TODO catch exceptions
+        JSONObject swapEvent = new JSONObject(msg.getAsJsonObject().toString());
         String type = swapEvent.getString("type");
+        //Checks it's a swap event
         if (!type.equals("swap")) {
             throw new InvalidPlayerMoveException();
         }
-        System.out.println("Player " + getPlayerNumber() + " received swap event");
+        //Returns swap for logic to be performed
         return new Swap(swapEvent.getInt("currentPlayer"), swapEvent.getInt("currentPlayerCardNumber"),
                 swapEvent.getInt("rdmPlayerIndex"), swapEvent.getInt("rdmPlayerCardNumber"), swapEvent.getString("status"));
     }
@@ -121,16 +124,17 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public void broadcastBid(Bid bid, int playerNumber) {
+    public void broadcastBid(Bid bid, int playerNumber, ContractBid adjustedHighestBid) {
         JSONObject json = new JSONObject();
         json.put("type", "bid");
         json.put("doubling", bid.isDoubling());
         if (bid.getSuit() != null) {
-            String suit = bid.getSuit();
-            if (suit.equals("NO TRUMP")) {
-                suit = "N";
+            if (bid.getSuit().equals("NO TRUMP")) {
+                json.put("suit", JSONObject.NULL);
             }
-            json.put("suit", suit);
+            else {
+                json.put("suit", bid.getSuit());
+            }
         }
         json.put("value", bid.getBidValue());
         json.put("blindBid", bid.isBlind());
@@ -144,7 +148,7 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, boolean firstRound, boolean canBidBlind) {
         JsonElement msg = null;
         try {
             JsonStreamParser reader = new JsonStreamParser(new InputStreamReader(playerSocket.getInputStream()));
@@ -164,20 +168,25 @@ public class NetworkPlayer extends Player {
         boolean blind;
         boolean doubling = bidEvent.optBoolean("doubling", false);
         if (doubling) {
-            bid =  new Bid(true, null,0,false);
+            bid =  new Bid(true, null,0,false, false);
             value = "d";
         }
         else {
-            suit = bidEvent.optString("suit", null);
-            if (suit != null && suit.equals("NO TRUMP")) {
-                suit = "N";
+            if (bidEvent.has("suit")) {
+                suit = bidEvent.optString("suit", null);
+                if (suit == null) {
+                    suit = "NO TRUMP";
+                }
+                else {
+                    suit = bidEvent.getString("suit");
+                }
             }
             int valueInt = bidEvent.getInt("value");
             blind = bidEvent.optBoolean("blindBid", false);
-            bid = new Bid(false,suit,valueInt,blind);
+            bid = new Bid(false,suit,valueInt,blind, false);
             value = Integer.toString(valueInt);
         }
-        if (!validBid.test(new PotentialBid(suit, value, adjustedHighestBid))) {
+        if (!validBid.test(new PotentialBid(suit, value, adjustedHighestBid, this, firstRound))) {
             throw new InvalidBidException();
         }
         return bid;

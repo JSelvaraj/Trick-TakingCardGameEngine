@@ -3,14 +3,14 @@ package src.parser;
 import src.card.Card;
 import src.deck.Deck;
 import src.functions.handFunctions;
-import src.gameEngine.Bid;
-import src.gameEngine.PotentialBid;
+import src.bid.Bid;
+import src.bid.PotentialBid;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -32,11 +32,14 @@ public class GameDesc {
     private String trumpSuit;
     private final String leadingCardForEachTrick;
     private final String gameEnd;
+    private final String sessionEnd;
+    private final Integer sessionEndValue;
     private final Integer scoreThreshold;
-    private Integer trickThreshold;
+    private int trickThreshold;
     private final String nextLegalCardMode;
     private final String trickWinner;
     private final String trickLeader;
+    private final String firstTrickLeader;
     //Bidding functions
     private boolean bidding;
     private Predicate<PotentialBid> validBid;
@@ -46,7 +49,13 @@ public class GameDesc {
     private int initialHandSize;
     private Iterator<String> trumpIterator;
     private boolean trumpSuitBid;
-    private boolean canPass;
+    private boolean ascendingBid;
+    private int vulnerabilityThreshold;
+    private boolean canBidBlind;
+    private int minBid;
+    private int maxBid;
+    private List<String> bidSuits;
+    private Deck deck;
 
 
     /**
@@ -74,10 +83,19 @@ public class GameDesc {
                     String nextLegalCardMode,
                     String trickWinner,
                     String trickLeader,
+                    String firstTrickLeader,
                     String handSize,
                     Iterator<String> trumpIterator,
                     boolean trumpSuitBid,
-                    boolean canPass) {
+                    boolean ascendingBid,
+                    String sessionEnd,
+                    int sessionEndValue,
+                    int vulnerabilityThreshold,
+                    boolean canBidBlind,
+                    int minBid,
+                    int maxBid,
+                    List<String> bidSuits,
+                    Deck deck) {
         this.name = name;
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
@@ -94,14 +112,23 @@ public class GameDesc {
         this.leadingCardForEachTrick = leadingCardForEachTrick;
         this.gameEnd = gameEnd;
         this.scoreThreshold = scoreThreshold; // regardless of whether its score or number of hands played, this variable is used for the comparison
-        if (calculateScore.equals("tricksWon")) this.trickThreshold = trickThreshold;
+        this.trickThreshold = trickThreshold;
         this.nextLegalCardMode = nextLegalCardMode;
         this.trickWinner = trickWinner;
         this.trickLeader = trickLeader;
         this.getHandSize = handFunctions.getHandSize(initialHandSize, minHandSize, handSize);
         this.trumpIterator = trumpIterator;
         this.trumpSuitBid = trumpSuitBid;
-        this.canPass = canPass;
+        this.ascendingBid = ascendingBid;
+        this.sessionEnd = sessionEnd;
+        this.sessionEndValue = sessionEndValue;
+        this.vulnerabilityThreshold = vulnerabilityThreshold;
+        this.firstTrickLeader = firstTrickLeader;
+        this.canBidBlind = canBidBlind;
+        this.minBid = minBid;
+        this.maxBid = maxBid;
+        this.bidSuits = bidSuits;
+        this.deck = deck;
     }
 
     @Override
@@ -131,8 +158,8 @@ public class GameDesc {
         return NUMBEROFPLAYERS;
     }
 
-    public LinkedList<Card> getDECK() {
-        return Deck.makeDeck(this.SUITS, this.RANKS);
+    public List<Card> getDECK() {
+        return new LinkedList<>(deck.cards);
     }
 
     public boolean isDEALCARDSCLOCKWISE() {
@@ -231,7 +258,39 @@ public class GameDesc {
         return trumpSuitBid;
     }
 
-    public boolean isCanPass() {
-        return canPass;
+    public boolean isAscendingBid() {
+        return ascendingBid;
+    }
+
+    public String getSessionEnd() {
+        return sessionEnd;
+    }
+
+    public Integer getSessionEndValue() {
+        return sessionEndValue;
+    }
+
+    public int getVulnerabilityThreshold() {
+        return vulnerabilityThreshold;
+    }
+
+    public String getFirstTrickLeader() {
+        return firstTrickLeader;
+    }
+
+    public boolean isCanBidBlind() {
+        return canBidBlind;
+    }
+
+    public int getMinBid() {
+        return minBid;
+    }
+
+    public int getMaxBid() {
+        return maxBid;
+    }
+
+    public List<String> getBidSuits() {
+        return bidSuits;
     }
 }
