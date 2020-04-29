@@ -27,7 +27,7 @@ import java.util.Objects;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
-/* Bugfix 0.1 */
+/* Bugfix 0.2 */
 
 
 public class WebSocketHandler extends WebSocketServer {
