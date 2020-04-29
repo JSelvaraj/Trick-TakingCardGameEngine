@@ -1,5 +1,6 @@
 package src.WebSocketTunnel;
 
+import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import src.WebSocketHandler;
@@ -24,12 +25,12 @@ public class WebSocketTunnel extends WebSocketClient {
     @Override
     public void onMessage(String message) {
 
-        handler.getConnections().forEach(socket -> {
-            if(socket != this.getConnection()) {
-                System.out.println("MESSAGE SENT: " + message);
+        for (WebSocket socket : handler.getConnections()) {
+            if (socket != this.getConnection()) {
+                System.out.println("MESSAGE SENT:" + socket.getLocalSocketAddress() + " :" + message);
                 socket.send(message);
             }
-        });
+        }
     }
 
     @Override

@@ -338,24 +338,7 @@ public class GameEngine extends WebSocketServer {
             }
 
             //Sends every player's hand to the GUI
-            System.out.println("SENDING CARDS TO GUI");
-            JsonObject jsonPlayers = new JsonObject();
-            jsonPlayers.add("type", new JsonPrimitive("playerhands"));
-            JsonArray jsonPlayersArray = new JsonArray();
-            for (int i = 0; i < playerArray.length; i++) {
-                LinkedList<Card> hand = playerArray[i].getHand().getHand();
-                JsonObject jsonPlayer = new JsonObject();
-                JsonArray jsonCards = new JsonArray();
-                for (Card card : hand) {
-                    jsonCards.add(gson.fromJson(card.getJSON(), JsonObject.class)); //converts hand to JSON array of JSON objects
-                }
-                jsonPlayer.add("playerindex", new JsonPrimitive(i));
-                jsonPlayer.add("hand", jsonCards);
-                jsonPlayersArray.add(jsonPlayer);
-            }
-            jsonPlayers.add("players", jsonPlayersArray);
-            jsonPlayers.add("target", new JsonPrimitive("GUI"));
-            game.webSocket.send(gson.toJson(jsonPlayers));
+            sendPlayerHands(playerArray, game, gson);
 
             currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
 
@@ -501,6 +484,8 @@ public class GameEngine extends WebSocketServer {
 
                 //Reset trick hand
                 game.currentTrick.dropHand();
+
+                sendPlayerHands(playerArray, game, gson);
             } while (playerArray[0].getHand().getHandSize() > gameDesc.getMinHandSize());
 
             game.handsPlayed++;
@@ -551,6 +536,27 @@ public class GameEngine extends WebSocketServer {
         sendTeamScoresJson(game, roundEndMessage);
 
         System.out.println("End of Game");
+    }
+
+    private static void sendPlayerHands(Player[] playerArray, GameEngine game, Gson gson) {
+        System.out.println("SENDING CARDS TO GUI");
+        JsonObject jsonPlayers = new JsonObject();
+        jsonPlayers.add("type", new JsonPrimitive("playerhands"));
+        JsonArray jsonPlayersArray = new JsonArray();
+        for (int i = 0; i < playerArray.length; i++) {
+            LinkedList<Card> hand = playerArray[i].getHand().getHand();
+            JsonObject jsonPlayer = new JsonObject();
+            JsonArray jsonCards = new JsonArray();
+            //converts hand to JSON array of JSON objects
+            for (Card card : hand) {
+                jsonCards.add(gson.fromJson(card.getJSON(), JsonObject.class));
+            }
+            jsonPlayer.add("playerindex", new JsonPrimitive(i));
+            jsonPlayer.add("hand", jsonCards);
+            jsonPlayersArray.add(jsonPlayer);
+        }
+        jsonPlayers.add("players", jsonPlayersArray);
+        game.webSocket.send(gson.toJson(jsonPlayers));
     }
 
     private static void sendTeamScoresJson(GameEngine game, JsonObject message) {
@@ -834,7 +840,7 @@ public class GameEngine extends WebSocketServer {
     @Override
     public void onMessage(WebSocket conn, String message) {
         JsonObject request = new Gson().fromJson(message, JsonObject.class);
-        System.out.println("MESSAGE RECEIVED: " + message);
+        System.out.println("GAMEENGINE RECEIVED: " + message);
         switch (request.get("type").getAsString()) {
             case "playcard":
                 synchronized (getCardLock) {

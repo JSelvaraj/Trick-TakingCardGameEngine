@@ -113,7 +113,7 @@ public class WebSocketHandler extends WebSocketServer {
                         request.get("address").getAsString(),
                         request.get("port").getAsInt(),
                         request.get("localport").getAsInt(),
-                        true,
+                        false,
                         false,
                         conn,
                         false));
