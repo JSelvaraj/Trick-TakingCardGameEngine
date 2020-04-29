@@ -19,8 +19,8 @@ import java.util.concurrent.TimeUnit;
 public class main {
     @Parameters(commandNames = "host", commandDescription = "Host a game")
     private static class CommandHost {
-        @Parameter(names = {"-b", "-broadcast"}, description = "Whether or not to broadcast this game on the network.")
-        private boolean broadcast = false;
+//        @Parameter(names = {"-b", "-broadcast"}, description = "Whether or not to broadcast this game on the network.")
+//        private boolean broadcast = false;
         @Parameter(names = {"-p", "-port"}, description = "Port to host the game from", required = false)
         private int port = 1;
         @Parameter(names = {"-g", "-game"}, description = "Path to the game to host", required = true)
@@ -46,7 +46,6 @@ public class main {
     }
 
     public static void main(String[] args) {
-        System.setProperty("java.net.preferIPv4Stack" , "false");
         CommandHost host = new CommandHost();
         CommandJoin join = new CommandJoin();
 
@@ -65,28 +64,25 @@ public class main {
         String command = jc.getParsedCommand();
         switch (command) {
             case "host":
-                if (host.broadcast) {
-                    //TODO implement starting to broadcast.
-                } else {
-                    Thread thread = new Thread(new HostRunner(new LocalPlayer(), host.port, host.game, host.enableRandomEvents));
-                    thread.start();
-                    System.out.println("Host Player1 started");
+                Thread hostThread = new Thread(new HostRunner(new LocalPlayer(), host.port, host.game, host.enableRandomEvents));
+                hostThread.start();
+                System.out.println("Host Player1 started");
 
-                    for (int i = 0; i < host.localPlayers; i++) {
-                        System.out.println("Local player" + (i+1) + " started");
-                        PlayerRunner runner = new PlayerRunner(new LocalPlayer(), "localhost", host.port,
-                                true, true, host.enableRandomEvents);
-                        Thread localThread = new Thread(runner);
-                        localThread.start();
-                    }
+                for (int i = 0; i < host.localPlayers; i++) {
+                    System.out.println("Local player" + (i + 1) + " started");
+                    PlayerRunner runner = new PlayerRunner(new LocalPlayer(), "localhost", host.port,
+                            true, true, host.enableRandomEvents);
+                    Thread localThread = new Thread(runner);
+                    localThread.start();
+                }
 
-                    for (int i = 0; i < host.aiPlayers; i++) {
-                        System.out.println("AI started");
-                        PlayerRunner runner = new PlayerRunner(new POMDPPlayer(), "localhost", host.port,
-                                true, false, host.enableRandomEvents);
-                        Thread aiThread = new Thread(runner);
-                        aiThread.start();
-                    }
+                for (int i = 0; i < host.aiPlayers; i++) {
+                    System.out.println("AI started");
+                    PlayerRunner runner = new PlayerRunner(new POMDPPlayer(), "localhost", host.port,
+                            true, false, host.enableRandomEvents);
+                    Thread aiThread = new Thread(runner);
+                    aiThread.start();
+
                 }
                 break;
             case "join":
