@@ -25,14 +25,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.TreeSet;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-/* Bugfix 0.2 */
+/* Bugfix 0.4 */
 
 
 public class WebSocketHandler extends WebSocketServer {
     private static final int PORT = 49092;
-    private static final Object newWebsocketStartLock = new Object();
+    private Semaphore newWebsocketStartLock = new Semaphore(0);
 
 
     public WebSocketHandler(InetSocketAddress address) {
@@ -92,7 +93,7 @@ public class WebSocketHandler extends WebSocketServer {
             case "HostGame":
                 String path = request.get("gamepath").getAsString();
                 boolean enableRdmEvents = request.get("enableRdmEvents").getAsBoolean();
-                Thread thread = new Thread(new HostRunner(new GUIPlayer(), 55555, path,enableRdmEvents, conn)); //local port as 0 means its assigned at runtime by system.
+                Thread thread = new Thread(new HostRunner(new GUIPlayer(), 55555, path,enableRdmEvents, conn, newWebsocketStartLock)); //local port as 0 means its assigned at runtime by system.
                 thread.start();
                 for (int i = 0; i < request.get("aiplayers").getAsInt(); i++) {
                     System.out.println("AI started");
@@ -116,7 +117,8 @@ public class WebSocketHandler extends WebSocketServer {
                         false,
                         false,
                         conn,
-                        false));
+                        false,
+                        newWebsocketStartLock));
                 thread2.start();
                 tunnel = connectTunnel();
                 break;
@@ -141,10 +143,8 @@ public class WebSocketHandler extends WebSocketServer {
             boolean success;
             do {
                 System.out.println("connecting to tunnel");
-                synchronized (newWebsocketStartLock) {
-                    newWebsocketStartLock.wait();
-                    success = tunnel.connectBlocking(2, TimeUnit.SECONDS);
-                }
+                newWebsocketStartLock.acquire();
+                success = tunnel.connectBlocking(2, TimeUnit.SECONDS);
             } while (success);
         } catch (URISyntaxException | InterruptedException e) {
             e.printStackTrace();

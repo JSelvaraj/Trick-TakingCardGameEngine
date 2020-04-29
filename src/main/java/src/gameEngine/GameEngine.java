@@ -26,11 +26,12 @@ import src.team.Team;
 
 import java.net.InetSocketAddress;
 import java.util.*;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
-/*  Version 1.01     */
+/*  Version 1.1     */
 
 /**
  * Main class that runs the game based of on a provided game description.
@@ -67,16 +68,22 @@ public class GameEngine extends WebSocketServer {
     private static boolean cardSwapFlag = false;
     private Player[] playerArray;
 
+    private Semaphore lock;
+
     /**
      * Set up game engine
      *
      * @param desc game description
      */
     public GameEngine(GameDesc desc) {
-        this(desc, new InetSocketAddress("localhost", 60001),null);
+        this(desc, new InetSocketAddress("localhost", 60001),null, null);
     }
 
-    public GameEngine(GameDesc desc, InetSocketAddress address, Player[] playerArray) {
+    public GameEngine(GameDesc desc, Semaphore lock) {
+        this(desc, new InetSocketAddress("localhost", 60001),null, lock);
+    }
+
+    public GameEngine(GameDesc desc, InetSocketAddress address, Player[] playerArray, Semaphore lock) {
         super(address);
         this.desc = desc;
         this.trumpSuit = new StringBuilder();
@@ -95,6 +102,7 @@ public class GameEngine extends WebSocketServer {
         this.trickHistory = new LinkedList<>();
         this.trumpSuitBid = desc.isTrumpSuitBid();
         this.playerArray = playerArray;
+        this.lock = lock;
     }
 
     public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) throws InterruptedException {
@@ -270,8 +278,8 @@ public class GameEngine extends WebSocketServer {
         System.out.println("End of Game");
     }
 
-    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents, WebSocket oldWebSocket) throws InterruptedException {
-        GameEngine game = new GameEngine(gameDesc);
+    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents, WebSocket oldWebSocket,Semaphore lock) throws InterruptedException {
+        GameEngine game = new GameEngine(gameDesc, lock);
         Random rand = new Random(seed);
         Gson gson = new Gson();
 
@@ -894,9 +902,7 @@ public class GameEngine extends WebSocketServer {
 
     @Override
     public void onStart() {
-        synchronized (newWebsocketStartLock) {
-            newWebsocketStartLock.notifyAll();
-        }
+        lock.release();
         System.out.println("Server Started \nwaiting for connection on port: " + getPort() + "...");
 
 

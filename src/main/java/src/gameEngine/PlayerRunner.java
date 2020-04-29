@@ -5,6 +5,8 @@ import src.exceptions.InvalidGameDescriptionException;
 import src.networking.Networking;
 import src.player.Player;
 
+import java.util.concurrent.Semaphore;
+
 public class PlayerRunner implements Runnable {
     private Player player;
     private String hostAddress;
@@ -14,8 +16,9 @@ public class PlayerRunner implements Runnable {
     private boolean printMoves = true;
     private WebSocket webSocket = null;
     boolean enableRandomEvents;
+    Semaphore lock;
 
-    public PlayerRunner(Player player, String hostAddress, int hostPort, int localPort, boolean localConnection, boolean printMoves, WebSocket webSocket, boolean enableRandomEvents) {
+    public PlayerRunner(Player player, String hostAddress, int hostPort, int localPort, boolean localConnection, boolean printMoves, WebSocket webSocket, boolean enableRandomEvents, Semaphore lock) {
         this.player = player;
         this.hostAddress = hostAddress;
         this.hostPort = hostPort;
@@ -24,14 +27,15 @@ public class PlayerRunner implements Runnable {
         this.printMoves = printMoves;
         this.webSocket = webSocket;
         this.enableRandomEvents = enableRandomEvents;
+        this.lock = lock;
     }
 
     public PlayerRunner(Player player, String hostAddress, int hostPort, boolean localConnection, boolean printMoves, boolean enableRdmEvents) {
-        this(player, hostAddress, hostPort, 0, localConnection, printMoves, null,  enableRdmEvents);
+        this(player, hostAddress, hostPort, 0, localConnection, printMoves, null,  enableRdmEvents, null);
     }
 
     public PlayerRunner(Player player, String hostAddress, int hostPort, boolean localConnection, boolean printMoves) {
-        this(player, hostAddress, hostPort, 0, localConnection, printMoves, null, false);
+        this(player, hostAddress, hostPort, 0, localConnection, printMoves, null, false, null);
     }
 
 
@@ -43,7 +47,7 @@ public class PlayerRunner implements Runnable {
                 Networking.connectToGame(this.localPort, this.hostAddress, this.hostPort, player, this.localConnection, printMoves, enableRandomEvents);
             } else {
                 System.out.println("CORRECT JOINGAME METHOD CALLED");
-                Networking.connectToGame(this.localPort, this.hostAddress, this.hostPort, player, this.localConnection, printMoves, enableRandomEvents, webSocket);
+                Networking.connectToGame(this.localPort, this.hostAddress, this.hostPort, player, this.localConnection, printMoves, enableRandomEvents, webSocket, lock);
             }
         } catch (InvalidGameDescriptionException e) {
             e.printStackTrace();

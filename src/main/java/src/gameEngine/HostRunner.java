@@ -5,12 +5,15 @@ import src.exceptions.InvalidGameDescriptionException;
 import src.networking.Networking;
 import src.player.Player;
 
+import java.util.concurrent.Semaphore;
+
 public class HostRunner implements Runnable {
     private Player player;
     private int localPort;
     private String gameFile;
     boolean enableRandomEvents;
     private WebSocket webSocket = null;
+    private Semaphore lock;
 
     public HostRunner(Player player, int localPort, String gameFile, boolean enableRandomEvents, WebSocket webSocket) {
         this.player = player;
@@ -18,6 +21,12 @@ public class HostRunner implements Runnable {
         this.gameFile = gameFile;
         this.enableRandomEvents = enableRandomEvents;
         this.webSocket = webSocket;
+    }
+
+    public HostRunner(Player player, int localPort, String gameFile, boolean enableRandomEvents, WebSocket webSocket, Semaphore lock) {
+        this(player, localPort, gameFile, enableRandomEvents, webSocket);
+        this.lock = lock;
+
     }
 
     public HostRunner(Player player, int localPort, String gameFile, boolean enableRandomEvents) {
@@ -38,9 +47,9 @@ public class HostRunner implements Runnable {
     public void run() {
         try {
             if (webSocket == null) {
-            Networking.hostGame(this.gameFile, this.localPort, this.player, enableRandomEvents);
+                Networking.hostGame(this.gameFile, this.localPort, this.player, enableRandomEvents);
             } else {
-                Networking.hostGame(this.gameFile, this.localPort, this.player, webSocket);
+                Networking.hostGame(this.gameFile, this.localPort, this.player, enableRandomEvents, webSocket, lock);
             }
         } catch (InvalidGameDescriptionException | InterruptedException e) {
             e.printStackTrace();
