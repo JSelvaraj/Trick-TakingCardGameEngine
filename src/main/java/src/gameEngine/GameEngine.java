@@ -454,7 +454,6 @@ public class GameEngine {
                 //If the current highest bid is a double, then the new bid indicates a redouble
                 if (getAdjustedHighestBid().isDoubling()) {
                     //Set the current highest bid to a redouble
-                    getAdjustedHighestBid().setDoubling(true);
                     getAdjustedHighestBid().setRedoubling(true);
                 }
                 //Otherwise it's a standard double
@@ -462,8 +461,6 @@ public class GameEngine {
                     getAdjustedHighestBid().setDoubling(true);
                     getAdjustedHighestBid().setRedoubling(false);
                 }
-                //Update the new highest bid team
-                getAdjustedHighestBid().setTeam(players[currentPlayer].getTeam());
             }
             //If it's not a double, it's either a pass or a standard bid
             else {
@@ -487,14 +484,12 @@ public class GameEngine {
                     else {
                         if (desc.isAscendingBid()) {
                             if (desc.isTrumpSuitBid()) {
-                                getAdjustedHighestBid().setSuit(bid.getSuit());
                                 if (!(getAdjustedHighestBid().getSuit().equals(bid.getSuit())) || getAdjustedHighestBid().getTeam() != players[currentPlayer].getTeam()) {
                                     getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
                                 }
-                            } else {
-                                if (getAdjustedHighestBid().getTeam() != players[currentPlayer].getTeam()) {
-                                    getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
-                                }
+                                getAdjustedHighestBid().setSuit(bid.getSuit());
+                            } else if (getAdjustedHighestBid().getTeam() != players[currentPlayer].getTeam()) {
+                                getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
                             }
                             //If the suit has been raised, or a different team will now have the highest bid, update the declarer.
                         }

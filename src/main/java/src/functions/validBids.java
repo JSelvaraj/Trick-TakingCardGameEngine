@@ -72,7 +72,7 @@ public class validBids {
                     //Check for an existing double
                     if (adjustedHighestBid.isDoubling()) {
                         //Redoubling not allowed - invalid bid
-                        return finalCanRedouble && !prevBidTeam.findPlayer(playerWhoBid);
+                        return finalCanRedouble && prevBidTeam.findPlayer(playerWhoBid);
                     }
                     //Check if there is an existing bid to double
                     //Check if a doubled bid is in bounds
