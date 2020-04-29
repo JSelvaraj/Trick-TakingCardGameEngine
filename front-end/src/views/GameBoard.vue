@@ -5,10 +5,12 @@
         <div class="reminder">
             test
         </div>
-        <v-btn class="playerPosition1"> Player 1</v-btn>
+        <v-btn class="playerPosition1"
+          v-bind:color="this.$store.state.players[0].myturn===false ? 'blue':'red'"        
+        > Player 1</v-btn>
         <v-btn class="playerPosition2"> Player 2</v-btn>
         <v-btn class="playerPosition3"> Player 3</v-btn>
-        <v-btn class='playerPosition4'> Player 4</v-btn>
+        <v-btn class='playerPosition4' @click="changeP1"> Player 4</v-btn>
         <v-btn class="displayCard"> current card</v-btn>
 
         <div class='playerHand'>
@@ -28,8 +30,6 @@
         <v-btn> Card 12</v-btn>
         <v-btn> Card 13</v-btn>
          </div>
-
-
          <modal>
 
 
@@ -58,30 +58,42 @@ export default {
   }),
 
 created() {
-    this.$options.sockets.onmessage = (data) => {
 
-      console.log(data)
+  //this.$store.commit('initPlayerArr',4)
+  var i;
+  var players_temp=[];
+  for(i=0;i<4;i++){
+    players_temp.push({myturn:false})
+  }
+  this.$store.commit('setPlayerArr',players_temp)
 
-      const temp = JSON.parse(data.data)
-      // console.log(temp.beacons)
-      var beacon;
-      var numOfPlayers = '';
-      // for(beacon of temp.beacons) {
-      //   var beaconsAP = []
-      //   beaconsAP = beacon.split(":")
-      //   console.log(beaconsAP)
-      //   numOfPlayers = beaconsAP[1] + '/' + beaconsAP[2]
-      //   console.log(numOfPlayers)
-      //   this.games.push(
-      //     {name:beaconsAP[0], curPlayers:numOfPlayers, ip:beaconsAP[3], port:beaconsAP[4]}
-      //   )
-      // }
+//     this.$options.sockets.onmessage = (data) => {
 
-      // console.log(beacon)
+//       console.log(data)
+
+//       const temp = JSON.parse(data.data)
+//       // console.log(temp.beacons)
+//       // var beacon;
+//       // var numOfPlayers = '';
+//       // for(beacon of temp.beacons) {
+//       //   var beaconsAP = []
+//       //   beaconsAP = beacon.split(":")
+//       //   console.log(beaconsAP)
+//       //   numOfPlayers = beaconsAP[1] + '/' + beaconsAP[2]
+//       //   console.log(numOfPlayers)
+//       //   this.games.push(
+//       //     {name:beaconsAP[0], curPlayers:numOfPlayers, ip:beaconsAP[3], port:beaconsAP[4]}
+//       //   )
+//       // }
+
+//       // console.log(beacon)
     
-    } 
+//     } 
   },
   methods: {
+    changeP1(){
+      this.$store.dispatch('setPlayerTurn_AC',0)
+    }
   }
 }
 </script>
@@ -89,12 +101,19 @@ created() {
 <style>
 
 .playerPosition1 {
-	/* height: 30%;
-	width: 30%; */
   position: absolute;
 	top: 30%;
 	left: 30%;
 }
+
+/* 
+.playerPosition1_Selected {
+  position: absolute;
+	top: 30%;
+	left: 30%;
+  color: red;
+} */
+
 .playerPosition2 {
   position: absolute;
 	top: 10%;
