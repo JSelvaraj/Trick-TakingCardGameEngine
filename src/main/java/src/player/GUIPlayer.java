@@ -5,11 +5,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.java_websocket.WebSocket;
+import src.bid.Bid;
+import src.bid.ContractBid;
+import src.bid.PotentialBid;
 import src.card.Card;
-import src.gameEngine.Bid;
-import src.gameEngine.ContractBid;
 import src.gameEngine.Hand;
-import src.gameEngine.PotentialBid;
+
 import src.rdmEvents.Swap;
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public class GUIPlayer extends LocalPlayer {
     }
 
     @Override
-    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid) {
+    public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, boolean firstRound, boolean canBidBlind) {
         JsonObject request = new JsonObject();
         request.add("type", new JsonPrimitive("makebid"));
         //initialize possible bid values for each field of PotentialBid
@@ -59,7 +60,7 @@ public class GUIPlayer extends LocalPlayer {
         ArrayList<PotentialBid> bids = new ArrayList<>();
         for (String input: bidInputs) {
             for (String suit: suits) {
-                bids.add(new PotentialBid(suit, input, adjustedHighestBid));
+                bids.add(new PotentialBid(suit, input, adjustedHighestBid, this, firstRound));
             }
         }
         JsonArray validBidsJson = new JsonArray();
@@ -75,6 +76,7 @@ public class GUIPlayer extends LocalPlayer {
             }
         });
         request.add("validBids", validBidsJson);
+        request.add("isPlayerVuln", new JsonPrimitive(getTeam().isVulnerable()));
         webSocket.send(request.getAsString());
         return null;
     }

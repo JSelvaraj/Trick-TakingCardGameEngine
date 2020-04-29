@@ -196,7 +196,8 @@ Request:
             value: number,
             blindBid : boolean
         }
-    ]
+    ],
+    "isPlayerVuln":boolean /* Don't worry about what this is, just copy it to response */
 }
 ```
 Response Format:
@@ -210,6 +211,7 @@ Response Format:
         "suit": Suit,
         "value": number,
         "blindBid" : boolean
+        "isPlayerVuln":boolean 
     }
 }
 ```
@@ -291,8 +293,8 @@ When the trump suit is played for the first time in a game that needs to break t
     "type":"trumpbroken"
 }
 ```
-### Round ended
-When the round ends a message is played:
+### Game ended
+When the game ends a message is sent to the GUI:
 ```
 {
     "type":"roundendmessage"
@@ -307,8 +309,8 @@ When the round ends a message is played:
     }]
 }
 ```
-### game ended
-When the round ends a message is played:
+### match ended
+When the Match ends a message is sent to the GUI:
 ```
 {
     "type":"roundendmessage"

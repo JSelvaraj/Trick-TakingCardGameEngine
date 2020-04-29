@@ -37,4 +37,19 @@ public class PotentialBid {
     public boolean isFirstRound() {
         return firstRound;
     }
+
+    public Bid toBid(boolean blind) {
+        String suit;
+        int bidValue;
+        if (bidInput.equals("d")) {
+            return new Bid(true, null, 0, blind, player.getTeam().isVulnerable());
+        } else if (bidInput.equals("-2")) {
+            return new Bid(false, null, -2, false, player.getTeam().isVulnerable());
+        } else {
+            bidValue = Integer.parseInt(bidInput);
+            suit = bidSuit;
+            return new Bid(false, suit, bidValue, blind, player.getTeam().isVulnerable());
+        }
+    }
+
 }

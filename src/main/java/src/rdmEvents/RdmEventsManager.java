@@ -122,7 +122,7 @@ public class RdmEventsManager {
     }
 
     //Method that runs the logic for a swap cards event
-    public void runSwapCards() {
+    public boolean runSwapCards() {
         Player[] playerArray = getPlayers();
         //Randomly select a player from the weakest team
         int rdmPlayerIndexFromWeakTeam = getRand().nextInt(getWeakestTeam().getPlayers().length);
@@ -144,7 +144,7 @@ public class RdmEventsManager {
             playerArray[swap.getOtherPlayerIndex()].getHand().getCard(originalPlayerCard);
             System.out.println("Swapping " + originalPlayerCard + " from Player " + (swap.getOriginalPlayerIndex() + 1) + " with " +
                     otherPlayerCard + " from Player " + (swap.getOtherPlayerIndex() + 1));
-        }
+        } else return false;
         //If the swap was made by the local player, notify the network players
         if (!(weakPlayer instanceof NetworkPlayer)) {
             for (Player player : playerArray) {
@@ -155,7 +155,7 @@ public class RdmEventsManager {
     }
 
     //Method to run swap hands event logic
-    public void runSwapHands() {
+    public Pair<Player, Player> runSwapHands() {
         //Randomly select a player from the weakest team
         int rdmPlayerIndexFromWeakTeam = getRand().nextInt(getWeakestTeam().getPlayers().length);
         Player weakPlayer = getWeakestTeam().getPlayers()[rdmPlayerIndexFromWeakTeam];
