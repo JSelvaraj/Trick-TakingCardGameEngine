@@ -60,9 +60,8 @@ public class GameEngine extends WebSocketServer {
     double rdmEventProb = 10;
     WebSocket webSocket = null;
     private static final Semaphore GUIConnectLock = new Semaphore(0);
-    private static final Object getCardLock = new Object();
-    private static final Object getBidLock = new Object();
-    private static final Object newWebsocketStartLock = new Object();
+    private static final Semaphore getCardLock = new Semaphore(0);
+    private static final Semaphore getBidLock = new Semaphore(0);
     private Bid currentBid = null;
     private static final Object getCardSwapLock = new Object();
     private static boolean cardSwapFlag = false;
@@ -76,11 +75,11 @@ public class GameEngine extends WebSocketServer {
      * @param desc game description
      */
     public GameEngine(GameDesc desc) {
-        this(desc, new InetSocketAddress("localhost", 60001),null, null);
+        this(desc, new InetSocketAddress("localhost", 60001), null, null);
     }
 
     public GameEngine(GameDesc desc, Semaphore lock) {
-        this(desc, new InetSocketAddress("localhost", 60001),null, lock);
+        this(desc, new InetSocketAddress("localhost", 60001), null, lock);
     }
 
     public GameEngine(GameDesc desc, InetSocketAddress address, Player[] playerArray, Semaphore lock) {
@@ -176,8 +175,7 @@ public class GameEngine extends WebSocketServer {
                 if (rdmEventTRICK != null) {
                     if (rdmEventTRICK.getName().equals("SwapHands")) {
                         rdmEventsManager.runSwapHands();
-                    }
-                    else {
+                    } else {
                         rdmEventsManager.runSwapCards();
                     }
                 }
@@ -188,7 +186,7 @@ public class GameEngine extends WebSocketServer {
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
                     //If a special card has been placed in deck, check if it has just been played - adjust points if it has.
                     if (rdmEventHAND != null) {
-                        String playedCardType =  game.currentTrick.getHand().get(game.currentTrick.getHandSize()-1).getSpecialType();
+                        String playedCardType = game.currentTrick.getHand().get(game.currentTrick.getHandSize() - 1).getSpecialType();
                         if (playedCardType != null) {
                             rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer, game.getTeams());
                         }
@@ -278,7 +276,7 @@ public class GameEngine extends WebSocketServer {
         System.out.println("End of Game");
     }
 
-    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents, WebSocket oldWebSocket,Semaphore lock) throws InterruptedException {
+    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents, WebSocket oldWebSocket, Semaphore lock) throws InterruptedException {
         GameEngine game = new GameEngine(gameDesc, lock);
         Random rand = new Random(seed);
         Gson gson = new Gson();
@@ -382,7 +380,7 @@ public class GameEngine extends WebSocketServer {
                 RdmEvent rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
                 if (rdmEventTRICK != null) {
                     if (rdmEventTRICK.getName().equals("SwapHands")) {
-                        Pair<Player,Player> swappedPlayers = rdmEventsManager.runSwapHands();
+                        Pair<Player, Player> swappedPlayers = rdmEventsManager.runSwapHands();
 
                         //Send swapped hand event to front-end
                         JsonObject swappedHandsEvent = new JsonObject();
@@ -391,8 +389,7 @@ public class GameEngine extends WebSocketServer {
                         swappedPlayersJson.add(swappedPlayers.getLeft().getPlayerNumber());
                         swappedPlayersJson.add(swappedPlayers.getRight().getPlayerNumber());
                         swappedHandsEvent.add("playerswapped", swappedPlayersJson);
-                    }
-                    else {
+                    } else {
                         synchronized (getCardSwapLock) {
                             while (!cardSwapFlag) {
                                 cardSwapFlag = rdmEventsManager.runSwapCards();
@@ -404,13 +401,11 @@ public class GameEngine extends WebSocketServer {
 
                 //Each player plays a card
                 for (int i = 0; i < playerArray.length; i++) {
-                    synchronized (getCardLock) {
-                        game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
-                        System.out.println("CURRENT TRICK: "+ game.currentTrick.toString());
-                        while (game.currentTrick.getHand().getLast() == null) {//last card should only be null if GUIplayer
-                            System.out.println("WAITING FOR CARD");
-                            getCardLock.wait();
-                        }
+                    game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
+                    System.out.println("CURRENT TRICK: " + game.currentTrick.toString());
+                    while (game.currentTrick.getHand().getLast() == null) {//last card should only be null if GUIplayer
+                        System.out.println("WAITING FOR CARD");
+                        getCardLock.acquire();
                     }
                     game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
 
@@ -426,7 +421,7 @@ public class GameEngine extends WebSocketServer {
 
                     //If a special card has been placed in deck, check if it has just been played - adjust points if it has.
                     if (rdmEventHAND != null) {
-                        String playedCardType =  game.currentTrick.getHand().get(game.currentTrick.getHandSize()-1).getSpecialType();
+                        String playedCardType = game.currentTrick.getHand().get(game.currentTrick.getHandSize() - 1).getSpecialType();
                         if (playedCardType != null) {
                             rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer, game.getTeams());
 
@@ -576,7 +571,7 @@ public class GameEngine extends WebSocketServer {
 
     private static void sendTeamScoresJson(GameEngine game, JsonObject message) {
         JsonArray scoresArray = new JsonArray();
-        for (Team team: teams) {
+        for (Team team : teams) {
             JsonObject teamJson = new JsonObject();
             teamJson.add("teamnumber", new JsonPrimitive(team.getTeamNumber()));
             teamJson.add("teamscore", new JsonPrimitive(team.getScore()));
@@ -612,7 +607,7 @@ public class GameEngine extends WebSocketServer {
      * Gets the bids from the players
      *
      * @param currentPlayer index of current player in the player array
-     * @param players the array of players
+     * @param players       the array of players
      */
     private void getBids(int currentPlayer, Player[] players, GameDesc desc) throws InterruptedException {
         System.out.println("-----------------------------------");
@@ -622,11 +617,9 @@ public class GameEngine extends WebSocketServer {
         int passCounter = 0;
         do {
             //Adds the bids (checks they are valid in other class)
-            synchronized (getBidLock) {
-                while (currentBid == null) {
-                    currentBid = players[currentPlayer].makeBid(this.desc.getValidBid(), trumpSuitBid, adjustedHighestBid);
-                    getBidLock.wait();
-                }
+            while (currentBid == null) {
+                currentBid = players[currentPlayer].makeBid(this.desc.getValidBid(), trumpSuitBid, adjustedHighestBid);
+                getBidLock.acquire();
             }
             Bid bid = currentBid;
             if (bid.isDoubling()) {
@@ -634,13 +627,11 @@ public class GameEngine extends WebSocketServer {
                 if (getAdjustedHighestBid().isDoubling()) {
                     getAdjustedHighestBid().setDoubling(false);
                     getAdjustedHighestBid().setRedoubling(true);
-                }
-                else {
+                } else {
                     getAdjustedHighestBid().setDoubling(true);
                 }
-                getAdjustedHighestBid().setBidValue(getAdjustedHighestBid().getBidValue()*2);
-            }
-            else {
+                getAdjustedHighestBid().setBidValue(getAdjustedHighestBid().getBidValue() * 2);
+            } else {
                 if (bid.getBidValue() >= 0) {
                     passCounter = 0;
                     if (getAdjustedHighestBid() == null) {
@@ -649,8 +640,7 @@ public class GameEngine extends WebSocketServer {
                             suit = bid.getSuit();
                         }
                         setAdjustedHighestBid(new ContractBid(false, suit, bid.getBidValue(), false, false, players[currentPlayer]));
-                    }
-                    else {
+                    } else {
                         if (trumpSuitBid) {
                             getAdjustedHighestBid().setSuit(bid.getSuit());
                             if (!(getAdjustedHighestBid().getSuit().equals(bid.getSuit()))) {
@@ -661,8 +651,7 @@ public class GameEngine extends WebSocketServer {
                         getAdjustedHighestBid().setDoubling(false);
                         getAdjustedHighestBid().setBidValue(bid.getBidValue());
                     }
-                }
-                else {
+                } else {
                     passCounter += 1;
                 }
             }
@@ -678,8 +667,7 @@ public class GameEngine extends WebSocketServer {
         //TODO:Adjust this if game desc field gets added
         if (desc.isCanPass()) {
             return passCounter != players.length - 1;
-        }
-        else {
+        } else {
             return currentPlayer != originalPlayer;
         }
     }
@@ -828,9 +816,9 @@ public class GameEngine extends WebSocketServer {
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
 
-                System.out.println("Opened connection");
-                this.webSocket = conn;
-                GUIConnectLock.release();
+        System.out.println("Opened connection");
+        this.webSocket = conn;
+        GUIConnectLock.release();
 
     }
 
@@ -854,22 +842,18 @@ public class GameEngine extends WebSocketServer {
         System.out.println("GAMEENGINE RECEIVED: " + message);
         switch (request.get("type").getAsString()) {
             case "playcard":
-                synchronized (getCardLock) {
-                    currentTrick.dropLast();
-                    currentTrick.getCard(Card.fromJson(request.get("card").getAsString()));
-                    getCardLock.notifyAll();
-                }
+                currentTrick.dropLast();
+                currentTrick.getCard(Card.fromJson(request.get("card").getAsString()));
+                getCardLock.release();
                 break;
             case "makebid":
                 JsonObject bidJson = request.getAsJsonObject("bid");
-                synchronized (getBidLock) {
-                    boolean doubling = bidJson.get("doubling").getAsBoolean();
-                    String suit = bidJson.get("suit").getAsString();
-                    int bidValue = bidJson.get("bidValue").getAsInt();
-                    boolean blind = bidJson.get("blindBid").getAsBoolean();
-                    currentBid = new Bid(doubling, suit, bidValue, blind);
-                    getBidLock.notify();
-                }
+                boolean doubling = bidJson.get("doubling").getAsBoolean();
+                String suit = bidJson.get("suit").getAsString();
+                int bidValue = bidJson.get("bidValue").getAsInt();
+                boolean blind = bidJson.get("blindBid").getAsBoolean();
+                currentBid = new Bid(doubling, suit, bidValue, blind);
+                getBidLock.release();
                 break;
             case "getswap":
                 synchronized (getCardSwapLock) {
