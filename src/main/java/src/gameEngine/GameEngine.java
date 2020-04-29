@@ -541,21 +541,23 @@ public class GameEngine extends WebSocketServer {
                     currentTrumpMsg.add("suit", new JsonPrimitive(game.trumpSuit.toString()));
 
                     //Check for a random event at start of trick if a HAND event isn't active - run logic if successful
-                    String rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
-                    if (rdmEventTRICK != null && rdmEventHAND == null) {
-                        Pair<Player, Player> swappedPlayers = rdmEventsManager.runSwapHands();
-                        //Send swapped hand event to front-end
-                        JsonObject swappedHandsEvent = new JsonObject();
-                        swappedHandsEvent.add("type", new JsonPrimitive("handswap"));
-                        JsonArray swappedPlayersJson = new JsonArray();
-                        swappedPlayersJson.add(swappedPlayers.getLeft().getPlayerNumber());
-                        swappedPlayersJson.add(swappedPlayers.getRight().getPlayerNumber());
-                        swappedHandsEvent.add("playerswapped", swappedPlayersJson);
-                    } else {
-                        synchronized (getCardSwapLock) { //TODO  GUI interaction stuff need to be re-implemented - Jeffrey
-                            while (!cardSwapFlag) {
-                                cardSwapFlag = rdmEventsManager.runSwapCards();
-                                getCardSwapLock.wait();
+                    if (enableRandomEvents) { //TODO random events were happening even when disabled, until if clause added.
+                        String rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
+                        if (rdmEventTRICK != null && rdmEventHAND == null) {
+                            Pair<Player, Player> swappedPlayers = rdmEventsManager.runSwapHands();
+                            //Send swapped hand event to front-end
+                            JsonObject swappedHandsEvent = new JsonObject();
+                            swappedHandsEvent.add("type", new JsonPrimitive("handswap"));
+                            JsonArray swappedPlayersJson = new JsonArray();
+                            swappedPlayersJson.add(swappedPlayers.getLeft().getPlayerNumber());
+                            swappedPlayersJson.add(swappedPlayers.getRight().getPlayerNumber());
+                            swappedHandsEvent.add("playerswapped", swappedPlayersJson);
+                        } else {
+                            synchronized (getCardSwapLock) { //TODO  GUI interaction stuff need to be re-implemented - Jeffrey
+                                while (!cardSwapFlag) {
+                                    cardSwapFlag = rdmEventsManager.runSwapCards();
+                                    getCardSwapLock.wait();
+                                }
                             }
                         }
                     }
@@ -568,6 +570,7 @@ public class GameEngine extends WebSocketServer {
                         while (game.currentTrick.getHand().getLast() == null) { //last card should only be null if GUIplayer
                             System.out.println("WAITING FOR CARD");
                             getCardLock.acquire();
+                            System.out.println("GOT CARD");
                         }
                         game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
 
@@ -588,7 +591,6 @@ public class GameEngine extends WebSocketServer {
 
                         //Send card played to GUI
                         JsonObject cardPlayed = new JsonObject();
-                        cardPlayed.add("target", new JsonPrimitive("GUI"));
                         cardPlayed.add("type", new JsonPrimitive("cardplayed"));
                         cardPlayed.add("playerindex", new JsonPrimitive(currentPlayer));
                         cardPlayed.add("card", gson.fromJson(game.currentTrick.get(i).getJSON(), JsonObject.class));
