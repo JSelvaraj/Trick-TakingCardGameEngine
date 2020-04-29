@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
-/*  Version 1.0     */
+/*  Version 1.01     */
 
 /**
  * Main class that runs the game based of on a provided game description.
@@ -61,6 +61,7 @@ public class GameEngine extends WebSocketServer {
     private static final Object GUIConnectLock = new Object();
     private static final Object getCardLock = new Object();
     private static final Object getBidLock = new Object();
+    private static final Object newWebsocketStartLock = new Object();
     private Bid currentBid = null;
     private static final Object getCardSwapLock = new Object();
     private static boolean cardSwapFlag = false;
@@ -275,6 +276,10 @@ public class GameEngine extends WebSocketServer {
         Gson gson = new Gson();
 
         game.start();
+        synchronized (newWebsocketStartLock){
+            newWebsocketStartLock.wait();
+        }
+
         JsonObject gameSetup = new JsonObject();
         gameSetup.add("type", new JsonPrimitive("gameSetup"));
         gameSetup.add("port", new JsonPrimitive(game.getPort()));
@@ -889,7 +894,11 @@ public class GameEngine extends WebSocketServer {
 
     @Override
     public void onStart() {
+        synchronized (newWebsocketStartLock) {
+            newWebsocketStartLock.notifyAll();
+        }
         System.out.println("Server Started \nwaiting for connection on port: " + getPort() + "...");
+
 
     }
 
