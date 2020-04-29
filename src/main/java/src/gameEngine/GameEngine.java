@@ -182,6 +182,7 @@ public class GameEngine {
                 }
 
                 //Loop until hand has completed (all cards have been played)
+                int tricksPlayed = 0;
                 do {
                     //If the trump is based on bidding, set the trump suit based on the final bid
                     if (gameDesc.getTrumpPickingMode().equals("bid") && gameDesc.isTrumpSuitBid()) {
@@ -221,13 +222,13 @@ public class GameEngine {
                                 rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer);
                             }
                         }
-                        if (game.trumpSuit.length() == 0 && gameDesc.getTrumpPickingMode().equals("firstPlayed") && game.currentTrick.getHandSize() == 1) {
+                        if (tricksPlayed == 0 && gameDesc.getTrumpPickingMode().equals("firstPlayed") && game.currentTrick.getHandSize() == 1) {
                             game.trumpSuit.append(game.currentTrick.get(0).getSUIT());
                         }
                         //Rotate the play
                         currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                     }
-
+                    tricksPlayed++;
                     //Determine winning card
                     Card winningCard = game.winningCard();
 
