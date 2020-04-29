@@ -77,7 +77,7 @@ public class GUIPlayer extends LocalPlayer {
         });
         request.add("validBids", validBidsJson);
         request.add("isPlayerVuln", new JsonPrimitive(getTeam().isVulnerable()));
-        webSocket.send(request.getAsString());
+        webSocket.send(new Gson().toJson(request));
         return null;
     }
 
@@ -87,7 +87,7 @@ public class GUIPlayer extends LocalPlayer {
         request.add("type", new JsonPrimitive("getswap"));
         request.add("choosingPlayer", new JsonPrimitive(getPlayerNumber()));
         request.add("otherplayer", new JsonPrimitive(strongPlayer.getPlayerNumber()));
-        webSocket.send(request.getAsString());
+        webSocket.send(new Gson().toJson(request));
         return null;
     }
 

@@ -2,6 +2,7 @@ package src.bid;
 
 import java.util.Objects;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
@@ -65,7 +66,7 @@ public class Bid{
         bid.add("suit", new JsonPrimitive(suit));
         bid.add("value", new JsonPrimitive(bidValue));
         bid.add("blindbid", new JsonPrimitive(blind));
-        return bid.getAsString();
+        return new Gson().toJson(bid);
     }
 
     @Override

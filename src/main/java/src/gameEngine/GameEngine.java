@@ -644,7 +644,7 @@ public class GameEngine extends WebSocketServer {
 //                    array.add(new Gson().fromJson(card.getJSON(), JsonObject.class));
 //                }
 //                winningCardJson.add("trick", array);
-                    System.out.println("winningCardJson: " + winningCardJson.getAsString());
+                    System.out.println("winningCardJson: " + gson.toJson(winningCardJson));
                     game.webSocket.send(gson.toJson(winningCardJson));
 
                     //Signal that trump suit was broken -> can now be played
@@ -653,7 +653,7 @@ public class GameEngine extends WebSocketServer {
                         //send trumpbroken message to front-end
                         JsonObject trumpBroken = new JsonObject();
                         trumpBroken.add("type", new JsonPrimitive("trumpbroken"));
-                        game.webSocket.send(trumpBroken.getAsString());
+                        game.webSocket.send(gson.toJson(trumpBroken));
                     }
 
                     //Reset trick hand
@@ -746,7 +746,7 @@ public class GameEngine extends WebSocketServer {
             scoresArray.add(teamJson);
         }
         message.add("scores", scoresArray);
-        game.webSocket.send(message.getAsString());
+        game.webSocket.send(new Gson().toJson(message));
     }
 
 
