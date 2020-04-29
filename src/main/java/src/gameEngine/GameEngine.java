@@ -146,7 +146,7 @@ public class GameEngine {
                     game.getBids(currentPlayer, playerArray);
                 }
 
-                //Set first player to left of declarer if needed //TODO: Get from game desc when added
+                //Set first player to left of declarer if needed //
                 int dummyPlayer = -1;
                 if (gameDesc.getFirstTrickLeader().equals("contract")) {
                     //Get the declarer of the final bid, set the player to lead the trick as to the 'left'

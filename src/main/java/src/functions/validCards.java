@@ -30,7 +30,7 @@ public class validCards {
      * @param trumpSuit           The trump suit, can be null.
      * @return Predicate that checks if a given card is a valid leading card.
      */
-    public static Predicate<Card> getValidLeadingCardPredicate(String leadingCardForTrick, StringBuilder trumpSuit, AtomicBoolean breakFlag) { //TODO update for if trump changes.
+    public static Predicate<Card> getValidLeadingCardPredicate(String leadingCardForTrick, StringBuilder trumpSuit, AtomicBoolean breakFlag) {
         switch (leadingCardForTrick) {
             case "break":
                 return (c) -> breakFlag.get() || !c.getSUIT().equals(trumpSuit.toString());
