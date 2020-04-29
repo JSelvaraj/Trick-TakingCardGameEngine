@@ -1078,7 +1078,7 @@ public class GameEngine extends WebSocketServer {
         switch (request.get("type").getAsString()) {
             case "playcard":
                 currentTrick.dropLast();
-                currentTrick.getCard(Card.fromJson(request.get("card").getAsString()));
+                currentTrick.getCard(Card.fromJson(new Gson().toJson(request.get("card"))));
                 getCardLock.release();
                 break;
             case "makebid":
