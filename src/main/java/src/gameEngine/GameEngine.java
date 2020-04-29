@@ -76,7 +76,7 @@ public class GameEngine {
      * Main driver method to start game logic for an instance
      *
      * @param gameDesc           The description of the game to run
-     * @param startingDealer             The index of player set to deal first
+     * @param startingDealer     The index of player set to deal first
      * @param playerArray        The array specifying the players in the game
      * @param seed               The seed used to initialise random actions
      * @param printMoves         Flag if moves should be printed for debugging
@@ -141,8 +141,7 @@ public class GameEngine {
                         if (aiPLayer instanceof LocalPlayer) {
                             ((LocalPlayer) aiPLayer).setAiTakeover(true);
                         }
-                    }
-                    else {
+                    } else {
                         //Add special card to deck
                         rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
                     }
@@ -171,7 +170,7 @@ public class GameEngine {
                     dummyPlayer = game.nextPlayerIndex.apply(game.nextPlayerIndex.apply(currentPlayer));
                     currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                 }
-                if(gameDesc.getFirstTrickLeader().equals("bidWinner")){
+                if (gameDesc.getFirstTrickLeader().equals("bidWinner")) {
                     currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
                 }
 
@@ -289,7 +288,7 @@ public class GameEngine {
 
                 //Increment dealer for next hand
                 dealer = game.nextPlayerIndex.apply(dealer);
-                if(printMoves){
+                if (printMoves) {
                     game.printScore();
                 }
             } while (game.gameEnd()); //Check if game ending condition has been met
@@ -342,16 +341,14 @@ public class GameEngine {
                 //Reset trick score
                 team.setTricksWon(0);
             }
-        }
-        if (desc.getCalculateScore().equals("trumpPointValue")) {
+        } else if (desc.getCalculateScore().equals("trumpPointValue")) {
             for (Team team : getTeams()) {
                 int score = team.getCardsWon().stream().filter((card -> card.getSUIT().equals(trumpSuit.toString()))).mapToInt(Card::getPointValue).sum();
                 team.setGameScore(team.getGameScore() + score);
                 team.setTricksWon(0);
                 team.getCardsWon().clear();
             }
-        }
-        if (desc.getCalculateScore().equals("bid")) {
+        } else if (desc.getCalculateScore().equals("bid")) {
             //If game is bridge style scoring
             if (desc.isAscendingBid()) {
                 //Find the team that declared/won the contract
@@ -492,7 +489,7 @@ public class GameEngine {
                     //Standard raising bid
                     else {
                         if (desc.isAscendingBid()) {
-                            if(desc.isTrumpSuitBid()){
+                            if (desc.isTrumpSuitBid()) {
                                 getAdjustedHighestBid().setSuit(bid.getSuit());
                                 if (!(getAdjustedHighestBid().getSuit().equals(bid.getSuit())) || getAdjustedHighestBid().getTeam() != players[currentPlayer].getTeam()) {
                                     getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
