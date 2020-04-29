@@ -598,7 +598,7 @@ public class GameEngine extends WebSocketServer {
                         //Rotate the play
                         currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                     }
-
+                    sendPlayerHands(playerArray, game, gson);
                     //Determine winning card
                     Card winningCard = game.winningCard();
                     //TODO: Explain this
@@ -659,7 +659,7 @@ public class GameEngine extends WebSocketServer {
                     //Reset trick hand
                     game.currentTrick.dropHand();
 
-                    sendPlayerHands(playerArray, game, gson);
+
                 } while (playerArray[0].getHand().getHandSize() > gameDesc.getMinHandSize());
 
                 game.handsPlayed++;
