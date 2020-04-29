@@ -473,12 +473,18 @@ public class GameEngine {
                     }
                     //Standard raising bid
                     else {
-                        if (desc.isTrumpSuitBid()) {
-                            getAdjustedHighestBid().setSuit(bid.getSuit());
-                            //If the suit has been raised, or a different team will now have the highest bid, update the declarer.
-                            if (!(getAdjustedHighestBid().getSuit().equals(bid.getSuit())) || getAdjustedHighestBid().getTeam() != players[currentPlayer].getTeam()) {
-                                getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
+                        if (desc.isAscendingBid()) {
+                            if(desc.isTrumpSuitBid()){
+                                getAdjustedHighestBid().setSuit(bid.getSuit());
+                                if (!(getAdjustedHighestBid().getSuit().equals(bid.getSuit())) || getAdjustedHighestBid().getTeam() != players[currentPlayer].getTeam()) {
+                                    getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
+                                }
+                            } else {
+                                if (getAdjustedHighestBid().getTeam() != players[currentPlayer].getTeam()) {
+                                    getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
+                                }
                             }
+                            //If the suit has been raised, or a different team will now have the highest bid, update the declarer.
                         }
                         //Update current highest bid
                         getAdjustedHighestBid().setRedoubling(false);
