@@ -99,13 +99,7 @@ public class WebSocketHandler extends WebSocketServer {
                     Thread aiThread = new Thread(runner);
                     aiThread.start();
                 }
-                try {
-                    tunnel = new WebSocketTunnel(new URI("ws://localhost:60001"), this);
-                    System.out.println("connecting to tunnel");
-                    tunnel.connectBlocking();
-                } catch (URISyntaxException | InterruptedException e) {
-                    e.printStackTrace();
-                }
+                tunnel = connectTunnel();
                 break;
             case "JoinGame":
                 Thread thread2 = new Thread(new PlayerRunner(
@@ -118,13 +112,7 @@ public class WebSocketHandler extends WebSocketServer {
                         conn,
                         false));
                 thread2.start();
-                try {
-                    tunnel = new WebSocketTunnel(new URI("ws://localhost:60001"), this);
-                    System.out.println("connecting to tunnel");
-                    tunnel.connectBlocking();
-                } catch (URISyntaxException | InterruptedException e) {
-                    e.printStackTrace();
-                }
+                tunnel = connectTunnel();
                 break;
             case "playcard":
             case "makebid":
@@ -138,6 +126,22 @@ public class WebSocketHandler extends WebSocketServer {
 
 
     }
+
+    private WebSocketTunnel connectTunnel() {
+        WebSocketTunnel tunnel = null;
+        try {
+            tunnel = new WebSocketTunnel(new URI("ws://localhost:60001"), this);
+            System.out.println("connecting to tunnel");
+            boolean success;
+            do {
+                success = tunnel.connectBlocking();
+            } while (success);
+        } catch (URISyntaxException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return tunnel;
+    }
+
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         System.out.println("Opened connection");
