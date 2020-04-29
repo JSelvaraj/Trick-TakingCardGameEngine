@@ -419,20 +419,19 @@ public class GameEngine extends WebSocketServer {
 
         game.start();
 
-        /* initialize each players hands */
-        for (Player player : playerArray) {
-            player.initPlayer(game.getValidCard(), gameDesc, game.trumpSuit);
-        }
 
-        //wait for GUI to connect to back-end
-
+        //Wait for Middleware to connect to Back-end
         while (game.webSocket == null) {
             System.out.println("WAITING FOR TUNNEL");
             GUIConnectLock.acquire();
             System.out.println("TUNNEL RECEIVED");
         }
 
+        /* initialize each players hands */
         for (Player player : playerArray) {
+            player.initPlayer(game.getValidCard(), gameDesc, game.trumpSuit);
+
+            //Sets websocket for player to send to
             if (player instanceof GUIPlayer) {
                 System.out.println("SETTING PLAYER WEBSOCKET");
                 ((GUIPlayer) player).setWebSocket(game.webSocket);
@@ -460,73 +459,73 @@ public class GameEngine extends WebSocketServer {
         if (printMoves) {
             game.printScore();
         }
-
-        //Loop until game winning condition has been met
+        //Loop until session/match ends
         do {
-            //Set the current player to the dealer
-            int currentPlayer = dealer;
-            //Create the deck
-            deck = new Deck((LinkedList<Card>) gameDesc.getDECK());
-            //Shuffle deck according to the given seed and deal the cards
-            shuffle.shuffle(deck.cards);
-            game.handSize = gameDesc.getHandSize();
-            game.dealCards(playerArray, deck, currentPlayer);
-
-            //Reset players to non-ai
-            for (Player player : playerArray) {
-                if (player instanceof LocalPlayer) {
-                    ((LocalPlayer) player).setAiTakeover(false);
-                }
-            }
-
-            //Check for a random event for duration of hand
-            String rdmEventHAND = rdmEventsManager.eventChooser("HAND");
-            if (rdmEventHAND != null) {
-                if (rdmEventHAND.equals("AI-TAKEOVER")) {
-                    //Set weakest player to be taken over by AI
-                    Player aiPLayer = rdmEventsManager.getRdmWeakestPlayer();
-                    if (aiPLayer instanceof LocalPlayer) {
-                        ((LocalPlayer) aiPLayer).setAiTakeover(true);
-                    }
-                } else {
-                    //Add special card to deck
-                    rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
-                }
-            }
-
-            //Sends every player's hand to the GUI
-            sendPlayerHands(playerArray, game, gson);
-
-            currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
-
-            //Signal to players that a new hand has started.
-            for (Player player : playerArray) {
-                //This doesn't do anything - assume middleware/frontend will handle
-                player.startHand(game.trumpSuit, game.handSize);
-            }
-
-            //Get bids from players if necessary
-            if (gameDesc.isBidding()) {
-                game.getBids(currentPlayer, playerArray);
-            }
-
-            //Set first player to left of declarer if needed //TODO: Get from game desc when added
-            int dummyPlayer = -1;
-            if (gameDesc.getFirstTrickLeader().equals("contract")) {
-                //Get the declarer of the final bid, set the player to lead the trick as to the 'left'
-                currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
-                currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
-                //Set dummy player to the declarer's partner
-                dummyPlayer = game.nextPlayerIndex.apply(game.nextPlayerIndex.apply(currentPlayer));
-            }
-
-            if (printMoves) {
-                System.out.println("-----------------------------------");
-                System.out.println("----------------PLAY---------------");
-                System.out.println("-----------------------------------");
-            }
-            //Loop until session/match ends
+            //Loop until game winning condition has been met
             do {
+                //Set the current player to the dealer
+                int currentPlayer = dealer;
+                //Create the deck
+                deck = new Deck((LinkedList<Card>) gameDesc.getDECK());
+                //Shuffle deck according to the given seed and deal the cards
+                shuffle.shuffle(deck.cards);
+                game.handSize = gameDesc.getHandSize();
+                game.dealCards(playerArray, deck, currentPlayer);
+
+                //Reset players to non-ai
+                for (Player player : playerArray) {
+                    if (player instanceof LocalPlayer) {
+                        ((LocalPlayer) player).setAiTakeover(false);
+                    }
+                }
+
+                //Check for a random event for duration of hand
+                String rdmEventHAND = rdmEventsManager.eventChooser("HAND");
+                if (rdmEventHAND != null) {
+                    if (rdmEventHAND.equals("AI-TAKEOVER")) {
+                        //Set weakest player to be taken over by AI
+                        Player aiPLayer = rdmEventsManager.getRdmWeakestPlayer();
+                        if (aiPLayer instanceof LocalPlayer) {
+                            ((LocalPlayer) aiPLayer).setAiTakeover(true);
+                        }
+                    } else {
+                        //Add special card to deck
+                        rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
+                    }
+                }
+
+                //Sends every player's hand to the GUI
+                sendPlayerHands(playerArray, game, gson);
+
+                currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
+
+                //Signal to players that a new hand has started.
+                for (Player player : playerArray) {
+                    //This doesn't do anything - assume middleware/frontend will handle
+                    player.startHand(game.trumpSuit, game.handSize);
+                }
+
+                //Get bids from players if necessary
+                if (gameDesc.isBidding()) {
+                    game.getBids(currentPlayer, playerArray);
+                }
+
+                //Set first player to left of declarer if needed //TODO: Get from game desc when added
+                int dummyPlayer = -1;
+                if (gameDesc.getFirstTrickLeader().equals("contract")) {
+                    //Get the declarer of the final bid, set the player to lead the trick as to the 'left'
+                    currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
+                    currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
+                    //Set dummy player to the declarer's partner
+                    dummyPlayer = game.nextPlayerIndex.apply(game.nextPlayerIndex.apply(currentPlayer));
+                }
+
+                if (printMoves) {
+                    System.out.println("-----------------------------------");
+                    System.out.println("----------------PLAY---------------");
+                    System.out.println("-----------------------------------");
+                }
+
                 //Loop until trick has completed (all cards have been played)
                 do {
                     //If the trump is based on bidding, set the trump suit based on the final bid
@@ -811,7 +810,7 @@ public class GameEngine extends WebSocketServer {
         //Loop until bidding end condition met
         do {
             //Gets a bid from a player - validation done through validBids.java
-            do  {
+            do {
                 currentBid = players[currentPlayer].makeBid(this.desc.getValidBid(), desc.isTrumpSuitBid(), adjustedHighestBid, firstRound, desc.isCanBidBlind());
                 getBidLock.acquire();
             } while (currentBid == null); //currentBid will only be null if it's a GUI player
