@@ -32,6 +32,8 @@ import java.util.concurrent.TimeUnit;
 
 public class WebSocketHandler extends WebSocketServer {
     private static final int PORT = 49092;
+    private static final Object newWebsocketStartLock = new Object();
+
 
     public WebSocketHandler(InetSocketAddress address) {
         super(address);
@@ -135,10 +137,14 @@ public class WebSocketHandler extends WebSocketServer {
         WebSocketTunnel tunnel = null;
         try {
             tunnel = new WebSocketTunnel(new URI("ws://localhost:60001"), this);
-            System.out.println("connecting to tunnel");
+
             boolean success;
             do {
-                success = tunnel.connectBlocking(2, TimeUnit.SECONDS);
+                System.out.println("connecting to tunnel");
+                synchronized (newWebsocketStartLock) {
+                    newWebsocketStartLock.wait();
+                    success = tunnel.connectBlocking(2, TimeUnit.SECONDS);
+                }
             } while (success);
         } catch (URISyntaxException | InterruptedException e) {
             e.printStackTrace();
