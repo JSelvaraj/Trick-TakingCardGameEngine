@@ -223,6 +223,7 @@ public class GameEngine {
                             }
                         }
                         if (tricksPlayed == 0 && gameDesc.getTrumpPickingMode().equals("firstPlayed") && game.currentTrick.getHandSize() == 1) {
+                            game.trumpSuit.setLength(0);
                             game.trumpSuit.append(game.currentTrick.get(0).getSUIT());
                         }
                         //Rotate the play
