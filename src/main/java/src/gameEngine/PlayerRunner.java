@@ -42,6 +42,7 @@ public class PlayerRunner implements Runnable {
             if (webSocket == null) {
                 Networking.connectToGame(this.localPort, this.hostAddress, this.hostPort, player, this.localConnection, printMoves, enableRandomEvents);
             } else {
+                System.out.println("CORRECT JOINGAME METHOD CALLED");
                 Networking.connectToGame(this.localPort, this.hostAddress, this.hostPort, player, this.localConnection, printMoves, enableRandomEvents, webSocket);
             }
         } catch (InvalidGameDescriptionException e) {
