@@ -22,7 +22,8 @@ export default new Vuex.Store({
     //       suit: '',
     //       imgPath:''
     // }
-    players: []
+    players: [],
+    games: []
   },
   mutations: {
     changeSelectGameTypes_vx (state, item) {
@@ -49,30 +50,35 @@ export default new Vuex.Store({
       state.displayCard.rank = card.rank
       state.displayCard.suit = card.suit
       state.displayCard.imgPath = card.imgPath
-    }
-  },
+    },
 
-  setPlayerTurn (state, index) {
-    var i
-    for (i = 0; i < players.length; i++) {
-      if (i === index) {
-        state.players[i].myturn = true
-      } else {
-        state.players[i].myturn = false
+    setPlayerTurn (state, index) {
+      var i
+      for (i = 0; i < players.length; i++) {
+        if (i === index) {
+          state.players[i].myturn = true
+        } else {
+          state.players[i].myturn = false
+        }
       }
+    },
+
+    addPlayers (state) {
+      state.players.push({ myturn: false })
+    },
+
+    removeHandCards (state) {
+      state.handCards = []
+    },
+
+    addHandCard (state, card) {
+      state.handCards.push(card)
+    },
+
+    refreshGames (state, newGames) {
+      state.games = []
+      state.games = newGames
     }
-  },
-
-  addPlayers (state) {
-    state.players.push({ myturn: false })
-  },
-
-  removeHandCards (state) {
-    state.handCards = []
-  },
-
-  addHandCard (state, card) {
-    state.handCards.push(card)
   },
 
   actions: {

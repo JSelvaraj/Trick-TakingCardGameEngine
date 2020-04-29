@@ -53,7 +53,7 @@
 
 </v-container> -->
 
-<v-data-table :headers="headers" :items="games">
+<v-data-table :headers="headers" :items="this.$store.state.games">
       <template v-slot:item="row">
           <tr>
             <td>{{row.item.name}}</td>
@@ -105,34 +105,11 @@ export default {
   }),
 
   created() {
-    this.$options.sockets.onmessage = (data) => {
-
-      console.log(data)
-
-      const temp = JSON.parse(data.data)
-      console.log(temp.beacons)
-      var beacon;
-      var numOfPlayers = '';
-      for(beacon of temp.beacons) {
-        var beaconsAP = []
-        beaconsAP = beacon.split(":")
-        console.log(beaconsAP)
-        numOfPlayers = beaconsAP[1] + '/' + beaconsAP[2]
-        console.log(numOfPlayers)
-        this.games.push(
-          {name:beaconsAP[0], curPlayers:numOfPlayers, ip:beaconsAP[3], port:beaconsAP[4]}
-        )
-      }
-
-      // console.log(beacon)
-    
-    } 
-
   },
   methods: {
     stopDiscover() {
       // PostService.insertPosts("StopDiscoverGame");
-      this.$socket.sendObj({type:"GameDiscover"});
+      this.$socket.sendObj({type:"DiscoverGame"});
     },
 
     onButtonClick(item) {

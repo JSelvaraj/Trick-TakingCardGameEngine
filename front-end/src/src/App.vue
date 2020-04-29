@@ -42,24 +42,54 @@ export default {
   },
   data: () => ({
     drawer: null,
-    error: ""
+    error: ''
   }),
   methods: {
-    toHome() {
-      this.$router.push("/");
+    toHome () {
+      this.$router.push('/')
     },
-    toGraph() {
-      this.$router.push("/graph");
+    toGraph () {
+      this.$router.push('/graph')
     },
-    toText() {
-      this.$router.push("/text");
+    toText () {
+      this.$router.push('/text')
     },
-    toMixed() {
-      this.$router.push("/mixed");
+    toMixed () {
+      this.$router.push('/mixed')
     },
-    toConfirm() {
-      this.$router.push("/confirmation");
+    toConfirm () {
+      this.$router.push('/confirmation')
+    }
+  },
+
+  mounted () {
+    this.$options.sockets.onmessage = (data) => {
+      console.log(data)
+
+      const temp = JSON.parse(data.data)
+      console.log(temp.type)
+
+      if (temp.type === 'DiscoverGame') {
+        console.log(temp.beacons)
+        var beacon
+        var numOfPlayers = ''
+        var tempGamesArr = []
+        for (beacon of temp.beacons) {
+          var beaconsAP = []
+          beaconsAP = beacon.split(':')
+          console.log(beaconsAP)
+          numOfPlayers = beaconsAP[1] + '/' + beaconsAP[2]
+          console.log(numOfPlayers)
+          tempGamesArr.push(
+            { name: beaconsAP[0], curPlayers: numOfPlayers, ip: beaconsAP[3], port: beaconsAP[4] }
+          )
+        }
+
+        this.$store.commit('refreshGames', tempGamesArr)
+
+      // console.log(beacon)
+      }
     }
   }
-};
+}
 </script>
