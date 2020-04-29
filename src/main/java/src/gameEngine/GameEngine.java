@@ -167,9 +167,9 @@ public class GameEngine {
                 if (gameDesc.getFirstTrickLeader().equals("contract")) {
                     //Get the declarer of the final bid, set the player to lead the trick as to the 'left'
                     currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
-                    currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                     //Set dummy player to the declarer's partner
                     dummyPlayer = game.nextPlayerIndex.apply(game.nextPlayerIndex.apply(currentPlayer));
+                    currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                 }
                 if(gameDesc.getFirstTrickLeader().equals("bidWinner")){
                     currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
