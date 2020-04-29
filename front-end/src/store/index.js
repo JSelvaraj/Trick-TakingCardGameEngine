@@ -16,6 +16,7 @@ export default new Vuex.Store({
     currenttrump: '',
     myselfIndex: 0,
     curPlayerIndex: undefined,
+    myHandCards:[],
     handCards: [],
     // cards1: {
     //       rank: '',
@@ -51,6 +52,10 @@ export default new Vuex.Store({
       state.displayCard.rank = card.rank
       state.displayCard.suit = card.suit
       state.displayCard.imgPath = card.imgPath
+    },
+
+    setMyHandCards(state,cards){
+      state.myHandCards = cards
     },
 
     setPlayerTurn (state, index) {

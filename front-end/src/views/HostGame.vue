@@ -122,6 +122,7 @@ export default {
 
     toGameRoom () {
       this.$router.push('/gameRoom')
+      this.$store.commit('setMyselfIndex',0)
       // PostService.insertPosts("HostGame");
       this.$socket.sendObj({
         type: "HostGame",

@@ -90,23 +90,75 @@ export default {
           break
 
         case 'playerjoin':
-          var tempLoadingReminder;
+          var tempLoadingReminder
 
-          tempLoadingReminder = 'player: port '+ temp.player.port + ' ip ' + temp.player.ip+'joined';
-           this.$store.commit('changeLoadingReminder', tempLoadingReminder)
+          tempLoadingReminder = 'player: port ' + temp.player.port + ' ip ' + temp.player.ip + 'joined'
+          this.$store.commit('changeLoadingReminder', tempLoadingReminder)
           break
 
         case 'cardplayed':
-          this.$store.commit('setCurPlayerIndex',temp.playerindex)
+          this.$store.commit('setCurPlayerIndex', temp.playerindex)
 
           const tempDPCard = {
-            rank:temp.card.rank,
+            rank: temp.card.rank,
             suit: temp.card.suit,
-            imgPath:''
+            imgPath: ''
           }
-          
-          this.$store.commit('setDisplayCard', tempDPCard)
 
+          this.$store.commit('setDisplayCard', tempDPCard)
+          break
+
+        case 'playerhands':
+          var tempHandCards = []
+
+          var player
+          var card
+          for (player in temp.players) {
+            if (this.$store.state.myselfIndex === temp.players[player].playerindex) {
+              console.log('PLAYER ' + temp.players[player].playerindex)
+              for (card in temp.players[player].hand) {
+                const tempHandCard = { rank: '', suit: '', todisable: true }
+                console.log('CARD ' + temp.players[player].hand[card])
+                tempHandCard.rank = temp.players[player].hand[card].rank
+                tempHandCard.suit = temp.players[player].hand[card].suit
+
+                console.log(tempHandCard.rank)
+                console.log(tempHandCard.suit)
+
+                tempHandCards.push(tempHandCard)
+              }
+            }
+          }
+          console.log('TEST myselfIndex' + this.$store.state.myselfIndex)
+          console.log('TEST players' + temp.players[0].hand[0].suit)
+
+          var test1
+          for (test1 in tempHandCards) {
+            console.log('TEST_THC ' + tempHandCards[test1].suit + ' ' + tempHandCards[test1].rank)
+          }
+
+          console.log('TEST tempHandCards' + tempHandCards)
+          this.$store.commit('setMyHandCards', tempHandCards)
+
+          break
+
+        // TODO
+        case 'playcard':
+          var a;
+          var b;
+
+          var tempHandCardsVaildCheck = [];
+          tempHandCardsVaildCheck = this.$store.state.myHandCards;
+          for (a in tempHandCardsVaildCheck) {
+            console.log('TEST_THC ' + tempHandCards[test1].suit + ' ' + tempHandCards[test1].rank)
+            for (b in temp.validcards) {
+              if ((tempHandCardsVaildCheck[a].rank === temp.validcards[b].rank) && (tempHandCardsVaildCheck[a].suit === temp.validcards[b].suit)) {
+                this.tempHandCardsVaildCheck[a].todisable = false
+              }
+            }
+          }
+          this.$store.commit('setMyHandCards', tempHandCardsVaildCheck)
+          break
         default:
           console.log('TEST' + temp.type)
       }

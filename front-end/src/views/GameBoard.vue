@@ -1,3 +1,4 @@
+/* eslint-disable no-tabs */
 <template>
   <v-content>
     <v-container >
@@ -6,18 +7,21 @@
             test
         </div>
         <v-btn class="playerPosition1"
-          v-bind:color="this.$store.state.players[0].myturn===false ? 'blue':'red'"        
+          v-bind:color="this.$store.state.players[0].myturn===false ? 'blue':'red'"
         > Player 1</v-btn>
         <v-btn class="playerPosition2"> Player 2</v-btn>
         <v-btn class="playerPosition3"> Player 3</v-btn>
         <v-btn class='playerPosition4' @click="changeP1"> Player 4</v-btn>
         <v-btn class="displayCard"> {{this.$store.state.displayCard.rank}} {{this.$store.state.displayCard.suit}}</v-btn>
 
-        <div class='playerHand'>
-        <v-btn> Card 1
+        <div class="playerHand">
+        <div v-for="(item,i) in this.$store.state.myHandCards" :key='i'>
+        <v-btn @click="sendCard(item.rank,item.suit)"> {{item.suit}} {{item.rank}}</v-btn>
+
+        <!-- <v-btn> Card 1 -->
         <!-- <img src='../assets/img/0C.png'> -->
-        </v-btn>
-        <v-btn> Card 2</v-btn>
+        <!-- </v-btn> -->
+        <!-- <v-btn> Card 2</v-btn>
         <v-btn> Card 3</v-btn>
         <v-btn> Card 4</v-btn>
         <v-btn> Card 5</v-btn>
@@ -28,12 +32,10 @@
         <v-btn> Card 10</v-btn>
         <v-btn> Card 11</v-btn>
         <v-btn> Card 12</v-btn>
-        <v-btn> Card 13</v-btn>
+        <v-btn> Card 13</v-btn> -->
+
          </div>
-         <modal>
-
-
-         </modal>
+         </div>
     </v-container>
   </v-content>
 </template>
@@ -57,42 +59,51 @@ export default {
     card_1_path: ''
   }),
 
-created() {
+  created () {
+  // this.$store.commit('initPlayerArr',4)
+    var i
+    var players_temp = []
+    for (i = 0; i < 4; i++) {
+      players_temp.push({ myturn: false })
+    }
+    this.$store.commit('setPlayerArr', players_temp)
 
-  //this.$store.commit('initPlayerArr',4)
-  var i;
-  var players_temp=[];
-  for(i=0;i<4;i++){
-    players_temp.push({myturn:false})
-  }
-  this.$store.commit('setPlayerArr',players_temp)
+    //     this.$options.sockets.onmessage = (data) => {
 
-//     this.$options.sockets.onmessage = (data) => {
+    //       console.log(data)
 
-//       console.log(data)
+    //       const temp = JSON.parse(data.data)
+    //       // console.log(temp.beacons)
+    //       // var beacon;
+    //       // var numOfPlayers = '';
+    //       // for(beacon of temp.beacons) {
+    //       //   var beaconsAP = []
+    //       //   beaconsAP = beacon.split(":")
+    //       //   console.log(beaconsAP)
+    //       //   numOfPlayers = beaconsAP[1] + '/' + beaconsAP[2]
+    //       //   console.log(numOfPlayers)
+    //       //   this.games.push(
+    //       //     {name:beaconsAP[0], curPlayers:numOfPlayers, ip:beaconsAP[3], port:beaconsAP[4]}
+    //       //   )
+    //       // }
 
-//       const temp = JSON.parse(data.data)
-//       // console.log(temp.beacons)
-//       // var beacon;
-//       // var numOfPlayers = '';
-//       // for(beacon of temp.beacons) {
-//       //   var beaconsAP = []
-//       //   beaconsAP = beacon.split(":")
-//       //   console.log(beaconsAP)
-//       //   numOfPlayers = beaconsAP[1] + '/' + beaconsAP[2]
-//       //   console.log(numOfPlayers)
-//       //   this.games.push(
-//       //     {name:beaconsAP[0], curPlayers:numOfPlayers, ip:beaconsAP[3], port:beaconsAP[4]}
-//       //   )
-//       // }
+    //       // console.log(beacon)
 
-//       // console.log(beacon)
-    
-//     } 
+    //     }
   },
   methods: {
-    changeP1(){
-      this.$store.dispatch('setPlayerTurn_AC',0)
+    changeP1 () {
+      this.$store.dispatch('setPlayerTurn_AC', 0)
+    },
+
+    sendCard (rank_input, suit_input) {
+      this.$socket.sendObj({
+        type: 'playcard',
+        card: {
+          rank: rank_input,
+          suit: suit_input
+        }
+      })
     }
   }
 }
@@ -106,7 +117,7 @@ created() {
 	left: 30%;
 }
 
-/* 
+/*
 .playerPosition1_Selected {
   position: absolute;
 	top: 30%;
@@ -144,10 +155,12 @@ created() {
 
 .playerHand {
 	position: absolute;
+  align-items: stretch;
   width: 50%;
 	height: 20%;
 	left: 28%;
 	bottom: 10%;
+  text-align: start;
 }
 
 .v-btn.center{

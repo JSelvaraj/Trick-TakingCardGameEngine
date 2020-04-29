@@ -43,6 +43,7 @@ export default {
   methods: {
     test1 () {
       this.$store.commit('loadingDisable')
+      this.$router.push('/gameBoard')
       console.log(this.$store.state.loadEnable)
     }
   }
