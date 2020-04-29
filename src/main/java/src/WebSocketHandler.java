@@ -25,6 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
 public class WebSocketHandler extends WebSocketServer {
     private static final int PORT = 49092;
@@ -134,7 +135,7 @@ public class WebSocketHandler extends WebSocketServer {
             System.out.println("connecting to tunnel");
             boolean success;
             do {
-                success = tunnel.connectBlocking();
+                success = tunnel.connectBlocking(2, TimeUnit.SECONDS);
             } while (success);
         } catch (URISyntaxException | InterruptedException e) {
             e.printStackTrace();

@@ -30,6 +30,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
+/*  Version 1.0     */
+
 /**
  * Main class that runs the game based of on a provided game description.
  */
