@@ -96,6 +96,17 @@ export default {
            this.$store.commit('changeLoadingReminder', tempLoadingReminder)
           break
 
+        case 'cardplayed':
+          this.$store.commit('setCurPlayerIndex',temp.playerindex)
+
+          const tempDPCard = {
+            rank:temp.card.rank,
+            suit: temp.card.suit,
+            imgPath:''
+          }
+          
+          this.$store.commit('setDisplayCard', tempDPCard)
+
         default:
           console.log('TEST' + temp.type)
       }

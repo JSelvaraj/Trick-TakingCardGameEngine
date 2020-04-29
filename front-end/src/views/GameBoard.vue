@@ -11,10 +11,10 @@
         <v-btn class="playerPosition2"> Player 2</v-btn>
         <v-btn class="playerPosition3"> Player 3</v-btn>
         <v-btn class='playerPosition4' @click="changeP1"> Player 4</v-btn>
-        <v-btn class="displayCard"> current card</v-btn>
+        <v-btn class="displayCard"> {{this.$store.state.displayCard.rank}} {{this.$store.state.displayCard.suit}}</v-btn>
 
         <div class='playerHand'>
-        <v-btn style ='poker1'> Card 1
+        <v-btn> Card 1
         <!-- <img src='../assets/img/0C.png'> -->
         </v-btn>
         <v-btn> Card 2</v-btn>
