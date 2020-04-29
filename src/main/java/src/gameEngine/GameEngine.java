@@ -59,7 +59,7 @@ public class GameEngine extends WebSocketServer {
     //Starts as 1 in 10 chance;
     double rdmEventProb = 10;
     WebSocket webSocket = null;
-    private static final Object GUIConnectLock = new Object();
+    private static final Semaphore GUIConnectLock = new Semaphore(0);
     private static final Object getCardLock = new Object();
     private static final Object getBidLock = new Object();
     private static final Object newWebsocketStartLock = new Object();
@@ -284,9 +284,9 @@ public class GameEngine extends WebSocketServer {
         Gson gson = new Gson();
 
         game.start();
-        synchronized (newWebsocketStartLock){
-            newWebsocketStartLock.wait();
-        }
+//        synchronized (newWebsocketStartLock){
+//            newWebsocketStartLock.wait();
+//        }
 
         JsonObject gameSetup = new JsonObject();
         gameSetup.add("type", new JsonPrimitive("gameSetup"));
@@ -305,7 +305,7 @@ public class GameEngine extends WebSocketServer {
         synchronized (GUIConnectLock) {
             while (game.webSocket == null) {
                 System.out.println("WAITING FOR TUNNEL");
-                GUIConnectLock.wait();
+                GUIConnectLock.acquire();
                 System.out.println("TUNNEL RECEIVED");
             }
         }
@@ -827,15 +827,11 @@ public class GameEngine extends WebSocketServer {
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
-//        System.out.println("WAITING FOR LOCK");
-        synchronized (GUIConnectLock) {
-//            System.out.println("LOCK RECEIVED");
-            if (getConnections().size() == 1) {
+
                 System.out.println("Opened connection");
                 this.webSocket = conn;
-                GUIConnectLock.notifyAll();
-            }
-        }
+                GUIConnectLock.release();
+
     }
 
     private ContractBid getAdjustedHighestBid() {

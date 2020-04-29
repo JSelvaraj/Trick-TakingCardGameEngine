@@ -41,8 +41,6 @@ public class WebSocketHandler extends WebSocketServer {
     }
 
 
-
-
     public static void main(String[] args) {
         InetSocketAddress home = new InetSocketAddress(PORT);
         WebSocketHandler connection = new WebSocketHandler(home);
@@ -51,7 +49,6 @@ public class WebSocketHandler extends WebSocketServer {
 
 
     }
-
 
 
     @Override
@@ -93,7 +90,7 @@ public class WebSocketHandler extends WebSocketServer {
             case "HostGame":
                 String path = request.get("gamepath").getAsString();
                 boolean enableRdmEvents = request.get("enableRdmEvents").getAsBoolean();
-                Thread thread = new Thread(new HostRunner(new GUIPlayer(), 55555, path,enableRdmEvents, conn, newWebsocketStartLock)); //local port as 0 means its assigned at runtime by system.
+                Thread thread = new Thread(new HostRunner(new GUIPlayer(), 55555, path, enableRdmEvents, conn, newWebsocketStartLock)); //local port as 0 means its assigned at runtime by system.
                 thread.start();
                 for (int i = 0; i < request.get("aiplayers").getAsInt(); i++) {
                     System.out.println("AI started");
@@ -141,11 +138,9 @@ public class WebSocketHandler extends WebSocketServer {
             tunnel = new WebSocketTunnel(new URI("ws://localhost:60001"), this);
 
             boolean success;
-            do {
-                System.out.println("connecting to tunnel");
-                newWebsocketStartLock.acquire();
-                success = tunnel.connectBlocking(2, TimeUnit.SECONDS);
-            } while (success);
+            System.out.println("connecting to tunnel");
+            newWebsocketStartLock.acquire();
+            success = tunnel.connectBlocking(2, TimeUnit.SECONDS);
         } catch (URISyntaxException | InterruptedException e) {
             e.printStackTrace();
         }
