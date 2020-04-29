@@ -140,8 +140,6 @@ p {
   width: 100%;
 }
 
-
-
 .backBTNGD{
   margin: 5%;
 }

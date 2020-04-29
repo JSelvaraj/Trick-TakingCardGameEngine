@@ -69,25 +69,35 @@ export default {
       const temp = JSON.parse(data.data)
       console.log(temp.type)
 
-      if (temp.type === 'DiscoverGame') {
-        console.log(temp.beacons)
-        var beacon
-        var numOfPlayers = ''
-        var tempGamesArr = []
-        for (beacon of temp.beacons) {
-          var beaconsAP = []
-          beaconsAP = beacon.split(':')
-          console.log(beaconsAP)
-          numOfPlayers = beaconsAP[1] + '/' + beaconsAP[2]
-          console.log(numOfPlayers)
-          tempGamesArr.push(
-            { name: beaconsAP[0], curPlayers: numOfPlayers, ip: beaconsAP[3], port: beaconsAP[4] }
-          )
-        }
+      switch (temp.type) {
+        case 'DiscoverGame':
+          console.log(temp.beacons)
+          var beacon
+          var numOfPlayers = ''
+          var tempGamesArr = []
+          for (beacon of temp.beacons) {
+            var beaconsAP = []
+            beaconsAP = beacon.split(':')
+            console.log(beaconsAP)
+            numOfPlayers = beaconsAP[1] + '/' + beaconsAP[2]
+            console.log(numOfPlayers)
+            tempGamesArr.push(
+              { name: beaconsAP[0], curPlayers: numOfPlayers, ip: beaconsAP[3], port: beaconsAP[4] }
+            )
+          }
+          this.$store.commit('refreshGames', tempGamesArr)
+          // console.log(beacon)
+          break
 
-        this.$store.commit('refreshGames', tempGamesArr)
+        case 'playerjoin':
+          var tempLoadingReminder;
 
-      // console.log(beacon)
+          tempLoadingReminder = 'player: port '+ temp.player.port + ' ip ' + temp.player.ip+'joined';
+           this.$store.commit('changeLoadingReminder', tempLoadingReminder)
+          break
+
+        default:
+          console.log('TEST' + temp.type)
       }
     }
   }

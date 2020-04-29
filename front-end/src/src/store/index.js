@@ -23,7 +23,8 @@ export default new Vuex.Store({
     //       imgPath:''
     // }
     players: [],
-    games: []
+    games: [],
+    loadingReminder:''
   },
   mutations: {
     changeSelectGameTypes_vx (state, item) {
@@ -78,6 +79,10 @@ export default new Vuex.Store({
     refreshGames (state, newGames) {
       state.games = []
       state.games = newGames
+    },
+
+    changeLoadingReminder(state,reminder){
+      state.loadingReminder = reminder
     }
   },
 
