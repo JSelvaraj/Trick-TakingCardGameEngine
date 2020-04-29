@@ -174,7 +174,7 @@ public class NetworkPlayer extends Player {
         else {
             if (bidEvent.has("suit")) {
                 suit = bidEvent.optString("suit", null);
-                if (suit == null) {
+                if (suit == null || suit.equals("null")) {
                     suit = "NO TRUMP";
                 }
                 else {
