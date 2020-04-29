@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 public class WebSocketHandler extends WebSocketServer {
     private static final int PORT = 49092;
     private Semaphore newWebsocketStartLock = new Semaphore(0);
-
+    WebSocketTunnel tunnel = null;
 
     public WebSocketHandler(InetSocketAddress address) {
         super(address);
@@ -56,7 +56,7 @@ public class WebSocketHandler extends WebSocketServer {
         System.out.println("Received: " + message);
         JsonObject request = new Gson().fromJson(message, JsonObject.class);
         String type = request.get("type").getAsString();
-        WebSocketTunnel tunnel = null;
+
         switch (type) {
             case "DiscoverGame":
                 TreeSet<String> beacons;
