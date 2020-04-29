@@ -338,17 +338,15 @@ public class GameEngine {
                 if (score > desc.getTrickThreshold()) {
                     team.setGameScore(team.getGameScore() + (score - desc.getTrickThreshold()));
                 }
-                //Reset trick score
-                team.setTricksWon(0);
             }
-        } else if (desc.getCalculateScore().equals("trumpPointValue")) {
+        }
+        if (desc.getCalculateScore().equals("trumpPointValue")) {
             for (Team team : getTeams()) {
                 int score = team.getCardsWon().stream().filter((card -> card.getSUIT().equals(trumpSuit.toString()))).mapToInt(Card::getPointValue).sum();
                 team.setGameScore(team.getGameScore() + score);
-                team.setTricksWon(0);
-                team.getCardsWon().clear();
             }
-        } else if (desc.getCalculateScore().equals("bid")) {
+        }
+        if (desc.getCalculateScore().equals("bid")) {
             //If game is bridge style scoring
             if (desc.isAscendingBid()) {
                 //Find the team that declared/won the contract
@@ -366,25 +364,24 @@ public class GameEngine {
                     }
                 }
             }
-            //Reset the tricks won for all teams
-            for (Team team : getTeams()) {
-                team.setTricksWon(0);
+            //For spades style bid scoring
+            else {
+                for (Team team : getTeams()) {
+                    int teamBid = 0;
+                    //Get collective team bids
+                    for (Player player : team.getPlayers()) {
+                        teamBid += player.getBid().getBidValue();
+                    }
+                    Bid bid = new Bid(false, null, teamBid, false, false);
+                    //Increase score of winning team based on bid scoring system (See validBids.java)
+                    team.setGameScore(team.getGameScore() + desc.getEvaluateBid().apply(bid, team.getTricksWon()).getLeft());
+                }
             }
         }
-        //For spades style bid scoring
-        else {
-            for (Team team : getTeams()) {
-                int teamBid = 0;
-                //Get collective team bids
-                for (Player player : team.getPlayers()) {
-                    teamBid += player.getBid().getBidValue();
-                }
-                Bid bid = new Bid(false, null, teamBid, false, false);
-                //Increase score of winning team based on bid scoring system (See validBids.java)
-                team.setGameScore(team.getGameScore() + desc.getEvaluateBid().apply(bid, team.getTricksWon()).getLeft());
-                //Reset tricks won for next round.
-                team.setTricksWon(0);
-            }
+        //Reset the tricks won for all teams
+        for (Team team : getTeams()) {
+            team.setTricksWon(0);
+            team.getCardsWon().clear();
         }
     }
 
@@ -535,7 +532,8 @@ public class GameEngine {
     }
 
     //Method for checking if bidding should end
-    public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter, boolean firstRound) {
+    public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter,
+                                 boolean firstRound) {
         //If contract style bidding, bidding ends when all players have passed in a row except for one, except for when it's the first round.
         if (desc.isAscendingBid()) {
             return passCounter != players.length - 1 || firstRound;
@@ -599,7 +597,8 @@ public class GameEngine {
      * @return suit-value hashmap where the value is its rank based on how the game ranks suits
      * Note: lower map value = higher rank
      */
-    public static HashMap<String, Integer> generateSuitOrder(GameDesc desc, StringBuilder trumpSuit, Card leadingCard) {
+    public static HashMap<String, Integer> generateSuitOrder(GameDesc desc, StringBuilder trumpSuit, Card
+            leadingCard) {
         HashMap<String, Integer> suitMap = new HashMap<>();
         //Set default value for suits
         for (String suit : desc.getSUITS()) {
