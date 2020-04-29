@@ -27,6 +27,9 @@ import java.util.Objects;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
+/* Bugfix 0.1 */
+
+
 public class WebSocketHandler extends WebSocketServer {
     private static final int PORT = 49092;
 
