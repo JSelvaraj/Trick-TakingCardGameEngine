@@ -413,7 +413,7 @@ public class GameEngine extends WebSocketServer {
 
     public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents, WebSocket oldWebSocket, Semaphore lock) throws InterruptedException {
         //Start engine and set attributes based on game description
-        GameEngine game = new GameEngine(gameDesc, lock);
+        GameEngine game = new GameEngine(gameDesc, new InetSocketAddress("localhost", 60001), playerArray, lock);
         Random rand = new Random(seed);
         Gson gson = new Gson();
 
@@ -1078,7 +1078,8 @@ public class GameEngine extends WebSocketServer {
         switch (request.get("type").getAsString()) {
             case "playcard":
                 currentTrick.dropLast();
-                currentTrick.getCard(Card.fromJson(new Gson().toJson(request.get("card"))));
+                int index = request.get("playerindex").getAsInt();
+                currentTrick.getCard(playerArray[index].getHand().giveCard(Card.fromJson(new Gson().toJson(request.get("card")))));
                 getCardLock.release();
                 break;
             case "makebid":
