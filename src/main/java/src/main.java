@@ -65,7 +65,7 @@ public class main {
         String command = jc.getParsedCommand();
         switch (command) {
             case "host":
-                Thread hostThread = new Thread(new HostRunner(new POMDPPlayer(), host.port, host.game, host.enableRandomEvents));
+                Thread hostThread = new Thread(new HostRunner(new LocalPlayer(), host.port, host.game, host.enableRandomEvents));
                 hostThread.start();
                 System.out.println("Host Player1 started");
 
