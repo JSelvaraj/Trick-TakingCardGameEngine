@@ -95,7 +95,7 @@ public class WebSocketHandler extends WebSocketServer {
                             request.get("port").getAsInt(),
                             true,
                             false,
-                            null);
+                            false);
                     Thread aiThread = new Thread(runner);
                     aiThread.start();
                 }
