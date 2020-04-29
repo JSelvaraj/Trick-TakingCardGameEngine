@@ -340,9 +340,8 @@ public class GameEngine extends WebSocketServer {
 
             //Sends every player's hand to the GUI
             System.out.println("SENDING CARDS TO GUI");
-            JsonObject jsonMessage = new JsonObject();
-            jsonMessage.add("type", new JsonPrimitive("playerhands"));
             JsonObject jsonPlayers = new JsonObject();
+            jsonPlayers.add("type", new JsonPrimitive("playerhands"));
             JsonArray jsonPlayersArray = new JsonArray();
             for (int i = 0; i < playerArray.length; i++) {
                 LinkedList<Card> hand = playerArray[i].getHand().getHand();
