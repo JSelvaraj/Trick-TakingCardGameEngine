@@ -40,7 +40,7 @@ public class PlayerRunner implements Runnable {
     public void run() {
         try {
             if (webSocket == null) {
-            Networking.connectToGame(this.localPort, this.hostAddress, this.hostPort, player, this.localConnection, printMoves, enableRandomEvents);
+                Networking.connectToGame(this.localPort, this.hostAddress, this.hostPort, player, this.localConnection, printMoves, enableRandomEvents);
             } else {
                 Networking.connectToGame(this.localPort, this.hostAddress, this.hostPort, player, this.localConnection, printMoves, enableRandomEvents, webSocket);
             }

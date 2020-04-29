@@ -384,6 +384,7 @@ public class Networking {
 
     public static void connectToGame(int localPort, String ip, int port, Player localPlayer, boolean localConnection, boolean printMoves, boolean enableRandomEvents, WebSocket webSocket) throws InvalidGameDescriptionException, InterruptedException {
         //Wait for host to start if connecting to a local one.
+
         if (localConnection) {
             try {
                 //Wait to aquire and them immediately release, as it is only need

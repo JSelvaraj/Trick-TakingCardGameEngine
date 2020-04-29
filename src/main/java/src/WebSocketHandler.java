@@ -94,13 +94,14 @@ public class WebSocketHandler extends WebSocketServer {
                             "localhost",
                             request.get("port").getAsInt(),
                             true,
-                            false);
+                            false,
+                            null);
                     Thread aiThread = new Thread(runner);
                     aiThread.start();
                 }
                 try {
                     tunnel = new WebSocketTunnel(new URI("ws://localhost:60001"), this);
-                    System.out.println("connecting to game");
+                    System.out.println("connecting to tunnel");
                     tunnel.connectBlocking();
                 } catch (URISyntaxException | InterruptedException e) {
                     e.printStackTrace();
@@ -110,6 +111,13 @@ public class WebSocketHandler extends WebSocketServer {
                 Thread thread2 = new Thread(new PlayerRunner( new GUIPlayer(), request.get("address").getAsString(), request.get("port").getAsInt(), request.get("localport").getAsInt(), true, false, conn, false)
                 );
                 thread2.start();
+                try {
+                    tunnel = new WebSocketTunnel(new URI("ws://localhost:60001"), this);
+                    System.out.println("connecting to tunnel");
+                    tunnel.connectBlocking();
+                } catch (URISyntaxException | InterruptedException e) {
+                    e.printStackTrace();
+                }
                 break;
             case "playcard":
             case "makebid":
