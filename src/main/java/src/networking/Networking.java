@@ -382,7 +382,6 @@ public class Networking {
             Parser parser = new Parser();
             GameDesc gameDesc = parser.parseGameDescription(gameJSON);
 
-            //TODO messaging for joingame protocol
             System.out.println("Starting game");
             GameEngine.main(gameDesc, 0, players, seed, printMoves, enableRandomEvents);
         } catch (IOException | InterruptedException e) {
@@ -422,8 +421,10 @@ public class Networking {
 
         int playerNumber = -1;
         try {
+            socketSemaphore.acquire(1);
             Socket hostSocket = new Socket(ip, port); // connect to host
             ServerSocket serverSocket = new ServerSocket(localPort);
+            socketSemaphore.release(1);
             InetAddress address = InetAddress.getLocalHost();
             String addressString = address.getHostAddress();
             JSONObject playerInfo = new JSONObject();
@@ -482,6 +483,7 @@ public class Networking {
                     continue;
                 }
 
+                Socket socket2;
                 if (i < playerNumber) {
                     NetworkPlayer networkPlayer = new NetworkPlayer(i, serverSocket.accept());
                     players[i] = networkPlayer;
@@ -496,7 +498,9 @@ public class Networking {
 //                            break;
 //                        }
 //                    }
-                    Socket socket2 = new Socket(infoHolder.ip, infoHolder.port);
+                    socketSemaphore.acquire();
+                    socket2 = new Socket(infoHolder.ip, infoHolder.port);
+                    socketSemaphore.release();
                     NetworkPlayer networkPlayer = new NetworkPlayer(i, socket2);
                     players[i] = networkPlayer;
                     playerSockets.add(networkPlayer.getPlayerSocket());
