@@ -827,11 +827,13 @@ public class GameEngine extends WebSocketServer {
         //Loop until bidding end condition met
         do {
             //Gets a bid from a player - validation done through validBids.java
-            do {
+
                 System.out.println("GETTING BIDDING");
                 currentBid = players[currentPlayer].makeBid(this.desc.getValidBid(), desc.isTrumpSuitBid(), adjustedHighestBid, firstRound, desc.isCanBidBlind());
+            if (players[currentPlayer] instanceof GUIPlayer) {
                 getBidLock.acquire();
-            } while (currentBid == null); //currentBid will only be null if it's a GUI player
+            }
+
             Bid bid = currentBid;
             if (bid.isDoubling()) {
                 //Reset pass counter, consecutive passes has been broken
