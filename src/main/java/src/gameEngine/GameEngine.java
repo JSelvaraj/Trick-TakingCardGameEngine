@@ -836,9 +836,10 @@ public class GameEngine extends WebSocketServer {
         do {
             //Gets a bid from a player - validation done through validBids.java
 
-                System.out.println("GETTING BIDDING");
+
                 currentBid = players[currentPlayer].makeBid(this.desc.getValidBid(), desc.isTrumpSuitBid(), adjustedHighestBid, firstRound, desc.isCanBidBlind());
             if (players[currentPlayer] instanceof GUIPlayer) {
+                System.out.println("GETTING BIDDING");
                 getBidLock.acquire();
             }
 
