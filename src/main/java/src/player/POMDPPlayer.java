@@ -101,7 +101,7 @@ public class POMDPPlayer extends Player {
             return new Bid(false, null, bidValue, false, false);
         } else {
             StringBuilder tempTrumpSuit;
-            if(trumpSuitBid){
+            if (trumpSuitBid) {
                 tempTrumpSuit = new StringBuilder("");
             } else {
                 tempTrumpSuit = new StringBuilder(trumpSuit.toString());
@@ -117,7 +117,6 @@ public class POMDPPlayer extends Player {
     }
 
     private Bid canPassBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, boolean firstRound, StringBuilder tempTrumpSuit, CardPOMDP tempPOMDP) {
-
         if (adjustedHighestBid == null) {
             int hcp = highCardPoints();
             //If you don't meet the threshold and can pass, then pass.
@@ -141,7 +140,7 @@ public class POMDPPlayer extends Player {
             return raiseOrPass(validBid, trumpSuitBid, adjustedHighestBid, tempTrumpSuit, tempPOMDP, firstRound);
         } else if (adjustedHighestBid.getDeclarer() != this) {
             //If you think you should double the opponent.
-            if (checkDouble(validBid, trumpSuitBid, adjustedHighestBid, tempTrumpSuit, cardPOMDP, firstRound)) {
+            if (checkDouble(validBid, trumpSuitBid, adjustedHighestBid, tempTrumpSuit, tempPOMDP, firstRound)) {
                 return new Bid(true, null, 0, false, false);
             }
             return raiseOrPass(validBid, trumpSuitBid, adjustedHighestBid, tempTrumpSuit, tempPOMDP, firstRound);
@@ -178,12 +177,12 @@ public class POMDPPlayer extends Player {
         if (!trumpSuitBid) {
             int bidValue = tempCardPOMDP.searchBid(observation);
             //Check for out of bounds.
-            if(bidValue < desc.getMinBid()){
+            if (bidValue < desc.getMinBid()) {
                 bidValue = desc.getMinBid();
-            } else if(bidValue > desc.getMaxBid()){
+            } else if (bidValue > desc.getMaxBid()) {
                 bidValue = desc.getMaxBid();
             }
-            if(bidValue <= adjustedHighestBid.getBidValue()){
+            if (bidValue <= adjustedHighestBid.getBidValue()) {
                 return passingBid();
             } else {
                 return new Bid(false, null, bidValue, false, false);
@@ -218,7 +217,7 @@ public class POMDPPlayer extends Player {
     }
 
     private Bid raise(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, StringBuilder tempTrumpSuit, CardPOMDP tempCardPOMDP, boolean firstRound) {
-        if(!trumpSuitBid){
+        if (!trumpSuitBid) {
             throw new UnsupportedOperationException();
         }
         List<String> potentialSuits = desc.getBidSuits().subList(desc.getBidSuits().indexOf(adjustedHighestBid.getSuit()), desc.getBidSuits().size());
@@ -291,12 +290,12 @@ public class POMDPPlayer extends Player {
      * @return
      */
     private Bid openingBid(Predicate<PotentialBid> validbid, boolean trumpSuitBid, StringBuilder tempTrumpSuit, CardPOMDP tempCardPOMDP) {
-        if(!trumpSuitBid) {
+        if (!trumpSuitBid) {
             int bidValue = tempCardPOMDP.searchBid(observation);
             //Check for out of bounds.
-            if(bidValue < desc.getMinBid()){
+            if (bidValue < desc.getMinBid()) {
                 bidValue = desc.getMinBid();
-            } else if(bidValue > desc.getMaxBid()){
+            } else if (bidValue > desc.getMaxBid()) {
                 bidValue = desc.getMaxBid();
             }
             return new Bid(false, null, bidValue, false, false);
