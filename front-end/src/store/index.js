@@ -27,9 +27,31 @@ export default new Vuex.Store({
     players: [],
     games: [],
     loadingReminder: '',
-    gameMessage: ''
+    gameMessage: '',
+    loadNotComplete: true,
+
+
+     //for bidding:
+     suitenabledBID: '',
+     numberofroundsenabledBID: '',
+     doublingenabledBID: '',
+     passingenabledBID: '',
+     bidlindenabledBID: '',
+     numberofroundsBID: [],
+     suitsBID:[],
+     isPlayerVulnBID: '',
+     firstroundBID: ''
   },
   mutations: {
+
+    setLoadNotComplete (state, booleanTrigger) {
+      state.loadNotComplete = booleanTrigger
+    },
+
+    setCurrentTrump (state, currenttrumpNew) {
+      state.currenttrump = currenttrumpNew
+    },
+
     changeSelectGameTypes_vx (state, item) {
       state.selectGameTypes_vx = item
     },
@@ -102,7 +124,7 @@ export default new Vuex.Store({
 
     appendGameMessage (state, newMessage) {
       state.gameMessage = state.gameMessage + newMessage + '\n'
-      console.log('TEST GAME MESSAGE: ' + state.gameMessage)
+      // console.log('TEST GAME MESSAGE: ' + state.gameMessage)
     }
   },
 

@@ -68,6 +68,7 @@ export default {
 
       const temp = JSON.parse(data.data)
       console.log(temp.type)
+      console.log(temp.data)
 
       switch (temp.type) {
         case 'DiscoverGame':
@@ -111,12 +112,12 @@ export default {
 
           this.$store.commit('setPlayerTurn', tempPlayers)
           this.$store.commit('setCurPlayerIndex', temp.playerindex)
-          console.log('PLAYER NUMBERS: '+ this.$store.state.players.length)
-          var tempDPCardPool = this.$store.state.displayCardPool;
+          console.log('PLAYER NUMBERS: ' + this.$store.state.players.length)
+          var tempDPCardPool = this.$store.state.displayCardPool
 
-          if(tempDPCardPool.length>3){
-            tempDPCardPool = []
-          }
+          // if(tempDPCardPool.length>3){
+          //   tempDPCardPool = []
+          // }
 
           const tempDPCard = {
             rank: temp.card.rank, // TODO
@@ -130,7 +131,11 @@ export default {
           break
 
         case 'playerhands':
-          var tempHandCards = []
+
+          this.$store.commit('setLoadNotComplete', false)
+
+
+         var tempHandCards = []
 
           var player
           var card
@@ -161,10 +166,68 @@ export default {
           console.log('TEST tempHandCards' + tempHandCards)
           this.$store.commit('setMyHandCards', tempHandCards)
 
+
           break
 
         // TODO
         case 'getCard':
+          // var a
+          // var b
+          // var getCardMessage = 'Vaild Cards: \n'
+          // var gccount
+
+          // var tempHandCards = []
+
+          // var player
+          // var card
+          // for (player in temp.playerhand.players) {
+            // if (this.$store.state.myselfIndex === temp.playerhand.players[player].playerindex) {
+            //   console.log('PLAYER ' + temp.playerhand.players[player].playerindex)
+              // for (card in temp.playerhand) {
+              //   const tempHandCard = { rank: '', suit: '', todisable: true }
+              //   // console.log('CARD ' + temp.playerhand.players[player].hand[card])
+              //   tempHandCard.rank = temp.playerhand[card].rank
+              //   tempHandCard.suit = temp.playerhand[card].suit
+
+              //   console.log(tempHandCard.rank)
+              //   console.log(tempHandCard.suit)
+
+              //   tempHandCards.push(tempHandCard)
+              // }
+            // }
+          // }
+          // console.log('TEST myselfIndex' + this.$store.state.myselfIndex)
+          // console.log('TEST players' + temp.playerhand.players[0].hand[0].suit)
+
+          // var test1
+          // for (test1 in tempHandCards) {
+          //   console.log('TEST_THC ' + tempHandCards[test1].suit + ' ' + tempHandCards[test1].rank)
+          // }
+
+          // console.log('TEST tempHandCards' + tempHandCards)
+          // this.$store.commit('setMyHandCards', tempHandCards)
+
+
+
+
+          // var tempHandCardsVaildCheck = []
+          // tempHandCardsVaildCheck = this.$store.state.myHandCards
+
+          // for (a in tempHandCardsVaildCheck) {
+          //   for (b in temp.validcards) {
+          //     if ((tempHandCardsVaildCheck[a].rank === temp.validcards[b].rank) && (tempHandCardsVaildCheck[a].suit === temp.validcards[b].suit)) {
+          //       tempHandCardsVaildCheck[a].todisable = false
+          //     }
+          //   }
+          // }
+
+          // for (gccount in temp.validcards) {
+          //   getCardMessage = getCardMessage + 'Rank: ' + temp.validcards[gccount].rank + ' Suit: ' + temp.validcards[gccount].suit + '\n'
+          // }
+          // this.$store.commit('appendGameMessage', getCardMessage)
+          // this.$store.commit('setMyHandCards', tempHandCardsVaildCheck)
+          // break
+          
           var a
           var b
           var getCardMessage = 'Vaild Cards: \n'
@@ -188,6 +251,8 @@ export default {
           this.$store.commit('setMyHandCards', tempHandCardsVaildCheck)
           break
 
+
+
         case 'winningcard':
           // {"type":"winningcard","card":{"rank":"JACK","suit":"DIAMONDS"},"playerindex":0}
           // {"type":"trumpbroken"}
@@ -198,7 +263,9 @@ export default {
           // Team: (1, 3)     0
 
           var winningMessage = 'Winning card: ' + temp.card.rank + ' ' + temp.card.suit + '\n' + 'Playerindex: ' + temp.playerindex + ' win this trick \n'
-          
+
+          setTimeout(5000)
+
           var tempDPCardPoolClear = []
 
           this.$store.commit('setDisplayCardPool', tempDPCardPoolClear)
@@ -234,10 +301,28 @@ export default {
           this.$store.commit('appendGameMessage', matchendMessage)
           break
 
-         case 'currenttrump':
+        case 'currenttrump':
 
-          var currenttrumpMessage = 'Current Trump' + temp.suit + '\n'
+          var currenttrumpMessage = 'Current Trump: ' + temp.suit + '\n'
+
+          this.$store.commit('setCurrentTrump', currenttrumpMessage)
           this.$store.commit('appendGameMessage', currenttrumpMessage)
+          break
+
+        case 'invalidCardMessage':
+          alert('Invalid Card!')
+          break
+
+
+        case 'invalidBidMessage':
+          alert('Invalid Bid')
+          break
+
+
+        case 'makebid':
+          
+          
+
           break
         default:
           console.log('TEST' + temp.type)

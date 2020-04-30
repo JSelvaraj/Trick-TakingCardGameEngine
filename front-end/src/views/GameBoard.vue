@@ -70,6 +70,10 @@
       <div id='bottom' class="textArea">
         <p style=" word-wrap: break-word;white-space: pre-line;">{{this.$store.state.gameMessage}}</p>
       </div>
+
+      
+          <p> {{this.$store.state.currenttrump}}</p>
+   
     </v-container>
   </v-content>
 </template>
@@ -206,6 +210,11 @@ export default {
 	left: 28%;
 	bottom: 10%;
   text-align: start;
+  border:3px solid black;
+   text-align:center;
+   display: flex;
+  flex-direction: row;
+  /* overflow: hidden */
 }
 
 .v-btn.center{
@@ -226,8 +235,13 @@ export default {
   flex-direction: column-reverse;
   position: absolute;
   width: 25%;
-	height: 30%;
+	height: 40%;
 	left: 0%;
 	bottom: 0%;
+},
+
+.currentTrumpDP{
+  	left: 0%;
+	bottom: 30%;
 }
 </style>

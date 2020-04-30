@@ -13,7 +13,7 @@
       indeterminate
     ></v-progress-circular>
 
-    <v-btn @click="test1"> test</v-btn>
+    <v-btn class="loadingReminder_Btn" :disabled="loadNotCompleteCM" @click="test1"> START</v-btn>
     </v-container>
   </v-content>
 </template>
@@ -45,6 +45,16 @@ export default {
       this.$store.commit('loadingDisable')
       this.$router.push('/gameBoard')
       console.log(this.$store.state.loadEnable)
+    }
+  },
+
+  computed:{
+    loadNotCompleteCM(){
+      if(this.$store.state.loadNotComplete){
+        return true
+      } else{
+        return false
+      }
     }
   }
 
@@ -85,5 +95,11 @@ p {
   position:  absolute;
   left: 50%;
   top: 45%
+  }
+
+  .loadingReminder_Btn {
+  position:  absolute;
+  left: 50%;
+  top: 60%
   }
 </style>
