@@ -51,6 +51,7 @@ public class RandomPlayer extends Player {
             if (trumpSuitBid) {
                 suit = "SPADES";
             }
+            System.out.println("AM I STUCK");
         } while (!validBid.test(new PotentialBid(null, Integer.toString(bid), adjustedHighestBid, this, firstRound)));
         return new Bid(false, suit, bid, true, false);
     }

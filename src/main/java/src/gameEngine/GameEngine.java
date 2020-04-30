@@ -1118,7 +1118,7 @@ public class GameEngine extends WebSocketServer {
                 int playerindex = request.get("playerindex").getAsInt();
                 boolean doubling = request.get("doubling").getAsBoolean();
                 String suit = request.get("suit").getAsString();
-                int bidValue = request.get("bidValue").getAsInt();
+                int bidValue = request.get("value").getAsInt();
                 boolean blind = request.get("blindBid").getAsBoolean();
                 boolean vulnerability = request.get("isPlayerVuln").getAsBoolean();
                 boolean firstRound = request.get("firstround").getAsBoolean();
