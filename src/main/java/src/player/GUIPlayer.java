@@ -15,6 +15,7 @@ import src.parser.GameDesc;
 import src.rdmEvents.Swap;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -88,6 +89,17 @@ public class GUIPlayer extends LocalPlayer {
 
     public void setWebSocket(WebSocket webSocket) {
         this.webSocket = webSocket;
+    }
+
+    @Override
+    public void broadcastDummyHand(int playerNumber, List<Card> dummyHand) {
+        JsonArray dummyHandArray = new JsonArray();
+        dummyHandArray.add(new Hand(dummyHand).toJsonArray());
+        JsonObject dummyplayer = new JsonObject();
+        dummyplayer.add("type", new JsonPrimitive("dummyplayer"));
+        dummyplayer.add("playerindex", new JsonPrimitive(playerNumber));
+        dummyplayer.add("playerhand", dummyHandArray);
+        webSocket.send(new Gson().toJson(dummyplayer));
     }
 
     public void setDesc(GameDesc desc) {

@@ -575,6 +575,14 @@ public class GameEngine extends WebSocketServer {
                         }
                     }
 
+                    //If a dummy player is in operation, show the hand to all players
+                    if (dummyPlayer >= 0) {
+                        for (Player player : playerArray) {
+                            player.broadcastDummyHand(dummyPlayer, playerArray[dummyPlayer].getHand().getHand());
+                        }
+
+                    }
+
                     //Each player plays a card
                     for (int i = 0; i < playerArray.length; i++) {
                         //Add the card played by the player to the current trick

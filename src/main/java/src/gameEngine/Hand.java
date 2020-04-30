@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import src.card.Card;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 
 
@@ -16,8 +17,8 @@ public class Hand implements Cloneable{
 
     private LinkedList<Card> hand;
 
-    public Hand(LinkedList<Card> hand) {
-        this.hand = hand;
+    public Hand(List<Card> hand) {
+        this.hand = new LinkedList<>(hand);
     }
 
     public Hand() {
