@@ -17,6 +17,7 @@ import src.gameEngine.PlayerRunner;
 import src.networking.DiscoverGames;
 import src.parser.Parser;
 import src.player.GUIPlayer;
+import src.player.POMDPPlayer;
 import src.player.RandomPlayer;
 
 import java.io.File;
@@ -94,7 +95,7 @@ public class WebSocketHandler extends WebSocketServer {
                 thread.start();
                 for (int i = 0; i < request.get("aiplayers").getAsInt(); i++) {
                     System.out.println("AI started");
-                    PlayerRunner runner = new PlayerRunner(new RandomPlayer(),
+                    PlayerRunner runner = new PlayerRunner(new POMDPPlayer(),
                             "localhost",
                             request.get("port").getAsInt(),
                             true,
