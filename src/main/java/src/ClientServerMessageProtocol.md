@@ -228,7 +228,8 @@ Message format:
 First the Back-end makes a request to the front end, with a list of valid cards in the players hand:
 ```
 {
-    "type":"playcard",
+    "type":"getCard",
+    "playerhand": {json array of hand}
     "validcards":
     [{
         "rank":"TWO",

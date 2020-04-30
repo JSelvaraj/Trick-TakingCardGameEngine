@@ -342,8 +342,8 @@ public class GameEngine extends WebSocketServer {
 
     private void sendTrumpSuit() {
         JsonObject trumpMessage = new JsonObject();
-        trumpMessage.add("type", new JsonPrimitive("trumpsuit"));
-        trumpMessage.add("trump", new JsonPrimitive(trumpSuit.toString()));
+        trumpMessage.add("type", new JsonPrimitive("currenttrump"));
+        trumpMessage.add("suit", new JsonPrimitive(trumpSuit.toString()));
         webSocket.send(new Gson().toJson(trumpMessage));
     }
 
