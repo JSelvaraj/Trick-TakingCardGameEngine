@@ -120,7 +120,7 @@ public class WebSocketHandler extends WebSocketServer {
                 tunnel = connectTunnel();
                 break;
             case "playcard":
-            case "makebid":
+            case "givebid":
             case "getswap":
                 tunnel.send(message); //can ignore due to protocol, tunnel will never be null here
                 break;

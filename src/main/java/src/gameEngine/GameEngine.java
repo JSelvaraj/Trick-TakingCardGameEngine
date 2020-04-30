@@ -1100,7 +1100,7 @@ public class GameEngine extends WebSocketServer {
                     conn.send(gson.toJson(error));
                     break;
                 }
-            case "makebid":
+            case "givebid":
                 int playerindex = request.get("playerindex").getAsInt();
                 boolean doubling = request.get("doubling").getAsBoolean();
                 String suit = request.get("suit").getAsString();
