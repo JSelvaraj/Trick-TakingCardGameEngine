@@ -166,7 +166,6 @@ public class GameEngine {
                 if (gameDesc.getFirstTrickLeader().equals("contract")) {
                     //Get the declarer of the final bid, set the player to lead the trick as to the 'left'
                     currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
-                    System.out.println("Starting player is :" + currentPlayer);
                     //Set dummy player to the declarer's partner
                     dummyPlayer = game.nextPlayerIndex.apply(game.nextPlayerIndex.apply(currentPlayer));
                     currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
@@ -486,7 +485,6 @@ public class GameEngine {
                         if (desc.isAscendingBid()) {
                             if (desc.isTrumpSuitBid()) {
                                 if (!(getAdjustedHighestBid().getSuit().equals(bid.getSuit())) || getAdjustedHighestBid().getTeam() != players[currentPlayer].getTeam()) {
-                                    System.out.println("Declarer is now");
                                     getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
                                 }
                                 getAdjustedHighestBid().setSuit(bid.getSuit());

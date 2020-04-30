@@ -41,7 +41,7 @@ public class NetworkPlayer extends Player {
 
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) {
-        System.out.println("Player:" + getPlayerNumber());// when you're receiving a card
+        // when you're receiving a card
         StringBuilder message = new StringBuilder();
         JsonElement msg = null;
         msg = reader.next();
