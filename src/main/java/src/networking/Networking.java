@@ -464,6 +464,7 @@ public class Networking {
                     JSONObject playerNumberJSON = new JSONObject();
                     playerNumberJSON.put("type", "playernumber");
                     playerNumberJSON.put("index", playerNumber);
+                    webSocket.send(playerNumberJSON.toString());
                 }
 
             }
