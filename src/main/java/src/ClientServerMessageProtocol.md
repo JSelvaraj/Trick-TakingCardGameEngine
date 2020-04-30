@@ -187,7 +187,8 @@ Request:
     "bidblindenabled":boolean,
     "numberofrounds":[number array],
     "suits":["CLUBS", "SPADES", "HEARTS", "DIAMONDS", "NO TRUMP"], /* only here if suitenabled == true */
-    "isPlayerVuln":boolean /* Don't worry about what this is, just copy it to response */
+    "isPlayerVuln":boolean, /* Don't worry about what this is, just copy it to response */
+    "firstround":boolean
 }
 ```
 Response Format:
@@ -198,10 +199,27 @@ Response Format:
     "doubling": boolean,
     "suit": Suit,
     "value": number,
-    "blindBid" : boolean
-    "isPlayerVuln":boolean 
+    "blindBid" : boolean,
+    "isPlayerVuln":boolean, 
+    "firstround":boolean
 }
 ```
+### Broadcast Bids
+The Back-end sends the bids from the other players to the front-end:
+```
+{
+    type:bid,
+    "playerindex":number,
+    "doubling": boolean,
+    "suit": Suit,
+    "value": number,
+    "blindBid" : boolean,
+    "isPlayerVuln":boolean, 
+}
+```
+
+
+
 ### Telling front-end the current trump suit
 Message format:
 ```
@@ -314,7 +332,7 @@ When the Match ends a message is sent to the GUI:
 }
 ```
 
-        
+
 
 
     

@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.java_websocket.WebSocket;
+import org.json.JSONObject;
 import src.bid.Bid;
 import src.bid.ContractBid;
 import src.bid.PotentialBid;
@@ -39,6 +40,25 @@ public class GUIPlayer extends LocalPlayer {
         System.out.println("PLAYCARD REQUEST: " + new Gson().toJson(request));
         webSocket.send(new Gson().toJson(request));
         return new Card("JOKER", "14");
+    }
+
+    @Override
+    public void broadcastBid(Bid bid, int playerNumber, ContractBid adjustedHighestBid) {
+        JSONObject json = new JSONObject();
+        json.put("type", "bid");
+        json.put("playerindex", playerNumber);
+        json.put("doubling", bid.isDoubling());
+
+        if (bid.getSuit() != null) {
+            if (bid.getSuit().equals("NO TRUMP")) {
+                json.put("suit", JSONObject.NULL);
+            } else {
+                json.put("suit", bid.getSuit());
+            }
+        }
+        json.put("value", bid.getBidValue());
+        json.put("blindBid", bid.isBlind());
+        webSocket.send(json.toString());
     }
 
     @Override

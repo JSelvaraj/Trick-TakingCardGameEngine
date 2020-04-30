@@ -1039,7 +1039,7 @@ public class GameEngine extends WebSocketServer {
             }
         } else { //Only need to print out network moves to local players
             for (Player player : playerArray) {
-                if (player.getClass() == LocalPlayer.class) {
+                if (player instanceof LocalPlayer) { //GUI player extends localplayer so this works
                     player.broadcastBid(bid, playerNumber, getAdjustedHighestBid());
                 }
             }
