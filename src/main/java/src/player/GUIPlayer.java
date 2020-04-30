@@ -43,7 +43,6 @@ public class GUIPlayer extends LocalPlayer {
     public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, boolean firstRound, boolean canBidBlind) {
         JsonObject request = new JsonObject();
         request.add("type", new JsonPrimitive("makebid"));
-        //initialize possible bid values for each field of PotentialBid
 
 
         request.add("suitenabled", new JsonPrimitive(trumpSuitBid));
