@@ -36,13 +36,53 @@ export default new Vuex.Store({
      numberofroundsenabledBID: '',
      doublingenabledBID: '',
      passingenabledBID: '',
-     bidlindenabledBID: '',
+     bidblindenabledBID: '',
      numberofroundsBID: [],
      suitsBID:[],
      isPlayerVulnBID: '',
      firstroundBID: ''
   },
   mutations: {
+
+    //for bidding
+
+    setSuitenabledBID(state, suitenabledINPUT){
+      state.suitenabledBID = suitenabledINPUT
+    },
+
+    setNumberofroundsenabledBID(state, numberofroundsenabledINPUT){
+      state.numberofroundsenabledBID = numberofroundsenabledINPUT
+    },
+
+    setNumberofroundsBID(state, numberofroundsINPUT){
+      state.numberofroundsBID = numberofroundsINPUT
+    },
+
+    setDoublingenabledBID(state, doublingenabledINPUT){
+      state.doublingenabledBID = doublingenabledINPUT
+    },
+
+    setPassingenabledBID(state, passingenabledINPUT){
+      state.passingenabledBID = passingenabledINPUT
+    },
+
+    setBidblindenabledBID(state, bidlindenabledINPUT){
+      state.bidblindenabledBID = bidlindenabledINPUT
+    },
+
+    setSuitsBID(state, suitsINPUT){
+      state.suitsBID = suitsINPUT
+    },
+
+    setIsPlayerVulnBID(state, isPlayerVulnINPUT){
+      state.isPlayerVulnBID = isPlayerVulnINPUT
+    },
+
+    setFirstroundBID(state, firstroundINPUT){
+      state.firstroundBID = firstroundINPUT
+    },
+    //
+
 
     setLoadNotComplete (state, booleanTrigger) {
       state.loadNotComplete = booleanTrigger

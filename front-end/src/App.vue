@@ -59,7 +59,81 @@ export default {
     },
     toConfirm () {
       this.$router.push('/confirmation')
-    }
+    },
+
+       getRank(rank){
+      switch (rank){
+
+        case 'ACE':
+          return A
+        break
+
+        case 'TWO':
+          return 2
+        break
+
+        case 'THREE':
+          return 3
+        break
+
+        case 'FOUR':
+          return 4
+        break
+
+        case 'FIVE':
+          return 5
+        break
+
+        case 'SIX':
+          return 6
+        break
+
+        case 'SEVEN':
+          return 7
+        break
+
+        case 'EIGHT':
+          return 8
+        break
+
+        case 'NINE':
+          return 9
+        break
+
+        case 'TEN':
+          return 10
+        break
+
+        case 'JACK':
+          return J
+        break
+
+        case 'QUEEN':
+          return Q
+        break
+
+        case 'KING':
+          return K
+        break
+
+        default:
+          return null;
+          break
+      }
+    },
+
+      getSuit(suitInput){
+      switch(suitInput){
+        case 'SPADE':
+          return ''
+        break
+
+        default:
+          return null;
+          break
+      }
+    },
+
   },
 
   mounted () {
@@ -68,8 +142,7 @@ export default {
 
       const temp = JSON.parse(data.data)
       console.log(temp.type)
-      console.log(temp.data)
-
+    
       switch (temp.type) {
         case 'DiscoverGame':
           console.log(temp.beacons)
@@ -320,9 +393,45 @@ export default {
 
 
         case 'makebid':
-          
-          
 
+          this.$store.commit('setLoadNotComplete', false)
+
+          console.log('setSuitenabledBID '+ temp.suitenabled)
+          console.log('setNumberofroundsenabledBID '+ temp.numberofroundsenabled)
+          console.log('setDoublingenabledBID ' + temp.doublingenabled)
+          console.log('setPassingenabledBID ' + temp.passingenabled)
+          console.log('setBidblindenabledBID '+ temp.bidblindenabled)
+          console.log('setIsPlayerVulnBID '+  temp.isPlayerVuln)
+          console.log('setFirstroundBID '+ temp.firstround)
+
+          this.$store.commit('setSuitenabledBID', temp.suitenabled)
+          this.$store.commit('setNumberofroundsenabledBID', temp.numberofroundsenabled)
+          this.$store.commit('setDoublingenabledBID', temp.doublingenabled)
+          this.$store.commit('setPassingenabledBID', temp.passingenabled)
+          this.$store.commit('setBidblindenabledBID', temp.bidlindenabled)
+          this.$store.commit('setIsPlayerVulnBID', temp.isPlayerVuln)
+          this.$store.commit('setFirstroundBID', temp.firstround)
+
+          var tempNumberofroundsBID = [];
+          var tempSuitBID = [];
+          
+          var tsb;
+          var tnfb;
+          
+          if(temp.suitenabled){
+            for(tsb in temp.suits){
+              tempSuitBID.push(temp.suits[tsb])
+              console.log(temp.suits[tsb])
+            }
+          }
+
+          for (tnfb in temp.numberofrounds){
+            tempNumberofroundsBID.push(temp.numberofrounds[tnfb])
+            console.log(temp.numberofrounds[tnfb])
+          }
+          //arrays
+          this.$store.commit('setSuitsBID', tempSuitBID)
+          this.$store.commit('setNumberofroundsBID', tempNumberofroundsBID)
           break
         default:
           console.log('TEST' + temp.type)

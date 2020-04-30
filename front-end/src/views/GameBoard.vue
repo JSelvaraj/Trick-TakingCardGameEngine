@@ -32,13 +32,26 @@
 
          <div class="displayCard">
            <div v-for="(item,i) in this.$store.state.displayCardPool" :key='i'>
-            <v-btn> {{item.rank}} {{item.suit}}</v-btn>
+
+             <div class="playingCards fourColours faceImages simpleCards inText rotateHand">
+                <v-btn> 
+                  {{item.rank}}
+                  {{item.suit}}
+                  </v-btn>
+             </div>
+            
            </div>
          </div>
        
         <div class="playerHand">
         <div v-for="(item,i) in this.$store.state.myHandCards" :key='i'>
         <v-btn @click="sendCard(item.rank,item.suit)"> {{item.suit}} {{item.rank}}</v-btn>
+
+
+<!-- <span class="rank">{{this.getRank(item.rank)}}</span>
+                  <span class="suit">&spades;</span> -->
+
+
 
         <!-- <v-btn> Card 1 -->
         <!-- <img src='../assets/img/0C.png'> -->
@@ -74,6 +87,8 @@
       
           <p> {{this.$store.state.currenttrump}}</p>
    
+
+        <v-btn @giveBID()> TEST FOR BIDDING</v-btn>
     </v-container>
   </v-content>
 </template>
@@ -137,6 +152,26 @@ export default {
       })
     },
 
+    giveBID(){
+      this.$socket.sendObj({
+    "type":"givebid",
+    "playerindex":0,
+    "doubling": true,
+    "suit": CLUBS,
+    "value": 5,
+    "blindBid" : true,
+    "isPlayerVuln":true ,
+    "firstround": true
+        
+      })
+
+
+//       {
+
+
+// }
+    }
+
   //   scrollToElement() {
   //   const el = this.$el.getElementsByClassName('textArea')[0];
 
@@ -144,6 +179,10 @@ export default {
   //     el.scrollIntoView();
   //   }
   // }
+  },
+
+
+  computed:{
   },
 
   mounted(){
@@ -154,6 +193,8 @@ export default {
 </script>
 
 <style>
+
+ @import '../assets/cards/cards.css';
 
 .playerPositionW {
   position: absolute;
