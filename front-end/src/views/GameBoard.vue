@@ -2,24 +2,40 @@
 <template>
   <v-content>
     <v-container >
-
-        <div class="reminder">
-            test
-        </div>
-        <v-btn class="playerPosition1"
+        <h1>
+      GAME BOARD
+    </h1>
+        <v-btn class="playerPositionW"
+        > 
+        
+        <i>Player 1</i>
+        <v-icon>mdi-account</v-icon>
+        </v-btn>
+        <v-btn class="playerPositionN"
        
-        > Player 1</v-btn>
-        <v-btn class="playerPosition2"
-       
-        > Player 2</v-btn>
-        <v-btn class="playerPosition3"
+        > 
+        <i>Player 2</i>
+        <v-icon>mdi-account</v-icon>
+        </v-btn>
+        <v-btn class="playerPositionE"
       
-        > Player 3</v-btn>
-        <v-btn class='playerPosition4'
+        > 
+        <i>Player 3</i>
+        <v-icon>mdi-account</v-icon>
+        </v-btn>
+        <v-btn class='playerPositionS'
            
-         @click="changeP1"> Player {{this.$store.state.myselfIndex}}</v-btn>
-        <v-btn class="displayCard"> {{this.$store.state.displayCard.rank}} {{this.$store.state.displayCard.suit}}</v-btn>
+         @click="changeP1"> 
+         <i>Player {{this.$store.state.myselfIndex}}</i>
+        <v-icon>mdi-account</v-icon>
+         </v-btn>
 
+         <div class="displayCard">
+           <div v-for="(item,i) in this.$store.state.displayCardPool" :key='i'>
+            <v-btn> {{item.rank}} {{item.suit}}</v-btn>
+           </div>
+         </div>
+       
         <div class="playerHand">
         <div v-for="(item,i) in this.$store.state.myHandCards" :key='i'>
         <v-btn @click="sendCard(item.rank,item.suit)"> {{item.suit}} {{item.rank}}</v-btn>
@@ -135,7 +151,7 @@ export default {
 
 <style>
 
-.playerPosition1 {
+.playerPositionW {
   position: absolute;
 	top: 30%;
 	left: 30%;
@@ -149,21 +165,21 @@ export default {
   color: red;
 } */
 
-.playerPosition2 {
+.playerPositionN {
   position: absolute;
 	top: 10%;
 	/* width: 30%;
 	height: 30%; */
 	left: 50%;
 }
-.playerPosition3 {
+.playerPositionE {
   position: absolute;
 	top: 30%;
 	/* width: 30%;
 	height: 30%; */
 	left: 70%;
 }
-.playerPosition4 {
+.playerPositionS {
   position: absolute;
 	/* width: 30%;
 	height: 30%; */
@@ -173,8 +189,13 @@ export default {
 
 .displayCard{
   position: absolute;
-  	top: 30%;
-	left: 50%;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column-reverse;
+  width: 15%;
+	height: 20%;
+  	top: 25%;
+	left: 45%;
 }
 
 .playerHand {

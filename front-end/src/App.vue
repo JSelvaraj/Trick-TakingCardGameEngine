@@ -111,14 +111,22 @@ export default {
 
           this.$store.commit('setPlayerTurn', tempPlayers)
           this.$store.commit('setCurPlayerIndex', temp.playerindex)
+          console.log('PLAYER NUMBERS: '+ this.$store.state.players.length)
+          var tempDPCardPool = this.$store.state.displayCardPool;
+
+          if(tempDPCardPool.length>3){
+            tempDPCardPool = []
+          }
 
           const tempDPCard = {
             rank: temp.card.rank, // TODO
             suit: temp.card.suit,
             imgPath: ''
           }
+          tempDPCardPool.push(tempDPCard)
 
           this.$store.commit('setDisplayCard', tempDPCard)
+          this.$store.commit('setDisplayCardPool', tempDPCardPool)
           break
 
         case 'playerhands':
@@ -190,6 +198,10 @@ export default {
           // Team: (1, 3)     0
 
           var winningMessage = 'Winning card: ' + temp.card.rank + ' ' + temp.card.suit + '\n' + 'Playerindex: ' + temp.playerindex + ' win this trick \n'
+          
+          var tempDPCardPoolClear = []
+
+          this.$store.commit('setDisplayCardPool', tempDPCardPoolClear)
           this.$store.commit('appendGameMessage', winningMessage)
           break
 
@@ -222,6 +234,11 @@ export default {
           this.$store.commit('appendGameMessage', matchendMessage)
           break
 
+         case 'currenttrump':
+
+          var currenttrumpMessage = 'Current Trump' + temp.suit + '\n'
+          this.$store.commit('appendGameMessage', currenttrumpMessage)
+          break
         default:
           console.log('TEST' + temp.type)
       }

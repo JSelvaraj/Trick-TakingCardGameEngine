@@ -13,6 +13,7 @@ export default new Vuex.Store({
       suit: '',
       imgPath: ''
     },
+    displayCardPool: [],
     currenttrump: '',
     myselfIndex: 0,
     curPlayerIndex: undefined,
@@ -53,6 +54,10 @@ export default new Vuex.Store({
       state.displayCard.rank = card.rank
       state.displayCard.suit = card.suit
       state.displayCard.imgPath = card.imgPath
+    },
+
+    setDisplayCardPool (state, cardpool) {
+      state.displayCardPool = cardpool
     },
 
     setMyHandCards (state, cards) {
@@ -96,8 +101,8 @@ export default new Vuex.Store({
     },
 
     appendGameMessage (state, newMessage) {
-      state.gameMessage= state.gameMessage + newMessage + '\n'
-      console.log("TEST GAME MESSAGE: "+ state.gameMessage)
+      state.gameMessage = state.gameMessage + newMessage + '\n'
+      console.log('TEST GAME MESSAGE: ' + state.gameMessage)
     }
   },
 
