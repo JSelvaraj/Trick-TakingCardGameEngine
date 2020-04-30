@@ -97,10 +97,23 @@ export default {
           break
 
         case 'cardplayed':
+
+          var tempPlayers = []
+          tempPlayers = this.$store.state.players
+          var p
+          for (p in tempPlayers) {
+            if (p === temp.playerindex) {
+              tempPlayers[p].myturn = true
+            } else {
+              tempPlayers[p].myturn = false
+            }
+          }
+
+          this.$store.commit('setPlayerTurn', tempPlayers)
           this.$store.commit('setCurPlayerIndex', temp.playerindex)
 
           const tempDPCard = {
-            rank: temp.card.rank,
+            rank: temp.card.rank, // TODO
             suit: temp.card.suit,
             imgPath: ''
           }
@@ -143,22 +156,72 @@ export default {
           break
 
         // TODO
-        case 'playcard':
+        case 'getCard':
           var a;
           var b;
+          var getCardMessage= 'Vaild Cards: \n';
+          var gccount;
 
-          var tempHandCardsVaildCheck = [];
-          tempHandCardsVaildCheck = this.$store.state.myHandCards;
+          var tempHandCardsVaildCheck = []
+          tempHandCardsVaildCheck = this.$store.state.myHandCards
+
           for (a in tempHandCardsVaildCheck) {
-            console.log('TEST_THC ' + tempHandCards[test1].suit + ' ' + tempHandCards[test1].rank)
             for (b in temp.validcards) {
               if ((tempHandCardsVaildCheck[a].rank === temp.validcards[b].rank) && (tempHandCardsVaildCheck[a].suit === temp.validcards[b].suit)) {
-                this.tempHandCardsVaildCheck[a].todisable = false
+                tempHandCardsVaildCheck[a].todisable = false
               }
             }
           }
+
+          for(gccount in temp.validcards){
+            getCardMessage = getCardMessage + 'Rank: ' + temp.validcards[gccount].rank + ' Suit: ' + temp.validcards[gccount].suit + '\n'
+          }
+          this.$store.commit('appendGameMessage', getCardMessage)
           this.$store.commit('setMyHandCards', tempHandCardsVaildCheck)
           break
+
+        case 'winningcard':
+          // {"type":"winningcard","card":{"rank":"JACK","suit":"DIAMONDS"},"playerindex":0}
+          // {"type":"trumpbroken"}
+          // {"type":"gameendmessage","scores":[{"teamnumber":0,"teamscore":1},{"teamnumber":1,"teamscore":0}]}
+          // {"type":"gameendmessage","scores":[{"teamnumber":0,"teamscore":5},{"teamnumber":1,"teamscore":0}]}
+          // {"type":"matchendmessage","scores":[{"teamnumber":0,"teamscore":5},{"teamnumber":1,"teamscore":0}]}
+          // Team: (0, 2)     5
+          // Team: (1, 3)     0
+
+          var winningMessage = 'Winning card: ' + temp.card.rank + ' ' + temp.card.suit + '\n' + 'Playerindex: ' + temp.playerindex + ' win this trick \n'
+          this.$store.commit('appendGameMessage', winningMessage)
+          break
+
+        case 'trumpbroken':
+
+          var trumpbrokenMessage = 'Trump Broken \n'
+          this.$store.commit('appendGameMessage', trumpbrokenMessage)
+          break
+
+        case 'gameendmessage':
+          var gameendMessage = 'Game End: \n '
+
+          var gecount
+          for (gecount in temp.scores) {
+            var tempMessageForGE = 'Team Number: ' + temp.scores[gecount].teamnumber + ' Score: ' + temp.scores[gecount].teamscore + '\n'
+            gameendMessage = gameendMessage + tempMessageForGE;
+          }
+          this.$store.commit('appendGameMessage', gameendMessage)
+          break
+
+        case 'matchendmessage':
+
+          var matchendMessage = 'Match End: \n '
+
+          var mecount
+          for (mecount in temp.scores) {
+            var tempMessageForME = 'Team Number: ' + temp.scores[mecount].teamnumber + ' Score: ' + temp.scores[mecount].teamscore + '\n'
+            matchendMessage = matchendMessage + tempMessageForME;
+          }
+          this.$store.commit('appendGameMessage', matchendMessage)
+          break
+
         default:
           console.log('TEST' + temp.type)
       }

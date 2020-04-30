@@ -123,6 +123,15 @@ export default {
     toGameRoom () {
       this.$router.push('/gameRoom')
       this.$store.commit('setMyselfIndex',0)
+
+
+      var i;
+    var players_temp = []
+    for (i = 0; i < 4; i++) {
+      players_temp.push({ myturn: false })
+    }
+    this.$store.commit('setPlayerArr', players_temp)
+
       // PostService.insertPosts("HostGame");
       this.$socket.sendObj({
         type: "HostGame",

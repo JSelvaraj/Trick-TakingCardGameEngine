@@ -16,7 +16,7 @@ export default new Vuex.Store({
     currenttrump: '',
     myselfIndex: 0,
     curPlayerIndex: undefined,
-    myHandCards:[],
+    myHandCards: [],
     handCards: [],
     // cards1: {
     //       rank: '',
@@ -25,7 +25,8 @@ export default new Vuex.Store({
     // }
     players: [],
     games: [],
-    loadingReminder:''
+    loadingReminder: '',
+    gameMessage: ''
   },
   mutations: {
     changeSelectGameTypes_vx (state, item) {
@@ -37,7 +38,7 @@ export default new Vuex.Store({
     },
 
     loadingDisable (state) {
-      state.loadEnable = false;
+      state.loadEnable = false
     },
 
     setMyselfIndex (state, n) {
@@ -54,19 +55,12 @@ export default new Vuex.Store({
       state.displayCard.imgPath = card.imgPath
     },
 
-    setMyHandCards(state,cards){
+    setMyHandCards (state, cards) {
       state.myHandCards = cards
     },
 
-    setPlayerTurn (state, index) {
-      var i
-      for (i = 0; i < players.length; i++) {
-        if (i === index) {
-          state.players[i].myturn = true
-        } else {
-          state.players[i].myturn = false
-        }
-      }
+    setPlayerTurn (state, newPlayers) {
+      state.players = newPlayers
     },
 
     addPlayers (state) {
@@ -86,7 +80,7 @@ export default new Vuex.Store({
       state.games = newGames
     },
 
-    changeLoadingReminder(state,reminder){
+    changeLoadingReminder (state, reminder) {
       state.loadingReminder = reminder
     },
 
@@ -98,23 +92,20 @@ export default new Vuex.Store({
     // },
 
     setPlayerArr (state, arr) {
-      state.players = arr;
-   }
+      state.players = arr
+    },
+
+    appendGameMessage (state, newMessage) {
+      state.gameMessage= state.gameMessage + newMessage + '\n'
+      console.log("TEST GAME MESSAGE: "+ state.gameMessage)
+    }
   },
 
   actions: {
     dataUpdate (context, payload) {
       context.commit('dataUpdate', payload)
-    },
-   
-
-    setPlayerTurn_AC(context, index){
-      context.commit('setPlayerTurn',index)
-    } 
-
+    }
   },
-
-   
   modules: {
   }
 })
