@@ -1,5 +1,8 @@
 package src.gameEngine;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import src.card.Card;
 
 import java.util.LinkedList;
@@ -79,6 +82,14 @@ public class Hand implements Cloneable{
 
     public void dropLast() {
         this.hand.removeLast();
+    }
+
+    public JsonArray toJsonArray() {
+        JsonArray array = new JsonArray();
+        for (Card card: hand) {
+            array.add(new Gson().fromJson(card.getJSON(), JsonObject.class));
+        }
+        return array;
     }
 
     @Override

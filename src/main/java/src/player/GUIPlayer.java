@@ -26,12 +26,11 @@ public class GUIPlayer extends LocalPlayer {
         JsonObject request = new JsonObject();
         request.add("type", new JsonPrimitive("getCard"));
         JsonArray validCardsJson = new JsonArray();
-        Consumer<Card> cardConsumer;
-        cardConsumer = card -> {
+        this.getHand().getHand().stream().filter(super.getCanBePlayed()).forEach(card -> {
             JsonObject cardJson = new Gson().fromJson(card.getJSON(), JsonObject.class);
             validCardsJson.add(cardJson);
-        };
-        this.getHand().getHand().stream().filter(super.getCanBePlayed()).forEach(cardConsumer);
+        });
+        request.add("playerhand", this.getHand().toJsonArray());
         request.add("validcards", validCardsJson);
         System.out.println("PLAYCARD REQUEST: " + new Gson().toJson(request));
         webSocket.send(new Gson().toJson(request));

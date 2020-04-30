@@ -1072,15 +1072,23 @@ public class GameEngine extends WebSocketServer {
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        JsonObject request = new Gson().fromJson(message, JsonObject.class);
+        Gson gson = new Gson();
+        JsonObject request = gson.fromJson(message, JsonObject.class);
         System.out.println("GAMEENGINE RECEIVED: " + message);
         switch (request.get("type").getAsString()) {
             case "playcard":
-                currentTrick.dropLast();
                 int index = request.get("playerindex").getAsInt();
-                currentTrick.getCard(playerArray[index].getHand().giveCard(Card.fromJson(new Gson().toJson(request.get("card")))));
-                getCardLock.release();
-                break;
+                if (playerArray[index].getCanBePlayed().test(Card.fromJson(gson.toJson(request.get("card"))))) {
+                    currentTrick.dropLast();
+                    currentTrick.getCard(playerArray[index].getHand().giveCard(Card.fromJson(gson.toJson(request.get("card")))));
+                    getCardLock.release();
+                    break;
+                } else {
+                    JsonObject error = new JsonObject();
+                    error.add("type", new JsonPrimitive("invalidCardMessage"));
+                    conn.send(gson.toJson(error));
+                    break;
+                }
             case "makebid":
                 JsonObject bidJson = request.getAsJsonObject("bid");
                 boolean doubling = bidJson.get("doubling").getAsBoolean();
