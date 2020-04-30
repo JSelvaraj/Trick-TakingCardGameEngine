@@ -180,23 +180,13 @@ Request:
 ```
 {
     "type":"makebid",
-    "validbids":
-    [ /* Bids are in same format as supergroup schema*/
-        {
-            type: "bid",
-            doubling: boolean,
-            suit: Suit,
-            value: number,
-            blindBid : boolean
-        },
-        {
-            type: "bid",
-            doubling: boolean,
-            suit: Suit,
-            value: number,
-            blindBid : boolean
-        }
-    ],
+    "suitenabled":boolean,
+    "numberofroundsenabled":boolean,
+    "doublingenabled":boolean,
+    "passingenabled":boolean,
+    "bidblindenabled":boolean,
+    "numberofrounds":[number array],
+    "suits":["CLUBS", "SPADES", "HEARTS", "DIAMONDS", "NO TRUMP"], /* only here if suitenabled == true */
     "isPlayerVuln":boolean /* Don't worry about what this is, just copy it to response */
 }
 ```
@@ -204,15 +194,12 @@ Response Format:
 ```
 {
     "type":"makebid",
-    "bid":
-    {
-        "type": "bid",
-        "doubling": boolean,
-        "suit": Suit,
-        "value": number,
-        "blindBid" : boolean
-        "isPlayerVuln":boolean 
-    }
+    "playerindex":number,
+    "doubling": boolean,
+    "suit": Suit,
+    "value": number,
+    "blindBid" : boolean
+    "isPlayerVuln":boolean 
 }
 ```
 ### Telling front-end the current trump suit

@@ -11,6 +11,7 @@ import org.java_websocket.server.WebSocketServer;
 import org.apache.commons.lang3.tuple.Pair;
 import src.bid.Bid;
 import src.bid.ContractBid;
+import src.bid.PotentialBid;
 import src.card.Card;
 import src.card.CardComparator;
 import src.deck.Deck;
@@ -447,6 +448,7 @@ public class GameEngine extends WebSocketServer {
             if (player instanceof GUIPlayer) {
                 System.out.println("SETTING PLAYER WEBSOCKET");
                 ((GUIPlayer) player).setWebSocket(game.webSocket);
+                ((GUIPlayer) player).setDesc(game.desc);
             }
         }
 
@@ -824,6 +826,7 @@ public class GameEngine extends WebSocketServer {
         do {
             //Gets a bid from a player - validation done through validBids.java
             do {
+                System.out.println("GETTING BIDDING");
                 currentBid = players[currentPlayer].makeBid(this.desc.getValidBid(), desc.isTrumpSuitBid(), adjustedHighestBid, firstRound, desc.isCanBidBlind());
                 getBidLock.acquire();
             } while (currentBid == null); //currentBid will only be null if it's a GUI player
@@ -1098,14 +1101,28 @@ public class GameEngine extends WebSocketServer {
                     break;
                 }
             case "makebid":
-                JsonObject bidJson = request.getAsJsonObject("bid");
-                boolean doubling = bidJson.get("doubling").getAsBoolean();
-                String suit = bidJson.get("suit").getAsString();
-                int bidValue = bidJson.get("bidValue").getAsInt();
-                boolean blind = bidJson.get("blindBid").getAsBoolean();
-                boolean vulnerability = bidJson.get("isPlayerVuln").getAsBoolean();
-                currentBid = new Bid(doubling, suit, bidValue, blind, vulnerability);
-                getBidLock.release();
+                int playerindex = request.get("playerindex").getAsInt();
+                boolean doubling = request.get("doubling").getAsBoolean();
+                String suit = request.get("suit").getAsString();
+                int bidValue = request.get("bidValue").getAsInt();
+                boolean blind = request.get("blindBid").getAsBoolean();
+                boolean vulnerability = request.get("isPlayerVuln").getAsBoolean();
+                boolean firstRound = request.get("firstround").getAsBoolean();
+                String bidInput;
+                if (doubling) {
+                    bidInput = "d";
+                } else {
+                    bidInput = String.valueOf(bidValue);
+                }
+                PotentialBid potentialBid = new PotentialBid(suit, bidInput, adjustedHighestBid, playerArray[playerindex], firstRound) ;
+                if (desc.getValidBid().test(potentialBid)) {
+                    currentBid = new Bid(doubling, suit, bidValue, blind, vulnerability);
+                    getBidLock.release();
+                } else {
+                    JsonObject error = new JsonObject();
+                    error.add("type", new JsonPrimitive("invalidBidMessage"));
+                    conn.send(gson.toJson(error));
+                }
                 break;
             case "getswap":
                 synchronized (getCardSwapLock) {
