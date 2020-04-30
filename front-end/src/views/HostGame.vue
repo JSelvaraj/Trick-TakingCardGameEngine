@@ -62,7 +62,7 @@ export default {
   }),
 
   created () {
-    this.gameTypes = ['Whist', 'Contract Whist', 'Spades', 'One Trick Pony'],
+    this.gameTypes = ['Whist', 'Contract Whist', 'Spades', 'One Trick Pony','Bridge'],
     // this.numOfAIPlayers = [0, 1, 2, 3]
      this.selectGameTypes = '',
      this.selectNumOfAIPlayer = null
@@ -71,7 +71,7 @@ export default {
   computed: {
     numOfAIPlayers_AP: function () {
       console.log(this.$store.state.selectGameTypes_vx)
-      if (this.$store.state.selectGameTypes_vx === 'Whist' || this.$store.state.selectGameTypes_vx === 'Contract Whist' || this.$store.state.selectGameTypes_vx === 'Spades') {
+      if (this.$store.state.selectGameTypes_vx === 'Whist' || this.$store.state.selectGameTypes_vx === 'Contract Whist' || this.$store.state.selectGameTypes_vx === 'Spades'||this.$store.state.selectGameTypes_vx === 'Bridge') {
         return [0, 1, 2, 3]
       } else if (this.$store.state.selectGameTypes_vx === 'One Trick Pony') {
         return [0, 1, 2]
@@ -90,7 +90,9 @@ export default {
         return "Games/spades.json"
       } else if (this.$store.state.selectGameTypes_vx === 'One Trick Pony') {
         return "Games/OneTrickPony.json"
-      } else {
+      } else if(this.$store.state.selectGameTypes_vx === 'Bridge'){
+        return "Games/bridge.json"
+      }else {
         return null
       }
     }
