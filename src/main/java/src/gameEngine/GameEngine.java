@@ -243,8 +243,7 @@ public class GameEngine extends WebSocketServer {
                         }
                     }
 
-                    //send trump suit to GUI
-                    game.sendTrumpSuit();
+
 
                     //Loop for all players to play a card
                     for (int i = 0; i < playerArray.length; i++) {
@@ -548,10 +547,9 @@ public class GameEngine extends WebSocketServer {
                     if (printMoves) {
                         System.out.println("Trump is " + game.trumpSuit.toString());
                     }
-                    //send trump suit to front-end
-                    JsonObject currentTrumpMsg = new JsonObject();
-                    currentTrumpMsg.add("type", new JsonPrimitive("currenttrump"));
-                    currentTrumpMsg.add("suit", new JsonPrimitive(game.trumpSuit.toString()));
+
+                    //send trump suit to GUI
+                    game.sendTrumpSuit();
 
                     //Check for a random event at start of trick if a HAND event isn't active - run logic if successful
                     if (enableRandomEvents) { //TODO random events were happening even when disabled, until if clause added.
