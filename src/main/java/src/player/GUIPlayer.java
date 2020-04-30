@@ -15,6 +15,7 @@ import src.parser.GameDesc;
 import src.rdmEvents.Swap;
 
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -36,7 +37,7 @@ public class GUIPlayer extends LocalPlayer {
         request.add("validcards", validCardsJson);
         System.out.println("PLAYCARD REQUEST: " + new Gson().toJson(request));
         webSocket.send(new Gson().toJson(request));
-        return null;
+        return new Card("JOKER", "14");
     }
 
     @Override
@@ -88,7 +89,6 @@ public class GUIPlayer extends LocalPlayer {
     public void setWebSocket(WebSocket webSocket) {
         this.webSocket = webSocket;
     }
-
 
     public void setDesc(GameDesc desc) {
         this.desc = desc;

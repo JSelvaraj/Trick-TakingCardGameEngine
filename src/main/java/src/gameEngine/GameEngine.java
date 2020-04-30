@@ -246,7 +246,6 @@ public class GameEngine extends WebSocketServer {
                     }
 
 
-
                     //Loop for all players to play a card
                     for (int i = 0; i < playerArray.length; i++) {
                         //Add the card played by the player to the current trick
@@ -510,7 +509,6 @@ public class GameEngine extends WebSocketServer {
                 }
 
 
-
                 currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
 
                 //Signal to players that a new hand has started.
@@ -581,8 +579,10 @@ public class GameEngine extends WebSocketServer {
                     for (int i = 0; i < playerArray.length; i++) {
                         //Add the card played by the player to the current trick
                         game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
-//                    System.out.println("CURRENT TRICK: " + game.currentTrick.toString());
-                        while (game.currentTrick.getHand().getLast() == null) { //last card should only be null if GUIplayer
+//                      System.out.println("CURRENT TRICK: " + game.currentTrick.toString());
+
+
+                        if (playerArray[currentPlayer] instanceof GUIPlayer) {
                             System.out.println("WAITING FOR CARD");
                             getCardLock.acquire();
                             System.out.println("GOT CARD");
@@ -1091,12 +1091,13 @@ public class GameEngine extends WebSocketServer {
         switch (request.get("type").getAsString()) {
             case "playcard":
                 int index = request.get("playerindex").getAsInt();
+                currentTrick.dropLast();
                 if (playerArray[index].getCanBePlayed().test(Card.fromJson(gson.toJson(request.get("card"))))) {
-                    currentTrick.dropLast();
                     currentTrick.getCard(playerArray[index].getHand().giveCard(Card.fromJson(gson.toJson(request.get("card")))));
                     getCardLock.release();
                     break;
                 } else {
+                    currentTrick.getCard(new Card("JOKER", "14"));
                     JsonObject error = new JsonObject();
                     error.add("type", new JsonPrimitive("invalidCardMessage"));
                     conn.send(gson.toJson(error));
@@ -1116,7 +1117,7 @@ public class GameEngine extends WebSocketServer {
                 } else {
                     bidInput = String.valueOf(bidValue);
                 }
-                PotentialBid potentialBid = new PotentialBid(suit, bidInput, adjustedHighestBid, playerArray[playerindex], firstRound) ;
+                PotentialBid potentialBid = new PotentialBid(suit, bidInput, adjustedHighestBid, playerArray[playerindex], firstRound);
                 if (desc.getValidBid().test(potentialBid)) {
                     currentBid = new Bid(doubling, suit, bidValue, blind, vulnerability);
                     getBidLock.release();
