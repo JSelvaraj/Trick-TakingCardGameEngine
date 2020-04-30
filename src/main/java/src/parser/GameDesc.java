@@ -50,6 +50,8 @@ public class GameDesc {
     private int initialHandSize;
     private Iterator<String> trumpIterator;
     private boolean trumpSuitBid;
+    private boolean canDouble;
+    private boolean canRedouble;
     private boolean ascendingBid;
     private int vulnerabilityThreshold;
     private boolean canBidBlind;
@@ -96,7 +98,9 @@ public class GameDesc {
                     int minBid,
                     int maxBid,
                     List<String> bidSuits,
-                    Deck deck) {
+                    Deck deck,
+                    boolean canDouble,
+                    boolean canRedouble) {
         this.name = name;
         this.NUMBEROFPLAYERS = numOfPlayers;
         this.teams = teams;
@@ -130,6 +134,8 @@ public class GameDesc {
         this.maxBid = maxBid;
         this.bidSuits = bidSuits;
         this.deck = deck;
+        this.canDouble = canDouble;
+        this.canRedouble = canRedouble;
     }
 
     @Override
@@ -293,5 +299,13 @@ public class GameDesc {
 
     public List<String> getBidSuits() {
         return bidSuits;
+    }
+
+    public boolean isCanDouble() {
+        return canDouble;
+    }
+
+    public boolean isCanRedouble() {
+        return canRedouble;
     }
 }
