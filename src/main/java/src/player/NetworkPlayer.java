@@ -162,7 +162,6 @@ public class NetworkPlayer extends Player {
         if (!type.equals("bid")) {
             throw new InvalidPlayerMoveException();
         }
-        System.out.println(msg);
         Bid bid;
         String value;
         String suit = null;
