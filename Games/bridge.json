@@ -309,21 +309,29 @@
                 "bonusPoints": 300
             },
             {
+                "handScoreMin": 0,
+                "handScoreMax": 0,
                 "trickTotal": 6,
                 "vulnerable": true,
                 "bonusPoints": 750
             },
             {
+                "handScoreMin": 0,
+                "handScoreMax": 0,
                 "trickTotal": 6,
                 "vulnerable": false,
                 "bonusPoints": 500
             },
-            { 
+            {
+                "handScoreMin": 0,
+                "handScoreMax": 0,
                 "trickTotal": 7,
                 "vulnerable": true,
                 "bonusPoints": 1500
             },
             {
+                "handScoreMin": 0,
+                "handScoreMax": 0,
                 "trickTotal": 7,
                 "vulnerable": false,
                 "bonusPoints": 1000

@@ -192,10 +192,10 @@ public class validBids {
                 BonusScore toAdd = null;
                 int bonus = bonusScore.getInt("bonusPoints");
                 boolean vulnerable = bonusScore.optBoolean("vulnerable");
-                if (bonusScore.has("handScoreMin") && bonusScore.has("trickTotal")) {
-                    throw new IllegalArgumentException("Can't have both keys.");
-                }
-                if (bonusScore.has("handScoreMin")) {
+//                if (bonusScore.has("handScoreMin") && bonusScore.has("trickTotal")) {
+//                    throw new IllegalArgumentException("Can't have both keys.");
+//                }
+                if (!bonusScore.has("trickTotal")) {
                     toAdd = new handScore(bonus, vulnerable, bonusScore.getInt("handScoreMin"), bonusScore.getInt("handScoreMax"));
                 } else {
                     toAdd = new SlamBonus(bonus, vulnerable, bonusScore.getInt("trickTotal"));
