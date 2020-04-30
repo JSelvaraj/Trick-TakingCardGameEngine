@@ -17,7 +17,7 @@
         > Player 3</v-btn>
         <v-btn class='playerPosition4'
            
-         @click="changeP1"> Player 4</v-btn>
+         @click="changeP1"> Player {{this.$store.state.myselfIndex}}</v-btn>
         <v-btn class="displayCard"> {{this.$store.state.displayCard.rank}} {{this.$store.state.displayCard.suit}}</v-btn>
 
         <div class="playerHand">
@@ -201,6 +201,8 @@ export default {
 
 .textArea {
   overflow-y: scroll;
+  display: flex;
+  flex-direction: column-reverse;
   position: absolute;
   width: 25%;
 	height: 30%;

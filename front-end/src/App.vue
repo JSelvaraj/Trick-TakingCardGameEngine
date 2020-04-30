@@ -157,10 +157,10 @@ export default {
 
         // TODO
         case 'getCard':
-          var a;
-          var b;
-          var getCardMessage= 'Vaild Cards: \n';
-          var gccount;
+          var a
+          var b
+          var getCardMessage = 'Vaild Cards: \n'
+          var gccount
 
           var tempHandCardsVaildCheck = []
           tempHandCardsVaildCheck = this.$store.state.myHandCards
@@ -173,7 +173,7 @@ export default {
             }
           }
 
-          for(gccount in temp.validcards){
+          for (gccount in temp.validcards) {
             getCardMessage = getCardMessage + 'Rank: ' + temp.validcards[gccount].rank + ' Suit: ' + temp.validcards[gccount].suit + '\n'
           }
           this.$store.commit('appendGameMessage', getCardMessage)
@@ -205,7 +205,7 @@ export default {
           var gecount
           for (gecount in temp.scores) {
             var tempMessageForGE = 'Team Number: ' + temp.scores[gecount].teamnumber + ' Score: ' + temp.scores[gecount].teamscore + '\n'
-            gameendMessage = gameendMessage + tempMessageForGE;
+            gameendMessage = gameendMessage + tempMessageForGE
           }
           this.$store.commit('appendGameMessage', gameendMessage)
           break
@@ -217,7 +217,7 @@ export default {
           var mecount
           for (mecount in temp.scores) {
             var tempMessageForME = 'Team Number: ' + temp.scores[mecount].teamnumber + ' Score: ' + temp.scores[mecount].teamscore + '\n'
-            matchendMessage = matchendMessage + tempMessageForME;
+            matchendMessage = matchendMessage + tempMessageForME
           }
           this.$store.commit('appendGameMessage', matchendMessage)
           break
