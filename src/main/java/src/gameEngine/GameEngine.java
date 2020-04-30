@@ -194,6 +194,7 @@ public class GameEngine extends WebSocketServer {
 
                 //Get bids from players if necessary
                 if (gameDesc.isBidding()) {
+
                     game.getBids(currentPlayer, playerArray);
                 }
 
@@ -508,8 +509,7 @@ public class GameEngine extends WebSocketServer {
                     }
                 }
 
-                //Sends every player's hand to the GUI
-                sendPlayerHands(playerArray, game, gson);
+
 
                 currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
 
@@ -524,6 +524,8 @@ public class GameEngine extends WebSocketServer {
                     game.getBids(currentPlayer, playerArray);
                 }
 
+                //Sends every player's hand to the GUI
+                sendPlayerHands(playerArray, game, gson);
                 //Set first player to left of declarer if needed //TODO: Get from game desc when added
                 int dummyPlayer = -1;
                 if (gameDesc.getFirstTrickLeader().equals("contract")) {
