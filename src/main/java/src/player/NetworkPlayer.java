@@ -40,7 +40,8 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public Card playCard(String trumpSuit, Hand currentTrick) { // when you're receiving a card
+    public Card playCard(String trumpSuit, Hand currentTrick) {
+        // when you're receiving a card
         StringBuilder message = new StringBuilder();
         JsonElement msg = null;
         msg = reader.next();
@@ -131,8 +132,7 @@ public class NetworkPlayer extends Player {
         if (bid.getSuit() != null) {
             if (bid.getSuit().equals("NO TRUMP")) {
                 json.put("suit", JSONObject.NULL);
-            }
-            else {
+            } else {
                 json.put("suit", bid.getSuit());
             }
         }
@@ -168,22 +168,20 @@ public class NetworkPlayer extends Player {
         boolean blind;
         boolean doubling = bidEvent.optBoolean("doubling", false);
         if (doubling) {
-            bid =  new Bid(true, null,0,false, false);
+            bid = new Bid(true, null, 0, false, false);
             value = "d";
-        }
-        else {
-            if (bidEvent.has("suit")) {
+        } else {
+            int valueInt = bidEvent.getInt("value");
+            blind = bidEvent.optBoolean("blindBid", false);
+            if ((trumpSuitBid && valueInt >= 0) || bidEvent.has("suit")) {
                 suit = bidEvent.optString("suit", null);
-                if (suit == null) {
+                if (suit == null || suit.equals("null")) {
                     suit = "NO TRUMP";
-                }
-                else {
+                } else {
                     suit = bidEvent.getString("suit");
                 }
             }
-            int valueInt = bidEvent.getInt("value");
-            blind = bidEvent.optBoolean("blindBid", false);
-            bid = new Bid(false,suit,valueInt,blind, false);
+            bid = new Bid(false, suit, valueInt, blind, false);
             value = Integer.toString(valueInt);
         }
         if (!validBid.test(new PotentialBid(suit, value, adjustedHighestBid, this, firstRound))) {

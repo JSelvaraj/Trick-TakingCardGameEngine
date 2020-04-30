@@ -9,6 +9,7 @@ import src.bid.PotentialBid;
 import src.player.LocalPlayer;
 import src.player.Player;
 import src.team.Team;
+import sun.rmi.server.LoaderHandler;
 
 import java.util.function.Predicate;
 
@@ -66,13 +67,13 @@ public class validBidsBridgeTest {
     @Test
     void reDoubleADoubleInBounds() {
         ContractBid adjustedHighestBid = new ContractBid(true, null, 3, false, false,false, null, team1);
-        assertTrue(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid, new LocalPlayer(3), false)));
+        assertTrue(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid, player1, false)));
     }
 
     @Test
     void reDoubleADoubleOutBounds() {
         ContractBid adjustedHighestBid = new ContractBid(true, null, 4, false, false,false, null, team1);
-        assertFalse(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid, new LocalPlayer(), false)));
+        assertFalse(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid, new LocalPlayer(3), false)));
     }
 
     @Test
@@ -84,7 +85,7 @@ public class validBidsBridgeTest {
     @Test
     void passAfterDouble() {
         ContractBid adjustedHighestBid = new ContractBid(true, null, 4, false, false, false,null, team1);
-        assertFalse(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid, new LocalPlayer(), false)));
+        assertTrue(bidValidator.test(new PotentialBid(null, "d", adjustedHighestBid, new LocalPlayer(), false)));
     }
 
     @Test

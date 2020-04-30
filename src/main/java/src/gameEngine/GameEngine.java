@@ -8,6 +8,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+import org.apache.commons.lang3.tuple.Pair;
 import src.bid.Bid;
 import src.bid.ContractBid;
 import src.card.Card;
@@ -109,7 +110,7 @@ public class GameEngine extends WebSocketServer {
      * Main driver method to start game logic for an instance
      *
      * @param gameDesc           The description of the game to run
-     * @param dealer             The index of player set to deal first
+     * @param startingDealer     The index of player set to deal first
      * @param playerArray        The array specifying the players in the game
      * @param seed               The seed used to initialise random actions
      * @param printMoves         Flag if moves should be printed for debugging
@@ -148,6 +149,7 @@ public class GameEngine extends WebSocketServer {
         }
         //Loop until session/match ends
         do {
+            int dealer = startingDealer;
             //Loop until game winning condition has been met
             do {
                 //Set the current player to the dealer
@@ -194,14 +196,17 @@ public class GameEngine extends WebSocketServer {
                     game.getBids(currentPlayer, playerArray);
                 }
 
-                //Set first player to left of declarer if needed //TODO: Get from game desc when added
+                //Set first player to left of declarer if needed //
                 int dummyPlayer = -1;
                 if (gameDesc.getFirstTrickLeader().equals("contract")) {
                     //Get the declarer of the final bid, set the player to lead the trick as to the 'left'
                     currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
-                    currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                     //Set dummy player to the declarer's partner
                     dummyPlayer = game.nextPlayerIndex.apply(game.nextPlayerIndex.apply(currentPlayer));
+                    currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
+                }
+                if (gameDesc.getFirstTrickLeader().equals("bidWinner")) {
+                    currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
                 }
 
                 if (printMoves) {
@@ -211,9 +216,10 @@ public class GameEngine extends WebSocketServer {
                 }
 
                 //Loop until hand has completed (all cards have been played)
+                int tricksPlayed = 0;
                 do {
                     //If the trump is based on bidding, set the trump suit based on the final bid
-                    if (gameDesc.getTrumpPickingMode().equals("bid")) {
+                    if (gameDesc.getTrumpPickingMode().equals("bid") && gameDesc.isTrumpSuitBid()) {
                         game.trumpSuit.replace(0, game.trumpSuit.length(), game.getAdjustedHighestBid().getSuit());
                     }
                     if (printMoves) {
@@ -250,10 +256,14 @@ public class GameEngine extends WebSocketServer {
                                 rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer);
                             }
                         }
+                        if (tricksPlayed == 0 && gameDesc.getTrumpPickingMode().equals("firstPlayed") && game.currentTrick.getHandSize() == 1) {
+                            game.trumpSuit.setLength(0);
+                            game.trumpSuit.append(game.currentTrick.get(0).getSUIT());
+                        }
                         //Rotate the play
                         currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
                     }
-
+                    tricksPlayed++;
                     //Determine winning card
                     Card winningCard = game.winningCard();
 
@@ -313,8 +323,9 @@ public class GameEngine extends WebSocketServer {
 
                 //Increment dealer for next hand
                 dealer = game.nextPlayerIndex.apply(dealer);
-
-                game.printScore();
+                if (printMoves) {
+                    game.printScore();
+                }
             } while (game.gameEnd()); //Check if game ending condition has been met
 
             //If match scoring is bestOf
@@ -356,16 +367,12 @@ public class GameEngine extends WebSocketServer {
                 if (score > desc.getTrickThreshold()) {
                     team.setGameScore(team.getGameScore() + (score - desc.getTrickThreshold()));
                 }
-                //Reset trick score
-                team.setTricksWon(0);
             }
         }
         if (desc.getCalculateScore().equals("trumpPointValue")) {
             for (Team team : getTeams()) {
                 int score = team.getCardsWon().stream().filter((card -> card.getSUIT().equals(trumpSuit.toString()))).mapToInt(Card::getPointValue).sum();
                 team.setGameScore(team.getGameScore() + score);
-                team.setTricksWon(0);
-                team.getCardsWon().clear();
             }
         }
         if (desc.getCalculateScore().equals("bid")) {
@@ -376,21 +383,14 @@ public class GameEngine extends WebSocketServer {
                 //Set the contract's vulnerability based on the declaring Team's state
                 getAdjustedHighestBid().setVulnerable(declaringTeam.isVulnerable());
                 //If the declaring team matched their contract, increment their game score accordingly (See validBids.java)
-                if (declaringTeam.getTricksWon() >= getAdjustedHighestBid().getBidValue()) {
-                    declaringTeam.setGameScore(declaringTeam.getGameScore() + desc.getEvaluateBid().apply(getAdjustedHighestBid(), declaringTeam.getTricksWon()));
-                }
-                //Otherwise, find the opposition team, and increment their game score accordingly
-                else {
-                    for (Team team : getTeams()) {
-                        if (team != declaringTeam) {
-                            team.setGameScore(team.getGameScore() + desc.getEvaluateBid().apply(getAdjustedHighestBid(), declaringTeam.getTricksWon()));
-                            break;
-                        }
-                    }
-                }
-                //Reset the tricks won for all teams
+                Pair<Integer, Integer> scores = desc.getEvaluateBid().apply(getAdjustedHighestBid(), declaringTeam.getTricksWon());
+                declaringTeam.setGameScore(declaringTeam.getGameScore() + scores.getLeft());
+                //find the opposition team, and increment their game score accordingly
                 for (Team team : getTeams()) {
-                    team.setTricksWon(0);
+                    if (team != declaringTeam) {
+                        team.setGameScore(team.getGameScore() + scores.getRight());
+                        break;
+                    }
                 }
             }
             //For spades style bid scoring
@@ -403,11 +403,14 @@ public class GameEngine extends WebSocketServer {
                     }
                     Bid bid = new Bid(false, null, teamBid, false, false);
                     //Increase score of winning team based on bid scoring system (See validBids.java)
-                    team.setGameScore(team.getGameScore() + desc.getEvaluateBid().apply(bid, team.getTricksWon()));
-                    //Reset tricks won for next round.
-                    team.setTricksWon(0);
+                    team.setGameScore(team.getGameScore() + desc.getEvaluateBid().apply(bid, team.getTricksWon()).getLeft());
                 }
             }
+        }
+        //Reset the tricks won for all teams
+        for (Team team : getTeams()) {
+            team.setTricksWon(0);
+            team.getCardsWon().clear();
         }
     }
 
@@ -823,7 +826,6 @@ public class GameEngine extends WebSocketServer {
                 //If the current highest bid is a double, then the new bid indicates a redouble
                 if (getAdjustedHighestBid().isDoubling()) {
                     //Set the current highest bid to a redouble
-                    getAdjustedHighestBid().setDoubling(false);
                     getAdjustedHighestBid().setRedoubling(true);
                 }
                 //Otherwise it's a standard double
@@ -831,8 +833,6 @@ public class GameEngine extends WebSocketServer {
                     getAdjustedHighestBid().setDoubling(true);
                     getAdjustedHighestBid().setRedoubling(false);
                 }
-                //Update the new highest bid team
-                getAdjustedHighestBid().setTeam(players[currentPlayer].getTeam());
             }
             //If it's not a double, it's either a pass or a standard bid
             else {
@@ -854,12 +854,16 @@ public class GameEngine extends WebSocketServer {
                     }
                     //Standard raising bid
                     else {
-                        if (desc.isTrumpSuitBid()) {
-                            getAdjustedHighestBid().setSuit(bid.getSuit());
-                            //If the suit has been raised, or a different team will now have the highest bid, update the declarer.
-                            if (!(getAdjustedHighestBid().getSuit().equals(bid.getSuit())) || getAdjustedHighestBid().getTeam() != players[currentPlayer].getTeam()) {
+                        if (desc.isAscendingBid()) {
+                            if (desc.isTrumpSuitBid()) {
+                                if (!(getAdjustedHighestBid().getSuit().equals(bid.getSuit())) || getAdjustedHighestBid().getTeam() != players[currentPlayer].getTeam()) {
+                                    getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
+                                }
+                                getAdjustedHighestBid().setSuit(bid.getSuit());
+                            } else if (getAdjustedHighestBid().getTeam() != players[currentPlayer].getTeam()) {
                                 getAdjustedHighestBid().setDeclarer(players[currentPlayer]);
                             }
+                            //If the suit has been raised, or a different team will now have the highest bid, update the declarer.
                         }
                         //Update current highest bid
                         getAdjustedHighestBid().setRedoubling(false);
@@ -895,7 +899,8 @@ public class GameEngine extends WebSocketServer {
     }
 
     //Method for checking if bidding should end
-    public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter, boolean firstRound) {
+    public boolean getBiddingEnd(Player[] players, int currentPlayer, int originalPlayer, int passCounter,
+                                 boolean firstRound) {
         //If contract style bidding, bidding ends when all players have passed in a row except for one, except for when it's the first round.
         if (desc.isAscendingBid()) {
             return passCounter != players.length - 1 || firstRound;
@@ -960,23 +965,17 @@ public class GameEngine extends WebSocketServer {
      * @return suit-value hashmap where the value is its rank based on how the game ranks suits
      * Note: lower map value = higher rank
      */
-    public static HashMap<String, Integer> generateSuitOrder(GameDesc desc, StringBuilder trumpSuit, Card leadingCard) {
+    public static HashMap<String, Integer> generateSuitOrder(GameDesc desc, StringBuilder trumpSuit, Card
+            leadingCard) {
         HashMap<String, Integer> suitMap = new HashMap<>();
         //Set default value for suits
         for (String suit : desc.getSUITS()) {
             suitMap.put(suit, 4);
         }
         //Refine ranking based on how the game chooses the trump
-        switch (desc.getTrumpPickingMode()) {
-            case "lastDealt"://follows through to 'fixed' case
-            case "predefined":
-            case "fixed":
-                suitMap.put(trumpSuit.toString(), 1);
-                if (leadingCard.getSUIT().equals(trumpSuit.toString()))
-                    suitMap.put(leadingCard.getSUIT(), 2);
-                break;
-            case "none":
-                break;
+        suitMap.put(leadingCard.getSUIT(), 2);
+        if (!desc.getTrumpPickingMode().equals("none")) {
+            suitMap.put(trumpSuit.toString(), 1);
         }
         return suitMap;
     }

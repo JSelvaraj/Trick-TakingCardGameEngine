@@ -1,6 +1,3 @@
-/*https://www.theguardian.com/lifeandstyle/2008/nov/22/rules-card-games-napoleon
-https://en.wikipedia.org/wiki/Napoleon_(card_game)
-*/
 {
   "name" : "Napoleon",
   "description" : "...",
@@ -35,7 +32,7 @@ https://en.wikipedia.org/wiki/Napoleon_(card_game)
     "overtrickPoints" : 0,
     "pointsForMatching" : 0,
     "penaltyPoints" : 0,
-    "minBid" : 0,
+    "minBid" : 2,
     "maxBid" : 5,
     "canBlindBid" : false,
     "canPass" : true,
@@ -45,28 +42,28 @@ https://en.wikipedia.org/wiki/Napoleon_(card_game)
       {
         "bidValue" : 2,  
         "bidName" : "Two",
-        "pointsGained" : 2,
+        "bonusPoints" : 2,
         "penalty" : 2,
         "contractPoints" : 0
       },
       {
         "bidValue" : 3,  
         "bidName" : "Three",
-        "pointsGained" : 3,
+        "bonusPoints" : 3,
         "penalty" : 3,
         "contractPoints" : 0
       },
       {
         "bidValue" : 4,  
         "bidName" : "Four",
-        "pointsGained" : 4,
+        "bonusPoints" : 4,
         "penalty" : 4,
         "contractPoints" : 0
       },
       {
         "bidValue" : 5,  
         "bidName" : "Nap",
-        "pointsGained" : 5,
+        "bonusPoints" : 5,
         "penalty" : 5,
         "contractPoints" : 0
       }
