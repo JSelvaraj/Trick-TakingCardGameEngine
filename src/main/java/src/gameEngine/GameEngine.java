@@ -243,6 +243,9 @@ public class GameEngine extends WebSocketServer {
                         }
                     }
 
+                    //send trump suit to GUI
+                    game.sendTrumpSuit();
+
                     //Loop for all players to play a card
                     for (int i = 0; i < playerArray.length; i++) {
                         //Add the card played by the player to the current trick
@@ -335,6 +338,13 @@ public class GameEngine extends WebSocketServer {
 
         //If game is specified to be best of set of games, find overall match winner
         findMatchWinner(gameDesc, game);
+    }
+
+    private void sendTrumpSuit() {
+        JsonObject trumpMessage = new JsonObject();
+        trumpMessage.add("type", new JsonPrimitive("trumpsuit"));
+        trumpMessage.add("trump", new JsonPrimitive(trumpSuit.toString()));
+        webSocket.send(new Gson().toJson(trumpMessage));
     }
 
     private static void setScoresAndVulnerability(GameDesc gameDesc, GameEngine game) {
