@@ -116,7 +116,7 @@ public class GameEngine extends WebSocketServer {
      * @param printMoves         Flag if moves should be printed for debugging
      * @param enableRandomEvents Flag if random events are enabled in the game
      */
-    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) throws InterruptedException {
+    public static void main(GameDesc gameDesc, int startingDealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) throws InterruptedException {
         //Start engine and set attributes based on game description
         GameEngine game = new GameEngine(gameDesc);
         Random rand = new Random(seed);
