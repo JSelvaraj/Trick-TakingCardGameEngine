@@ -30,6 +30,7 @@ public class Networking {
     private static final int SEED = new Random().nextInt();
     private static int currentNumberOfPlayers = 1;
     private static final Semaphore hostStarted = new Semaphore(0);
+    private static final Semaphore socketSemaphore = new Semaphore(1);
 
     public static int getCurrentNumberOfPlayers() {
         return currentNumberOfPlayers;
@@ -163,8 +164,10 @@ public class Networking {
 
         int playerNumber = -1;
         try {
+            socketSemaphore.acquire(1);
             Socket hostSocket = new Socket(ip, port); // connect to host
             ServerSocket serverSocket = new ServerSocket(localPort);
+            socketSemaphore.release(1);
             InetAddress address = InetAddress.getLocalHost();
             String addressString = address.getHostAddress();
             JSONObject playerInfo = new JSONObject();
@@ -217,12 +220,15 @@ public class Networking {
                 if (i == playerNumber) { // 0 is host, already connected
                     continue;
                 }
-
+                Socket socket2;
                 if (i < playerNumber) {
-                    NetworkPlayer networkPlayer = new NetworkPlayer(i, serverSocket.accept());
+//                    socketSemaphore.acquire();
+                    socket2 = serverSocket.accept();
+//                    socketSemaphore.release();
+                    NetworkPlayer networkPlayer = new NetworkPlayer(i, socket2);
                     players[i] = networkPlayer;
                     playerSockets.add(networkPlayer.getPlayerSocket());
-                } else if (i > playerNumber) {
+                } else {
                     PlayerInfo infoHolder = new PlayerInfo();
                     infoHolder.ip = info.get(i).ip;
                     infoHolder.port = info.get(i).port;
@@ -232,7 +238,9 @@ public class Networking {
 //                            break;
 //                        }
 //                    }
-                    Socket socket2 = new Socket(infoHolder.ip, infoHolder.port);
+                    socketSemaphore.acquire();
+                    socket2 = new Socket(infoHolder.ip, infoHolder.port);
+                    socketSemaphore.release();
                     NetworkPlayer networkPlayer = new NetworkPlayer(i, socket2);
                     players[i] = networkPlayer;
                     playerSockets.add(networkPlayer.getPlayerSocket());
@@ -266,7 +274,7 @@ public class Networking {
 
             System.out.println("Starting game");
             GameEngine.main(gameDesc, 0, players, seed, printMoves, enableRandomEvents);
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
 
