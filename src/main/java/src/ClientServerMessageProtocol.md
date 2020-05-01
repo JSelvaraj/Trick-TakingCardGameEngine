@@ -325,10 +325,12 @@ When the game ends a message is sent to the GUI:
     "type":"roundendmessage"
     "scores":
     [{
+        "members": [numbers]
         "teamnumber":number,
         "teamscore":number,
     },
     {
+        "members": [numbers]
         "teamnumber":number,
         "teamscore":number,
     }]
@@ -341,10 +343,12 @@ When the Match ends a message is sent to the GUI:
     "type":"roundendmessage"
     "scores":
     [{
+        "members": [numbers]
         "teamnumber":number,
         "teamscore":number,
     },
     {
+        "members": [numbers]
         "teamnumber":number,
         "teamscore":number,
     }]
