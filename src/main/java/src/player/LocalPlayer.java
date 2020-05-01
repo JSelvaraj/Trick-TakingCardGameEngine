@@ -47,8 +47,8 @@ public class LocalPlayer extends Player {
 
     protected String colour;
 
-    private POMDPPlayer aiPlayer = new POMDPPlayer();
-    private boolean aiTakeover = false;
+    POMDPPlayer aiPlayer = new POMDPPlayer();
+    boolean aiTakeover = false;
 
     public LocalPlayer(int playerNumber, Predicate<Card> validCard) {
         super(playerNumber, validCard);
@@ -267,4 +267,6 @@ public class LocalPlayer extends Player {
     public void setAiTakeover(boolean aiTakeover) {
         this.aiTakeover = aiTakeover;
     }
+
+
 }

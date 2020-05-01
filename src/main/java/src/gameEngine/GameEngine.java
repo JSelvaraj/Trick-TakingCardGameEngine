@@ -9,6 +9,7 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.apache.commons.lang3.tuple.Pair;
+import org.json.JSONObject;
 import src.bid.Bid;
 import src.bid.ContractBid;
 import src.bid.PotentialBid;
@@ -499,9 +500,16 @@ public class GameEngine extends WebSocketServer {
                     if (rdmEventHAND.equals("AI-TAKEOVER")) {
                         //Set weakest player to be taken over by AI
                         Player aiPLayer = rdmEventsManager.getRdmWeakestPlayer();
-                        if (aiPLayer instanceof LocalPlayer) {
+                        if (aiPLayer instanceof LocalPlayer) { //GUIplayer extends localplayer so no changes needed to take effect
                             ((LocalPlayer) aiPLayer).setAiTakeover(true);
                         }
+
+                        // Send to GUI that AI has taken over player
+                        JSONObject aiTakeover = new JSONObject();
+                        aiTakeover.put("type", "aitakeover");
+                        aiTakeover.put("playerindex", aiPLayer.getPlayerNumber());
+                        game.webSocket.send(aiTakeover.toString());
+
                     } else {
                         //Add special card to deck
                         rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
@@ -592,7 +600,7 @@ public class GameEngine extends WebSocketServer {
 //                      System.out.println("CURRENT TRICK: " + game.currentTrick.toString());
 
 
-                        if (playerArray[currentPlayer] instanceof GUIPlayer) {
+                        if (playerArray[currentPlayer] instanceof GUIPlayer && !((GUIPlayer) playerArray[currentPlayer]).isAiTakeover()) {
                             System.out.println("WAITING FOR CARD");
                             getCardLock.acquire();
                             System.out.println("GOT CARD");
@@ -840,7 +848,7 @@ public class GameEngine extends WebSocketServer {
 
 
                 currentBid = players[currentPlayer].makeBid(this.desc.getValidBid(), desc.isTrumpSuitBid(), adjustedHighestBid, firstRound, desc.isCanBidBlind());
-            if (players[currentPlayer] instanceof GUIPlayer) {
+            if (players[currentPlayer] instanceof GUIPlayer && !((GUIPlayer) players[currentPlayer]).isAiTakeover()) {
                 System.out.println("GETTING BIDDING");
                 getBidLock.acquire();
             }

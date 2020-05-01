@@ -272,11 +272,12 @@ Every card(including the one played by the local player) is sent to the front-en
 }
 ```
 ### Special Card Played
+This message is sent to the front-end. The front end should have a pop up saying a special card was played.
+If it was a "BOMB", it should say -10 points to playerindex player. If it was a "HEAVEN", then +10 points.
 ```
 {
     "type":"specialcard",
-    "player":1,
-    "team":1,
+    "playerindex":1,
     "cardtype":"bomb"
 }
 ```
@@ -333,7 +334,23 @@ When the Match ends a message is sent to the GUI:
 }
 ```
 
+### Dummy Hand Protocol
+When this message is sent to the FRONT-END, the hand of the playerindex player should be displayed for everyone
+```
+{
+    "type":"dummyplayer"
+    "playerindex":number
+    "playerhand":[Json Array of Player hand]
 
+```
 
-
+### AI takeover
+When this message is sent, it means that an AI is taking over playing the cards, and bidding. 
+No changes other than a notification are required.
+```
+{
+    "type":aitakeover,
+    "playerindex":number
+}
+```
     

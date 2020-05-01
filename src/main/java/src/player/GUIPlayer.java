@@ -28,6 +28,9 @@ public class GUIPlayer extends LocalPlayer {
 
     @Override
     public Card playCard(String trumpSuit, Hand currentTrick) {
+        if (aiTakeover){
+            return aiPlayer.playCard(trumpSuit, currentTrick);
+        }
         JsonObject request = new JsonObject();
         request.add("type", new JsonPrimitive("getCard"));
         JsonArray validCardsJson = new JsonArray();
@@ -63,6 +66,12 @@ public class GUIPlayer extends LocalPlayer {
 
     @Override
     public Bid makeBid(Predicate<PotentialBid> validBid, boolean trumpSuitBid, ContractBid adjustedHighestBid, boolean firstRound, boolean canBidBlind) {
+
+        if(aiTakeover){
+            System.out.println("AI takeover");
+            return aiPlayer.makeBid(validBid, trumpSuitBid, adjustedHighestBid, firstRound, canBidBlind);
+        }
+
         JsonObject request = new JsonObject();
         request.add("type", new JsonPrimitive("makebid"));
 
