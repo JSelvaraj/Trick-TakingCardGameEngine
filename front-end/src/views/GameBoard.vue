@@ -40,14 +40,14 @@
                       <!-- <img height="300px"
                               width="200px" 
                               :src="item.imgPath"></img> -->
-                    <v-btn class="singleCard">
-                       <p style="word-wrap: break-word;white-space: pre-line;">
-                         {{item.rank}} 
-                        {{item.suit}}</p> 
+                    <v-btn class="singleCard"
+                    large
+                    v-bind:color="(item.suit==='HEARTS'|| item.suit==='DIAMONDS') ? 'red' : 'black'"
+                    >
+                        <p style="word-wrap: break-word;white-space: pre-line;  color: white; font-size: small">
+             {{item.rank}} 
+          {{item.suit}}</p> 
                     </v-btn>
-                 
-             <!-- </div> -->
-
            </div>
          </div>
 
@@ -60,8 +60,11 @@
             :src="imgPath(item.imgPath)"></v-img>
           </div> -->
 
-          <v-btn class="singleCard" @click="sendCard(item.rank,item.suit)">
-           <p style=" word-wrap: break-word;white-space: pre-line;">
+          <v-btn class="singleCard" 
+          large
+           v-bind:color="(item.suit==='HEARTS'|| item.suit==='DIAMONDS') ? 'red' : 'black'"
+          @click="sendCard(item.rank,item.suit)">
+           <p style="word-wrap: break-word;white-space: pre-line;  color: white; font-size: small">
              {{item.rank}} 
           {{item.suit}}</p> 
           </v-btn>
@@ -140,7 +143,7 @@
           solo
         ></v-select>
         <v-checkbox 
-        v-if="this.$store.state.bidblindenabledBID"
+        v-if="this.$store.state.doublingenabledBID"
         v-model="doublingANSWER" class="mx-2" label="Doubling"></v-checkbox>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -361,7 +364,7 @@ export default {
   width: 15%;
 	height: 20%;
   	top: 25%;
-	left: 45%;
+	left: 50%;
 }
 
 .playerHand {
@@ -372,7 +375,7 @@ export default {
 	left: 28%;
 	bottom: 10%;
   text-align: start;
-  border:3px solid black;
+  /* border:3px solid black; */
    text-align:center;
    display: flex;
   flex-direction: row;
@@ -398,7 +401,7 @@ export default {
   position: absolute;
   width: 25%;
 	height: 40%;
-	left: 0%;
+	left: 1%;
 	bottom: 0%;
 },
 
@@ -418,12 +421,14 @@ export default {
 }
 
 .singleCard{
-  /* width: 3%;
-	height: 6%; */
+  width: 3%;
+	height: 6%;
    display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 2%;
-   word-break: keep-all;
+  margin: 1%;
+  /* width: 15%;
+	height: 30%; */
+
 }
 </style>
