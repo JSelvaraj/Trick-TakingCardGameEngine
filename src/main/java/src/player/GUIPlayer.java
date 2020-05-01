@@ -119,12 +119,11 @@ public class GUIPlayer extends LocalPlayer {
     @Override
     public void broadcastDummyHand(int playerNumber, List<Card> dummyHand) {
         JsonArray dummyHandArray = new JsonArray();
-        dummyHandArray.add(new Hand(dummyHand).toJsonArray());
         JsonObject dummyplayer = new JsonObject();
         dummyplayer.add("type", new JsonPrimitive("dummyplayer"));
         dummyplayer.add("playerindex", new JsonPrimitive(playerNumber));
         dummyplayer.add("playerhand", dummyHandArray);
-        System.out.println("SENDING DUMMY HAND TO GUI: " + new Gson().toJson(dummyplayer));
+        System.out.println("SENDING DUMMY HAND TO GUI: " + new Gson().toJson(new Hand(dummyHand).toJsonArray()));
         webSocket.send(new Gson().toJson(dummyplayer));
     }
 
