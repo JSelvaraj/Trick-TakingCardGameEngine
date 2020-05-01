@@ -122,7 +122,7 @@ public class GUIPlayer extends LocalPlayer {
 
     @Override
     public void broadcastDummyHand(int playerNumber, List<Card> dummyHand) {
-        JsonArray dummyHandArray = new Gson().toJson(new Hand(dummyHand).toJsonArray();
+        JsonArray dummyHandArray = new Hand(dummyHand).toJsonArray();
         JsonObject dummyplayer = new JsonObject();
         dummyplayer.add("type", new JsonPrimitive("dummyplayer"));
         dummyplayer.add("playerindex", new JsonPrimitive(playerNumber));
