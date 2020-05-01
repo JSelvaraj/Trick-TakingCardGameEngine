@@ -44,7 +44,7 @@
                     large
                     v-bind:color="(item.suit==='HEARTS'|| item.suit==='DIAMONDS') ? 'red' : 'black'"
                     >
-                        <p style=" word-wrap: break-word;white-space: pre-line; color: white;">
+                        <p style="word-wrap: break-word;white-space: pre-line;  color: white; font-size: small">
              {{item.rank}} 
           {{item.suit}}</p> 
                     </v-btn>
@@ -62,9 +62,9 @@
 
           <v-btn class="singleCard" 
           large
-          v-bind:color="item.suit===('HEARTS'||'DIAMONDS') ? 'red' : 'black'"
+           v-bind:color="(item.suit==='HEARTS'|| item.suit==='DIAMONDS') ? 'red' : 'black'"
           @click="sendCard(item.rank,item.suit)">
-           <p style="word-wrap: break-word;white-space: pre-line;  color: white;">
+           <p style="word-wrap: break-word;white-space: pre-line;  color: white; font-size: small">
              {{item.rank}} 
           {{item.suit}}</p> 
           </v-btn>
@@ -143,7 +143,7 @@
           solo
         ></v-select>
         <v-checkbox 
-        v-if="this.$store.state.bidblindenabledBID"
+        v-if="this.$store.state.doublingenabledBID"
         v-model="doublingANSWER" class="mx-2" label="Doubling"></v-checkbox>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -305,10 +305,6 @@ export default {
       set(value){
         this.$store.commit('setSuitsANSWER',value)
       }
-    },
-
-    cardColor:{
-      
     }
 
   },

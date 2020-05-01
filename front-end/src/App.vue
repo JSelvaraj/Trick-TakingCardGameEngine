@@ -514,13 +514,13 @@ export default {
 
           this.$store.commit('setLoadNotComplete', false)
 
-          // console.log('setSuitenabledBID ' + temp.suitenabled)
-          // console.log('setNumberofroundsenabledBID ' + temp.numberofroundsenabled)
-          // console.log('setDoublingenabledBID ' + temp.doublingenabled)
-          // console.log('setPassingenabledBID ' + temp.passingenabled)
-          // console.log('setBidblindenabledBID ' + temp.bidblindenabled)
-          // console.log('setIsPlayerVulnBID ' + temp.isPlayerVuln)
-          // console.log('setFirstroundBID ' + temp.firstround)
+          console.log('setSuitenabledBID ' + temp.suitenabled)
+          console.log('setNumberofroundsenabledBID ' + temp.numberofroundsenabled)
+          console.log('setDoublingenabledBID ' + temp.doublingenabled)
+          console.log('setPassingenabledBID ' + temp.passingenabled)
+          console.log('setBidblindenabledBID ' + temp.bidblindenabled)
+          console.log('setIsPlayerVulnBID ' + temp.isPlayerVuln)
+          console.log('setFirstroundBID ' + temp.firstround)
 
           this.$store.commit('setSuitenabledBID', temp.suitenabled)
           this.$store.commit('setNumberofroundsenabledBID', temp.numberofroundsenabled)
@@ -557,7 +557,17 @@ export default {
           break
 
         case 'bid':
-          var tempBidMessage = 'Player ' + temp.playerindex + '\'s BID: \n' + 'Value: ' + temp.value + '\n Doubling: ' + temp.doubling + '\n Blind Bid: ' + temp.blindBid + '\n '
+          var tempBidMessage = 'Player ' + temp.playerindex + '\'s BID: \n'
+          
+          if(temp.value === -2){
+          tempBidMessage = tempBidMessage + 'Value: '+ 'PASS' + '\n'
+          } else {
+          tempBidMessage = tempBidMessage + 'Value: '+ temp.value + '\n'
+          }
+
+          tempBidMessage = tempBidMessage + ' Doubling: ' + temp.doubling + '\n Blind Bid: ' + temp.blindBid + '\n '
+
+          
           if(temp.suit === null){
           tempBidMessage = tempBidMessage + 'NO TRUMP' + '\n'
           } else {
