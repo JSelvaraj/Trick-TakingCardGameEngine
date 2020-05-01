@@ -33,20 +33,37 @@
 
          <div class="displayCard">
            <div v-for="(item,i) in this.$store.state.displayCardPool" :key='i'>
-
-             <div class="playingCards fourColours faceImages simpleCards inText rotateHand">
-                <v-btn>
-                  {{item.rank}}
-                  {{item.suit}}
-                  </v-btn>
-             </div>
+<!-- playingCards fourColours faceImages simpleCards inText rotateHand" -->
+             <!-- <div :class="'card rank-'+item.rankDP+' '+item.suitDPC"> -->
+               <!-- <div class="playingCards simpleCards"> -->
+              
+                      <!-- <img height="300px"
+                              width="200px" 
+                              :src="item.imgPath"></img> -->
+                    <v-btn class="singleCard">
+                        {{item.rank}}
+                        {{item.suit}}
+                    </v-btn>
+                 
+             <!-- </div> -->
 
            </div>
          </div>
 
         <div class="playerHand">
         <div v-for="(item,i) in this.$store.state.myHandCards" :key='i'>
-        <v-btn @click="sendCard(item.rank,item.suit)">  {{item.rank}} {{item.suit}}</v-btn>
+        
+          <!-- <div @click="sendCard(item.rank,item.suit)">
+          <v-img height="300px"
+            width="200px" 
+            :src="imgPath(item.imgPath)"></v-img>
+          </div> -->
+
+          <v-btn class="singleCard" @click="sendCard(item.rank,item.suit)">
+           <div>{{item.rank}} </div>  
+           <br>
+            <div>{{item.suit}}</div> 
+          </v-btn>
 
 <!-- <span class="rank">{{this.getRank(item.rank)}}</span>
                   <span class="suit">&spades;</span> -->
@@ -247,7 +264,10 @@ export default {
       this.bidblindANSWER = true;
         this.$store.commit('setMainPOPUP', true)
       
-    }
+    },
+
+
+    imgPath(item){ return require(item)}
     //   scrollToElement() {
     //   const el = this.$el.getElementsByClassName('textArea')[0];
 
@@ -282,6 +302,7 @@ export default {
         this.$store.commit('setSuitsANSWER',value)
       }
     }
+
   },
 
   mounted () {
@@ -393,5 +414,14 @@ export default {
 	height: 40%;
 	right: 0%;
 	top: 0%;
+}
+
+.singleCard{
+  /* width: 3%;
+	height: 6%; */
+   display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 2%;
 }
 </style>

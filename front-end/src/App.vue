@@ -64,55 +64,55 @@ export default {
     getRank (rank) {
       switch (rank) {
         case 'ACE':
-          return A
+          return 'A'
           break
 
         case 'TWO':
-          return 2
+          return '2'
           break
 
         case 'THREE':
-          return 3
+          return '3'
           break
 
         case 'FOUR':
-          return 4
+          return '4'
           break
 
         case 'FIVE':
-          return 5
+          return '5'
           break
 
         case 'SIX':
-          return 6
+          return '6'
           break
 
         case 'SEVEN':
-          return 7
+          return '7'
           break
 
         case 'EIGHT':
-          return 8
+          return '8'
           break
 
         case 'NINE':
-          return 9
+          return '9'
           break
 
         case 'TEN':
-          return 10
+          return '10'
           break
 
         case 'JACK':
-          return J
+          return 'J'
           break
 
         case 'QUEEN':
-          return Q
+          return 'Q'
           break
 
         case 'KING':
-          return K
+          return 'K'
           break
 
         default:
@@ -121,10 +121,81 @@ export default {
       }
     },
 
+    // getRankC (rank) {
+    //       switch (rank) {
+    //         case 'ACE':
+    //           return 'a'
+    //           break
+
+    //         case 'TWO':
+    //           return '2'
+    //           break
+
+    //         case 'THREE':
+    //           return '3'
+    //           break
+
+    //         case 'FOUR':
+    //           return '4'
+    //           break
+
+    //         case 'FIVE':
+    //           return '5'
+    //           break
+
+    //         case 'SIX':
+    //           return '6'
+    //           break
+
+    //         case 'SEVEN':
+    //           return '7'
+    //           break
+
+    //         case 'EIGHT':
+    //           return '8'
+    //           break
+
+    //         case 'NINE':
+    //           return '9'
+    //           break
+
+    //         case 'TEN':
+    //           return '10'
+    //           break
+
+    //         case 'JACK':
+    //           return 'j'
+    //           break
+
+    //         case 'QUEEN':
+    //           return 'q'
+    //           break
+
+    //         case 'KING':
+    //           return 'k'
+    //           break
+
+    //         default:
+    //           return null
+    //           break
+    //       }
+    //     },
     getSuit (suitInput) {
       switch (suitInput) {
         case 'SPADE':
-          return ''
+          return 'S'
+          break
+
+        case 'CLUBS':
+          return 'C'
+          break
+
+        case 'HEARTS':
+          return 'H'
+          break
+
+        case 'DIAMONDS':
+          return 'D'
           break
 
         default:
@@ -133,6 +204,29 @@ export default {
       }
     }
 
+    // getSuitC (suitInput) {
+    //   switch (suitInput) {
+    //     case 'SPADE':
+    //       return 'spades'
+    //       break
+
+    //     case 'CLUBS':
+    //       return 'clubs'
+    //       break
+
+    //     case 'HEARTS':
+    //       return 'hearts'
+    //       break
+
+    //     case 'DIAMONDS':
+    //       return 'diams'
+    //       break
+
+    //     default:
+    //       return null
+    //       break
+    //   }
+    // }
   },
 
   mounted () {
@@ -200,10 +294,13 @@ export default {
           const tempDPCard = {
             rank: temp.card.rank, // TODO
             suit: temp.card.suit,
-            imgPath: ''
+            rankDP: this.getRank(temp.card.rank),
+            // rankDPC: this.getRankC(temp.card.rank),
+            suitDP: this.getSuit(temp.card.suit),
+            // suitDPC: this.getSuitC(temp.card.suit),
+            imgPath: '../assets/img/' + this.getRank(temp.card.rank) + this.getSuit(temp.card.suit) + '.svg'
           }
           tempDPCardPool.push(tempDPCard)
-
 
           this.$store.commit('appendGameMessage', cardplayedMessage)
 
@@ -240,7 +337,11 @@ export default {
                 console.log('CARD ' + temp.players[player].hand[card])
                 tempHandCard.rank = temp.players[player].hand[card].rank
                 tempHandCard.suit = temp.players[player].hand[card].suit
-
+                tempHandCard.rankDP = this.getRank(temp.players[player].hand[card].rank)
+               // tempHandCard.rankDPC = this.getRankC(temp.players[player].hand[card].rank)
+                tempHandCard.suitDP = this.getSuit(temp.players[player].hand[card].suit)
+               // tempHandCard.suitDPC = this.getSuitC(temp.players[player].hand[card].suit)
+                tempHandCard.imgPath = '../assets/img/' + this.getRank(temp.players[player].hand[card].rank) + this.getSuit(temp.players[player].hand[card].suit) + '.svg'
                 console.log(tempHandCard.rank)
                 console.log(tempHandCard.suit)
 
@@ -351,13 +452,12 @@ export default {
 
           var winningMessage = 'Winning card: ' + temp.card.rank + ' ' + temp.card.suit + '\n' + 'Playerindex: ' + temp.playerindex + ' win this trick \n'
           this.$store.commit('appendGameMessage', winningMessage)
-          let vm = this;
-          setTimeout(function(){
-          var tempDPCardPoolClear = []
-          vm.$store.commit('setDisplayCardPool', tempDPCardPoolClear)
-          },5000)
+          const vm = this
+          setTimeout(function () {
+            var tempDPCardPoolClear = []
+            vm.$store.commit('setDisplayCardPool', tempDPCardPoolClear)
+          }, 5000)
 
-          
           break
 
         case 'trumpbroken':
@@ -404,8 +504,8 @@ export default {
         case 'invalidBidMessage':
           alert('Invalid Bid')
 
-          if(this.$store.state.bidlindenabled){
-            this.$store.commit('setBidblindPOPUP',true)
+          if (this.$store.state.bidlindenabled) {
+            this.$store.commit('setBidblindPOPUP', true)
           }
           this.$store.commit('setMainPOPUP', true)
           break
@@ -430,11 +530,9 @@ export default {
           this.$store.commit('setIsPlayerVulnBID', temp.isPlayerVuln)
           this.$store.commit('setFirstroundBID', temp.firstround)
 
-
-          this.$store.commit('setBidblindPOPUP',temp.bidlindenabled)
-          if(!temp.bidlindenabled)
-          {
-          this.$store.commit('setMainPOPUP', true)
+          this.$store.commit('setBidblindPOPUP', temp.bidlindenabled)
+          if (!temp.bidlindenabled) {
+            this.$store.commit('setMainPOPUP', true)
           }
           var tempNumberofroundsBID = []
           var tempSuitBID = []
@@ -458,62 +556,60 @@ export default {
           this.$store.commit('setNumberofroundsBID', tempNumberofroundsBID)
           break
 
+        case 'bid':
+          var tempBidMessage = 'Player ' + temp.playerindex + '\'s BID: \n' + 'Value: ' + temp.value + '\n Doubling: ' + temp.doubling + '\n Blind Bid: ' + temp.blindBid + '\n ' + temp.suit + '\n'
+          this.$store.commit('appendGameMessage', tempBidMessage)
+          break
 
-          case 'bid':
-            var tempBidMessage = 'Player ' + temp.playerindex + '\'s BID: \n' + 'Value: ' + temp.value + '\n Doubling: '+ temp.doubling + '\n Blind Bid: '+ temp.blindBid + '\n ' + temp.suit + '\n'
-            this.$store.commit('appendGameMessage', tempBidMessage)
-            break
-
-          case 'dummyplayer': 
+        case 'dummyplayer':
           var tempDummyplayer = 'Player ' + temp.playerindex + 'is Dummy Player\n' + 'Dummy Player Hand: \n'
-          var dummyplayerHandCount;
-          for(dummyplayerHandCount in temp.playerhand){
+          var dummyplayerHandCount
+          for (dummyplayerHandCount in temp.playerhand) {
             tempDummyplayer = tempDummyplayer + ' Rank: ' + temp.playerhand[dummyplayerHandCount].rank + ' Suit: ' + temp.playerhand[dummyplayerHandCount].suit + '\n'
           }
           this.$store.commit('setDummyplayerReminder', tempDummyplayer)
           this.$store.commit('appendGameMessage', tempDummyplayer)
           break
 
-          case 'specialcard': 
-          var specialcardMessage = 'Player ' + temp.playerindex + ' played SPECIAL CARD: '+ temp.cardtype + '\n'
+        case 'specialcard':
+          var specialcardMessage = 'Player ' + temp.playerindex + ' played SPECIAL CARD: ' + temp.cardtype + '\n'
           this.$store.commit('appendGameMessage', specialcardMessage)
           alert(specialcardMessage)
           break
 
-          case 'swaphands':
-            var swaphandsMessage = ''
-            var swaphandsCount;
-            for(swaphandsCount in temp.playerswapped){
-              swaphandsMessage = swaphandsMessage + ' Player ' + temp.playerswapped[swaphandsCount] + ' \, \n'
+        case 'handswap':
+          var swaphandsMessage = ''
+          var swaphandsCount
+          for (swaphandsCount in temp.playerswapped) {
+            swaphandsMessage = swaphandsMessage + ' Player ' + temp.playerswapped[swaphandsCount] + ' \, \n'
+          }
+          swaphandsMessage = swaphandsMessage + 'Swapped Hands'
+
+          this.$store.commit('appendGameMessage', swaphandsMessage)
+          alert(swaphandsMessage)
+          break
+
+        case 'aitakeover':
+          var aitakeoverMessage = 'AI is taking over playing the cards(and bidding) for Player ' + temp.playerindex + ' !\m'
+          alert(aitakeoverMessage)
+          this.$store.commit('appendGameMessage', aitakeoverMessage)
+          break
+
+        case 'roundendmessage':
+          var roundendmessage = 'SCORES: \n'
+          var roundendTeamCount
+          var roundendTeamCount_innerloop
+          for (roundendTeamCount in temp.scores) {
+            roundendmessage = roundendmessage + 'Team number: ' + temp.teamnumber + '\n'
+            roundendmessage = roundendmessage + 'Members: [ '
+            for (roundendTeamCount_innerloop in temp.scores[roundendTeamCount].members) {
+              roundendmessage = roundendmessage + temp.scores[roundendTeamCount].members[roundendTeamCount_innerloop] + ' '
             }
-            swaphandsMessage = swaphandsMessage + 'Swapped Hands' 
-            
+            roundendmessage = roundendmessage + ' ] \n'
+            roundendmessage = roundendmessage + ' Team Score ' + temp.teamscore + '\n\n'
+          }
 
-            this.$store.commit('appendGameMessage', swaphandsMessage)
-            alert(swaphandsMessage)
-            break
-
-          case 'aitakeover':
-            var aitakeoverMessage = 'AI is taking over playing the cards(and bidding) for Player ' + temp.playerindex + ' !\m'
-            alert(aitakeoverMessage)
-            this.$store.commit('appendGameMessage', aitakeoverMessage)
-            break
-
-          case 'roundendmessage':
-            var roundendmessage = 'SCORES: \n'
-            var roundendTeamCount;
-            var roundendTeamCount_innerloop;
-            for(roundendTeamCount in temp.scores){
-              roundendmessage = roundendmessage + 'Team number: ' + temp.teamnumber +'\n';
-              roundendmessage = roundendmessage + 'Members: [ '
-              for(roundendTeamCount_innerloop in temp.scores[roundendTeamCount].members){
-                roundendmessage = roundendmessage + temp.scores[roundendTeamCount].members[roundendTeamCount_innerloop] + ' ';
-              }
-              roundendmessage = roundendmessage + ' ] \n'
-              roundendmessage = roundendmessage + ' Team Score ' + temp.teamscore + '\n\n'
-            }
-            
-            this.$store.commit('appendGameMessage', roundendmessage)
+          this.$store.commit('appendGameMessage', roundendmessage)
         default:
           console.log('TEST' + temp.type)
       }
