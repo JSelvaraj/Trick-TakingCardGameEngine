@@ -51,9 +51,12 @@ public class GUIPlayer extends LocalPlayer {
         json.put("type", "bid");
         json.put("playerindex", playerNumber);
         json.put("doubling", bid.isDoubling());
-
         if (bid.getSuit() != null) {
-            json.put("suit", bid.getSuit());
+            if (bid.getSuit().equals("NO TRUMP")) {
+                json.put("suit", JSONObject.NULL);
+            } else {
+                json.put("suit", bid.getSuit());
+            }
         }
         json.put("value", bid.getBidValue());
         json.put("blindBid", bid.isBlind());
