@@ -170,7 +170,8 @@ public class GameEngine extends WebSocketServer {
                     }
                 }
                 //Check for a random event for duration of hand
-                String rdmEventHAND = rdmEventsManager.eventChooser("HAND");
+                String rdmEventHAND = "BOMB"; //rdmEventsManager.eventChooser("HAND");
+                rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
                 if (rdmEventHAND != null) {
                     if (rdmEventHAND.equals("AI-TAKEOVER")) {
                         //Set weakest player to be taken over by AI
@@ -497,7 +498,8 @@ public class GameEngine extends WebSocketServer {
                 }
 
                 //Check for a random event for duration of hand
-                String rdmEventHAND = rdmEventsManager.eventChooser("HAND");
+                String rdmEventHAND = "BOMB"; //rdmEventsManager.eventChooser("HAND");
+                rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
                 if (rdmEventHAND != null) {
                     if (rdmEventHAND.equals("AI-TAKEOVER")) {
                         //Set weakest player to be taken over by AI
@@ -567,30 +569,30 @@ public class GameEngine extends WebSocketServer {
                     //Check for a random event at start of trick if a HAND event isn't active - run logic if successful
                     if (enableRandomEvents) { //TODO random events were happening even when disabled, until if clause added.
                         String rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
-                        if (rdmEventTRICK != null && rdmEventHAND == null) {
-                            //sout
-                            Pair<Player, Player> swappedPlayers = rdmEventsManager.runSwapHands();
-                            //Send swapped hand event to front-end
-                            JsonObject swappedHandsEvent = new JsonObject();
-                            swappedHandsEvent.add("type", new JsonPrimitive("handswap"));
-                            JsonArray swappedPlayersJson = new JsonArray();
-                            swappedPlayersJson.add(swappedPlayers.getLeft().getPlayerNumber());
-                            swappedPlayersJson.add(swappedPlayers.getRight().getPlayerNumber());
-                            swappedHandsEvent.add("playerswapped", swappedPlayersJson);
-                            game.webSocket.send(gson.toJson(swappedHandsEvent));
-
-                            //Sends every player's hand to the GUI
-                            sendPlayerHands(playerArray, game, gson);
-
-
-                        } else {
+//                        if (rdmEventTRICK != null && rdmEventHAND == null) {
+//                            //sout
+//                            Pair<Player, Player> swappedPlayers = rdmEventsManager.runSwapHands();
+//                            //Send swapped hand event to front-end
+//                            JsonObject swappedHandsEvent = new JsonObject();
+//                            swappedHandsEvent.add("type", new JsonPrimitive("handswap"));
+//                            JsonArray swappedPlayersJson = new JsonArray();
+//                            swappedPlayersJson.add(swappedPlayers.getLeft().getPlayerNumber());
+//                            swappedPlayersJson.add(swappedPlayers.getRight().getPlayerNumber());
+//                            swappedHandsEvent.add("playerswapped", swappedPlayersJson);
+//                            game.webSocket.send(gson.toJson(swappedHandsEvent));
+//
+//                            //Sends every player's hand to the GUI
+//                            sendPlayerHands(playerArray, game, gson);
+//
+//
+//                        } else {
 //                            synchronized (getCardSwapLock) { //TODO  GUI interaction stuff need to be re-implemented - Jeffrey, uncomment if done
 //                                while (!cardSwapFlag) {
 //                                    cardSwapFlag = rdmEventsManager.runSwapCards();
 //                                    getCardSwapLock.wait();
 //                                }
 //                            }
-                        }
+//                        }
                     }
 
                     //If a dummy player is in operation, show the hand to all players
@@ -627,6 +629,7 @@ public class GameEngine extends WebSocketServer {
                                 specialCardEvent.add("type", new JsonPrimitive("specialcard"));
                                 specialCardEvent.add("player", new JsonPrimitive(currentPlayer));
                                 specialCardEvent.add("cardtype", new JsonPrimitive(playedCardType));
+                                game.webSocket.send(gson.toJson(specialCardEvent));
                             }
                         }
 
@@ -682,11 +685,7 @@ public class GameEngine extends WebSocketServer {
                     winningCardJson.add("type", new JsonPrimitive("winningcard"));
                     winningCardJson.add("card", gson.fromJson(winningCard.getJSON(), JsonObject.class));
                     winningCardJson.add("playerindex", new JsonPrimitive(currentPlayer));
-//                JsonArray array = new JsonArray();
-//                for (Card card : game.currentTrick.getHand()) {
-//                    array.add(new Gson().fromJson(card.getJSON(), JsonObject.class));
-//                }
-//                winningCardJson.add("trick", array);
+
                     System.out.println("winningCardJson: " + gson.toJson(winningCardJson));
                     game.webSocket.send(gson.toJson(winningCardJson));
 

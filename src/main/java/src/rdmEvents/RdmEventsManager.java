@@ -167,8 +167,10 @@ public class RdmEventsManager {
         //Swap hands and predicates
         Hand tempHand = weakPlayer.getHand();
         Predicate<Card> tempPredicate = weakPlayer.getCanBePlayed();
+
         weakPlayer.setHand(strongPlayer.getHand());
         weakPlayer.setCanBePlayed(strongPlayer.getCanBePlayed());
+
         strongPlayer.setHand(tempHand);
         strongPlayer.setCanBePlayed(tempPredicate);
         ImmutablePair<Player,Player> swappedPlayers = new ImmutablePair<>(weakPlayer,strongPlayer);
@@ -199,6 +201,7 @@ public class RdmEventsManager {
         //Select a random card from a player and set it to the given special type
         int rdmPlayerIndex = getRand().nextInt(playerArray.length);
         int rdmCardIndex = getRand().nextInt(desc.getHandSize());
+        System.out.println("CHANGED CARD" + playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex));
         playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex).setSpecialType(cardType);
     }
 
