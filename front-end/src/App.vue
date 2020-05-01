@@ -474,7 +474,46 @@ export default {
           this.$store.commit('appendGameMessage', tempDummyplayer)
           break
 
+          case 'specialcard': 
+          var specialcardMessage = 'Player ' + temp.playerindex + ' played SPECIAL CARD: '+ temp.cardtype + '\n'
+          this.$store.commit('appendGameMessage', specialcardMessage)
+          alert(specialcardMessage)
+          break
 
+          case 'swaphands':
+            var swaphandsMessage = ''
+            var swaphandsCount;
+            for(swaphandsCount in temp.playerswapped){
+              swaphandsMessage = swaphandsMessage + ' Player ' + temp.playerswapped[swaphandsCount] + ' \, \n'
+            }
+            swaphandsMessage = swaphandsMessage + 'Swapped Hands' 
+            
+
+            this.$store.commit('appendGameMessage', swaphandsMessage)
+            alert(swaphandsMessage)
+            break
+
+          case 'aitakeover':
+            var aitakeoverMessage = 'AI is taking over playing the cards(and bidding) for Player ' + temp.playerindex + ' !\m'
+            alert(aitakeoverMessage)
+            this.$store.commit('appendGameMessage', aitakeoverMessage)
+            break
+
+          case 'roundendmessage':
+            var roundendmessage = 'SCORES: \n'
+            var roundendTeamCount;
+            var roundendTeamCount_innerloop;
+            for(roundendTeamCount in temp.scores){
+              roundendmessage = roundendmessage + 'Team number: ' + temp.teamnumber +'\n';
+              roundendmessage = roundendmessage + 'Members: [ '
+              for(roundendTeamCount_innerloop in temp.scores[roundendTeamCount].members){
+                roundendmessage = roundendmessage + temp.scores[roundendTeamCount].members[roundendTeamCount_innerloop] + ' ';
+              }
+              roundendmessage = roundendmessage + ' ] \n'
+              roundendmessage = roundendmessage + ' Team Score ' + temp.teamscore + '\n\n'
+            }
+            
+            this.$store.commit('appendGameMessage', roundendmessage)
         default:
           console.log('TEST' + temp.type)
       }
