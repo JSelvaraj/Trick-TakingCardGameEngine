@@ -30,9 +30,10 @@ export default new Vuex.Store({
     gameMessage: '',
     loadNotComplete: true,
 
+    dummyplayerReminder:'',
 
      //for bidding:
-     suitenabledBID: '',
+     suitenabledBID: false,
      numberofroundsenabledBID: '',
      doublingenabledBID: '',
      passingenabledBID: '',
@@ -40,11 +41,33 @@ export default new Vuex.Store({
      numberofroundsBID: [],
      suitsBID:[],
      isPlayerVulnBID: '',
-     firstroundBID: ''
+     firstroundBID: '',
+
+     bidblindPOPUP: false,
+     mainPOPUP: false,
+
+     suitsANSWER:'SPADES'
+
   },
   mutations: {
 
+    setDummyplayerReminder(state,dummyMessage){
+      state.dummyplayerReminder = dummyMessage
+    },
+
     //for bidding
+
+    setSuitsANSWER(state, suit){
+      state.suitsANSWER = suit
+    },
+
+    setMainPOPUP(state, input){
+      state.mainPOPUP = input
+    },
+
+    setBidblindPOPUP(state, inputBoolean){
+      state.bidblindPOPUP = inputBoolean
+    },
 
     setSuitenabledBID(state, suitenabledINPUT){
       state.suitenabledBID = suitenabledINPUT
@@ -82,6 +105,11 @@ export default new Vuex.Store({
       state.firstroundBID = firstroundINPUT
     },
     //
+
+
+    changemyselfIndex(state, index){
+      state.myselfIndex = index
+    },
 
 
     setLoadNotComplete (state, booleanTrigger) {
@@ -134,6 +162,9 @@ export default new Vuex.Store({
       state.players.push({ myturn: false })
     },
 
+    setPlayers (state, newplayersArr) {
+      state.players = newplayersArr
+    },
     removeHandCards (state) {
       state.handCards = []
     },
