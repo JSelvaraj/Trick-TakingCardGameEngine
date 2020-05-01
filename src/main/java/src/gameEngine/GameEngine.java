@@ -573,8 +573,12 @@ public class GameEngine extends WebSocketServer {
                             swappedPlayersJson.add(swappedPlayers.getLeft().getPlayerNumber());
                             swappedPlayersJson.add(swappedPlayers.getRight().getPlayerNumber());
                             swappedHandsEvent.add("playerswapped", swappedPlayersJson);
-                            swappedHandsEvent.add("playerhand", playerArray[currentPlayer].getHand().toJsonArray());
                             game.webSocket.send(gson.toJson(swappedHandsEvent));
+
+                            //Sends every player's hand to the GUI
+                            sendPlayerHands(playerArray, game, gson);
+
+
                         } else {
 //                            synchronized (getCardSwapLock) { //TODO  GUI interaction stuff need to be re-implemented - Jeffrey, uncomment if done
 //                                while (!cardSwapFlag) {
@@ -617,7 +621,6 @@ public class GameEngine extends WebSocketServer {
                                 JsonObject specialCardEvent = new JsonObject();
                                 specialCardEvent.add("type", new JsonPrimitive("specialcard"));
                                 specialCardEvent.add("player", new JsonPrimitive(currentPlayer));
-                                specialCardEvent.add("team", new JsonPrimitive(playerArray[currentPlayer].getTeam().getTeamNumber()));
                                 specialCardEvent.add("cardtype", new JsonPrimitive(playedCardType));
                             }
                         }
