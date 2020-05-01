@@ -6,7 +6,7 @@
       </v-app-bar>
       <router-view />
       <v-footer color="indigo" app>
-        <span class="white--text">&copy;2019</span>
+        <span class="white--text">&copy;Group-A8  2019/20</span>
       </v-footer>
     </v-app>
   </div>
@@ -565,7 +565,7 @@ export default {
           tempBidMessage = tempBidMessage + 'Value: '+ temp.value + '\n'
           }
 
-          tempBidMessage = tempBidMessage + ' Doubling: ' + temp.doubling + '\n Blind Bid: ' + temp.blindBid + '\n '
+          tempBidMessage = tempBidMessage + '\n Doubling: ' + temp.doubling + '\n Blind Bid: ' + temp.blindBid + '\n '
 
           
           if(temp.suit === null){
