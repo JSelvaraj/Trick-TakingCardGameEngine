@@ -170,8 +170,7 @@ public class GameEngine extends WebSocketServer {
                     }
                 }
                 //Check for a random event for duration of hand
-                String rdmEventHAND = "BOMB"; //rdmEventsManager.eventChooser("HAND");
-                rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
+                String rdmEventHAND = rdmEventsManager.eventChooser("HAND");
                 if (rdmEventHAND != null) {
                     if (rdmEventHAND.equals("AI-TAKEOVER")) {
                         //Set weakest player to be taken over by AI
@@ -498,8 +497,7 @@ public class GameEngine extends WebSocketServer {
                 }
 
                 //Check for a random event for duration of hand
-                String rdmEventHAND = "BOMB"; //rdmEventsManager.eventChooser("HAND");
-                rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
+                String rdmEventHAND = rdmEventsManager.eventChooser("HAND");
                 if (rdmEventHAND != null) {
                     if (rdmEventHAND.equals("AI-TAKEOVER")) {
                         //Set weakest player to be taken over by AI
