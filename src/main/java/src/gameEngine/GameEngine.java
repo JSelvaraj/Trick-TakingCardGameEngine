@@ -565,6 +565,7 @@ public class GameEngine extends WebSocketServer {
                     if (enableRandomEvents) { //TODO random events were happening even when disabled, until if clause added.
                         String rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
                         if (rdmEventTRICK != null && rdmEventHAND == null) {
+                            //sout
                             Pair<Player, Player> swappedPlayers = rdmEventsManager.runSwapHands();
                             //Send swapped hand event to front-end
                             JsonObject swappedHandsEvent = new JsonObject();
