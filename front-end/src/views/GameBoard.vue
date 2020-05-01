@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 /* eslint-disable no-tabs */
 <template>
   <v-content>
@@ -5,28 +6,28 @@
         <h1>
       GAME BOARD
     </h1>
-        <v-btn class="playerPositionW"
-        > 
-        
-        <i>Player 1</i>
+        <v-btn class="playerPositionW" v-if="playerDISABLE_W"
+        >
+        <!-- <i>Player 1</i> -->
         <v-icon>mdi-account</v-icon>
+
         </v-btn>
         <v-btn class="playerPositionN"
-       
-        > 
-        <i>Player 2</i>
+
+        >
+        <!-- <i>Player 2</i> -->
         <v-icon>mdi-account</v-icon>
         </v-btn>
         <v-btn class="playerPositionE"
-      
-        > 
-        <i>Player 3</i>
+        v-if="playerDISABLE_E"
+        >
+        <!-- <i>Player 3</i> -->
         <v-icon>mdi-account</v-icon>
         </v-btn>
         <v-btn class='playerPositionS'
-           
-         @click="changeP1"> 
-         <i>Player {{this.$store.state.myselfIndex}}</i>
+
+         @click="changeP1">
+         <!-- <i>Player {{this.$store.state.myselfIndex}}</i> -->
         <v-icon>mdi-account</v-icon>
          </v-btn>
 
@@ -34,24 +35,21 @@
            <div v-for="(item,i) in this.$store.state.displayCardPool" :key='i'>
 
              <div class="playingCards fourColours faceImages simpleCards inText rotateHand">
-                <v-btn> 
+                <v-btn>
                   {{item.rank}}
                   {{item.suit}}
                   </v-btn>
              </div>
-            
+
            </div>
          </div>
-       
+
         <div class="playerHand">
         <div v-for="(item,i) in this.$store.state.myHandCards" :key='i'>
-        <v-btn @click="sendCard(item.rank,item.suit)"> {{item.suit}} {{item.rank}}</v-btn>
-
+        <v-btn @click="sendCard(item.rank,item.suit)">  {{item.rank}} {{item.suit}}</v-btn>
 
 <!-- <span class="rank">{{this.getRank(item.rank)}}</span>
                   <span class="suit">&spades;</span> -->
-
-
 
         <!-- <v-btn> Card 1 -->
         <!-- <img src='../assets/img/0C.png'> -->
@@ -84,11 +82,61 @@
         <p style=" word-wrap: break-word;white-space: pre-line;">{{this.$store.state.gameMessage}}</p>
       </div>
 
-      
           <p> {{this.$store.state.currenttrump}}</p>
-   
+        <!-- <v-btn @click="giveBID()"> TEST FOR BIDDING</v-btn> -->
 
-        <v-btn @giveBID()> TEST FOR BIDDING</v-btn>
+<!-- <v-dialog v-model="downtemp"></v-dialog> -->
+
+<!-- v-slot:activator="{ on }" -->
+<v-dialog v-model="this.$store.state.bidblindPOPUP" persistent max-width="350">
+      <v-card>
+        <v-card-title class="headline">Do you want to bid blind?</v-card-title>
+        <!-- <v-card-text>Let Google help apps determine location. This means sending anonymous location data to Google, even when no apps are running.</v-card-text> -->
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="bidblindANSWERNO()">NO</v-btn>
+          <v-btn color="green darken-1" text @click="bidblindANSWERYES()">YES</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+
+<v-dialog v-model="this.$store.state.mainPOPUP" persistent max-width="350">
+      <v-card>
+        <v-card-title class="headline">    MAKE BID</v-card-title>
+         <p 
+         v-if="this.$store.state.numberofroundsenabledBID"
+         >Number of rounds:</p>
+         <v-select 
+         v-if="this.$store.state.numberofroundsenabledBID"
+          :items="this.$store.state.numberofroundsBID"
+          v-model="numberofroundsANSWER"
+          label="Select number of rounds"
+          solo
+        ></v-select> 
+        <p v-if="this.$store.state.suitenabledBID">Suit:</p>
+        <v-select v-if="this.$store.state.suitenabledBID"
+          :items="this.$store.state.suitsBID"
+          label="Select suit"
+          v-model="suitsANSWER"
+          solo
+        ></v-select>
+        <v-checkbox 
+        v-if="this.$store.state.bidblindenabledBID"
+        v-model="doublingANSWER" class="mx-2" label="Doubling"></v-checkbox>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn 
+          v-if="this.$store.state.passingenabledBID"
+          color="green darken-1" text @click="giveBID_PASS()">PASS</v-btn>
+          <v-btn color="green darken-1" text @click="giveBID()">BID</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <div class="dummyBoard" >
+      <p style=" word-wrap: break-word;white-space: pre-line;"> {{this.$store.state.dummyplayerReminder}}</p>
+    </div>
     </v-container>
   </v-content>
 </template>
@@ -109,7 +157,11 @@ export default {
       id: ''
     },
     isDisable: false,
-    card_1_path: ''
+    card_1_path: '',
+    downtemp: true,
+    numberofroundsANSWER: '',
+    bidblindANSWER: false,
+    doublingANSWER: false
   }),
 
   created () {
@@ -152,28 +204,52 @@ export default {
       })
     },
 
-    giveBID(){
+    giveBID () {
       this.$socket.sendObj({
-    "type":"givebid",
-    "playerindex":0,
-    "doubling": true,
-    "suit": CLUBS,
-    "value": 5,
-    "blindBid" : true,
-    "isPlayerVuln":true ,
-    "firstround": true
-        
+        type: 'givebid',
+        playerindex: this.$store.state.myselfIndex,
+        doubling: this.doublingANSWER,
+        suit: this.$store.state.suitsANSWER,
+        value: this.numberofroundsANSWER,
+        blindBid: this.bidblindANSWER,
+        isPlayerVuln: this.$store.state.isPlayerVulnBID,
+        firstround: this.$store.state.firstroundBID
       })
+      this.$store.commit('setMainPOPUP', false)
+    },
 
+    giveBID_PASS () {
+      this.$socket.sendObj({
+        type: 'givebid',
+        playerindex: this.$store.state.myselfIndex,
+        doubling: this.doublingANSWER,
+        suit: this.$store.state.suitsANSWER,
+        value: -2,
+        blindBid: this.bidblindANSWER,
+        isPlayerVuln: this.$store.state.isPlayerVulnBID,
+        firstround: this.$store.state.firstroundBID
+      })
+      this.$store.commit('setMainPOPUP', false)
+    },
 
-//       {
+    bidblindANSWERNO(){
+      this.$store.commit('setBidblindPOPUP',false)
+      this.bidblindANSWER = false;
+      
+      let vm = this;
+      setTimeout(function(){
+        vm.$store.commit('setMainPOPUP', true)
+      },5000)
+    },
 
-
-// }
+    bidblindANSWERYES(){
+      this.$store.commit('setBidblindPOPUP',false)
+      this.bidblindANSWER = true;
+        this.$store.commit('setMainPOPUP', true)
+      
     }
-
-  //   scrollToElement() {
-  //   const el = this.$el.getElementsByClassName('textArea')[0];
+    //   scrollToElement() {
+    //   const el = this.$el.getElementsByClassName('textArea')[0];
 
   //   if (el) {
   //     el.scrollIntoView();
@@ -181,13 +257,36 @@ export default {
   // }
   },
 
+  computed: {
+    playerDISABLE_W: function () {
+      if (this.$store.state.players.length < 2) {
+        return false
+      } else {
+        return true
+      }
+    },
 
-  computed:{
+     playerDISABLE_E: function () {
+      if (this.$store.state.players.length < 3) {
+        return false
+      } else {
+        return true
+      }
+    },
+
+    suitsANSWER:{
+      get(){
+        return this.$store.state.suitsANSWER
+      },
+      set(value){
+        this.$store.commit('setSuitsANSWER',value)
+      }
+    }
   },
 
-  mounted(){
-    let elmnt = document.getElementById('bottom');
-    elmnt.scrollIntoView(false);
+  mounted () {
+    const elmnt = document.getElementById('bottom')
+    elmnt.scrollIntoView(false)
   }
 }
 </script>
@@ -234,7 +333,7 @@ export default {
 
 .displayCard{
   position: absolute;
-  overflow-y: scroll;
+  /* overflow-y: scroll; */
   display: flex;
   flex-direction: column-reverse;
   width: 15%;
@@ -284,5 +383,15 @@ export default {
 .currentTrumpDP{
   	left: 0%;
 	bottom: 30%;
+}
+
+.dummyBoard {
+  display: flex;
+  flex-direction: column-reverse;
+  position: absolute;
+  width: 25%;
+	height: 40%;
+	right: 0%;
+	top: 0%;
 }
 </style>

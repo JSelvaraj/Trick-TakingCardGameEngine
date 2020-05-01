@@ -30,7 +30,8 @@
           @change = test2()
           solo
         ></v-select>
-
+        <v-checkbox class="rdmeventCheckBox"
+        v-model="rdmeventANSWER" label="Random Event"></v-checkbox>
         </div>
         <div>
           <v-btn class="backBTN" @click="toHome">Back</v-btn>
@@ -56,7 +57,8 @@ export default {
       gameTypes: [],
       numOfAIPlayers: [],
       selectGameTypes: '',
-      selectNumOfAIPlayer: null
+      selectNumOfAIPlayer: null,
+      rdmeventANSWER: false
     },
     isDisable: false
   }),
@@ -65,7 +67,8 @@ export default {
     this.gameTypes = ['Whist', 'Contract Whist', 'Spades', 'One Trick Pony','Bridge'],
     // this.numOfAIPlayers = [0, 1, 2, 3]
      this.selectGameTypes = '',
-     this.selectNumOfAIPlayer = null
+     this.selectNumOfAIPlayer = null,
+     this.rdmeventANSWER = false
   },
 
   computed: {
@@ -74,7 +77,7 @@ export default {
       if (this.$store.state.selectGameTypes_vx === 'Whist' || this.$store.state.selectGameTypes_vx === 'Contract Whist' || this.$store.state.selectGameTypes_vx === 'Spades'||this.$store.state.selectGameTypes_vx === 'Bridge') {
         return [0, 1, 2, 3]
       } else if (this.$store.state.selectGameTypes_vx === 'One Trick Pony') {
-        return [0, 1, 2]
+        return [0, 1]
       } else {
         return [0]
       }
@@ -139,7 +142,7 @@ export default {
         type: "HostGame",
         aiplayers: this.selectNumOfAIPlayer,
         gamepath: this.gamePath_AP,
-        enableRdmEvents: "false",
+        enableRdmEvents: this.rdmeventANSWER,
         port: "55555"
       })
     },
@@ -204,6 +207,14 @@ p {
   position: absolute;
   width: 17%;
   top: 40%;
+	left: 40%;
+}
+
+
+.rdmeventCheckBox{
+  position: absolute;
+  width: 17%;
+  top: 45%;
 	left: 40%;
 }
 

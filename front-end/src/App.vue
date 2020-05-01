@@ -61,78 +61,77 @@ export default {
       this.$router.push('/confirmation')
     },
 
-       getRank(rank){
-      switch (rank){
-
+    getRank (rank) {
+      switch (rank) {
         case 'ACE':
           return A
-        break
+          break
 
         case 'TWO':
           return 2
-        break
+          break
 
         case 'THREE':
           return 3
-        break
+          break
 
         case 'FOUR':
           return 4
-        break
+          break
 
         case 'FIVE':
           return 5
-        break
+          break
 
         case 'SIX':
           return 6
-        break
+          break
 
         case 'SEVEN':
           return 7
-        break
+          break
 
         case 'EIGHT':
           return 8
-        break
+          break
 
         case 'NINE':
           return 9
-        break
+          break
 
         case 'TEN':
           return 10
-        break
+          break
 
         case 'JACK':
           return J
-        break
+          break
 
         case 'QUEEN':
           return Q
-        break
+          break
 
         case 'KING':
           return K
-        break
+          break
 
         default:
-          return null;
+          return null
           break
       }
     },
 
-      getSuit(suitInput){
-      switch(suitInput){
+    getSuit (suitInput) {
+      switch (suitInput) {
         case 'SPADE':
           return ''
-        break
+          break
 
         default:
-          return null;
+          return null
           break
       }
-    },
+    }
 
   },
 
@@ -142,7 +141,9 @@ export default {
 
       const temp = JSON.parse(data.data)
       console.log(temp.type)
-    
+
+      var initPlayers = false
+
       switch (temp.type) {
         case 'DiscoverGame':
           console.log(temp.beacons)
@@ -172,22 +173,26 @@ export default {
 
         case 'cardplayed':
 
-          var tempPlayers = []
-          tempPlayers = this.$store.state.players
-          var p
-          for (p in tempPlayers) {
-            if (p === temp.playerindex) {
-              tempPlayers[p].myturn = true
-            } else {
-              tempPlayers[p].myturn = false
-            }
-          }
+          // TODO FOR PLAYER INDICATOR
 
-          this.$store.commit('setPlayerTurn', tempPlayers)
-          this.$store.commit('setCurPlayerIndex', temp.playerindex)
-          console.log('PLAYER NUMBERS: ' + this.$store.state.players.length)
+          // var tempPlayers = []
+          // tempPlayers = this.$store.state.players
+          // var p
+          // for (p in tempPlayers) {
+          //   if (p === temp.playerindex) {
+          //     tempPlayers[p].myturn = true
+          //   } else {
+          //     tempPlayers[p].myturn = false
+          //   }
+          // }
+
+          // this.$store.commit('setPlayerTurn', tempPlayers)
+          // this.$store.commit('setCurPlayerIndex', temp.playerindex)
+
+          // console.log('PLAYER NUMBERS: ' + this.$store.state.players.length)
+
           var tempDPCardPool = this.$store.state.displayCardPool
-
+          var cardplayedMessage = 'Card Played by Player ' + temp.playerindex + ':\n Rank: ' + temp.card.rank + ' Suit: ' + temp.card.suit + '\n'
           // if(tempDPCardPool.length>3){
           //   tempDPCardPool = []
           // }
@@ -199,17 +204,32 @@ export default {
           }
           tempDPCardPool.push(tempDPCard)
 
+
+          this.$store.commit('appendGameMessage', cardplayedMessage)
+
           this.$store.commit('setDisplayCard', tempDPCard)
           this.$store.commit('setDisplayCardPool', tempDPCardPool)
+          break
+
+        case 'playernumber':
+          this.$store.commit('changemyselfIndex', temp.index)
           break
 
         case 'playerhands':
 
           this.$store.commit('setLoadNotComplete', false)
 
+          if (initPlayers === false) {
+            var tempPlayersArr = []
+            var playercount
+            for (playercount in temp.players) {
+              var playerTEMP = { playerindex: temp.players[playercount].playerindex, myturn: false }
+              tempPlayersArr.push(playerTEMP)
+            }
+            this.$store.commit('setPlayers', tempPlayersArr)
+          }
 
-         var tempHandCards = []
-
+          var tempHandCards = []
           var player
           var card
           for (player in temp.players) {
@@ -229,7 +249,7 @@ export default {
             }
           }
           console.log('TEST myselfIndex' + this.$store.state.myselfIndex)
-          console.log('TEST players' + temp.players[0].hand[0].suit)
+          // console.log('TEST players' + temp.players[0].hand[0].suit)
 
           var test1
           for (test1 in tempHandCards) {
@@ -238,7 +258,6 @@ export default {
 
           console.log('TEST tempHandCards' + tempHandCards)
           this.$store.commit('setMyHandCards', tempHandCards)
-
 
           break
 
@@ -254,20 +273,20 @@ export default {
           // var player
           // var card
           // for (player in temp.playerhand.players) {
-            // if (this.$store.state.myselfIndex === temp.playerhand.players[player].playerindex) {
-            //   console.log('PLAYER ' + temp.playerhand.players[player].playerindex)
-              // for (card in temp.playerhand) {
-              //   const tempHandCard = { rank: '', suit: '', todisable: true }
-              //   // console.log('CARD ' + temp.playerhand.players[player].hand[card])
-              //   tempHandCard.rank = temp.playerhand[card].rank
-              //   tempHandCard.suit = temp.playerhand[card].suit
+          // if (this.$store.state.myselfIndex === temp.playerhand.players[player].playerindex) {
+          //   console.log('PLAYER ' + temp.playerhand.players[player].playerindex)
+          // for (card in temp.playerhand) {
+          //   const tempHandCard = { rank: '', suit: '', todisable: true }
+          //   // console.log('CARD ' + temp.playerhand.players[player].hand[card])
+          //   tempHandCard.rank = temp.playerhand[card].rank
+          //   tempHandCard.suit = temp.playerhand[card].suit
 
-              //   console.log(tempHandCard.rank)
-              //   console.log(tempHandCard.suit)
+          //   console.log(tempHandCard.rank)
+          //   console.log(tempHandCard.suit)
 
-              //   tempHandCards.push(tempHandCard)
-              // }
-            // }
+          //   tempHandCards.push(tempHandCard)
+          // }
+          // }
           // }
           // console.log('TEST myselfIndex' + this.$store.state.myselfIndex)
           // console.log('TEST players' + temp.playerhand.players[0].hand[0].suit)
@@ -279,9 +298,6 @@ export default {
 
           // console.log('TEST tempHandCards' + tempHandCards)
           // this.$store.commit('setMyHandCards', tempHandCards)
-
-
-
 
           // var tempHandCardsVaildCheck = []
           // tempHandCardsVaildCheck = this.$store.state.myHandCards
@@ -300,7 +316,7 @@ export default {
           // this.$store.commit('appendGameMessage', getCardMessage)
           // this.$store.commit('setMyHandCards', tempHandCardsVaildCheck)
           // break
-          
+
           var a
           var b
           var getCardMessage = 'Vaild Cards: \n'
@@ -324,8 +340,6 @@ export default {
           this.$store.commit('setMyHandCards', tempHandCardsVaildCheck)
           break
 
-
-
         case 'winningcard':
           // {"type":"winningcard","card":{"rank":"JACK","suit":"DIAMONDS"},"playerindex":0}
           // {"type":"trumpbroken"}
@@ -336,13 +350,14 @@ export default {
           // Team: (1, 3)     0
 
           var winningMessage = 'Winning card: ' + temp.card.rank + ' ' + temp.card.suit + '\n' + 'Playerindex: ' + temp.playerindex + ' win this trick \n'
-
-          setTimeout(5000)
-
-          var tempDPCardPoolClear = []
-
-          this.$store.commit('setDisplayCardPool', tempDPCardPoolClear)
           this.$store.commit('appendGameMessage', winningMessage)
+          let vm = this;
+          setTimeout(function(){
+          var tempDPCardPoolClear = []
+          vm.$store.commit('setDisplayCardPool', tempDPCardPoolClear)
+          },5000)
+
+          
           break
 
         case 'trumpbroken':
@@ -386,23 +401,26 @@ export default {
           alert('Invalid Card!')
           break
 
-
         case 'invalidBidMessage':
           alert('Invalid Bid')
-          break
 
+          if(this.$store.state.bidlindenabled){
+            this.$store.commit('setBidblindPOPUP',true)
+          }
+          this.$store.commit('setMainPOPUP', true)
+          break
 
         case 'makebid':
 
           this.$store.commit('setLoadNotComplete', false)
 
-          console.log('setSuitenabledBID '+ temp.suitenabled)
-          console.log('setNumberofroundsenabledBID '+ temp.numberofroundsenabled)
-          console.log('setDoublingenabledBID ' + temp.doublingenabled)
-          console.log('setPassingenabledBID ' + temp.passingenabled)
-          console.log('setBidblindenabledBID '+ temp.bidblindenabled)
-          console.log('setIsPlayerVulnBID '+  temp.isPlayerVuln)
-          console.log('setFirstroundBID '+ temp.firstround)
+          // console.log('setSuitenabledBID ' + temp.suitenabled)
+          // console.log('setNumberofroundsenabledBID ' + temp.numberofroundsenabled)
+          // console.log('setDoublingenabledBID ' + temp.doublingenabled)
+          // console.log('setPassingenabledBID ' + temp.passingenabled)
+          // console.log('setBidblindenabledBID ' + temp.bidblindenabled)
+          // console.log('setIsPlayerVulnBID ' + temp.isPlayerVuln)
+          // console.log('setFirstroundBID ' + temp.firstround)
 
           this.$store.commit('setSuitenabledBID', temp.suitenabled)
           this.$store.commit('setNumberofroundsenabledBID', temp.numberofroundsenabled)
@@ -412,27 +430,51 @@ export default {
           this.$store.commit('setIsPlayerVulnBID', temp.isPlayerVuln)
           this.$store.commit('setFirstroundBID', temp.firstround)
 
-          var tempNumberofroundsBID = [];
-          var tempSuitBID = [];
-          
-          var tsb;
-          var tnfb;
-          
-          if(temp.suitenabled){
-            for(tsb in temp.suits){
+
+          this.$store.commit('setBidblindPOPUP',temp.bidlindenabled)
+          if(!temp.bidlindenabled)
+          {
+          this.$store.commit('setMainPOPUP', true)
+          }
+          var tempNumberofroundsBID = []
+          var tempSuitBID = []
+
+          var tsb
+          var tnfb
+
+          if (temp.suitenabled) {
+            for (tsb in temp.suits) {
               tempSuitBID.push(temp.suits[tsb])
               console.log(temp.suits[tsb])
             }
           }
 
-          for (tnfb in temp.numberofrounds){
+          for (tnfb in temp.numberofrounds) {
             tempNumberofroundsBID.push(temp.numberofrounds[tnfb])
             console.log(temp.numberofrounds[tnfb])
           }
-          //arrays
+          // arrays
           this.$store.commit('setSuitsBID', tempSuitBID)
           this.$store.commit('setNumberofroundsBID', tempNumberofroundsBID)
           break
+
+
+          case 'bid':
+            var tempBidMessage = 'Player ' + temp.playerindex + '\'s BID: \n' + 'Value: ' + temp.value + '\n Doubling: '+ temp.doubling + '\n Blind Bid: '+ temp.blindBid + '\n ' + temp.suit + '\n'
+            this.$store.commit('appendGameMessage', tempBidMessage)
+            break
+
+          case 'dummyplayer': 
+          var tempDummyplayer = 'Player ' + temp.playerindex + 'is Dummy Player\n' + 'Dummy Player Hand: \n'
+          var dummyplayerHandCount;
+          for(dummyplayerHandCount in temp.playerhand){
+            tempDummyplayer = tempDummyplayer + ' Rank: ' + temp.playerhand[dummyplayerHandCount].rank + ' Suit: ' + temp.playerhand[dummyplayerHandCount].suit + '\n'
+          }
+          this.$store.commit('setDummyplayerReminder', tempDummyplayer)
+          this.$store.commit('appendGameMessage', tempDummyplayer)
+          break
+
+
         default:
           console.log('TEST' + temp.type)
       }
