@@ -60,6 +60,7 @@ public class GUIPlayer extends LocalPlayer {
         }
         json.put("value", bid.getBidValue());
         json.put("blindBid", bid.isBlind());
+        System.out.println("BID SENT: " + json.toString());
         webSocket.send(json.toString());
     }
 
@@ -121,12 +122,12 @@ public class GUIPlayer extends LocalPlayer {
 
     @Override
     public void broadcastDummyHand(int playerNumber, List<Card> dummyHand) {
-        JsonArray dummyHandArray = new JsonArray();
+        JsonArray dummyHandArray = new Gson().toJson(new Hand(dummyHand).toJsonArray();
         JsonObject dummyplayer = new JsonObject();
         dummyplayer.add("type", new JsonPrimitive("dummyplayer"));
         dummyplayer.add("playerindex", new JsonPrimitive(playerNumber));
         dummyplayer.add("playerhand", dummyHandArray);
-        System.out.println("SENDING DUMMY HAND TO GUI: " + new Gson().toJson(new Hand(dummyHand).toJsonArray()));
+        System.out.println("SENDING DUMMY HAND TO GUI: " + new Gson().toJson(dummyplayer));
         webSocket.send(new Gson().toJson(dummyplayer));
     }
 
