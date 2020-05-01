@@ -41,7 +41,8 @@
                               width="200px" 
                               :src="item.imgPath"></img> -->
                     <v-btn class="singleCard">
-                       <p style="word-wrap: break-word;white-space: pre-line;">{{item.rank}} 
+                       <p style="word-wrap: break-word;white-space: pre-line;">
+                         {{item.rank}} 
                         {{item.suit}}</p> 
                     </v-btn>
                  
@@ -60,8 +61,8 @@
           </div> -->
 
           <v-btn class="singleCard" @click="sendCard(item.rank,item.suit)">
-           <p style=" word-wrap: break-word;white-space: pre-line;">{{item.rank}} 
-          \n
+           <p style=" word-wrap: break-word;white-space: pre-line;">
+             {{item.rank}} 
           {{item.suit}}</p> 
           </v-btn>
 

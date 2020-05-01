@@ -557,7 +557,12 @@ export default {
           break
 
         case 'bid':
-          var tempBidMessage = 'Player ' + temp.playerindex + '\'s BID: \n' + 'Value: ' + temp.value + '\n Doubling: ' + temp.doubling + '\n Blind Bid: ' + temp.blindBid + '\n ' + temp.suit + '\n'
+          var tempBidMessage = 'Player ' + temp.playerindex + '\'s BID: \n' + 'Value: ' + temp.value + '\n Doubling: ' + temp.doubling + '\n Blind Bid: ' + temp.blindBid + '\n '
+          if(temp.suit === 'NO TRUMP'){
+          tempBidMessage = tempBidMessage + 'NO TRUMP' + '\n'
+          } else {
+          tempBidMessage = tempBidMessage + temp.suit + '\n'
+          }
           this.$store.commit('appendGameMessage', tempBidMessage)
           break
 
