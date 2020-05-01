@@ -401,7 +401,7 @@ export default {
   position: absolute;
   width: 25%;
 	height: 40%;
-	left: 0%;
+	left: 1%;
 	bottom: 0%;
 },
 
