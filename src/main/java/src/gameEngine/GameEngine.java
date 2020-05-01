@@ -1110,7 +1110,7 @@ public class GameEngine extends WebSocketServer {
                     getCardLock.release();
                     break;
                 } else {
-                    currentTrick.getCard(new Card("JOKER", "14"));
+                    currentTrick.getCard(new Card("SPADES", "ACE"));
                     JsonObject error = new JsonObject();
                     error.add("type", new JsonPrimitive("invalidCardMessage"));
                     conn.send(gson.toJson(error));

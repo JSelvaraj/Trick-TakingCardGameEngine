@@ -39,7 +39,7 @@ public class GUIPlayer extends LocalPlayer {
         request.add("validcards", validCardsJson);
         System.out.println("PLAYCARD REQUEST: " + new Gson().toJson(request));
         webSocket.send(new Gson().toJson(request));
-        return new Card("JOKER", "14");
+        return new Card("SPADES", "ACE");
     }
 
     @Override
