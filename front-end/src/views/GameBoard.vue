@@ -6,29 +6,29 @@
         <h1>
       GAME BOARD
     </h1>
-        <v-btn class="playerPositionW" v-if="playerDISABLE_W"
+        <v-btn fab color="purple" class="playerPositionW" v-if="playerDISABLE_W"
         >
         <!-- <i>Player 1</i> -->
-        <v-icon>mdi-account</v-icon>
+        <v-icon color="white">mdi-account</v-icon>
 
         </v-btn>
-        <v-btn class="playerPositionN"
+        <v-btn fab color="purple" class="playerPositionN"
 
         >
         <!-- <i>Player 2</i> -->
-        <v-icon>mdi-account</v-icon>
+        <v-icon color="white">mdi-account</v-icon>
         </v-btn>
-        <v-btn class="playerPositionE"
+        <v-btn fab color="purple" class="playerPositionE"
         v-if="playerDISABLE_E"
         >
         <!-- <i>Player 3</i> -->
-        <v-icon>mdi-account</v-icon>
+        <v-icon color="white">mdi-account</v-icon>
         </v-btn>
-        <v-btn class='playerPositionS'
+        <v-btn fab color="purple" class='playerPositionS'
 
          @click="changeP1">
          <!-- <i>Player {{this.$store.state.myselfIndex}}</i> -->
-        <v-icon>mdi-account</v-icon>
+        <v-icon color="white">mdi-account</v-icon>
          </v-btn>
 
          <div class="displayCard">
@@ -41,8 +41,8 @@
                               width="200px" 
                               :src="item.imgPath"></img> -->
                     <v-btn class="singleCard">
-                        {{item.rank}}
-                        {{item.suit}}
+                       <p style="word-wrap: break-word;white-space: pre-line;">{{item.rank}} 
+                        {{item.suit}}</p> 
                     </v-btn>
                  
              <!-- </div> -->
@@ -60,9 +60,9 @@
           </div> -->
 
           <v-btn class="singleCard" @click="sendCard(item.rank,item.suit)">
-           <div>{{item.rank}} </div>  
-           <br>
-            <div>{{item.suit}}</div> 
+           <p style=" word-wrap: break-word;white-space: pre-line;">{{item.rank}} 
+          \n
+          {{item.suit}}</p> 
           </v-btn>
 
 <!-- <span class="rank">{{this.getRank(item.rank)}}</span>
@@ -423,5 +423,6 @@ export default {
   flex-direction: column;
   align-items: center;
   margin: 2%;
+   word-break: keep-all;
 }
 </style>
