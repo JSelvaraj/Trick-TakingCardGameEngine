@@ -1115,18 +1115,19 @@ public class GameEngine extends WebSocketServer {
         switch (request.get("type").getAsString()) {
             case "playcard":
                 int index = request.get("playerindex").getAsInt();
+                if (!getCardLock.hasQueuedThreads()) break;
+                if (playerArray[index] instanceof GUIPlayer)
                 currentTrick.dropLast();
                 if (playerArray[index].getCanBePlayed().test(Card.fromJson(gson.toJson(request.get("card"))))) {
                     currentTrick.getCard(playerArray[index].getHand().giveCard(Card.fromJson(gson.toJson(request.get("card")))));
                     getCardLock.release();
-                    break;
                 } else {
                     currentTrick.getCard(new Card("SPADES", "ACE"));
                     JsonObject error = new JsonObject();
                     error.add("type", new JsonPrimitive("invalidCardMessage"));
                     conn.send(gson.toJson(error));
-                    break;
                 }
+                break;
             case "givebid":
                 int playerindex = request.get("playerindex").getAsInt();
                 boolean doubling = request.get("doubling").getAsBoolean();
