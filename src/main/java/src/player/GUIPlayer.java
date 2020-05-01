@@ -53,11 +53,7 @@ public class GUIPlayer extends LocalPlayer {
         json.put("doubling", bid.isDoubling());
 
         if (bid.getSuit() != null) {
-            if (bid.getSuit().equals("NO TRUMP")) {
-                json.put("suit", JSONObject.NULL);
-            } else {
-                json.put("suit", bid.getSuit());
-            }
+            json.put("suit", bid.getSuit());
         }
         json.put("value", bid.getBidValue());
         json.put("blindBid", bid.isBlind());
@@ -128,6 +124,7 @@ public class GUIPlayer extends LocalPlayer {
         dummyplayer.add("type", new JsonPrimitive("dummyplayer"));
         dummyplayer.add("playerindex", new JsonPrimitive(playerNumber));
         dummyplayer.add("playerhand", dummyHandArray);
+        System.out.println("SENDING DUMMY HAND TO GUI: " + new Gson().toJson(dummyplayer));
         webSocket.send(new Gson().toJson(dummyplayer));
     }
 

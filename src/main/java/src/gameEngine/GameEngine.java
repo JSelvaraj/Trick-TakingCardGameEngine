@@ -202,6 +202,7 @@ public class GameEngine extends WebSocketServer {
                 //Set first player to left of declarer if needed //
                 int dummyPlayer = -1;
                 if (gameDesc.getFirstTrickLeader().equals("contract")) {
+                    System.out.println("DUMMY PLAYER SET");
                     //Get the declarer of the final bid, set the player to lead the trick as to the 'left'
                     currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
                     //Set dummy player to the declarer's partner
@@ -241,6 +242,7 @@ public class GameEngine extends WebSocketServer {
 
                     //If a dummy player is in operation, show the hand to all players
                     if (dummyPlayer >= 0) {
+                        System.out.println("DUMMY PLAYER BEING BROADCAST");
                         for (Player player : playerArray) {
                             player.broadcastDummyHand(dummyPlayer, playerArray[dummyPlayer].getHand().getHand());
                         }
