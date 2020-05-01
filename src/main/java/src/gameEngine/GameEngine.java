@@ -783,6 +783,11 @@ public class GameEngine extends WebSocketServer {
         JsonArray scoresArray = new JsonArray();
         for (Team team : game.getTeams()) {
             JsonObject teamJson = new JsonObject();
+            JsonArray members = new JsonArray();
+            for (Player player: team.getPlayers()) {
+                members.add(player.getPlayerNumber());
+            }
+            teamJson.add("members", members);
             teamJson.add("teamnumber", new JsonPrimitive(team.getTeamNumber()));
             teamJson.add("teamscore", new JsonPrimitive(team.getGameScore()));
             scoresArray.add(teamJson);
