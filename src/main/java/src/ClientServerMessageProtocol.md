@@ -140,15 +140,16 @@ At the start of each trick every player's hand is sent to the front-end. An exam
 ```
 
 ###Swap Hands
-Request to swap hands
+Request to swap hands. This protocol doesn't check if one of the swapped players is the GUI player, so you need to check on your own whether to display the hand.
+
 ```
 {
     "type":swaphands,
-    "choosingplayer":1, /* index of the player choosing the cards to swap */
-    "otherplayer":3     /* index of the player having a card swapped */
+    "playerswapped":[1,2], /* index of the players swapping hands */
+    "playerhand":[ Json Array of cards ] 
 }
 ```
-###Swap Card
+###Swap Card // Not implemented yet
 Request to swap card:
 ```
 {

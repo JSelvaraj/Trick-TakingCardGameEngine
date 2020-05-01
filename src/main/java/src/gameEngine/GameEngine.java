@@ -565,13 +565,15 @@ public class GameEngine extends WebSocketServer {
                             swappedPlayersJson.add(swappedPlayers.getLeft().getPlayerNumber());
                             swappedPlayersJson.add(swappedPlayers.getRight().getPlayerNumber());
                             swappedHandsEvent.add("playerswapped", swappedPlayersJson);
+                            swappedHandsEvent.add("playerhand", playerArray[currentPlayer].getHand().toJsonArray());
+                            game.webSocket.send(gson.toJson(swappedHandsEvent));
                         } else {
-                            synchronized (getCardSwapLock) { //TODO  GUI interaction stuff need to be re-implemented - Jeffrey
-                                while (!cardSwapFlag) {
-                                    cardSwapFlag = rdmEventsManager.runSwapCards();
-                                    getCardSwapLock.wait();
-                                }
-                            }
+//                            synchronized (getCardSwapLock) { //TODO  GUI interaction stuff need to be re-implemented - Jeffrey, uncomment if done
+//                                while (!cardSwapFlag) {
+//                                    cardSwapFlag = rdmEventsManager.runSwapCards();
+//                                    getCardSwapLock.wait();
+//                                }
+//                            }
                         }
                     }
 
