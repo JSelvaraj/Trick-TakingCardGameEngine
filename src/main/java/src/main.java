@@ -10,11 +10,10 @@ import src.ai.CardPOMDP;
 import src.exceptions.InvalidGameDescriptionException;
 import src.gameEngine.HostRunner;
 import src.gameEngine.PlayerRunner;
+import src.networking.DiscoverGames;
 import src.player.LocalPlayer;
 import src.player.POMDPPlayer;
 import src.player.RandomPlayer;
-
-import java.util.concurrent.TimeUnit;
 
 public class main {
     @Parameters(commandNames = "host", commandDescription = "Host a game")
@@ -22,7 +21,7 @@ public class main {
 //        @Parameter(names = {"-b", "-broadcast"}, description = "Whether or not to broadcast this game on the network.")
 //        private boolean broadcast = false;
         @Parameter(names = {"-p", "-port"}, description = "Port to host the game from", required = false)
-        private int port = 1;
+        private int port = 0;
         @Parameter(names = {"-g", "-game"}, description = "Path to the game to host", required = true)
         private String game;
         @Parameter(names = {"-l", "-local"}, description = "Number of additional local players to include", required = false)
@@ -45,13 +44,18 @@ public class main {
         private int port;
     }
 
+    @Parameters(commandNames = "find", commandDescription = "Find currently available games")
+    private static class CommandFind {
+    }
+
     public static void main(String[] args) {
         CommandHost host = new CommandHost();
         CommandJoin join = new CommandJoin();
-
+        CommandFind find = new CommandFind();
         JCommander jc = JCommander.newBuilder()
                 .addCommand(host)
                 .addCommand("join", join)
+                .addCommand("find", find)
                 .build();
         jc.setProgramName(main.class.getName());
         //print the usage if no arguments supplied.
@@ -89,9 +93,12 @@ public class main {
                 if (join.search) {
 
                 } else {
-                    Thread thread = new Thread(new PlayerRunner(new LocalPlayer(), join.address, join.port, join.localPort, false, true, false));
+                    Thread thread = new Thread(new PlayerRunner(new LocalPlayer(), join.address, join.port, true, true, false));
                     thread.start();
                 }
+                break;
+            case "find":
+                DiscoverGames.find();
                 break;
         }
     }

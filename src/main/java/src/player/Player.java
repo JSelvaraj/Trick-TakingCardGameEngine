@@ -17,11 +17,11 @@ import java.util.function.Predicate;
  * Abstract class to represent a player
  */
 public abstract class Player {
-    private int playerNumber;
-    private Hand hand = null;
-    private Bid bid;
-    private Predicate<Card> canBePlayed;
-    private Team team;
+    protected int playerNumber;
+    protected Hand hand = null;
+    protected Bid bid;
+    protected Predicate<Card> canBePlayed;
+    protected Team team;
 
     Player(int playerNumber, Predicate<Card> canBePlayed) {
         this.playerNumber = playerNumber;

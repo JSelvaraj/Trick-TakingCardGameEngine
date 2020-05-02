@@ -1,8 +1,18 @@
 package src.gameEngine;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.tuple.Pair;
+import org.java_websocket.WebSocket;
+import org.java_websocket.handshake.ClientHandshake;
+import org.java_websocket.server.WebSocketServer;
+import org.apache.commons.lang3.tuple.Pair;
+import org.json.JSONObject;
 import src.bid.Bid;
 import src.bid.ContractBid;
+import src.bid.PotentialBid;
 import src.card.Card;
 import src.card.CardComparator;
 import src.deck.Deck;
@@ -10,6 +20,7 @@ import src.deck.Shuffle;
 import src.functions.PlayerIncrementer;
 import src.functions.validCards;
 import src.parser.GameDesc;
+import src.player.GUIPlayer;
 import src.player.LocalPlayer;
 import src.player.NetworkPlayer;
 import src.player.POMDPPlayer;
@@ -17,15 +28,19 @@ import src.player.Player;
 import src.rdmEvents.RdmEventsManager;
 import src.team.Team;
 
+import java.net.InetSocketAddress;
 import java.util.*;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
+/*  Version 1.1     */
+
 /**
  * Main class that runs the game based on a provided game description.
  */
-public class GameEngine {
+public class GameEngine extends WebSocketServer {
     //The game description that defines the game to be played
     private GameDesc desc;
     private StringBuilder trumpSuit;
@@ -44,12 +59,31 @@ public class GameEngine {
     private IntFunction<Integer> nextPlayerIndex;
     private int handSize;
 
+    WebSocket webSocket = null;
+    private static final Semaphore GUIConnectLock = new Semaphore(0);
+    private static final Semaphore getCardLock = new Semaphore(0);
+    private static final Semaphore getBidLock = new Semaphore(0);
+    private Bid currentBid = null;
+    private static final Object getCardSwapLock = new Object();
+    private static boolean cardSwapFlag = false;
+    private Player[] playerArray;
+    private Semaphore lock;
+
     /**
      * Sets up game engine, sets attributes based on provided game description
      *
      * @param desc game description
      */
     public GameEngine(GameDesc desc) {
+        this(desc, new InetSocketAddress("localhost", 60001), null, null);
+    }
+
+    public GameEngine(GameDesc desc, Semaphore lock) {
+        this(desc, new InetSocketAddress("localhost", 60001), null, lock);
+    }
+
+    public GameEngine(GameDesc desc, InetSocketAddress address, Player[] playerArray, Semaphore lock) {
+        super(address);
         this.desc = desc;
         this.trumpSuit = new StringBuilder();
         //Set fixed trump suit if specified
@@ -70,6 +104,8 @@ public class GameEngine {
         //Initialises other predicates based on the game specification.
         this.validCard = validCards.getValidCardPredicate("trick", this.trumpSuit, this.currentTrick, validLeadingCard);
         this.nextPlayerIndex = PlayerIncrementer.generateNextPlayerFunction(desc.isDEALCARDSCLOCKWISE(), desc.getNUMBEROFPLAYERS());
+        this.lock = lock;
+        this.playerArray = playerArray;
     }
 
     /**
@@ -82,10 +118,11 @@ public class GameEngine {
      * @param printMoves         Flag if moves should be printed for debugging
      * @param enableRandomEvents Flag if random events are enabled in the game
      */
-    public static void main(GameDesc gameDesc, int startingDealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) {
+    public static void main(GameDesc gameDesc, int startingDealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents) throws InterruptedException {
         //Start engine and set attributes based on game description
         GameEngine game = new GameEngine(gameDesc);
         Random rand = new Random(seed);
+
 
         //Initialise each players hands
         for (Player player : playerArray) {
@@ -158,12 +195,14 @@ public class GameEngine {
 
                 //Get bids from players if necessary
                 if (gameDesc.isBidding()) {
+
                     game.getBids(currentPlayer, playerArray);
                 }
 
                 //Set first player to left of declarer if needed //
                 int dummyPlayer = -1;
                 if (gameDesc.getFirstTrickLeader().equals("contract")) {
+                    System.out.println("DUMMY PLAYER SET");
                     //Get the declarer of the final bid, set the player to lead the trick as to the 'left'
                     currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
                     //Set dummy player to the declarer's partner
@@ -203,10 +242,12 @@ public class GameEngine {
 
                     //If a dummy player is in operation, show the hand to all players
                     if (dummyPlayer >= 0) {
+                        System.out.println("DUMMY PLAYER BEING BROADCAST");
                         for (Player player : playerArray) {
                             player.broadcastDummyHand(dummyPlayer, playerArray[dummyPlayer].getHand().getHand());
                         }
                     }
+
 
                     //Loop for all players to play a card
                     for (int i = 0; i < playerArray.length; i++) {
@@ -294,39 +335,40 @@ public class GameEngine {
             } while (game.gameEnd()); //Check if game ending condition has been met
 
             //If match scoring is bestOf
-            if (gameDesc.getSessionEnd().equals("bestOf")) {
-                for (Team team : game.getTeams()) {
-                    //If the team won the game by surpassing the threshold, increment their match score, and set vulnerability
-                    if (team.getGameScore() >= gameDesc.getScoreThreshold()) {
-                        System.out.println("Team " + team.getTeamNumber() + " wins game");
-                        team.setGamesWon(team.getGamesWon() + 1);
-                        team.setCumulativeScore(team.getCumulativeScore() + team.getGameScore());
-                        team.setVulnerable(true);
-                    } else {
-                        //Team that lost the game can't be vulnerable
-                        team.setVulnerable(false);
-                        //Add score from the game to cumulative score
-                        team.setCumulativeScore(team.getCumulativeScore() + team.getGameScore());
-                    }
-                    //Reset all teams game score for new game
-                    team.setGameScore(0);
-                }
-            }
+            setScoresAndVulnerability(gameDesc, game);
             System.out.println("End of Game");
         } while (game.sessionEnd()); //Check for match/session winning condition to be met
 
         //If game is specified to be best of set of games, find overall match winner
+        findMatchWinner(gameDesc, game);
+    }
+
+    private void sendTrumpSuit() {
+        JsonObject trumpMessage = new JsonObject();
+        trumpMessage.add("type", new JsonPrimitive("currenttrump"));
+        trumpMessage.add("suit", new JsonPrimitive(trumpSuit.toString()));
+        webSocket.send(new Gson().toJson(trumpMessage));
+    }
+
+    private static void setScoresAndVulnerability(GameDesc gameDesc, GameEngine game) {
         if (gameDesc.getSessionEnd().equals("bestOf")) {
-            //Find the winning team by finding the highest match score
-            Team winningTeam = game.getTeams().get(0);
             for (Team team : game.getTeams()) {
-                if (team.getCumulativeScore() > winningTeam.getCumulativeScore()) {
-                    winningTeam = team;
+                //If the team won the game by surpassing the threshold, increment their match score, and set vulnerability
+                if (team.getGameScore() >= gameDesc.getScoreThreshold()) {
+                    System.out.println("Team " + team.getTeamNumber() + " wins game");
+                    team.setGamesWon(team.getGamesWon() + 1);
+                    team.setCumulativeScore(team.getCumulativeScore() + team.getGameScore());
+                    team.setVulnerable(true);
+                } else {
+                    //Team that lost the game can't be vulnerable
+                    team.setVulnerable(false);
+                    //Add score from the game to cumulative score
+                    team.setCumulativeScore(team.getCumulativeScore() + team.getGameScore());
                 }
+                //Reset all teams game score for new game
+                team.setGameScore(0);
             }
-            System.out.println("Team " + winningTeam.getTeamNumber() + " wins match");
         }
-        System.out.println("End of match");
     }
 
     //Auxiliary method for calculating the score of a hand
@@ -385,6 +427,373 @@ public class GameEngine {
         }
     }
 
+    public static void main(GameDesc gameDesc, int dealer, Player[] playerArray, int seed, boolean printMoves, boolean enableRandomEvents, WebSocket oldWebSocket, Semaphore lock) throws InterruptedException {
+        //Start engine and set attributes based on game description
+        GameEngine game = new GameEngine(gameDesc, new InetSocketAddress("localhost", 60001), playerArray, lock);
+        Random rand = new Random(seed);
+        Gson gson = new Gson();
+
+        game.start();
+
+
+        //Wait for Middleware to connect to Back-end
+        while (game.webSocket == null) {
+            System.out.println("WAITING FOR TUNNEL");
+            GUIConnectLock.acquire();
+            System.out.println("TUNNEL RECEIVED");
+        }
+
+        /* initialize each players hands */
+        for (Player player : playerArray) {
+            player.initPlayer(game.getValidCard(), gameDesc, game.trumpSuit);
+
+            //Sets websocket for player to send to
+            if (player instanceof GUIPlayer) {
+                System.out.println("SETTING PLAYER WEBSOCKET");
+                ((GUIPlayer) player).setWebSocket(game.webSocket);
+                ((GUIPlayer) player).setDesc(game.desc);
+            }
+        }
+
+
+        //Assign players to teams as specified in the game description
+        int teamCounter = 0;
+        for (int[] team : gameDesc.getTeams()) {
+            Player[] players = new Player[team.length];
+            for (int i = 0; i < team.length; i++) {
+                players[i] = playerArray[team[i]];
+            }
+            game.getTeams().add(new Team(players, teamCounter));
+            teamCounter++;
+        }
+
+        /* Initialise random events */
+        RdmEventsManager rdmEventsManager = new RdmEventsManager(gameDesc, game.getTeams(), rand, playerArray, enableRandomEvents);
+
+        Deck deck; // make standard deck from a linked list of Cards
+        Shuffle shuffle = new Shuffle(seed);
+
+        if (printMoves) {
+            game.printScore();
+        }
+        //Loop until session/match ends
+        do {
+            //Loop until game winning condition has been met
+            do {
+                //Set the current player to the dealer
+                int currentPlayer = dealer;
+                //Create the deck
+                deck = new Deck((LinkedList<Card>) gameDesc.getDECK());
+                //Shuffle deck according to the given seed and deal the cards
+                shuffle.shuffle(deck.cards);
+                game.handSize = gameDesc.getHandSize();
+                game.dealCards(playerArray, deck, currentPlayer);
+
+                //Reset players to non-ai
+                for (Player player : playerArray) {
+                    if (player instanceof LocalPlayer) {
+                        ((LocalPlayer) player).setAiTakeover(false);
+                    }
+                }
+
+                //Check for a random event for duration of hand
+                String rdmEventHAND = rdmEventsManager.eventChooser("HAND");
+                if (rdmEventHAND != null) {
+                    if (rdmEventHAND.equals("AI-TAKEOVER")) {
+                        //Set weakest player to be taken over by AI
+                        Player aiPLayer = rdmEventsManager.getRdmWeakestPlayer();
+                        if (aiPLayer instanceof LocalPlayer) { //GUIplayer extends localplayer so no changes needed to take effect
+                            ((LocalPlayer) aiPLayer).setAiTakeover(true);
+                        }
+
+                        // Send to GUI that AI has taken over player
+                        JSONObject aiTakeover = new JSONObject();
+                        aiTakeover.put("type", "aitakeover");
+                        aiTakeover.put("playerindex", aiPLayer.getPlayerNumber());
+                        game.webSocket.send(aiTakeover.toString());
+
+                    } else {
+                        //Add special card to deck
+                        rdmEventsManager.runSpecialCardSetup(rdmEventHAND);
+                    }
+                }
+
+
+                currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
+
+                //Signal to players that a new hand has started.
+                for (Player player : playerArray) {
+                    //This doesn't do anything - assume middleware/frontend will handle
+                    player.startHand(game.trumpSuit, game.handSize);
+                }
+
+                //Get bids from players if necessary
+                if (gameDesc.isBidding()) {
+                    game.getBids(currentPlayer, playerArray);
+                }
+
+                //Sends every player's hand to the GUI
+                sendPlayerHands(playerArray, game, gson);
+                //Set first player to left of declarer if needed //TODO: Get from game desc when added
+                int dummyPlayer = -1;
+                if (gameDesc.getFirstTrickLeader().equals("contract")) {
+                    System.out.println("DUMMY PLAYER SET");
+                    //Get the declarer of the final bid, set the player to lead the trick as to the 'left'
+                    currentPlayer = game.getAdjustedHighestBid().getDeclarer().getPlayerNumber();
+                    //Set dummy player to the declarer's partner
+                    dummyPlayer = game.nextPlayerIndex.apply(game.nextPlayerIndex.apply(currentPlayer));
+                    currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
+                }
+
+                if (printMoves) {
+                    System.out.println("-----------------------------------");
+                    System.out.println("----------------PLAY---------------");
+                    System.out.println("-----------------------------------");
+                }
+
+                //Loop until trick has completed (all cards have been played)
+                do {
+                    //If the trump is based on bidding, set the trump suit based on the final bid
+                    if (gameDesc.getTrumpPickingMode().equals("bid")) {
+                        game.trumpSuit.replace(0, game.trumpSuit.length(), game.getAdjustedHighestBid().getSuit());
+                    }
+                    if (printMoves) {
+                        System.out.println("Trump is " + game.trumpSuit.toString());
+                    }
+
+                    //send trump suit to GUI
+                    game.sendTrumpSuit();
+
+                    //Check for a random event at start of trick if a HAND event isn't active - run logic if successful
+                    if (enableRandomEvents) { //TODO random events were happening even when disabled, until if clause added.
+                        String rdmEventTRICK = rdmEventsManager.eventChooser("TRICK");
+//                        if (rdmEventTRICK != null && rdmEventHAND == null) {
+//                            //sout
+//                            Pair<Player, Player> swappedPlayers = rdmEventsManager.runSwapHands();
+//                            //Send swapped hand event to front-end
+//                            JsonObject swappedHandsEvent = new JsonObject();
+//                            swappedHandsEvent.add("type", new JsonPrimitive("handswap"));
+//                            JsonArray swappedPlayersJson = new JsonArray();
+//                            swappedPlayersJson.add(swappedPlayers.getLeft().getPlayerNumber());
+//                            swappedPlayersJson.add(swappedPlayers.getRight().getPlayerNumber());
+//                            swappedHandsEvent.add("playerswapped", swappedPlayersJson);
+//                            game.webSocket.send(gson.toJson(swappedHandsEvent));
+//
+//                            //Sends every player's hand to the GUI
+//                            sendPlayerHands(playerArray, game, gson);
+//
+//
+//                        } else {
+//                            synchronized (getCardSwapLock) { //TODO  GUI interaction stuff need to be re-implemented - Jeffrey, uncomment if done
+//                                while (!cardSwapFlag) {
+//                                    cardSwapFlag = rdmEventsManager.runSwapCards();
+//                                    getCardSwapLock.wait();
+//                                }
+//                            }
+//                        }
+                    }
+
+                    //If a dummy player is in operation, show the hand to all players
+                    if (dummyPlayer >= 0) {
+                        for (Player player : playerArray) {
+                            System.out.println("DUMMY PLAYER BROADCAST");
+                            player.broadcastDummyHand(dummyPlayer, playerArray[dummyPlayer].getHand().getHand());
+                        }
+
+                    }
+
+                    //Each player plays a card
+                    for (int i = 0; i < playerArray.length; i++) {
+                        //Add the card played by the player to the current trick
+                        game.currentTrick.getCard(playerArray[currentPlayer].playCard(game.trumpSuit.toString(), game.currentTrick));
+//                      System.out.println("CURRENT TRICK: " + game.currentTrick.toString());
+
+
+                        if (playerArray[currentPlayer] instanceof GUIPlayer && !((GUIPlayer) playerArray[currentPlayer]).isAiTakeover()) {
+                            System.out.println("WAITING FOR CARD");
+                            getCardLock.acquire();
+                            System.out.println("GOT CARD");
+                        }
+                        game.broadcastMoves(game.currentTrick.get(i), currentPlayer, playerArray);
+
+                        //If a special card has been placed in deck, check if it has just been played - adjust points if it has.
+                        if (rdmEventHAND != null && (rdmEventHAND.equals("BOMB") || rdmEventHAND.equals("HEAVEN"))) {
+                            String playedCardType = game.currentTrick.getHand().get(game.currentTrick.getHandSize() - 1).getSpecialType();
+                            if (playedCardType != null) {
+                                rdmEventsManager.runSpecialCardOps(playedCardType, currentPlayer);
+
+                                //Message Special card event
+                                JsonObject specialCardEvent = new JsonObject();
+                                specialCardEvent.add("type", new JsonPrimitive("specialcard"));
+                                specialCardEvent.add("player", new JsonPrimitive(currentPlayer));
+                                specialCardEvent.add("cardtype", new JsonPrimitive(playedCardType));
+                                game.webSocket.send(gson.toJson(specialCardEvent));
+                            }
+                        }
+
+                        //Send card played to GUI
+                        JsonObject cardPlayed = new JsonObject();
+                        cardPlayed.add("type", new JsonPrimitive("cardplayed"));
+                        cardPlayed.add("playerindex", new JsonPrimitive(currentPlayer));
+                        cardPlayed.add("card", gson.fromJson(game.currentTrick.get(i).getJSON(), JsonObject.class));
+                        System.out.println("cardplayed: " + cardPlayed);
+                        game.webSocket.send(gson.toJson(cardPlayed));
+
+                        //Rotate the play
+                        currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
+                    }
+                    sendPlayerHands(playerArray, game, gson);
+                    //Determine winning card
+                    Card winningCard = game.winningCard();
+                    //TODO: Explain this
+
+                    //Works out who played the winning card
+                /* go back to the previous player.
+                 Loop 1 less than the number of players, so you actually move one back.
+                 If you wanted to go from 1 -> 0, then this is the same as 1 -> 2 -> 3 -> 0
+                 */
+                    for (int j = 0; j < playerArray.length - 1; j++) {
+                        currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
+                    }
+
+                    //Find player who played winning card
+                    for (int i = playerArray.length - 1; i >= 0; i--) {
+                        if (game.currentTrick.get(i).equals(winningCard)) {
+                            break;
+                        } else {
+                            // go back to the previous player.
+                            for (int j = 0; j < playerArray.length - 1; j++) {
+                                currentPlayer = game.nextPlayerIndex.apply(currentPlayer);
+                            }
+                        }
+                    }
+
+
+                    //Find the team with the winning player and increment their tricks score
+                    Team winningTeam = playerArray[currentPlayer].getTeam();
+                    winningTeam.setTricksWon(winningTeam.getTricksWon() + 1);
+                    winningTeam.addCardsWon(game.currentTrick.getHand());
+                    if (printMoves) {
+                        System.out.println("Player " + (currentPlayer + 1) + " was the winner of the trick with the " + winningCard.toString());
+                        System.out.println("Tricks won: " + winningTeam.getTricksWon());
+                    }
+
+                    //send WinningCard, player and trick to front-end
+                    JsonObject winningCardJson = new JsonObject();
+                    winningCardJson.add("type", new JsonPrimitive("winningcard"));
+                    winningCardJson.add("card", gson.fromJson(winningCard.getJSON(), JsonObject.class));
+                    winningCardJson.add("playerindex", new JsonPrimitive(currentPlayer));
+
+                    System.out.println("winningCardJson: " + gson.toJson(winningCardJson));
+                    game.webSocket.send(gson.toJson(winningCardJson));
+
+                    //Signal that trump suit was broken -> can now be played
+                    if (game.currentTrick.getHand().stream().anyMatch(card -> card.getSUIT().equals(game.trumpSuit.toString()))) {
+                        game.breakFlag.set(true);
+                        //send trumpbroken message to front-end
+                        JsonObject trumpBroken = new JsonObject();
+                        trumpBroken.add("type", new JsonPrimitive("trumpbroken"));
+                        game.webSocket.send(gson.toJson(trumpBroken));
+                    }
+
+                    //Reset trick hand
+                    game.currentTrick.dropHand();
+
+
+                } while (playerArray[0].getHand().getHandSize() > gameDesc.getMinHandSize());
+
+                game.handsPlayed++;
+                //Calculate the score of the hand
+                game.calculateScore();
+
+                //
+                if (gameDesc.getTrumpPickingMode().equals("predefined")) {
+                    game.trumpSuit.replace(0, game.trumpSuit.length(), gameDesc.getTrumpIterator().next());
+                }
+
+                //send updated scores when round has ended
+                JsonObject roundEndMessage = new JsonObject();
+                roundEndMessage.add("type", new JsonPrimitive("gameendmessage"));
+                sendTeamScoresJson(game, roundEndMessage);
+
+                //Check if game needs balancing
+                if (enableRandomEvents) {
+                    rdmEventsManager.checkGameCloseness();
+                }
+
+                //Increment dealer for next hand
+                dealer = game.nextPlayerIndex.apply(dealer);
+
+                game.printScore();
+
+                game.printScore();
+            } while (game.gameEnd());
+            //If match scoring is bestOf
+            setScoresAndVulnerability(gameDesc, game);
+            //send updated scores when game has ended
+            JsonObject roundEndMessage = new JsonObject();
+            roundEndMessage.add("type", new JsonPrimitive("matchendmessage"));
+            sendTeamScoresJson(game, roundEndMessage);
+
+            System.out.println("End of Game");
+        } while (game.sessionEnd()); //Check for match/session winning condition to be met
+
+        //If game is specified to be best of set of games, find overall match winner
+        findMatchWinner(gameDesc, game);
+    }
+
+    private static void findMatchWinner(GameDesc gameDesc, GameEngine game) {
+        if (gameDesc.getSessionEnd().equals("bestOf")) {
+            //Find the winning team by finding the highest match score
+            Team winningTeam = game.getTeams().get(0);
+            for (Team team : game.getTeams()) {
+                if (team.getCumulativeScore() > winningTeam.getCumulativeScore()) {
+                    winningTeam = team;
+                }
+            }
+            System.out.println("Team " + winningTeam.getTeamNumber() + " wins match");
+        }
+        System.out.println("End of match");
+    }
+
+    private static void sendPlayerHands(Player[] playerArray, GameEngine game, Gson gson) {
+        System.out.println("SENDING CARDS TO GUI");
+        JsonObject jsonPlayers = new JsonObject();
+        jsonPlayers.add("type", new JsonPrimitive("playerhands"));
+        JsonArray jsonPlayersArray = new JsonArray();
+        for (int i = 0; i < playerArray.length; i++) {
+            LinkedList<Card> hand = playerArray[i].getHand().getHand();
+            JsonObject jsonPlayer = new JsonObject();
+            JsonArray jsonCards = new JsonArray();
+            //converts hand to JSON array of JSON objects
+            for (Card card : hand) {
+                jsonCards.add(gson.fromJson(card.getJSON(), JsonObject.class));
+            }
+            jsonPlayer.add("playerindex", new JsonPrimitive(i));
+            jsonPlayer.add("hand", jsonCards);
+            jsonPlayersArray.add(jsonPlayer);
+        }
+        jsonPlayers.add("players", jsonPlayersArray);
+        game.webSocket.send(gson.toJson(jsonPlayers));
+    }
+
+    private static void sendTeamScoresJson(GameEngine game, JsonObject message) {
+        JsonArray scoresArray = new JsonArray();
+        for (Team team : game.getTeams()) {
+            JsonObject teamJson = new JsonObject();
+            JsonArray members = new JsonArray();
+            for (Player player: team.getPlayers()) {
+                members.add(player.getPlayerNumber());
+            }
+            teamJson.add("members", members);
+            teamJson.add("teamnumber", new JsonPrimitive(team.getTeamNumber()));
+            teamJson.add("teamscore", new JsonPrimitive(team.getGameScore()));
+            scoresArray.add(teamJson);
+        }
+        message.add("scores", scoresArray);
+        game.webSocket.send(new Gson().toJson(message));
+    }
+
 
     /**
      * @return flag to signal game should end based on game description
@@ -429,7 +838,7 @@ public class GameEngine {
      * @param currentPlayer Player bidding starts at
      * @param players       Array of players
      */
-    public void getBids(int currentPlayer, Player[] players) {
+    public void getBids(int currentPlayer, Player[] players) throws InterruptedException {
         System.out.println("-----------------------------------");
         System.out.println("--------------BIDDING--------------");
         System.out.println("-----------------------------------");
@@ -446,8 +855,15 @@ public class GameEngine {
         //Loop until bidding end condition met
         do {
             //Gets a bid from a player - validation done through validBids.java
-            Bid bid = players[currentPlayer].makeBid(this.desc.getValidBid(), desc.isTrumpSuitBid(), adjustedHighestBid, firstRound, desc.isCanBidBlind());
-            //If the bid signals a double
+
+
+                currentBid = players[currentPlayer].makeBid(this.desc.getValidBid(), desc.isTrumpSuitBid(), adjustedHighestBid, firstRound, desc.isCanBidBlind());
+            if (players[currentPlayer] instanceof GUIPlayer && !((GUIPlayer) players[currentPlayer]).isAiTakeover()) {
+                System.out.println("GETTING BIDDING");
+                getBidLock.acquire();
+            }
+
+            Bid bid = currentBid;
             if (bid.isDoubling()) {
                 //Reset pass counter, consecutive passes has been broken
                 passCounter = 0;
@@ -567,6 +983,7 @@ public class GameEngine {
                 players[dealerIndex].getHand().getCard(lastCard);
             }
         }
+
     }
 
     /**
@@ -574,7 +991,7 @@ public class GameEngine {
      *
      * @return winning card
      */
-    public Card winningCard() {
+    private Card winningCard() {
         //Generate suit ranking
         HashMap<String, Integer> suitMap = generateSuitOrder(desc, trumpSuit, currentTrick.get(0));
         //Get comparator for comparing cards based on the suit ranking
@@ -642,7 +1059,7 @@ public class GameEngine {
             }
         } else { //Only need to print out network moves to local players
             for (Player player : playerArray) {
-                if (player.getClass() == LocalPlayer.class) {
+                if (player instanceof LocalPlayer) { //GUI player extends localplayer so this works
                     player.broadcastBid(bid, playerNumber, getAdjustedHighestBid());
                 }
             }
@@ -674,11 +1091,106 @@ public class GameEngine {
         return teams;
     }
 
-    public ContractBid getAdjustedHighestBid() {
+    @Override
+    public void onOpen(WebSocket conn, ClientHandshake handshake) {
+
+        System.out.println("Opened connection");
+        this.webSocket = conn;
+        GUIConnectLock.release();
+
+    }
+
+    private ContractBid getAdjustedHighestBid() {
         return adjustedHighestBid;
     }
 
-    public void setAdjustedHighestBid(ContractBid adjustedHighestBid) {
+    private void setAdjustedHighestBid(ContractBid adjustedHighestBid) {
         this.adjustedHighestBid = adjustedHighestBid;
     }
+
+    @Override
+    public void onClose(WebSocket conn, int code, String reason, boolean remote) {
+        System.out.println("Connection closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " Reason: " + reason);
+    }
+
+
+    @Override
+    public void onMessage(WebSocket conn, String message) {
+        Gson gson = new Gson();
+        JsonObject request = gson.fromJson(message, JsonObject.class);
+        System.out.println("GAMEENGINE RECEIVED: " + message);
+        switch (request.get("type").getAsString()) {
+            case "playcard":
+                int index = request.get("playerindex").getAsInt();
+                if (!getCardLock.hasQueuedThreads()) break;
+                if (playerArray[index] instanceof GUIPlayer)
+                currentTrick.dropLast();
+                if (playerArray[index].getCanBePlayed().test(Card.fromJson(gson.toJson(request.get("card"))))) {
+                    currentTrick.getCard(playerArray[index].getHand().giveCard(Card.fromJson(gson.toJson(request.get("card")))));
+                    getCardLock.release();
+                } else {
+                    currentTrick.getCard(new Card("SPADES", "ACE"));
+                    JsonObject error = new JsonObject();
+                    error.add("type", new JsonPrimitive("invalidCardMessage"));
+                    conn.send(gson.toJson(error));
+                }
+                break;
+            case "givebid":
+                int playerindex = request.get("playerindex").getAsInt();
+                boolean doubling = request.get("doubling").getAsBoolean();
+                String suit = request.get("suit").getAsString();
+                int bidValue = request.get("value").getAsInt();
+                boolean blind = request.get("blindBid").getAsBoolean();
+                boolean vulnerability = request.get("isPlayerVuln").getAsBoolean();
+                boolean firstRound = request.get("firstround").getAsBoolean();
+                String bidInput;
+                if (doubling) {
+                    bidInput = "d";
+                } else {
+                    bidInput = String.valueOf(bidValue);
+                }
+                PotentialBid potentialBid = new PotentialBid(suit, bidInput, adjustedHighestBid, playerArray[playerindex], firstRound);
+                if (desc.getValidBid().test(potentialBid)) {
+                    currentBid = new Bid(doubling, suit, bidValue, blind, vulnerability);
+                    getBidLock.release();
+                } else {
+                    JsonObject error = new JsonObject();
+                    error.add("type", new JsonPrimitive("invalidBidMessage"));
+                    conn.send(gson.toJson(error));
+                }
+                break;
+            case "getswap":
+                synchronized (getCardSwapLock) {
+                    Player swapper = playerArray[request.get("choosingplayer").getAsInt()];
+                    Player beingSwapped = playerArray[request.get("otherplayer").getAsInt()];
+                    Card swapperCard = Card.fromJson(request.get("choosingplayercard").getAsString());
+                    Card beingSwappedCard = Card.fromJson(request.get("otherplayercard").getAsString());
+                    beingSwapped.getHand().getCard(swapper.getHand().giveCard(swapperCard));
+                    swapper.getHand().getCard(beingSwapped.getHand().giveCard(beingSwappedCard));
+                    cardSwapFlag = true;
+                    getCardSwapLock.notify();
+                    System.out.println("Swappers Cards: " + swapper.getHand().toString());
+                    System.out.println("Swappee's Cards: " + beingSwapped.getHand().toString());
+                }
+                break;
+
+
+        }
+
+    }
+
+    @Override
+    public void onError(WebSocket conn, Exception ex) {
+        ex.printStackTrace();
+    }
+
+    @Override
+    public void onStart() {
+        lock.release();
+        System.out.println("Server Started \nwaiting for connection on port: " + getPort() + "...");
+
+
+    }
+
+
 }

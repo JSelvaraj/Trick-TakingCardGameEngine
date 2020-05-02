@@ -1,8 +1,12 @@
 package src.gameEngine;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import src.card.Card;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 
 
@@ -13,8 +17,8 @@ public class Hand implements Cloneable{
 
     private LinkedList<Card> hand;
 
-    public Hand(LinkedList<Card> hand) {
-        this.hand = hand;
+    public Hand(List<Card> hand) {
+        this.hand = new LinkedList<>(hand);
     }
 
     public Hand() {
@@ -36,7 +40,8 @@ public class Hand implements Cloneable{
         int i = 0;
         while (iterator.hasNext()) {
             Card card = iterator.next();
-            handString += card.toString() + " [" + i + "]";
+            if (card == null) handString += "null";
+            else handString += card.toString() + " [" + i + "]";
             if (iterator.hasNext()) handString += ", ";
             i++;
         }
@@ -74,6 +79,18 @@ public class Hand implements Cloneable{
 
     public void dropHand() {
         this.hand = new LinkedList<>();
+    }
+
+    public void dropLast() {
+        this.hand.removeLast();
+    }
+
+    public JsonArray toJsonArray() {
+        JsonArray array = new JsonArray();
+        for (Card card: hand) {
+            array.add(new Gson().fromJson(card.getJSON(), JsonObject.class));
+        }
+        return array;
     }
 
     @Override

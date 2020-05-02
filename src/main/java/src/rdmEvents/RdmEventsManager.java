@@ -1,9 +1,12 @@
 package src.rdmEvents;
 
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import src.card.Card;
 import src.gameEngine.Hand;
 import src.parser.GameDesc;
-import src.player.LocalPlayer;
+import src.player.GUIPlayer;
 import src.player.NetworkPlayer;
 import src.player.Player;
 import src.team.Team;
@@ -119,7 +122,7 @@ public class RdmEventsManager {
     }
 
     //Method that runs the logic for a swap cards event
-    public void runSwapCards() {
+    public boolean runSwapCards() {
         Player[] playerArray = getPlayers();
         //Randomly select a player from the weakest team
         int rdmPlayerIndexFromWeakTeam = getRand().nextInt(getWeakestTeam().getPlayers().length);
@@ -141,17 +144,18 @@ public class RdmEventsManager {
             playerArray[swap.getOtherPlayerIndex()].getHand().getCard(originalPlayerCard);
             System.out.println("Swapping " + originalPlayerCard + " from Player " + (swap.getOriginalPlayerIndex() + 1) + " with " +
                     otherPlayerCard + " from Player " + (swap.getOtherPlayerIndex() + 1));
-        }
+        } else return false;
         //If the swap was made by the local player, notify the network players
         if (!(weakPlayer instanceof NetworkPlayer)) {
             for (Player player : playerArray) {
                 player.broadcastSwap(swap);
             }
         }
+        return true;
     }
 
     //Method to run swap hands event logic
-    public void runSwapHands() {
+    public Pair<Player, Player> runSwapHands() {
         //Randomly select a player from the weakest team
         int rdmPlayerIndexFromWeakTeam = getRand().nextInt(getWeakestTeam().getPlayers().length);
         Player weakPlayer = getWeakestTeam().getPlayers()[rdmPlayerIndexFromWeakTeam];
@@ -163,10 +167,14 @@ public class RdmEventsManager {
         //Swap hands and predicates
         Hand tempHand = weakPlayer.getHand();
         Predicate<Card> tempPredicate = weakPlayer.getCanBePlayed();
+
         weakPlayer.setHand(strongPlayer.getHand());
         weakPlayer.setCanBePlayed(strongPlayer.getCanBePlayed());
+
         strongPlayer.setHand(tempHand);
         strongPlayer.setCanBePlayed(tempPredicate);
+        ImmutablePair<Player,Player> swappedPlayers = new ImmutablePair<>(weakPlayer,strongPlayer);
+        return swappedPlayers;
     }
 
     //Method for running logic of score changes from playing a special card
@@ -193,6 +201,7 @@ public class RdmEventsManager {
         //Select a random card from a player and set it to the given special type
         int rdmPlayerIndex = getRand().nextInt(playerArray.length);
         int rdmCardIndex = getRand().nextInt(desc.getHandSize());
+        System.out.println("CHANGED CARD" + playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex));
         playerArray[rdmPlayerIndex].getHand().get(rdmCardIndex).setSpecialType(cardType);
     }
 

@@ -33,22 +33,22 @@ public class LocalPlayer extends Player {
     private static final String ANSI_WHITE = "\u001B[37m";
     private static final String[] text_colours = {ANSI_RED, ANSI_YELLOW, ANSI_BLUE, ANSI_PURPLE, ANSI_CYAN, ANSI_GREEN};
     //background colours
-    private static final String ANSI_BLACK_BACKGROUND = "\u001B[40m";
-    private static final String ANSI_RED_BACKGROUND = "\u001B[41m";
-    private static final String ANSI_GREEN_BACKGROUND = "\u001B[42m";
-    private static final String ANSI_YELLOW_BACKGROUND = "\u001B[43m";
-    private static final String ANSI_BLUE_BACKGROUND = "\u001B[44m";
-    private static final String ANSI_PURPLE_BACKGROUND = "\u001B[45m";
-    private static final String ANSI_CYAN_BACKGROUND = "\u001B[46m";
-    private static final String ANSI_WHITE_BACKGROUND = "\u001B[47m";
-    private static final String[] background_colours = {ANSI_BLACK_BACKGROUND, ANSI_RED_BACKGROUND, ANSI_GREEN_BACKGROUND, ANSI_YELLOW_BACKGROUND, ANSI_BLUE_BACKGROUND, ANSI_PURPLE_BACKGROUND, ANSI_CYAN_BACKGROUND, ANSI_WHITE_BACKGROUND};
+    protected static final String ANSI_BLACK_BACKGROUND = "\u001B[40m";
+    protected static final String ANSI_RED_BACKGROUND = "\u001B[41m";
+    protected static final String ANSI_GREEN_BACKGROUND = "\u001B[42m";
+    protected static final String ANSI_YELLOW_BACKGROUND = "\u001B[43m";
+    protected static final String ANSI_BLUE_BACKGROUND = "\u001B[44m";
+    protected static final String ANSI_PURPLE_BACKGROUND = "\u001B[45m";
+    protected static final String ANSI_CYAN_BACKGROUND = "\u001B[46m";
+    protected static final String ANSI_WHITE_BACKGROUND = "\u001B[47m";
+    protected static final String[] background_colours = {ANSI_BLACK_BACKGROUND, ANSI_RED_BACKGROUND, ANSI_GREEN_BACKGROUND, ANSI_YELLOW_BACKGROUND, ANSI_BLUE_BACKGROUND, ANSI_PURPLE_BACKGROUND, ANSI_CYAN_BACKGROUND, ANSI_WHITE_BACKGROUND};
 
 //    private static Iterator<String> colours = Arrays.asList(text_colours).iterator();
 
-    private String colour;
+    protected String colour;
 
-    private POMDPPlayer aiPlayer = new POMDPPlayer();
-    private boolean aiTakeover = false;
+    POMDPPlayer aiPlayer = new POMDPPlayer();
+    boolean aiTakeover = false;
 
     public LocalPlayer(int playerNumber, Predicate<Card> validCard) {
         super(playerNumber, validCard);
@@ -267,4 +267,6 @@ public class LocalPlayer extends Player {
     public void setAiTakeover(boolean aiTakeover) {
         this.aiTakeover = aiTakeover;
     }
+
+
 }

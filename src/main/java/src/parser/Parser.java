@@ -209,11 +209,15 @@ public class Parser {
         boolean ascendingBid = false;
         int vulnerabilityThreshold = 0;
         boolean canBidBlind = false;
+        boolean canDouble = false;
+        boolean canRedouble = false;
         int minBid = 0;
         int maxBid = initialHandSize;
         List<String> bidSuits = new ArrayList<>();
         JSONObject bidObject = gameJSON.optJSONObject("bid");
         if (bidObject != null) {
+            canDouble = bidObject.optBoolean("canDouble", false);
+            canRedouble = bidObject.optBoolean("canRedouble", false);
             trumpSuitBid = bidObject.optBoolean("trumpSuitBid", false);
             ascendingBid = bidObject.optBoolean("ascendingBid", false);
             vulnerabilityThreshold = bidObject.optInt("vulnerabilityThreshold", 0);
@@ -259,7 +263,9 @@ public class Parser {
                 minBid,
                 maxBid,
                 bidSuits,
-                deck);
+                deck,
+                canDouble,
+                canRedouble);
 
         if (bidObject != null) {
             bidObject = gameJSON.getJSONObject("bid");

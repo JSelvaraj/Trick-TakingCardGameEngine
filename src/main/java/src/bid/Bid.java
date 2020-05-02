@@ -2,6 +2,10 @@ package src.bid;
 
 import java.util.Objects;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
 /**
  * Object to represent a bid
  */
@@ -53,8 +57,16 @@ public class Bid{
         this.bidValue = bidValue;
     }
 
-    public void setBlind(boolean blind) {
-        this.blind = blind;
+    public void setBlind(boolean blind) { this.blind = blind;}
+
+    public String toJson() {
+        JsonObject bid = new JsonObject();
+        bid.add("type", new JsonPrimitive("bid"));
+        bid.add("doubling", new JsonPrimitive(doubling));
+        bid.add("suit", new JsonPrimitive(suit));
+        bid.add("value", new JsonPrimitive(bidValue));
+        bid.add("blindbid", new JsonPrimitive(blind));
+        return new Gson().toJson(bid);
     }
 
     @Override
